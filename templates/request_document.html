@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Document | Barangay Sto. Niño</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-800: #0f3d2a;
+            --primary-700: #145233;
+            --primary-600: #1a6b42;
+            --primary-500: #228b54;
+            --accent-600: #c42828;
+            --neutral-50: #f4f8f5;
+            --neutral-100: #dde8e1;
+            --neutral-500: #6b8475;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--neutral-50); min-height: 100vh; }
+
+        .sidebar {
+            width: 260px; height: 100vh; background: white; position: fixed; left: 0; top: 0;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
+            border-right: 1px solid var(--neutral-100);
+        }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid var(--neutral-100); margin-bottom: 24px; }
+        .sidebar-brand .logo-img { width: 48px; height: 48px; border-radius: 50%; background: var(--primary-600); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px; }
+        .sidebar-brand h4 { color: var(--primary-800); font-weight: 700; font-size: 1rem; }
+        .sidebar-brand small { display: block; color: var(--neutral-500); font-size: 0.7rem; font-weight: 400; }
+
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: var(--neutral-500); text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.2s ease; }
+        .sidebar-nav a i { width: 20px; text-align: center; font-size: 1rem; }
+        .sidebar-nav a:hover { background: var(--neutral-50); color: var(--primary-700); }
+        .sidebar-nav a.active { background: var(--primary-50); color: var(--primary-600); font-weight: 600; }
+        .sidebar-nav .logout { margin-top: auto; border-top: 1px solid var(--neutral-100); padding-top: 16px; color: var(--accent-600); }
+        .sidebar-nav .logout:hover { background: #fef2f2; }
+
+        .main-content { margin-left: 260px; padding: 30px 40px; min-height: 100vh; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary-800); }
+        .page-header h1 small { font-size: 0.9rem; font-weight: 400; color: var(--neutral-500); display: block; margin-top: 4px; }
+
+        .form-card { background: white; border-radius: 16px; padding: 32px; max-width: 700px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; color: var(--primary-800); font-size: 0.85rem; margin-bottom: 6px; }
+        .form-group label i { color: var(--primary-500); margin-right: 8px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 16px; border: 1.5px solid var(--neutral-100); border-radius: 12px;
+            font-size: 0.95rem; font-family: inherit; background: var(--neutral-50); transition: all 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--primary-500); background: white; box-shadow: 0 0 0 4px rgba(34,139,84,0.08);
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-group .file-input-wrapper { position: relative; }
+        .form-group .file-input-wrapper input[type="file"] { padding: 12px; background: white; cursor: pointer; }
+        .form-group .file-input-wrapper small { display: block; color: var(--neutral-500); font-size: 0.75rem; margin-top: 4px; }
+
+        .btn-submit { background: var(--primary-600); color: white; padding: 14px 40px; border: none; border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-submit:hover { background: var(--primary-700); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,107,66,0.25); }
+
+        .flash-message {
+            padding: 12px 18px; border-radius: 12px; margin-bottom: 16px; font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .flash-message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .flash-message.danger { background: #fef2f2; color: var(--accent-600); border: 1px solid #fecaca; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .form-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-img">SN</div>
+            <div><h4>Barangay Sto. Niño</h4><small>Online Services</small></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/request-document" class="active"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="/apply-permit"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
+            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>Request Document <small>Submit a request for barangay documents</small></h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 8px 16px 8px 20px; border-radius: 60px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <i class="fas fa-user-circle" style="font-size: 1.2rem; color: var(--primary-500);"></i>
+                <span style="font-weight: 600; color: var(--primary-800);">Juan Dela Cruz</span>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <!-- Flash Messages -->
+            <div id="flashMessages"></div>
+
+            <form method="POST" action="/request-document" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="documentType"><i class="fas fa-file-alt"></i> Document Type</label>
+                    <select name="document_type" id="documentType" required>
+                        <option value="">Select document type...</option>
+                        <option value="barangay_clearance">Barangay Clearance</option>
+                        <option value="certificate_indigency">Certificate of Indigency</option>
+                        <option value="proof_residency">Proof of Residency</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose"><i class="fas fa-pencil-alt"></i> Purpose</label>
+                    <textarea name="purpose" id="purpose" placeholder="State your reason for requesting this document..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="requirement"><i class="fas fa-upload"></i> Upload Requirement</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="requirement" id="requirement" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                        <small>Accepted formats: JPG, PNG, PDF, DOC (Max 5MB)</small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.page-header');
+            const hamburger = document.createElement('button');
+            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none;';
+            hamburger.id = 'menuToggle';
+            hamburger.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+            header.prepend(hamburger);
+
+            if (window.innerWidth <= 768) {
+                hamburger.style.display = 'block';
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    hamburger.style.display = 'block';
+                } else {
+                    hamburger.style.display = 'none';
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

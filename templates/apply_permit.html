@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Permit | Barangay Sto. Niño</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-900: #0a2e1e;
+            --primary-800: #0f3d2a;
+            --primary-700: #145233;
+            --primary-600: #1a6b42;
+            --primary-500: #228b54;
+            --primary-400: #3aa86c;
+            --accent-600: #c42828;
+            --neutral-50: #f4f8f5;
+            --neutral-100: #dde8e1;
+            --neutral-500: #6b8475;
+            --neutral-700: #3d5a4a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--neutral-50); min-height: 100vh; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px; height: 100vh; background: white; position: fixed; left: 0; top: 0;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
+            border-right: 1px solid var(--neutral-100); transition: all 0.3s ease; z-index: 100;
+        }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid var(--neutral-100); margin-bottom: 24px; }
+        .sidebar-brand .logo-img { width: 48px; height: 48px; border-radius: 50%; background: var(--primary-600); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px; }
+        .sidebar-brand h4 { color: var(--primary-800); font-weight: 700; font-size: 1rem; }
+        .sidebar-brand small { display: block; color: var(--neutral-500); font-size: 0.7rem; font-weight: 400; }
+
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: var(--neutral-500); text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.2s ease; }
+        .sidebar-nav a i { width: 20px; text-align: center; font-size: 1rem; }
+        .sidebar-nav a:hover { background: var(--neutral-50); color: var(--primary-700); }
+        .sidebar-nav a.active { background: var(--primary-50); color: var(--primary-600); font-weight: 600; }
+        .sidebar-nav a.active i { color: var(--primary-500); }
+        .sidebar-nav .logout { margin-top: auto; border-top: 1px solid var(--neutral-100); padding-top: 16px; color: var(--accent-600); }
+        .sidebar-nav .logout:hover { background: #fef2f2; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 270px; padding: 30px 40px; min-height: 100vh; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary-800); }
+        .page-header h1 small { font-size: 0.85rem; font-weight: 400; color: var(--neutral-500); display: block; margin-top: 4px; }
+        .page-header .user-badge { display: flex; align-items: center; gap: 12px; background: white; padding: 8px 16px 8px 20px; border-radius: 60px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .page-header .user-badge i { font-size: 1.2rem; color: var(--primary-500); }
+        .page-header .user-badge span { font-weight: 600; color: var(--primary-800); }
+
+        /* ===== FORM ===== */
+        .form-card { background: white; border-radius: 16px; padding: 32px; max-width: 760px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .form-card .form-title { font-weight: 600; color: var(--primary-800); margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+        .form-card .form-title i { color: var(--primary-500); font-size: 1.2rem; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; color: var(--primary-800); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px; }
+        .form-group label i { color: var(--primary-500); margin-right: 8px; width: 18px; }
+        .form-group label .required { color: var(--accent-600); margin-left: 4px; }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 16px; border: 1.5px solid var(--neutral-100); border-radius: 12px;
+            font-size: 0.95rem; font-family: inherit; background: var(--neutral-50); transition: all 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--primary-500); background: white; box-shadow: 0 0 0 4px rgba(34,139,84,0.08);
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-group .row { display: flex; gap: 16px; }
+        .form-group .row .col { flex: 1; }
+
+        .form-group .file-input-wrapper { position: relative; }
+        .form-group .file-input-wrapper input[type="file"] { padding: 12px; background: white; cursor: pointer; border: 1.5px dashed var(--neutral-100); }
+        .form-group .file-input-wrapper input[type="file"]:hover { border-color: var(--primary-500); background: var(--primary-50); }
+        .form-group .file-input-wrapper small { display: block; color: var(--neutral-500); font-size: 0.75rem; margin-top: 6px; }
+
+        /* ===== BUTTONS ===== */
+        .btn-submit { background: var(--primary-600); color: white; padding: 14px 40px; border: none; border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-submit:hover { background: var(--primary-700); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,107,66,0.25); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-cancel { background: var(--neutral-100); color: var(--neutral-700); padding: 14px 30px; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-cancel:hover { background: var(--neutral-100); opacity: 0.8; }
+
+        .form-actions { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+
+        /* ===== FLASH MESSAGES ===== */
+        .flash-message {
+            padding: 12px 18px; border-radius: 12px; margin-bottom: 16px; font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .flash-message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .flash-message.danger { background: #fef2f2; color: var(--accent-600); border: 1px solid #fecaca; }
+        .flash-message.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .flash-message.info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+
+        /* ===== CONFLICT WARNING ===== */
+        .conflict-warning {
+            background: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; padding: 16px 20px;
+            display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px;
+        }
+        .conflict-warning i { color: #92400e; font-size: 1.2rem; margin-top: 2px; }
+        .conflict-warning .text { color: #92400e; font-size: 0.9rem; }
+        .conflict-warning .text strong { display: block; font-size: 0.95rem; margin-bottom: 2px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .form-card { padding: 20px; }
+            .form-group .row { flex-direction: column; gap: 0; }
+            .page-header h1 { font-size: 1.4rem; }
+            .form-actions { flex-direction: column; }
+            .form-actions .btn-submit, .form-actions .btn-cancel { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-img">SN</div>
+            <div>
+                <h4>Barangay Sto. Niño</h4>
+                <small>Online Services</small>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/request-document"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="/apply-permit" class="active"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
+            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1>
+                    <i class="fas fa-calendar-check" style="color: var(--primary-500); margin-right: 10px;"></i>
+                    Apply for Permit
+                    <small>Submit a community event permit application</small>
+                </h1>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-circle"></i>
+                <span>Juan Dela Cruz</span>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div id="flashMessages"></div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+            <div class="form-title">
+                <i class="fas fa-pencil-alt"></i>
+                Event Permit Application Form
+            </div>
+
+            <!-- Conflict Warning (shown when date conflict exists) -->
+            <div class="conflict-warning" id="conflictWarning" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="text">
+                    <strong>⚠️ Date Conflict Detected</strong>
+                    <span>There is already an approved or pending event on this date. Please choose another date.</span>
+                </div>
+            </div>
+
+            <form method="POST" action="/apply-permit" enctype="multipart/form-data" id="permitForm">
+
+                <!-- Event Name -->
+                <div class="form-group">
+                    <label for="eventName"><i class="fas fa-tag"></i> Event Name <span class="required">*</span></label>
+                    <input type="text" name="event_name" id="eventName" placeholder="e.g., Barangay Basketball League" required>
+                </div>
+
+                <!-- Event Description -->
+                <div class="form-group">
+                    <label for="eventDescription"><i class="fas fa-align-left"></i> Event Description</label>
+                    <textarea name="event_description" id="eventDescription" placeholder="Describe your event briefly..."></textarea>
+                </div>
+
+                <!-- Date & Time Row -->
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label for="eventDate"><i class="fas fa-calendar-day"></i> Event Date <span class="required">*</span></label>
+                            <input type="date" name="event_date" id="eventDate" required>
+                        </div>
+                        <div class="col">
+                            <label for="eventTime"><i class="fas fa-clock"></i> Event Time <span class="required">*</span></label>
+                            <input type="time" name="event_time" id="eventTime" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendees & Venue Row -->
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label for="estimatedAttendees"><i class="fas fa-users"></i> Estimated Attendees</label>
+                            <input type="number" name="estimated_attendees" id="estimatedAttendees" placeholder="e.g., 100" min="1">
+                        </div>
+                        <div class="col">
+                            <label for="venue"><i class="fas fa-map-marker-alt"></i> Venue</label>
+                            <input type="text" name="venue" id="venue" placeholder="e.g., Barangay Covered Court">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Upload -->
+                <div class="form-group">
+                    <label for="requirement"><i class="fas fa-upload"></i> Upload Supporting Document</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="requirement" id="requirement" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                        <small>Accepted formats: JPG, PNG, PDF, DOC, DOCX (Max 5MB)</small>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Submit Application
+                    </button>
+                    <a href="/dashboard" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
+    </main>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ===== MOBILE SIDEBAR TOGGLE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.page-header');
+            const hamburger = document.createElement('button');
+            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none; padding: 4px 8px;';
+            hamburger.id = 'menuToggle';
+            hamburger.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+            header.prepend(hamburger);
+
+            if (window.innerWidth <= 768) {
+                hamburger.style.display = 'block';
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    hamburger.style.display = 'block';
+                } else {
+                    hamburger.style.display = 'none';
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+
+        // ===== DATE CONFLICT CHECK (Frontend) =====
+        // This is a simple frontend validation to warn users
+        // Actual conflict check happens on the server
+
+        // ===== FILE UPLOAD VALIDATION =====
+        document.getElementById('requirement').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    alert('File is too large. Maximum size is 5MB.');
+                    this.value = '';
+                    return;
+                }
+                
+                const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'];
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!allowedExtensions.includes(ext)) {
+                    alert('File type not allowed. Please upload JPG, PNG, PDF, DOC, or DOCX.');
+                    this.value = '';
+                }
+            }
+        });
+
+        // ===== FORM SUBMISSION LOADER =====
+        document.getElementById('permitForm').addEventListener('submit', function() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.disabled = true;
+        });
+
+        // ===== FLASH MESSAGES =====
+        // Show flash messages from server
+        // This will be populated by Flask's flash messages
+        // Add this script to show flash messages from Flask
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashContainer = document.getElementById('flashMessages');
+            // Flask will render messages here
+            // This is handled by the server-side flash messages
+        });
+    </script>
+
+</body>
+</html>

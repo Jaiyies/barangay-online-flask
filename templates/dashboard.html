@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Barangay Sto. Niño</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-800: #0f3d2a;
+            --primary-700: #145233;
+            --primary-600: #1a6b42;
+            --primary-500: #228b54;
+            --accent-600: #c42828;
+            --neutral-50: #f4f8f5;
+            --neutral-100: #dde8e1;
+            --neutral-500: #6b8475;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--neutral-50); min-height: 100vh; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px; height: 100vh; background: white; position: fixed; left: 0; top: 0;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
+            border-right: 1px solid var(--neutral-100); transition: all 0.3s ease; z-index: 100;
+        }
+        .sidebar-brand {
+            display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid var(--neutral-100);
+            margin-bottom: 24px;
+        }
+        .sidebar-brand .logo-img {
+            width: 48px; height: 48px; border-radius: 50%; background: var(--primary-600); display: flex;
+            align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px;
+        }
+        .sidebar-brand h4 { color: var(--primary-800); font-weight: 700; font-size: 1rem; }
+        .sidebar-brand small { display: block; color: var(--neutral-500); font-size: 0.7rem; font-weight: 400; }
+
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px;
+            color: var(--neutral-500); text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .sidebar-nav a i { width: 20px; text-align: center; font-size: 1rem; }
+        .sidebar-nav a:hover { background: var(--neutral-50); color: var(--primary-700); }
+        .sidebar-nav a.active { background: var(--primary-50); color: var(--primary-600); font-weight: 600; }
+        .sidebar-nav a.active i { color: var(--primary-500); }
+        .sidebar-nav .logout { margin-top: auto; border-top: 1px solid var(--neutral-100); padding-top: 16px; color: var(--accent-600); }
+        .sidebar-nav .logout:hover { background: #fef2f2; color: var(--accent-600); }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; padding: 30px 40px; min-height: 100vh; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary-800); }
+        .page-header .user-badge { display: flex; align-items: center; gap: 12px; background: white; padding: 8px 16px 8px 20px; border-radius: 60px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .page-header .user-badge i { font-size: 1.2rem; color: var(--primary-500); }
+        .page-header .user-badge span { font-weight: 600; color: var(--primary-800); }
+
+        /* ===== STATS ===== */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px 24px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-left: 4px solid var(--primary-500); }
+        .stat-card .stat-number { font-size: 2rem; font-weight: 800; color: var(--primary-800); line-height: 1.2; }
+        .stat-card .stat-label { color: var(--neutral-500); font-size: 0.85rem; font-weight: 500; margin-top: 4px; }
+        .stat-card.pending { border-left-color: #f59e0b; }
+        .stat-card.permit { border-left-color: #3b82f6; }
+        .stat-card.approved { border-left-color: var(--primary-500); }
+
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        .action-card {
+            background: white; padding: 24px 20px; border-radius: 16px; text-align: center; text-decoration: none;
+            color: var(--primary-800); transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid transparent;
+        }
+        .action-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: var(--primary-100); }
+        .action-card i { font-size: 2.2rem; color: var(--primary-500); margin-bottom: 12px; display: block; }
+        .action-card h4 { font-size: 1rem; font-weight: 600; }
+        .action-card p { font-size: 0.8rem; color: var(--neutral-500); margin-top: 4px; }
+
+        /* ===== RECENT ACTIVITY ===== */
+        .activity-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .activity-section h3 { font-size: 1.1rem; font-weight: 600; color: var(--primary-800); margin-bottom: 16px; }
+        .activity-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 0;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-item .info { display: flex; align-items: center; gap: 12px; }
+        .activity-item .info i { color: var(--neutral-500); width: 20px; }
+        .activity-item .status-badge {
+            padding: 4px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600;
+        }
+        .status-badge.pending { background: #fef3c7; color: #92400e; }
+        .status-badge.approved { background: #d1fae5; color: #065f46; }
+        .status-badge.rejected { background: #fce4ec; color: #c62828; }
+        .status-badge.reviewing { background: #e0e7ff; color: #3730a3; }
+        .status-badge.completed { background: #dbeafe; color: #1e40af; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-img">SN</div>
+            <div>
+                <h4>Barangay Sto. Niño</h4>
+                <small>Online Services</small>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/request-document"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="/apply-permit"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
+            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>Dashboard</h1>
+                <p style="color: var(--neutral-500);">Welcome back, Resident!</p>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-circle"></i>
+                <span>Juan Dela Cruz</span>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Total Document Requests</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Pending Requests</div>
+            </div>
+            <div class="stat-card approved">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card permit">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Event Permits</div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions">
+            <a href="/request-document" class="action-card">
+                <i class="fas fa-file-alt"></i>
+                <h4>Request Document</h4>
+                <p>Clearance, Indigency, Residency</p>
+            </a>
+            <a href="/apply-permit" class="action-card">
+                <i class="fas fa-calendar-check"></i>
+                <h4>Apply for Permit</h4>
+                <p>Community event permits</p>
+            </a>
+            <a href="/my-requests" class="action-card">
+                <i class="fas fa-search"></i>
+                <h4>Track Requests</h4>
+                <p>Check status of applications</p>
+            </a>
+            <a href="/profile" class="action-card">
+                <i class="fas fa-user-edit"></i>
+                <h4>My Profile</h4>
+                <p>Update personal information</p>
+            </a>
+        </div>
+
+        <!-- RECENT ACTIVITY -->
+        <div class="activity-section">
+            <h3><i class="fas fa-clock" style="margin-right: 8px; color: var(--neutral-500);"></i> Recent Activity</h3>
+            <div class="activity-item">
+                <div class="info">
+                    <i class="fas fa-file-alt"></i>
+                    <span><strong>Barangay Clearance</strong> - Requested</span>
+                </div>
+                <span class="status-badge pending">Pending</span>
+            </div>
+            <div class="activity-item">
+                <div class="info">
+                    <i class="fas fa-file-alt"></i>
+                    <span><strong>Certificate of Indigency</strong> - Approved</span>
+                </div>
+                <span class="status-badge approved">Approved</span>
+            </div>
+            <div class="activity-item">
+                <div class="info">
+                    <i class="fas fa-calendar-check"></i>
+                    <span><strong>Christmas Party</strong> - Permit Applied</span>
+                </div>
+                <span class="status-badge pending">Pending</span>
+            </div>
+            <div class="activity-item">
+                <div class="info">
+                    <i class="fas fa-file-alt"></i>
+                    <span><strong>Proof of Residency</strong> - Completed</span>
+                </div>
+                <span class="status-badge completed">Completed</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create hamburger menu for mobile
+            const header = document.querySelector('.page-header');
+            const hamburger = document.createElement('button');
+            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none;';
+            hamburger.id = 'menuToggle';
+            hamburger.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+            header.prepend(hamburger);
+
+            // Show hamburger on mobile
+            if (window.innerWidth <= 768) {
+                hamburger.style.display = 'block';
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    hamburger.style.display = 'block';
+                } else {
+                    hamburger.style.display = 'none';
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
