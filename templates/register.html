@@ -3,299 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Barangay Sto. Niño</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Register - Barangay Sto. Niño</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-900: #0a2e1e;
-            --primary-800: #0f3d2a;
-            --primary-700: #145233;
-            --primary-600: #1a6b42;
-            --primary-500: #228b54;
-            --primary-400: #3aa86c;
-            --neutral-50: #f4f8f5;
-            --neutral-100: #dde8e1;
-            --neutral-500: #6b8475;
-            --accent-600: #c42828;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #f0f2f5;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            min-height: 100vh; 
-            display: flex; 
-            background: var(--neutral-50);
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .register-image {
-            flex: 1; 
+            flex: 1;
             min-height: 100vh;
             background: url('https://thumbs.dreamstime.com/b/barangay-benoni-part-camiguin-island-philippines-96707769.jpg') center center / cover no-repeat;
-            position: relative; 
-            display: flex; 
-            align-items: center; 
+            position: relative;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
-        .register-image::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(135deg, rgba(10,46,30,0.85), rgba(20,82,51,0.75)); 
+        .register-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,46,30,0.85), rgba(20,82,51,0.75));
         }
-        .register-image-content { 
-            position: relative; 
-            z-index: 1; 
-            color: white; 
-            text-align: center; 
-            padding: 40px; 
-            max-width: 500px; 
+        .register-image-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            text-align: center;
+            padding: 40px;
+            max-width: 500px;
+            animation: fadeInUp 0.6s ease-out;
         }
-        .register-image-content h1 { 
-            font-size: 3rem; 
-            font-weight: 800; 
-            margin-bottom: 16px; 
+        .register-image-content h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
         }
-        .register-image-content h1 span { color: #ffb3b3; }
-        .register-image-content p { 
-            font-size: 1.1rem; 
-            opacity: 0.95; 
-            line-height: 1.6; 
+        .register-image-content h1 span {
+            color: #ffb3b3;
         }
-        .register-image-content .badge-group { 
-            display: flex; 
-            gap: 12px; 
-            justify-content: center; 
-            flex-wrap: wrap; 
-            margin-top: 28px; 
+        .register-image-content p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            line-height: 1.6;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .register-image-content .badge-group span { 
-            background: rgba(255,255,255,0.10); 
-            padding: 8px 22px; 
-            border-radius: 60px; 
-            font-size: 0.8rem; 
-            font-weight: 600; 
-            border: 1px solid rgba(255,255,255,0.15); 
-        }
-
-        .register-form-wrapper { 
-            flex: 0.9; 
-            min-height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 40px 30px; 
-            background: white; 
-        }
-        .register-container { 
-            width: 100%; 
-            max-width: 480px; 
-        }
-
-        .register-header { 
-            text-align: center; 
-            margin-bottom: 32px; 
-        }
-        .register-header .logo-img { 
-            width: 76px; 
-            height: 76px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            margin: 0 auto 14px; 
-            box-shadow: 0 8px 24px rgba(26,107,66,0.15); 
-            border: 3px solid white; 
-            display: block; 
-            background: var(--neutral-50);
-        }
-        .register-header h2 { 
-            font-size: 1.8rem; 
-            font-weight: 700; 
-            color: var(--primary-800); 
-        }
-        .register-header h2 span { color: var(--accent-600); }
-        .register-header p { 
-            color: var(--neutral-500); 
-            font-size: 0.95rem; 
-            margin-top: 2px; 
-        }
-
-        .input-group { 
-            margin-bottom: 18px; 
-            position: relative; 
-        }
-        .input-group label { 
-            display: block; 
-            font-weight: 600; 
-            color: var(--primary-800); 
-            font-size: 0.75rem; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-            margin-bottom: 6px; 
-        }
-        .input-group label i { 
-            color: var(--primary-500); 
-            margin-right: 8px; 
-        }
-        .input-group input,
-        .input-group textarea { 
-            width: 100%; 
-            padding: 12px 18px; 
-            border: 1.5px solid var(--neutral-100); 
-            border-radius: 28px; 
-            font-size: 15px; 
-            font-family: inherit; 
-            background: var(--neutral-50); 
-            transition: all 0.3s ease; 
-        }
-        .input-group input:focus,
-        .input-group textarea:focus { 
-            outline: none; 
-            border-color: var(--primary-500); 
-            background: white; 
-            box-shadow: 0 0 0 4px rgba(34,139,84,0.10); 
-        }
-        .input-group textarea { 
-            min-height: 70px; 
-            border-radius: 20px; 
-            resize: vertical;
-        }
-
-        .row {
+        .register-image-content .badge-group {
             display: flex;
             gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 28px;
         }
-        .row .col {
-            flex: 1;
+        .register-image-content .badge-group span {
+            background: rgba(255,255,255,0.10);
+            padding: 8px 22px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(6px);
+            transition: all 0.3s ease;
         }
-
-        .password-wrapper { 
-            position: relative; 
-            width: 100%; 
-        }
-        .password-wrapper input { 
-            width: 100%; 
-            padding: 12px 50px 12px 18px; 
-            border: 1.5px solid var(--neutral-100); 
-            border-radius: 28px; 
-            font-size: 15px; 
-            font-family: inherit; 
-            background: var(--neutral-50); 
-        }
-        .password-wrapper input:focus { 
-            outline: none; 
-            border-color: var(--primary-500); 
-            background: white; 
-            box-shadow: 0 0 0 4px rgba(34,139,84,0.10); 
-        }
-        .password-toggle { 
-            position: absolute; 
-            right: 12px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            background: transparent; 
-            border: none; 
-            color: var(--neutral-500); 
-            cursor: pointer; 
-            font-size: 18px; 
-            padding: 6px; 
-            border-radius: 50%; 
-            width: 36px; 
-            height: 36px; 
-        }
-        .password-toggle:hover { 
-            color: var(--primary-600); 
-            background: rgba(26,107,66,0.08); 
+        .register-image-content .badge-group span:hover {
+            background: rgba(255,255,255,0.20);
+            transform: translateY(-2px);
         }
 
-        button[type="submit"] { 
-            width: 100%; 
-            padding: 16px; 
-            background: linear-gradient(105deg, var(--primary-700), var(--primary-500)); 
-            color: white; 
-            border: none; 
-            border-radius: 50px; 
-            font-size: 16px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            gap: 12px; 
-            margin-top: 6px;
+        .register-form-wrapper {
+            flex: 0.9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 30px;
+            background: white;
         }
-        button[type="submit"]:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 12px 28px -10px var(--primary-600); 
-            background: linear-gradient(105deg, var(--primary-800), var(--primary-600)); 
+        .register-container {
+            width: 100%;
+            max-width: 480px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .register-header .logo-img {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 14px;
+            box-shadow: 0 8px 24px rgba(26,107,66,0.15);
+            border: 3px solid white;
+            display: block;
+            background: var(--primary-50);
+            transition: transform 0.3s ease;
+        }
+        .register-header .logo-img:hover {
+            transform: scale(1.05);
+        }
+        .register-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0d2b1e;
+        }
+        .register-header h2 span {
+            color: #1a5d3a;
+        }
+        .register-header p {
+            color: #7a8f82;
+            font-size: 0.95rem;
+            margin-top: 2px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #0d2b1e;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .input-group label i {
+            color: #1a5d3a;
+            margin-right: 8px;
+            width: 18px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1.5px solid #eef2f0;
+            border-radius: 28px;
+            font-size: 15px;
+            font-family: inherit;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #1a5d3a;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(26,107,66,0.10);
+        }
+        .input-group input::placeholder {
+            color: #b0c0b8;
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .password-wrapper input {
+            width: 100%;
+            padding: 14px 50px 14px 18px;
+            border: 1.5px solid #eef2f0;
+            border-radius: 28px;
+            font-size: 15px;
+            font-family: inherit;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+        .password-wrapper input:focus {
+            outline: none;
+            border-color: #1a5d3a;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(26,107,66,0.10);
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8a9a8f;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 6px;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            z-index: 2;
+        }
+        .password-toggle:hover {
+            color: #1a5d3a;
+            background: rgba(26,107,66,0.08);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(105deg, #0d2b1e, #1a5d3a);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .register-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: all 0.6s ease;
+        }
+        .register-btn:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -10px #1a5d3a;
+            background: linear-gradient(105deg, #0d2b1e, #0d2b1e);
+        }
+        .register-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #7a8f82;
+            font-size: 14px;
+        }
+        .login-link a {
+            color: #1a5d3a;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .login-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #1a5d3a;
+            transition: width 0.3s ease;
+        }
+        .login-link a:hover::after {
+            width: 100%;
+        }
+        .login-link a:hover {
+            color: #0d2b1e;
         }
 
         .flash-message {
-            padding: 12px 18px; 
-            border-radius: 28px; 
-            margin-bottom: 12px; 
-            text-align: center; 
-            font-size: 13px; 
+            padding: 12px 18px;
+            border-radius: 28px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 13px;
             font-weight: 500;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
+            animation: fadeInUp 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
         }
         .flash-message.success {
-            background: #d1fae5; 
-            color: #065f46; 
+            background: #d1fae5;
+            color: #065f46;
             border: 1px solid #a7f3d0;
         }
         .flash-message.danger {
-            background: #fef2f2; 
-            color: var(--accent-600); 
+            background: #fef2f2;
+            color: #dc3545;
             border: 1px solid #fecaca;
         }
         .flash-message.warning {
-            background: #fffbeb; 
-            color: #92400e; 
+            background: #fffbeb;
+            color: #92400e;
             border: 1px solid #fde68a;
         }
-
-        .login-link { 
-            text-align: center; 
-            margin-top: 20px; 
-            color: var(--neutral-500); 
-            font-size: 14px; 
-        }
-        .login-link a { 
-            color: var(--primary-600); 
-            text-decoration: none; 
-            font-weight: 700; 
-        }
-        .login-link a:hover { color: var(--primary-800); }
-
-        .terms {
-            text-align: center;
-            font-size: 12px;
-            color: var(--neutral-500);
-            margin-top: 12px;
-        }
-        .terms a {
-            color: var(--primary-600);
-            text-decoration: none;
-            font-weight: 600;
+        .flash-message.info {
+            background: #e0f2fe;
+            color: #075985;
+            border: 1px solid #bae6fd;
         }
 
         @media (max-width: 992px) {
             body { flex-direction: column; }
             .register-image { min-height: 200px; padding: 30px; }
             .register-image-content h1 { font-size: 2rem; }
+            .register-image-content p { font-size: 0.95rem; }
             .register-form-wrapper { min-height: auto; padding: 30px 20px; }
             .register-container { max-width: 100%; }
         }
         @media (max-width: 600px) {
+            .register-image-content .badge-group span { font-size: 0.7rem; padding: 5px 14px; }
             .register-header h2 { font-size: 1.4rem; }
-            .row { flex-direction: column; gap: 0; }
+            .register-container { padding: 0 5px; }
             .register-image-content h1 { font-size: 1.6rem; }
         }
     </style>
@@ -306,11 +353,11 @@
     <div class="register-image">
         <div class="register-image-content">
             <h1>Barangay <span>Sto. Niño</span></h1>
-            <p>Create your account to access online document requests, event permits, and barangay services.</p>
+            <p>Join our community and access online services for document requests and event permits.</p>
             <div class="badge-group">
-                <span><i class="fas fa-check-circle"></i> Free registration</span>
-                <span><i class="fas fa-shield-alt"></i> Secure account</span>
-                <span><i class="fas fa-clock"></i> 24/7 access</span>
+                <span><i class="fas fa-check-circle"></i> Easy registration</span>
+                <span><i class="fas fa-shield-alt"></i> Secure access</span>
+                <span><i class="fas fa-envelope"></i> Email notifications</span>
             </div>
         </div>
     </div>
@@ -320,75 +367,87 @@
         <div class="register-container">
 
             <div class="register-header">
-                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Barangay Sto. Niño Logo" class="logo-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22%231a6b42%22/%3E%3Ctext x=%2250%22 y=%2262%22 font-size=%2244%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3ESN%3C/text%3E%3C/svg%3E'">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img" 
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27100%27 height=%27100%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%231a6b42%27/%3E%3Ctext x=%2750%27 y=%2762%27 font-size=%2744%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27 font-weight=%27bold%27%3ESN%3C/text%3E%3C/svg%3E'">
                 <h2>Create <span>Account</span></h2>
-                <p>Join the Barangay Sto. Niño community</p>
+                <p>Join Barangay Sto. Niño Online Services</p>
             </div>
 
-            <!-- FLASH MESSAGES - SIMPLE VERSION -->
-            <div id="flashMessages"></div>
+            <!-- Flash Messages -->
+            <div id="flashMessages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">
+                                <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
 
-            <!-- REGISTER FORM -->
-            <form method="POST" action="{{ url_for('register') }}" id="registerForm">
-                <div class="row">
-                    <div class="col">
-                        <div class="input-group">
-                            <label for="firstName"><i class="fas fa-user"></i> First Name</label>
-                            <input type="text" name="first_name" id="firstName" placeholder="Juan" required>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="input-group">
-                            <label for="lastName"><i class="fas fa-user"></i> Last Name</label>
-                            <input type="text" name="last_name" id="lastName" placeholder="Dela Cruz" required>
-                        </div>
-                    </div>
+            <!-- Register Form -->
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="input-group">
+                    <label for="firstName"><i class="fas fa-user"></i> First Name</label>
+                    <input type="text" name="first_name" id="firstName" placeholder="Enter your first name" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="lastName"><i class="fas fa-user"></i> Last Name</label>
+                    <input type="text" name="last_name" id="lastName" placeholder="Enter your last name" required>
                 </div>
 
                 <div class="input-group">
                     <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
-                    <input type="email" name="email" id="email" placeholder="resident@stonino.gov.ph" required>
+                    <input type="email" name="email" id="email" placeholder="Enter your email address" required>
                 </div>
 
                 <div class="input-group">
                     <label for="contact"><i class="fas fa-phone"></i> Contact Number</label>
-                    <input type="text" name="contact" id="contact" placeholder="09123456789">
+                    <input type="text" name="contact_number" id="contact" placeholder="Enter your contact number">
                 </div>
 
                 <div class="input-group">
-                    <label for="address"><i class="fas fa-home"></i> Complete Address</label>
-                    <textarea name="address" id="address" placeholder="House #, Street, Barangay, City"></textarea>
+                    <label for="address"><i class="fas fa-home"></i> Address</label>
+                    <input type="text" name="address" id="address" placeholder="Enter your address in Barangay Sto. Niño">
                 </div>
 
                 <div class="input-group">
                     <label for="password"><i class="fas fa-lock"></i> Password</label>
                     <div class="password-wrapper">
-                        <input type="password" name="password" id="password" placeholder="Minimum 6 characters" minlength="6" required>
+                        <input type="password" name="password" id="password" placeholder="Create a password" required>
                         <button type="button" class="password-toggle" id="togglePassword">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="terms">
-                    By creating an account, you agree to our 
-                    <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                <div class="input-group">
+                    <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="confirm_password" id="confirmPassword" placeholder="Confirm your password" required>
+                        <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <button type="submit">
-                    <i class="fas fa-user-plus"></i> Create Account
+                <button type="submit" class="register-btn">
+                    <i class="fas fa-user-plus"></i> Register
                 </button>
             </form>
 
             <div class="login-link">
-                Already have an account? <a href="{{ url_for('login') }}">Sign in here</a>
+                Already have an account? <a href="{{ url_for('login') }}">Login here</a>
             </div>
 
         </div>
     </div>
 
     <script>
-        // PASSWORD TOGGLE
+        // Password toggle
         document.getElementById('togglePassword').addEventListener('click', function() {
             const input = document.getElementById('password');
             const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -397,9 +456,23 @@
             this.querySelector('i').classList.toggle('fa-eye-slash');
         });
 
-        // FLASH MESSAGES FROM SERVER (RENDERED BY FLASK)
-        // This will be populated by Flask's flash messages
-        // The backend will handle the flash messages
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const input = document.getElementById('confirmPassword');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.transition = 'opacity 0.5s ease';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
     </script>
 
 </body>

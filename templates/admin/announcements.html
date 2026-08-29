@@ -1,0 +1,1132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Head Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes modalFadeOut {
+            from { opacity: 1; transform: scale(1) translateY(0); }
+            to { opacity: 0; transform: scale(0.9) translateY(20px); }
+        }
+        @keyframes toastSlide {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes iconBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        @keyframes confirmPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .sidebar-custom {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: linear-gradient(180deg, #0d2b1e 0%, #1a5d3a 100%);
+            color: white;
+            padding: 30px 20px;
+            z-index: 100;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.08);
+            animation: slideInLeft 0.5s ease;
+        }
+        .sidebar-header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 25px;
+        }
+        .sidebar-header .logo-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.2);
+            margin-bottom: 12px;
+            background: white;
+            padding: 4px;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header .logo-img:hover {
+            transform: rotate(-10deg) scale(1.05);
+        }
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .sidebar-header small {
+            font-size: 11px;
+            opacity: 0.6;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 4px; }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 18px;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+        .sidebar-menu a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: #6bc48e;
+            border-radius: 0 4px 4px 0;
+            transition: height 0.3s ease;
+        }
+        .sidebar-menu a:hover::before,
+        .sidebar-menu .active a::before {
+            height: 24px;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            transform: translateX(4px);
+        }
+        .sidebar-menu .active a {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .sidebar-menu i { width: 22px; font-size: 15px; transition: transform 0.3s ease; }
+        .sidebar-menu a:hover i { transform: scale(1.15); }
+
+        .main-with-sidebar {
+            margin-left: 280px;
+            padding: 25px 30px;
+            min-height: 100vh;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .top-bar {
+            background: white;
+            padding: 16px 28px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            flex-wrap: wrap;
+            gap: 12px;
+            animation: fadeInUp 0.6s ease;
+        }
+        .welcome-text h2 {
+            color: #0d2b1e;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .welcome-text h2 i {
+            color: #1a5d3a;
+            animation: pulse 2s infinite;
+        }
+        .welcome-text p {
+            color: #7a8f82;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .clock-badge {
+            background: #f0f4f2;
+            padding: 7px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            color: #1a5d3a;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .clock-badge i {
+            animation: pulse 2s infinite;
+        }
+        .role-badge {
+            background: #0d2b1e;
+            color: white;
+            padding: 7px 18px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 8px 22px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .logout-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 16px rgba(220,53,69,0.3);
+        }
+        .logout-btn:active {
+            transform: scale(0.97);
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+            animation: fadeInUp 0.7s ease;
+        }
+        .btn-post {
+            background: linear-gradient(135deg, #1a5d3a 0%, #2a7a52 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 16px rgba(26,107,66,0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-post::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: all 0.6s ease;
+        }
+        .btn-post:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        .btn-post:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 30px rgba(26,107,66,0.4);
+        }
+        .btn-post:active {
+            transform: scale(0.95);
+        }
+        .btn-post i {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+        .btn-post:hover i {
+            transform: rotate(90deg);
+        }
+
+        .btn-send-email {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 16px rgba(37,99,235,0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-send-email::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: all 0.6s ease;
+        }
+        .btn-send-email:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        .btn-send-email:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 30px rgba(37,99,235,0.4);
+        }
+        .btn-send-email:active {
+            transform: scale(0.95);
+        }
+        .btn-send-email i {
+            transition: transform 0.3s ease;
+        }
+        .btn-send-email:hover i {
+            transform: scale(1.2);
+        }
+
+        .table-section {
+            background: white;
+            border-radius: 16px;
+            padding: 22px 24px 24px;
+            border: 1px solid #eef2f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            animation: fadeInUp 0.8s ease;
+            transition: all 0.3s ease;
+        }
+        .table-section:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .table-header h3 {
+            color: #0d2b1e;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .table-header h3 i {
+            color: #1a5d3a;
+        }
+        .table-header h3 span {
+            background: #1a5d3a;
+            color: white;
+            font-size: 12px;
+            padding: 2px 14px;
+            border-radius: 50px;
+            animation: pulse 2s infinite;
+        }
+        .table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f0f2f5;
+            border-radius: 10px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #1a5d3a;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #f0f3f2;
+            vertical-align: middle;
+        }
+        th {
+            background: #f8fafc;
+            color: #5a6e7a;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        tr {
+            transition: all 0.3s ease;
+        }
+        tr:hover {
+            background: #f9fafb;
+            transform: scale(1.002);
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .announcement-title {
+            color: #0d2b1e;
+            font-weight: 600;
+        }
+        .announcement-content {
+            color: #5a6e7a;
+            font-size: 13px;
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-action {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-action::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: all 0.6s ease;
+        }
+        .btn-action:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #d97706;
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 6px 20px rgba(245,158,11,0.3);
+        }
+        .btn-edit:active {
+            transform: scale(0.93);
+        }
+        .btn-edit i {
+            transition: transform 0.3s ease;
+        }
+        .btn-edit:hover i {
+            transform: scale(1.2);
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #b91c1c;
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 6px 20px rgba(220,53,69,0.3);
+        }
+        .btn-delete:active {
+            transform: scale(0.93);
+        }
+        .btn-delete i {
+            transition: transform 0.3s ease;
+        }
+        .btn-delete:hover i {
+            transform: scale(1.2) rotate(15deg);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 18px;
+            margin-top: 28px;
+            color: #8a9a8f;
+            font-size: 11px;
+            animation: fadeInUp 0.9s ease;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 600px;
+            animation: modalFadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        }
+        .modal-content.closing {
+            animation: modalFadeOut 0.3s ease forwards;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+        .modal-header h3 {
+            color: #0d2b1e;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-header h3 i {
+            color: #1a5d3a;
+            font-size: 24px;
+        }
+        .close-modal {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-modal:hover {
+            color: #dc3545;
+            background: #fef2f2;
+            transform: rotate(90deg);
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 18px;
+        }
+        .modal-body label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #0d2b1e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .modal-body label i {
+            color: #1a5d3a;
+            margin-right: 8px;
+            width: 16px;
+        }
+        .modal-body input,
+        .modal-body textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #eef2f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            outline: none;
+            transition: all 0.3s ease;
+            color: #0d2b1e;
+        }
+        .modal-body input:focus,
+        .modal-body textarea:focus {
+            border-color: #1a5d3a;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(26,107,66,0.1);
+            transform: scale(1.01);
+        }
+        .modal-body input::placeholder,
+        .modal-body textarea::placeholder {
+            color: #b0c0b8;
+        }
+        .modal-body textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: all 0.6s ease;
+        }
+        .modal-btn:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        .modal-btn.submit {
+            background: linear-gradient(135deg, #1a5d3a 0%, #2a7a52 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(26,107,66,0.25);
+        }
+        .modal-btn.submit:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 30px rgba(26,107,66,0.35);
+        }
+        .modal-btn.submit:active {
+            transform: scale(0.95);
+        }
+        .modal-btn.cancel {
+            background: #6c757d;
+            color: white;
+        }
+        .modal-btn.cancel:hover {
+            background: #5a6268;
+            transform: translateY(-3px) scale(1.03);
+        }
+        .modal-btn.cancel:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== CONFIRM DELETE MODAL ===== */
+        .confirm-icon {
+            font-size: 60px;
+            color: #dc3545;
+            display: block;
+            margin: 0 auto 16px;
+            animation: shake 0.8s ease;
+        }
+        .confirm-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #0d2b1e;
+            margin-bottom: 8px;
+        }
+        .confirm-message {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7a72;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .confirm-message strong {
+            color: #0d2b1e;
+        }
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .confirm-btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .confirm-btn.yes {
+            background: #dc3545;
+            color: white;
+            box-shadow: 0 4px 16px rgba(220,53,69,0.25);
+            animation: confirmPulse 1.5s infinite;
+        }
+        .confirm-btn.yes:hover {
+            background: #b91c1c;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(220,53,69,0.35);
+        }
+        .confirm-btn.yes:active {
+            transform: scale(0.95);
+        }
+        .confirm-btn.no {
+            background: #6c757d;
+            color: white;
+        }
+        .confirm-btn.no:hover {
+            background: #5a6268;
+            transform: translateY(-3px) scale(1.05);
+        }
+        .confirm-btn.no:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== TOAST ===== */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-left: 5px solid;
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+            animation: toastSlide 0.5s ease;
+        }
+        .toast-notification.success {
+            border-left-color: #28a745;
+        }
+        .toast-notification.error {
+            border-left-color: #dc3545;
+        }
+        .toast-notification i {
+            font-size: 24px;
+            animation: iconBounce 0.5s ease;
+        }
+        .toast-notification.success i {
+            color: #28a745;
+        }
+        .toast-notification.error i {
+            color: #dc3545;
+        }
+        .toast-notification .toast-message {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0d2b1e;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #8a9a8f;
+        }
+        .no-results i {
+            font-size: 48px;
+            color: #cde0d8;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-custom { width: 70px; padding: 16px 10px; }
+            .sidebar-header h2, .sidebar-menu span { display: none; }
+            .sidebar-header .logo-img { width: 45px; height: 45px; }
+            .sidebar-menu a { justify-content: center; padding: 10px; }
+            .main-with-sidebar { margin-left: 70px; padding: 16px; }
+            .modal-content { padding: 24px; }
+            .modal-actions { flex-direction: column; }
+            .modal-btn { width: 100%; text-align: center; justify-content: center; }
+            .top-actions { flex-direction: column; align-items: stretch; }
+            .btn-post, .btn-send-email { justify-content: center; width: 100%; }
+            .top-bar { flex-direction: column; align-items: flex-start; }
+            .confirm-actions { flex-direction: column; }
+            .confirm-btn { width: 100%; justify-content: center; }
+        }
+        @media (max-width: 480px) {
+            .modal-content { padding: 20px; }
+            .modal-header h3 { font-size: 18px; }
+            .table-section { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar-custom">
+    <div class="sidebar-header">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img" 
+             onerror="this.style.display='none'; this.parentElement.querySelector('.logo-fallback').style.display='flex'">
+        <div class="logo-fallback" style="display: none; width: 70px; height: 70px; background: rgba(255,255,255,0.12); border-radius: 50%; margin: 0 auto 12px; align-items: center; justify-content: center; font-size: 28px;">
+            <i class="fas fa-landmark"></i>
+        </div>
+        <h2>Barangay Sto. Niño</h2>
+        <small>Head Admin Panel</small>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="{{ url_for('head_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('user_management') }}"><i class="fas fa-users"></i> <span>Users</span></a></li>
+        <li><a href="{{ url_for('admin_management') }}"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
+        <li><a href="#"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+        <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+        <li class="active"><a href="{{ url_for('announcements') }}"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
+        <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+    </ul>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main-with-sidebar">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="welcome-text">
+            <h2><i class="fas fa-bullhorn"></i> Announcements</h2>
+            <p>Post and manage announcements for all residents</p>
+        </div>
+        <div class="top-bar-right">
+            <div class="clock-badge">
+                <i class="fas fa-clock"></i>
+                <span id="liveClock"></span>
+            </div>
+            <span class="role-badge"><i class="fas fa-shield-alt"></i> Head Admin</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <!-- ===== BUTTONS ===== -->
+    <div class="top-actions">
+        <div>
+            <button class="btn-post" onclick="openCreateModal()">
+                <i class="fas fa-plus-circle"></i> Post Announcement
+            </button>
+        </div>
+        <div>
+            <button class="btn-send-email" onclick="openEmailModal()">
+                <i class="fas fa-envelope"></i> Send Email to All
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== ANNOUNCEMENTS TABLE ===== -->
+    <div class="table-section">
+        <div class="table-header">
+            <h3>
+                <i class="fas fa-list"></i>
+                All Announcements
+                <span id="announcementCount">{{ announcements|length }}</span>
+            </h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Content</th>
+                        <th>Posted By</th>
+                        <th>Date Posted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="announcementTableBody">
+                    {% if announcements %}
+                        {% for announcement in announcements %}
+                        <tr>
+                            <td>#{{ announcement.id }}</td>
+                            <td><strong class="announcement-title">{{ announcement.title }}</strong></td>
+                            <td class="announcement-content">{{ announcement.content }}</td>
+                            <td>{{ announcement.first_name }} {{ announcement.last_name }}</td>
+                            <td>{{ announcement.created_at.strftime('%b %d, %Y at %I:%M %p') if announcement.created_at else 'N/A' }}</td>
+                            <td>
+                                <button class="btn-action btn-edit" onclick="openEditModal('{{ announcement.id }}', '{{ announcement.title }}', '{{ announcement.content }}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-action btn-delete" onclick="openConfirmDelete('{{ announcement.id }}', '{{ announcement.title }}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="no-results">
+                                <i class="fas fa-bullhorn"></i>
+                                No announcements yet. Click "Post Announcement" to create one.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 Barangay Sto. Niño, Parañaque City | Announcements</p>
+    </div>
+</div>
+
+<!-- ===== CREATE ANNOUNCEMENT MODAL ===== -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Post Announcement</h3>
+            <button class="close-modal" onclick="closeModal('createModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('create_announcement') }}" class="modal-body">
+            <div class="form-group">
+                <label for="createTitle"><i class="fas fa-heading"></i> Title</label>
+                <input type="text" id="createTitle" name="title" placeholder="Enter announcement title" required>
+            </div>
+            <div class="form-group">
+                <label for="createContent"><i class="fas fa-align-left"></i> Content</label>
+                <textarea id="createContent" name="content" placeholder="Write your announcement here..." required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeModal('createModal')">Cancel</button>
+                <button type="submit" class="modal-btn submit"><i class="fas fa-paper-plane"></i> Post Announcement</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== EDIT ANNOUNCEMENT MODAL ===== -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Announcement</h3>
+            <button class="close-modal" onclick="closeModal('editModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('edit_announcement', announcement_id=0) }}" class="modal-body" id="editForm">
+            <div class="form-group">
+                <label for="editTitle"><i class="fas fa-heading"></i> Title</label>
+                <input type="text" id="editTitle" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="editContent"><i class="fas fa-align-left"></i> Content</label>
+                <textarea id="editContent" name="content" required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
+                <button type="submit" class="modal-btn submit"><i class="fas fa-save"></i> Update Announcement</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== SEND EMAIL MODAL ===== -->
+<div id="emailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-envelope"></i> Send Email to All Users</h3>
+            <button class="close-modal" onclick="closeModal('emailModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('send_email_all') }}" class="modal-body">
+            <div class="form-group">
+                <label for="emailSubject"><i class="fas fa-tag"></i> Subject</label>
+                <input type="text" id="emailSubject" name="subject" placeholder="Enter email subject" required>
+            </div>
+            <div class="form-group">
+                <label for="emailMessage"><i class="fas fa-envelope-open-text"></i> Message</label>
+                <textarea id="emailMessage" name="message" placeholder="Write your email message here..." required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeModal('emailModal')">Cancel</button>
+                <button type="submit" class="modal-btn submit"><i class="fas fa-paper-plane"></i> Send Email</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== CONFIRM DELETE MODAL ===== -->
+<div id="confirmDeleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-body" style="text-align: center; padding: 10px 0;">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="confirm-title">Delete Announcement?</div>
+            <div class="confirm-message">
+                Are you sure you want to delete <strong id="confirmAnnouncementTitle"></strong>?<br>
+                This action <strong>cannot be undone</strong> and will permanently remove this announcement.
+            </div>
+            <div class="confirm-actions">
+                <button class="confirm-btn no" onclick="closeConfirmDelete()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="confirm-btn yes" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toastNotification" class="toast-notification">
+    <i id="toastIcon" class="fas fa-check-circle"></i>
+    <span id="toastMessage" class="toast-message">Success!</span>
+</div>
+
+<script>
+    let deleteAnnouncementId = null;
+
+    function updateClock() {
+        const now = new Date();
+        let h = now.getHours();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const d = now.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+        document.getElementById('liveClock').textContent = `${d} | ${h}:${m} ${ampm}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toastNotification');
+        const icon = document.getElementById('toastIcon');
+        const msg = document.getElementById('toastMessage');
+        
+        if (type === 'success') {
+            icon.className = 'fas fa-check-circle';
+            toast.className = 'toast-notification success show';
+        } else {
+            icon.className = 'fas fa-exclamation-circle';
+            toast.className = 'toast-notification error show';
+        }
+        msg.innerText = message;
+        
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    function openCreateModal() {
+        document.getElementById('createModal').style.display = 'flex';
+    }
+
+    function openEditModal(id, title, content) {
+        document.getElementById('editForm').action = `/edit-announcement/${id}`;
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editContent').value = content;
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function openEmailModal() {
+        document.getElementById('emailModal').style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const content = modal.querySelector('.modal-content');
+        content.classList.add('closing');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            content.classList.remove('closing');
+        }, 300);
+    }
+
+    function openConfirmDelete(id, title) {
+        deleteAnnouncementId = id;
+        document.getElementById('confirmAnnouncementTitle').textContent = title;
+        document.getElementById('confirmDeleteModal').style.display = 'flex';
+    }
+
+    function closeConfirmDelete() {
+        closeModal('confirmDeleteModal');
+        deleteAnnouncementId = null;
+    }
+
+    function confirmDelete() {
+        if (!deleteAnnouncementId) return;
+        
+        fetch(`/delete-announcement/${deleteAnnouncementId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (response.ok) {
+                    closeConfirmDelete();
+                    showToast(data.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(data.error || 'Error deleting announcement', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error deleting announcement', 'error');
+                console.error('Error:', error);
+            });
+    }
+
+    window.onclick = function(e) {
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target.id);
+        }
+    }
+</script>
+</body>
+</html>
+{% endblock %}
