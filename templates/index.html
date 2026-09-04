@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block title %}Barangay Sto. Niño - Home{% endblock %}
+
+{% block styles %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ===== HERO ===== */
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
+        color: white;
+        padding: 80px 40px;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .hero-section h1 {
+        font-size: 3.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .hero-section h1 span {
+        color: #ffb3b3;
+    }
+
+    .hero-section p {
+        font-size: 1.2rem;
+        opacity: 0.92;
+        max-width: 600px;
+        margin: 16px auto 0;
+    }
+
+    .hero-section .btn-group-custom {
+        margin-top: 30px;
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-section .btn-group-custom .btn {
+        padding: 14px 40px;
+        border-radius: 50px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    .hero-section .btn-group-custom .btn-light {
+        background: white;
+        color: var(--primary-700);
+    }
+
+    .hero-section .btn-group-custom .btn-light:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.20);
+    }
+
+    .hero-section .btn-group-custom .btn-outline-light {
+        border: 2px solid white;
+        color: white;
+        background: transparent;
+    }
+
+    .hero-section .btn-group-custom .btn-outline-light:hover {
+        background: white;
+        color: var(--primary-700);
+        transform: translateY(-3px);
+    }
+
+    /* ===== SERVICES ===== */
+    .section-title {
+        color: var(--primary-800);
+        font-weight: 700;
+        margin-bottom: 32px;
+        text-align: center;
+        font-size: 28px;
+    }
+
+    .section-title i {
+        color: var(--primary-500);
+        margin-right: 10px;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .service-card {
+        background: white;
+        border-radius: 16px;
+        padding: 30px 20px;
+        text-align: center;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border-top: 4px solid var(--primary-400);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        cursor: pointer;
+    }
+
+    .service-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
+    }
+
+    .service-card i {
+        font-size: 2.8rem;
+        color: var(--primary-500);
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .service-card h5 {
+        font-weight: 700;
+        color: var(--primary-800);
+        font-size: 16px;
+    }
+
+    .service-card p {
+        color: var(--neutral-500);
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+
+    /* ===== ANNOUNCEMENTS & EVENTS ===== */
+    .row-two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .col-header {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-800);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .col-header i {
+        color: var(--primary-500);
+    }
+
+    .card-custom {
+        background: white;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        padding: 24px;
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .card-custom:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
+    }
+
+    .card-custom .card-title {
+        font-weight: 700;
+        color: var(--primary-800);
+        margin-bottom: 4px;
+        font-size: 16px;
+    }
+
+    .card-custom .card-meta {
+        font-size: 0.8rem;
+        color: var(--neutral-500);
+    }
+
+    .card-custom .card-excerpt {
+        color: var(--neutral-700);
+        margin-top: 8px;
+        font-size: 14px;
+    }
+
+    .event-item {
+        border-left: 4px solid var(--primary-400);
+        padding-left: 16px;
+        margin-bottom: 16px;
+        background: white;
+        border-radius: 0 12px 12px 0;
+        padding: 16px 16px 16px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .event-item:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .event-item .event-title {
+        font-weight: 600;
+        color: var(--primary-800);
+        font-size: 15px;
+    }
+
+    .event-item .event-meta {
+        font-size: 0.85rem;
+        color: var(--neutral-500);
+    }
+
+    .event-item .event-meta i {
+        margin-right: 4px;
+    }
+
+    .event-item .event-desc {
+        font-size: 13px;
+        color: var(--neutral-700);
+        margin-top: 4px;
+        display: block;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: var(--neutral-500);
+        padding: 30px 20px;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        color: var(--neutral-300);
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+        .services-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 50px 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 2.2rem;
+        }
+
+        .hero-section p {
+            font-size: 1rem;
+        }
+
+        .hero-section .btn-group-custom .btn {
+            padding: 12px 28px;
+            font-size: 0.95rem;
+        }
+
+        .row-two {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+        }
+
+        .service-card {
+            padding: 20px 15px;
+        }
+
+        .service-card i {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-section h1 {
+            font-size: 1.8rem;
+        }
+
+        .hero-section .btn-group-custom .btn {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .hero-section .btn-group-custom {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ===== HERO SECTION ===== -->
+<section class="hero-section">
+    <div class="container">
+        <h1>Barangay <span>Sto. Niño</span></h1>
+        <p>Efficient, Accessible, and Transparent Barangay Services at Your Fingertips</p>
+        <div class="btn-group-custom">
+            {% if session.user_id %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-light">
+                    <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-light">
+                    <i class="fas fa-user-plus"></i> Get Started
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ===== SERVICES ===== -->
+<section class="container" id="services">
+    <h2 class="section-title"><i class="fas fa-concierge-bell"></i> Our Services</h2>
+    <div class="services-grid">
+        <a href="{{ url_for('request_document') if session.user_id else url_for('login') }}" class="service-card">
+            <i class="fas fa-file-alt"></i>
+            <h5>Barangay Clearance</h5>
+            <p>Request official barangay clearance online</p>
+        </a>
+        <a href="{{ url_for('request_document') if session.user_id else url_for('login') }}" class="service-card">
+            <i class="fas fa-id-card"></i>
+            <h5>Certificate of Indigency</h5>
+            <p>Apply for certificate of indigency</p>
+        </a>
+        <a href="{{ url_for('request_document') if session.user_id else url_for('login') }}" class="service-card">
+            <i class="fas fa-home"></i>
+            <h5>Proof of Residency</h5>
+            <p>Request proof of residency certificate</p>
+        </a>
+        <a href="{{ url_for('apply_permit') if session.user_id else url_for('login') }}" class="service-card">
+            <i class="fas fa-calendar-check"></i>
+            <h5>Event Permits</h5>
+            <p>Apply for community event permits</p>
+        </a>
+    </div>
+</section>
+
+<!-- ===== ANNOUNCEMENTS & EVENTS ===== -->
+<section class="container" id="announcements">
+    <div class="row-two">
+
+        <!-- Announcements -->
+        <div>
+            <h3 class="col-header"><i class="fas fa-bullhorn"></i> Announcements</h3>
+            {% if announcements and announcements|length > 0 %}
+                {% for announcement in announcements %}
+                    <div class="card-custom">
+                        <div class="card-title">{{ announcement.title }}</div>
+                        <div class="card-meta">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ announcement.created_at.strftime('%B %d, %Y') if announcement.created_at else 'N/A' }}
+                        </div>
+                        <div class="card-excerpt">{{ announcement.content }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="card-custom empty-state">
+                    <i class="fas fa-info-circle"></i>
+                    <p>No announcements available at this time.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Upcoming Events -->
+        <div id="events">
+            <h3 class="col-header"><i class="fas fa-calendar-alt"></i> Upcoming Events</h3>
+            {% if events and events|length > 0 %}
+                {% for event in events %}
+                    <div class="event-item">
+                        <div class="event-title">{{ event.event_name }}</div>
+                        <div class="event-meta">
+                            <i class="fas fa-calendar-day"></i>
+                            {{ event.event_date.strftime('%B %d, %Y') if event.event_date else 'N/A' }}
+                            <i class="fas fa-clock ms-2"></i>
+                            {{ event.event_time.strftime('%I:%M %p') if event.event_time else 'N/A' }}
+                        </div>
+                        <div class="event-meta">
+                            <i class="fas fa-map-marker-alt"></i> {{ event.venue or 'Venue TBA' }}
+                        </div>
+                        {% if event.event_description %}
+                            <small class="event-desc">{{ event.event_description }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="event-item empty-state" style="border-left-color: var(--neutral-300);">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No upcoming events scheduled.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    console.log('Barangay Sto. Niño homepage loaded');
+</script>
+{% endblock %}

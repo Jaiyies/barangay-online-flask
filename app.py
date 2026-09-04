@@ -3,6 +3,7 @@ import mysql.connector
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 import os
+import time
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-in-production'
@@ -15,15 +16,29 @@ def index():
 # ===== DATABASE CONNECTION =====
 def get_db():
     return mysql.connector.connect(
-        host='localhost',
+        host='127.0.0.1',
+        port=3306,
         user='root',
         password='bsit2026@123',
         database='barangay_online_services'
     )
 
-# ===== LOGIN ROUTE =====
+# ===== LOGIN ROUTE (MAY LOCKOUT) =====
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Check kung naka-lockout ba
+    if session.get('login_attempts', 0) >= 3:
+        lockout_time = session.get('lockout_time', 0)
+        current_time = time.time()
+        if current_time < lockout_time:
+            remaining = int(lockout_time - current_time)
+            lockout_msg = f"Too many failed attempts. Please wait {remaining} seconds before trying again."
+            return render_template('login.html', login_error=True, lockout_message=lockout_msg)
+        else:
+            # Reset attempts after lockout expires
+            session['login_attempts'] = 0
+            session['lockout_time'] = 0
+
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
@@ -40,30 +55,46 @@ def login():
         conn.close()
         
         if user:
-            if check_password_hash(user['password'], password):
-                if role == 'admin' and user['role'] not in ['admin', 'head_admin']:
-                    flash('You are not authorized as admin.', 'danger')
-                    return render_template('login.html')
-                
-                session['user_id'] = user['id']
-                session['fullname'] = f"{user['first_name']} {user['last_name']}"
-                session['email'] = user['email']
-                session['role'] = user['role']
-                
-                flash(f'Welcome back, {session["fullname"]}!', 'success')
-                
-                if user['role'] == 'head_admin':
-                    return redirect(url_for('head_admin_dashboard'))
-                elif user['role'] == 'admin':
-                    return redirect(url_for('admin_dashboard'))
+            # Kapag mali ang password
+            if not check_password_hash(user['password'], password):
+                session['login_attempts'] = session.get('login_attempts', 0) + 1
+                if session['login_attempts'] >= 3:
+                    session['lockout_time'] = time.time() + 30
+                    lockout_msg = "Too many failed attempts. Please wait 30 seconds before trying again."
+                    return render_template('login.html', login_error=True, lockout_message=lockout_msg)
                 else:
-                    return redirect(url_for('dashboard'))
+                    return render_template('login.html', login_error=True)
+            
+            # Kapag tama na
+            session['login_attempts'] = 0
+            session['lockout_time'] = 0
+            
+            if role == 'admin' and user['role'] not in ['admin', 'head_admin']:
+                flash('You are not authorized as admin.', 'danger')
+                return render_template('login.html')
+            
+            session['user_id'] = user['id']
+            session['fullname'] = f"{user['first_name']} {user['last_name']}"
+            session['email'] = user['email']
+            session['role'] = user['role']
+            
+            flash(f'Welcome back, {session["fullname"]}!', 'success')
+            
+            if user['role'] == 'head_admin':
+                return redirect(url_for('head_admin_dashboard'))
+            elif user['role'] == 'admin':
+                return redirect(url_for('admin_dashboard'))
             else:
-                flash('Invalid email or password.', 'danger')
+                return redirect(url_for('dashboard'))
         else:
-            flash('Invalid email or password.', 'danger')
-        
-        return render_template('login.html')
+            # Kapag walang user
+            session['login_attempts'] = session.get('login_attempts', 0) + 1
+            if session['login_attempts'] >= 3:
+                session['lockout_time'] = time.time() + 30
+                lockout_msg = "Too many failed attempts. Please wait 30 seconds before trying again."
+                return render_template('login.html', login_error=True, lockout_message=lockout_msg)
+            else:
+                return render_template('login.html', login_error=True)
     
     return render_template('login.html')
 
@@ -180,8 +211,191 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template('dashboard.html')
 
+# ===== REQUEST DOCUMENT =====
+@app.route('/request-document')
+def request_document():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    return render_template('request_document.html')
+
+# ===== MY PROFILE =====
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, first_name, last_name, email, contact_number, address, role, is_verified, created_at FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Format date
+    if user.get('created_at'):
+        if hasattr(user['created_at'], 'strftime'):
+            user['created_at'] = user['created_at'].strftime('%B %d, %Y')
+    
+    return render_template('profile.html', user=user)
+
+# ===== UPDATE PROFILE =====
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    first_name = request.form.get('first_name', '').strip()
+    last_name = request.form.get('last_name', '').strip()
+    contact_number = request.form.get('contact_number', '').strip()
+    address = request.form.get('address', '').strip()
+    
+    if not first_name or not last_name:
+        flash('First name and Last name are required.', 'danger')
+        return redirect(url_for('profile'))
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE users SET first_name = %s, last_name = %s, contact_number = %s, address = %s 
+        WHERE id = %s
+    """, (first_name, last_name, contact_number, address, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    session['fullname'] = f"{first_name} {last_name}"
+    flash('Profile updated successfully!', 'success')
+    return redirect(url_for('profile'))
+
+# ===== CHANGE PASSWORD =====
+@app.route('/change-password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+    
+    if not current_password or not new_password or not confirm_password:
+        flash('Please fill in all password fields.', 'danger')
+        return redirect(url_for('profile'))
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('profile'))
+    
+    if len(new_password) < 8:
+        flash('New password must be at least 8 characters long.', 'danger')
+        return redirect(url_for('profile'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+    
+    if not user:
+        conn.close()
+        flash('User not found.', 'danger')
+        return redirect(url_for('profile'))
+    
+    if not check_password_hash(user['password'], current_password):
+        conn.close()
+        flash('Current password is incorrect.', 'danger')
+        return redirect(url_for('profile'))
+    
+    hashed_password = generate_password_hash(new_password)
+    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    flash('Password changed successfully!', 'success')
+    return redirect(url_for('profile'))
+
+# ===== MY REQUESTS (TRACK REQUESTS) =====
+@app.route('/my-requests')
+def my_requests():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Kunin lahat ng document requests ng user
+    cursor.execute("""
+        SELECT id, type, status, created_at 
+        FROM document_requests 
+        WHERE user_id = %s 
+        ORDER BY created_at DESC
+    """, (session['user_id'],))
+    document_requests = cursor.fetchall()
+    
+    # Kunin lahat ng event permits ng user
+    cursor.execute("""
+        SELECT id, event_name, status, created_at 
+        FROM event_permits 
+        WHERE user_id = %s 
+        ORDER BY created_at DESC
+    """, (session['user_id'],))
+    event_requests = cursor.fetchall()
+    
+    conn.close()
+    
+    # Format dates
+    for req in document_requests:
+        if req.get('created_at'):
+            if hasattr(req['created_at'], 'strftime'):
+                req['created_at'] = req['created_at'].strftime('%b %d, %Y')
+    
+    for req in event_requests:
+        if req.get('created_at'):
+            if hasattr(req['created_at'], 'strftime'):
+                req['created_at'] = req['created_at'].strftime('%b %d, %Y')
+    
+    return render_template('my_requests.html', 
+                         document_requests=document_requests, 
+                         event_requests=event_requests)
+
+# ===== EVENTS (BAGONG ROUTE) =====
+@app.route('/events')
+def events():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Kunin lahat ng approved events
+    cursor.execute("""
+        SELECT id, event_name, event_description, event_date, event_time, status, created_at 
+        FROM event_permits 
+        WHERE status = 'approved'
+        ORDER BY event_date ASC
+    """)
+    events = cursor.fetchall()
+    conn.close()
+    
+    # Format dates
+    for event in events:
+        if event.get('event_date'):
+            if hasattr(event['event_date'], 'strftime'):
+                event['event_date'] = event['event_date'].strftime('%B %d, %Y')
+        if event.get('created_at'):
+            if hasattr(event['created_at'], 'strftime'):
+                event['created_at'] = event['created_at'].strftime('%b %d, %Y')
+    
+    return render_template('events.html', events=events)
+
 # ============================================================
-# ===== USER MANAGEMENT (RESIDENTS ONLY) =====
+# ===== USER MANAGEMENT =====
 # ============================================================
 
 @app.route('/users')
@@ -300,10 +514,7 @@ def api_delete_user(user_id):
     
     return jsonify({'message': 'User deleted successfully'})
 
-# ============================================================
-# ===== ADMIN MANAGEMENT (HEAD ADMIN ONLY) =====
-# ============================================================
-
+# ===== ADMIN MANAGEMENT =====
 @app.route('/admins')
 def admin_management():
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -446,10 +657,7 @@ def create_admin():
     flash('Admin created successfully!', 'success')
     return redirect(url_for('admin_management'))
 
-# ============================================================
-# ===== ANNOUNCEMENTS (HEAD ADMIN ONLY) =====
-# ============================================================
-
+# ===== ANNOUNCEMENTS =====
 @app.route('/announcements')
 def announcements():
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -555,10 +763,7 @@ def send_email_all():
     flash(f'Email sent to {len(users)} users!', 'success')
     return redirect(url_for('announcements'))
 
-# ============================================================
 # ===== CHECK SESSION =====
-# ============================================================
-
 @app.route('/check-session')
 def check_session():
     if 'user_id' in session:
