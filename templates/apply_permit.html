@@ -54,7 +54,7 @@
         .page-header .user-badge span { font-weight: 600; color: var(--primary-800); }
 
         /* ===== FORM ===== */
-        .form-card { background: white; border-radius: 16px; padding: 32px; max-width: 760px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .form-card { background: white; border-radius: 16px; padding: 32px; max-width: 800px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
         .form-card .form-title { font-weight: 600; color: var(--primary-800); margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
         .form-card .form-title i { color: var(--primary-500); font-size: 1.2rem; }
 
@@ -74,18 +74,309 @@
         .form-group .row { display: flex; gap: 16px; }
         .form-group .row .col { flex: 1; }
 
+        .form-group .time-row {
+            display: flex;
+            gap: 16px;
+        }
+        .form-group .time-row .col {
+            flex: 1;
+        }
+        .form-group .time-hint {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--neutral-500);
+            margin-top: 4px;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .form-group .time-hint strong {
+            color: var(--primary-600);
+        }
+
         .form-group .file-input-wrapper { position: relative; }
         .form-group .file-input-wrapper input[type="file"] { padding: 12px; background: white; cursor: pointer; border: 1.5px dashed var(--neutral-100); }
         .form-group .file-input-wrapper input[type="file"]:hover { border-color: var(--primary-500); background: var(--primary-50); }
         .form-group .file-input-wrapper small { display: block; color: var(--neutral-500); font-size: 0.75rem; margin-top: 6px; }
 
-        /* ===== BUTTONS ===== */
-        .btn-submit { background: var(--primary-600); color: white; padding: 14px 40px; border: none; border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; }
-        .btn-submit:hover { background: var(--primary-700); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,107,66,0.25); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        /* ===== BANNERS ===== */
+        .warning-banner {
+            background: linear-gradient(135deg, #fff8e6 0%, #fff3d6 100%);
+            border: 2px solid #f0d89a;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .warning-banner i {
+            font-size: 28px;
+            color: #b76e00;
+            flex-shrink: 0;
+        }
+        .warning-banner-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #8a5d00;
+            margin-bottom: 2px;
+        }
+        .warning-banner-content p {
+            font-size: 14px;
+            color: #6b4a00;
+            line-height: 1.5;
+        }
+        .warning-banner-content p strong {
+            color: #b76e00;
+        }
 
-        .btn-cancel { background: var(--neutral-100); color: var(--neutral-700); padding: 14px 30px; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-cancel:hover { background: var(--neutral-100); opacity: 0.8; }
+        .info-banner {
+            background: linear-gradient(135deg, #e8f0fe 0%, #d4e4f7 100%);
+            border: 2px solid #b8d0e8;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .info-banner i {
+            font-size: 28px;
+            color: #1a56db;
+            flex-shrink: 0;
+        }
+        .info-banner-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a3a7a;
+            margin-bottom: 2px;
+        }
+        .info-banner-content p {
+            font-size: 14px;
+            color: #2a4a8a;
+            line-height: 1.5;
+        }
+        .info-banner-content p strong {
+            color: #1a56db;
+        }
+
+        .availability-status {
+            margin-top: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: fadeInUp 0.3s ease;
+        }
+        .availability-status.visible {
+            display: flex;
+        }
+        .availability-status.available {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .availability-status.unavailable {
+            background: #fef2f2;
+            color: #c0392b;
+            border: 1px solid #fecaca;
+        }
+        .availability-status.checking {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .availability-status i {
+            font-size: 18px;
+        }
+
+        .conflict-warning {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .conflict-warning.visible {
+            display: flex;
+        }
+        .conflict-warning i {
+            color: #92400e;
+            font-size: 20px;
+            margin-top: 2px;
+        }
+        .conflict-warning .text {
+            color: #92400e;
+            font-size: 14px;
+        }
+        .conflict-warning .text strong {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+
+        /* ===== TERMS ===== */
+        .terms-section {
+            margin: 24px 0 18px;
+            background: var(--neutral-50);
+            border-radius: 12px;
+            border: 1.5px solid var(--neutral-100);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .terms-section:hover {
+            border-color: var(--primary-500);
+        }
+
+        .terms-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        .terms-header:hover {
+            background: rgba(26, 93, 58, 0.03);
+        }
+        .terms-header i {
+            color: var(--primary-500);
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        .terms-header .toggle-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+        .terms-header .toggle-icon.active {
+            transform: rotate(180deg);
+        }
+        .terms-header h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-800);
+        }
+
+        .terms-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .terms-body.open {
+            max-height: 600px;
+        }
+
+        .terms-content {
+            padding: 0 18px 18px;
+            font-size: 14px;
+            color: var(--neutral-500);
+            line-height: 1.8;
+        }
+        .terms-content p {
+            margin-bottom: 10px;
+        }
+        .terms-content p strong {
+            color: var(--primary-800);
+        }
+        .terms-content ul {
+            padding-left: 20px;
+            margin: 8px 0 12px;
+        }
+        .terms-content ul li {
+            margin-bottom: 6px;
+        }
+
+        .terms-checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-top: 1px solid var(--neutral-100);
+            background: white;
+        }
+        .terms-checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            margin-top: 2px;
+            accent-color: var(--primary-500);
+            cursor: pointer;
+        }
+        .terms-checkbox-wrapper label {
+            font-size: 14px;
+            color: var(--neutral-500);
+            cursor: pointer;
+        }
+        .terms-checkbox-wrapper label strong {
+            color: var(--primary-800);
+        }
+        .terms-checkbox-wrapper.error {
+            border-color: var(--accent-600);
+            background: #fef2f2;
+        }
+        .terms-checkbox-wrapper .error-msg {
+            color: var(--accent-600);
+            font-size: 12px;
+            font-weight: 500;
+            display: none;
+            margin-top: 4px;
+        }
+        .terms-checkbox-wrapper .error-msg.visible {
+            display: block;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-submit {
+            background: var(--primary-600);
+            color: white;
+            padding: 14px 40px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-submit:hover {
+            background: var(--primary-700);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26,107,66,0.25);
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-cancel {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            padding: 14px 30px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-cancel:hover {
+            background: var(--neutral-100);
+            opacity: 0.8;
+        }
 
         .form-actions { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 
@@ -99,14 +390,257 @@
         .flash-message.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
         .flash-message.info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
 
-        /* ===== CONFLICT WARNING ===== */
-        .conflict-warning {
-            background: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; padding: 16px 20px;
-            display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px;
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
         }
-        .conflict-warning i { color: #92400e; font-size: 1.2rem; margin-top: 2px; }
-        .conflict-warning .text { color: #92400e; font-size: 0.9rem; }
-        .conflict-warning .text strong { display: block; font-size: 0.95rem; margin-bottom: 2px; }
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #1a5d3a 0%, #2a7a52 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 24px 24px 0 0;
+            text-align: center;
+            position: relative;
+        }
+        .modal-header i {
+            font-size: 56px;
+            margin-bottom: 10px;
+            animation: bounce 0.6s ease;
+        }
+        .modal-header h2 {
+            font-size: 24px;
+            margin-top: 5px;
+        }
+        .modal-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .close-modal-btn {
+            position: absolute;
+            right: 16px;
+            top: 12px;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-modal-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 24px 28px;
+        }
+        .permit-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 20px;
+            background: var(--neutral-50);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border: 1px solid var(--neutral-100);
+        }
+        .permit-details-grid .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 13px;
+            color: var(--primary-800);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .permit-details-grid .detail-item:last-child,
+        .permit-details-grid .detail-item:nth-last-child(2) {
+            border-bottom: none;
+        }
+        .permit-details-grid .detail-item i {
+            color: var(--primary-500);
+            width: 18px;
+            font-size: 14px;
+        }
+        .permit-details-grid .detail-item .label {
+            font-weight: 600;
+            color: var(--neutral-500);
+            min-width: 70px;
+            font-size: 12px;
+        }
+        .permit-details-grid .detail-item .value {
+            color: var(--primary-800);
+            font-weight: 500;
+        }
+
+        .reference-number-box {
+            background: linear-gradient(135deg, #e3f5e8 0%, #d0ebdd 100%);
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 12px 0;
+        }
+        .reference-number-box p {
+            font-size: 12px;
+            color: #1a5d3a;
+        }
+        .reference-number-box h3 {
+            font-size: 22px;
+            color: #1a5d3a;
+            letter-spacing: 1px;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+        }
+        .reference-number-box .queuing-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .waiting-banner {
+            background: linear-gradient(135deg, #e8f0fe 0%, #d4e4f7 100%);
+            border: 2px solid #b8d0e8;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .waiting-banner i {
+            font-size: 24px;
+            color: #1a56db;
+        }
+        .waiting-banner-content h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a3a7a;
+            margin-bottom: 2px;
+        }
+        .waiting-banner-content p {
+            font-size: 13px;
+            color: #2a4a8a;
+        }
+        .waiting-banner-content p strong {
+            color: #1a56db;
+        }
+
+        .status-badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .modal-footer {
+            padding: 16px 28px 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            min-width: 140px;
+        }
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #1a5d3a 0%, #2a7a52 100%);
+            color: white;
+        }
+        .modal-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26,93,58,0.3);
+        }
+        .modal-btn.secondary {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-100);
+        }
+        .modal-btn.secondary:hover {
+            background: var(--neutral-100);
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .field-error {
+            border-color: var(--accent-600) !important;
+            background: #fef2f2 !important;
+        }
+        .field-error:focus {
+            box-shadow: 0 0 0 4px rgba(196, 40, 40, 0.1) !important;
+        }
+        .error-text {
+            color: var(--accent-600);
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 4px;
+            display: none;
+        }
+        .error-text.visible {
+            display: block;
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -115,9 +649,24 @@
             .main-content { margin-left: 0; padding: 20px; }
             .form-card { padding: 20px; }
             .form-group .row { flex-direction: column; gap: 0; }
+            .form-group .time-row { flex-direction: column; gap: 0; }
             .page-header h1 { font-size: 1.4rem; }
             .form-actions { flex-direction: column; }
             .form-actions .btn-submit, .form-actions .btn-cancel { width: 100%; justify-content: center; }
+            .permit-details-grid { grid-template-columns: 1fr; }
+            .modal-content { margin: 10% auto; width: 95%; }
+            .modal-footer { flex-direction: column; }
+            .modal-btn { width: 100%; }
+            .warning-banner { flex-direction: column; text-align: center; }
+            .info-banner { flex-direction: column; text-align: center; }
+            .waiting-banner { flex-direction: column; text-align: center; }
+        }
+        @media (max-width: 480px) {
+            .form-card { padding: 16px; }
+            .page-header h1 { font-size: 1.2rem; }
+            .page-header .user-badge { padding: 6px 12px 6px 16px; font-size: 13px; }
+            .modal-header h2 { font-size: 20px; }
+            .modal-header i { font-size: 44px; }
         }
     </style>
 </head>
@@ -133,12 +682,12 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="/request-document"><i class="fas fa-file-alt"></i> Request Document</a>
-            <a href="/apply-permit" class="active"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
-            <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
-            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
-            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('request_document') }}"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="{{ url_for('apply_permit') }}" class="active"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="#"><i class="fas fa-list"></i> My Requests</a>
+            <a href="#"><i class="fas fa-calendar-alt"></i> Events Calendar</a>
+            <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
 
@@ -156,12 +705,41 @@
             </div>
             <div class="user-badge">
                 <i class="fas fa-user-circle"></i>
-                <span>Juan Dela Cruz</span>
+                <span>{{ session.fullname or 'Resident' }}</span>
             </div>
         </div>
 
         <!-- Flash Messages -->
-        <div id="flashMessages"></div>
+        <div id="flashMessages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- ===== 8. 10-DAY RULE WARNING ===== -->
+        <div class="warning-banner">
+            <i class="fas fa-clock"></i>
+            <div class="warning-banner-content">
+                <h4>⚠️ Important: Apply 10 Days Before Event</h4>
+                <p>Please submit your application at least <strong>10 days</strong> before the event date to allow proper processing and review by the Barangay staff.</p>
+            </div>
+        </div>
+
+        <!-- ===== 9. PROCESSING TIME BANNER ===== -->
+        <div class="info-banner">
+            <i class="fas fa-hourglass-half"></i>
+            <div class="info-banner-content">
+                <h4>⏳ Processing Time</h4>
+                <p>Please allow <strong>up to 24 hours</strong> for your permit application to be reviewed and approved by the Barangay staff. You will receive a notification once your permit status is updated.</p>
+            </div>
+        </div>
 
         <!-- Form Card -->
         <div class="form-card">
@@ -170,16 +748,16 @@
                 Event Permit Application Form
             </div>
 
-            <!-- Conflict Warning (shown when date conflict exists) -->
-            <div class="conflict-warning" id="conflictWarning" style="display: none;">
+            <!-- ===== 4. CONFLICT WARNING ===== -->
+            <div class="conflict-warning" id="conflictWarning">
                 <i class="fas fa-exclamation-triangle"></i>
                 <div class="text">
-                    <strong>⚠️ Date Conflict Detected</strong>
-                    <span>There is already an approved or pending event on this date. Please choose another date.</span>
+                    <strong>⚠️ Date/Time Conflict Detected</strong>
+                    <span id="conflictMessage">There is already an approved event at this venue and time. Please choose another date or time slot.</span>
                 </div>
             </div>
 
-            <form method="POST" action="/apply-permit" enctype="multipart/form-data" id="permitForm">
+            <form method="POST" action="{{ url_for('apply_permit') }}" enctype="multipart/form-data" id="permitForm">
 
                 <!-- Event Name -->
                 <div class="form-group">
@@ -193,30 +771,72 @@
                     <textarea name="event_description" id="eventDescription" placeholder="Describe your event briefly..."></textarea>
                 </div>
 
+                <!-- ===== 1. PURPOSE FIELD ===== -->
+                <div class="form-group">
+                    <label for="purpose"><i class="fas fa-bullseye"></i> Purpose of Event</label>
+                    <textarea name="purpose" id="purpose" rows="3" placeholder="Describe the purpose of your event..."></textarea>
+                </div>
+
                 <!-- Date & Time Row -->
                 <div class="form-group">
                     <div class="row">
                         <div class="col">
                             <label for="eventDate"><i class="fas fa-calendar-day"></i> Event Date <span class="required">*</span></label>
                             <input type="date" name="event_date" id="eventDate" required>
-                        </div>
-                        <div class="col">
-                            <label for="eventTime"><i class="fas fa-clock"></i> Event Time <span class="required">*</span></label>
-                            <input type="time" name="event_time" id="eventTime" required>
+                            <span class="time-hint" id="dateHint"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Attendees & Venue Row -->
+                <!-- Start Time & End Time -->
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> Event Time <span class="required">*</span></label>
+                    <div class="time-row">
+                        <div class="col">
+                            <label for="startTime" style="font-size: 0.7rem; text-transform: uppercase; color: var(--neutral-500); font-weight: 600; margin-bottom: 4px; display: block;">
+                                <i class="fas fa-play" style="font-size: 0.6rem;"></i> Start Time
+                            </label>
+                            <input type="time" name="start_time" id="startTime" min="08:00" max="22:00" required>
+                            <span class="time-hint">Min: <strong>8:00 AM</strong></span>
+                        </div>
+                        <div class="col">
+                            <label for="endTime" style="font-size: 0.7rem; text-transform: uppercase; color: var(--neutral-500); font-weight: 600; margin-bottom: 4px; display: block;">
+                                <i class="fas fa-stop" style="font-size: 0.6rem;"></i> End Time
+                            </label>
+                            <input type="time" name="end_time" id="endTime" min="08:00" max="22:00" required>
+                            <span class="time-hint">Max: <strong>10:00 PM</strong></span>
+                        </div>
+                    </div>
+                    <span class="time-hint" style="margin-top: 6px; display: block; color: var(--neutral-500); font-size: 0.75rem;">
+                        <i class="fas fa-info-circle"></i> Event must start at <strong>8:00 AM</strong> or later and end by <strong>10:00 PM</strong>
+                    </span>
+                    <div id="timeError" class="error-text">Please select a valid time range. End time must be after start time.</div>
+                </div>
+
+                <!-- ===== 3. AVAILABILITY STATUS ===== -->
+                <div id="availabilityStatus" class="availability-status">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="availabilityMessage">Checking availability...</span>
+                </div>
+
+                <!-- Attendees & Venue -->
                 <div class="form-group">
                     <div class="row">
                         <div class="col">
                             <label for="estimatedAttendees"><i class="fas fa-users"></i> Estimated Attendees</label>
-                            <input type="number" name="estimated_attendees" id="estimatedAttendees" placeholder="e.g., 100" min="1">
+                            <input type="number" name="estimated_attendees" id="estimatedAttendees" placeholder="e.g., 100" min="1" max="300">
+                            <span class="time-hint">Max: <strong>300 attendees</strong></span>
                         </div>
                         <div class="col">
-                            <label for="venue"><i class="fas fa-map-marker-alt"></i> Venue</label>
-                            <input type="text" name="venue" id="venue" placeholder="e.g., Barangay Covered Court">
+                            <!-- ===== 11. VENUE DROPDOWN ===== -->
+                            <label for="venue"><i class="fas fa-map-marker-alt"></i> Venue <span class="required">*</span></label>
+                            <select name="venue" id="venue" required>
+                                <option value="">Select a venue...</option>
+                                <option value="Sto.Niño Sports Complex">Sto.Niño Sports Complex</option>
+                                <option value="Sto.Niño Basketball Court">Sto.Niño Basketball Court</option>
+                                <option value="Sampaguita Covered Court">Sampaguita Covered Court</option>
+                                <option value="Court 4">Court 4</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -230,12 +850,49 @@
                     </div>
                 </div>
 
+                <!-- ===== 1 & 2. TERMS & CONDITIONS WITH CHECKBOX ===== -->
+                <div class="terms-section" id="termsSection">
+                    <div class="terms-header" onclick="toggleTerms()">
+                        <i class="fas fa-file-contract"></i>
+                        <h4>Terms and Conditions</h4>
+                        <i class="fas fa-chevron-down toggle-icon" id="termsToggleIcon"></i>
+                    </div>
+                    <div class="terms-body" id="termsBody">
+                        <div class="terms-content">
+                            <p><strong>1. Acceptance of Terms</strong><br>By submitting this application, you agree to comply with all barangay rules and regulations regarding events and gatherings.</p>
+                            <p><strong>2. Event Guidelines</strong><br>All events must adhere to the following:</p>
+                            <ul>
+                                <li>Maximum of <strong>300 attendees</strong> per event</li>
+                                <li>Start Time: <strong>8:00 AM - 10:00 PM</strong></li>
+                                <li>End Time: <strong>8:00 AM - 10:00 PM</strong></li>
+                                <li>Proper waste management must be observed</li>
+                                <li>No excessive noise beyond barangay limits</li>
+                                <li>Event must be 10 days before the event date</li>
+                            </ul>
+                            <p><strong>3. Responsibility</strong><br>The applicant is fully responsible for the event and must ensure the safety and orderliness of the activity.</p>
+                            <p><strong>4. Data Privacy</strong><br>Your information will be used solely for permit processing and barangay records in accordance with the Data Privacy Act.</p>
+                            <p><strong>5. Cancellation Policy</strong><br>Permit must be cancelled at least 3 days before the event. Failure to do so may result in penalties.</p>
+                        </div>
+                    </div>
+                    <div class="terms-checkbox-wrapper" id="termsCheckboxWrapper">
+                        <input type="checkbox" id="termsCheckbox">
+                        <div>
+                            <label for="termsCheckbox">
+                                <strong>I have read and agree to the Terms and Conditions</strong> of Barangay Sto. Niño
+                            </label>
+                            <div class="error-msg" id="termsErrorMsg">
+                                <i class="fas fa-exclamation-circle"></i> Please agree to the Terms and Conditions before submitting.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-submit" id="submitBtn">
+                    <button type="submit" class="btn-submit" id="submitBtn" disabled>
                         <i class="fas fa-paper-plane"></i> Submit Application
                     </button>
-                    <a href="/dashboard" class="btn-cancel">
+                    <a href="{{ url_for('dashboard') }}" class="btn-cancel">
                         <i class="fas fa-times"></i> Cancel
                     </a>
                 </div>
@@ -244,6 +901,76 @@
         </div>
 
     </main>
+
+    <!-- ===== 7. SUCCESS MODAL ===== -->
+    <div id="permitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-modal-btn" onclick="closeModal()">&times;</button>
+                <i class="fas fa-check-circle"></i>
+                <h2>Permit Submitted!</h2>
+                <p>Your application has been received</p>
+            </div>
+            <div class="modal-body">
+
+                <!-- ===== 5 & 6. REFERENCE NUMBER + QUEUING NUMBER ===== -->
+                <div class="reference-number-box">
+                    <p><i class="fas fa-qrcode"></i> Reference Number</p>
+                    <h3 id="refNumberDisplay">BP-20260903-XXXX</h3>
+                    <div class="queuing-badge" id="queuingBadge">Queue #001</div>
+                    <p style="font-size: 11px; margin-top: 4px; color: #1a5d3a; opacity: 0.7;">Please save this number for tracking</p>
+                </div>
+
+                <!-- Permit Details -->
+                <div class="permit-details-grid" id="permitDetailsGrid">
+                    <div class="detail-item">
+                        <i class="fas fa-tag"></i>
+                        <span class="label">Event:</span>
+                        <span class="value" id="modalEventName">N/A</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-calendar-day"></i>
+                        <span class="label">Date:</span>
+                        <span class="value" id="modalEventDate">N/A</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span class="label">Time:</span>
+                        <span class="value" id="modalEventTime">N/A</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="label">Venue:</span>
+                        <span class="value" id="modalVenue">N/A</span>
+                    </div>
+                    <div class="detail-item" style="grid-column: 1 / -1; border-bottom: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="label">Status:</span>
+                        <span class="value"><span class="status-badge-pending">Pending Review</span></span>
+                    </div>
+                </div>
+
+                <div class="waiting-banner">
+                    <i class="fas fa-hourglass-half"></i>
+                    <div class="waiting-banner-content">
+                        <h4>Please Wait</h4>
+                        <p>Your permit is now <strong>PENDING</strong>. Please allow <strong>24 hours</strong> for the Barangay staff to review and approve your application.</p>
+                    </div>
+                </div>
+                <p style="text-align: center; font-size: 13px; color: var(--neutral-500); margin-top: 8px;">
+                    <i class="fas fa-clock"></i> You will receive a notification once your permit status is updated.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="modal-btn primary">
+                    <i class="fas fa-search"></i> Track Status
+                </a>
+                <button onclick="closeModal()" class="modal-btn secondary">
+                    <i class="fas fa-plus"></i> Submit Another
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== SCRIPTS ===== -->
     <script>
@@ -270,23 +997,247 @@
                     document.getElementById('sidebar').classList.remove('open');
                 }
             });
+
+            // Set min date
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setDate(today.getDate() + 10);
+            document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
+            document.getElementById('dateHint').innerHTML = 'Min: <strong>' + minDate.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' }) + '</strong> (10 days from now)';
+
+            // Set default time hints
+            document.getElementById('startTime').setAttribute('min', '08:00');
+            document.getElementById('startTime').setAttribute('max', '22:00');
+            document.getElementById('endTime').setAttribute('min', '08:00');
+            document.getElementById('endTime').setAttribute('max', '22:00');
+
+            // Load unread count
+            loadUnreadCount();
         });
 
-        // ===== DATE CONFLICT CHECK (Frontend) =====
-        // This is a simple frontend validation to warn users
-        // Actual conflict check happens on the server
+        // ===== 1 & 2. TERMS TOGGLE =====
+        let termsOpen = false;
+
+        function toggleTerms() {
+            termsOpen = !termsOpen;
+            const body = document.getElementById('termsBody');
+            const icon = document.getElementById('termsToggleIcon');
+
+            if (termsOpen) {
+                body.classList.add('open');
+                icon.classList.add('active');
+            } else {
+                body.classList.remove('open');
+                icon.classList.remove('active');
+            }
+        }
+
+        // ===== 2. TERMS CHECKBOX VALIDATION =====
+        document.getElementById('termsCheckbox').addEventListener('change', function() {
+            const wrapper = document.getElementById('termsCheckboxWrapper');
+            const errorMsg = document.getElementById('termsErrorMsg');
+            const submitBtn = document.getElementById('submitBtn');
+            const statusDiv = document.getElementById('availabilityStatus');
+
+            if (this.checked) {
+                wrapper.classList.remove('error');
+                errorMsg.classList.remove('visible');
+                // Enable submit if availability is available
+                if (statusDiv.classList.contains('available')) {
+                    submitBtn.disabled = false;
+                }
+            } else {
+                wrapper.classList.add('error');
+                errorMsg.classList.add('visible');
+                submitBtn.disabled = true;
+            }
+        });
+
+        // ===== TIME VALIDATION =====
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+        const timeError = document.getElementById('timeError');
+
+        function validateTimeRange() {
+            const start = startTimeInput.value;
+            const end = endTimeInput.value;
+
+            startTimeInput.classList.remove('field-error');
+            endTimeInput.classList.remove('field-error');
+            timeError.classList.remove('visible');
+
+            if (start && end) {
+                if (start >= end) {
+                    startTimeInput.classList.add('field-error');
+                    endTimeInput.classList.add('field-error');
+                    timeError.classList.add('visible');
+                    return false;
+                }
+                return true;
+            }
+            return true;
+        }
+
+        startTimeInput.addEventListener('change', function() {
+            validateTimeRange();
+            checkAvailability();
+        });
+        startTimeInput.addEventListener('input', validateTimeRange);
+        endTimeInput.addEventListener('change', function() {
+            validateTimeRange();
+            checkAvailability();
+        });
+        endTimeInput.addEventListener('input', validateTimeRange);
+
+        // ===== 8. 10-DAY RULE VALIDATION =====
+        document.getElementById('eventDate').addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const diffTime = selectedDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 10) {
+                alert('⚠️ Please apply at least 10 days before the event date. You selected ' + diffDays + ' days from now.');
+                this.value = '';
+                const minDate = new Date(today);
+                minDate.setDate(today.getDate() + 10);
+                this.min = minDate.toISOString().split('T')[0];
+            }
+            checkAvailability();
+        });
+
+        // ===== 3. AVAILABILITY CHECK (REAL-TIME) =====
+        let availabilityCheckTimeout = null;
+
+        function checkAvailability() {
+            const date = document.getElementById('eventDate').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const venue = document.getElementById('venue').value;
+            const statusDiv = document.getElementById('availabilityStatus');
+            const messageSpan = document.getElementById('availabilityMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            const conflictWarning = document.getElementById('conflictWarning');
+            const conflictMessage = document.getElementById('conflictMessage');
+
+            // Hide conflict warning initially
+            conflictWarning.classList.remove('visible');
+
+            const isStartValid = validateTimeRange();
+            const isEndValid = validateTimeRange();
+
+            if (availabilityCheckTimeout) {
+                clearTimeout(availabilityCheckTimeout);
+            }
+
+            if (!date || !startTime || !endTime || !venue) {
+                statusDiv.className = 'availability-status';
+                statusDiv.style.display = 'none';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            if (!isStartValid || !isEndValid) {
+                statusDiv.className = 'availability-status visible unavailable';
+                statusDiv.style.display = 'flex';
+                messageSpan.innerHTML = '⚠️ Start Time: 8AM-10PM | End Time: 8AM-10PM';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            if (startTime >= endTime) {
+                statusDiv.className = 'availability-status visible unavailable';
+                statusDiv.style.display = 'flex';
+                messageSpan.innerHTML = '⚠️ End time must be after start time.';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            statusDiv.className = 'availability-status visible checking';
+            statusDiv.style.display = 'flex';
+            messageSpan.innerHTML = '⏳ Checking availability...';
+
+            document.querySelectorAll('#eventDate, #startTime, #endTime, #venue').forEach(el => {
+                el.classList.remove('available', 'unavailable', 'checking');
+            });
+
+            availabilityCheckTimeout = setTimeout(async () => {
+                try {
+                    const url = `/api/permits/check-availability/?date=${encodeURIComponent(date)}&start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}&venue=${encodeURIComponent(venue)}`;
+
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        if (data.available) {
+                            statusDiv.className = 'availability-status visible available';
+                            statusDiv.style.display = 'flex';
+                            messageSpan.innerHTML = '✅ This time slot is available!';
+
+                            document.querySelectorAll('#eventDate, #startTime, #endTime, #venue').forEach(el => {
+                                el.classList.add('available');
+                                el.classList.remove('unavailable', 'checking');
+                            });
+
+                            // Check if terms are checked
+                            const termsChecked = document.getElementById('termsCheckbox').checked;
+                            if (termsChecked) {
+                                submitBtn.disabled = false;
+                            } else {
+                                submitBtn.disabled = true;
+                            }
+                        } else {
+                            statusDiv.className = 'availability-status visible unavailable';
+                            statusDiv.style.display = 'flex';
+                            messageSpan.innerHTML = '❌ ' + (data.message || 'This time slot is already taken. Please choose a different time or venue.');
+
+                            document.querySelectorAll('#eventDate, #startTime, #endTime, #venue').forEach(el => {
+                                el.classList.add('unavailable');
+                                el.classList.remove('available', 'checking');
+                            });
+                            submitBtn.disabled = true;
+
+                            // Show conflict warning
+                            conflictWarning.classList.add('visible');
+                            conflictMessage.textContent = data.message || 'There is already an approved event at this venue and time. Please choose another date or time slot.';
+                        }
+                    } else {
+                        statusDiv.className = 'availability-status visible unavailable';
+                        statusDiv.style.display = 'flex';
+                        messageSpan.innerHTML = '⚠️ Error checking availability. Please try again.';
+                        submitBtn.disabled = true;
+                    }
+                } catch (error) {
+                    console.error('Availability check error:', error);
+                    statusDiv.className = 'availability-status visible unavailable';
+                    statusDiv.style.display = 'flex';
+                    messageSpan.innerHTML = '⚠️ Connection error. Please try again.';
+                    submitBtn.disabled = true;
+                }
+            }, 500);
+        }
+
+        // Event listeners for availability check
+        document.getElementById('eventDate').addEventListener('change', checkAvailability);
+        document.getElementById('eventDate').addEventListener('input', checkAvailability);
+        document.getElementById('startTime').addEventListener('change', checkAvailability);
+        document.getElementById('startTime').addEventListener('input', checkAvailability);
+        document.getElementById('endTime').addEventListener('change', checkAvailability);
+        document.getElementById('endTime').addEventListener('input', checkAvailability);
+        document.getElementById('venue').addEventListener('change', checkAvailability);
 
         // ===== FILE UPLOAD VALIDATION =====
         document.getElementById('requirement').addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
-                const maxSize = 5 * 1024 * 1024; // 5MB
+                const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
                     alert('File is too large. Maximum size is 5MB.');
                     this.value = '';
                     return;
                 }
-                
                 const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'];
                 const ext = file.name.split('.').pop().toLowerCase();
                 if (!allowedExtensions.includes(ext)) {
@@ -296,22 +1247,181 @@
             }
         });
 
-        // ===== FORM SUBMISSION LOADER =====
-        document.getElementById('permitForm').addEventListener('submit', function() {
+        // ===== 2. FORM SUBMISSION VALIDATION =====
+        document.getElementById('permitForm').addEventListener('submit', function(e) {
+            const start = startTimeInput.value;
+            const end = endTimeInput.value;
+
+            if (start && end && start >= end) {
+                e.preventDefault();
+                validateTimeRange();
+                alert('⚠️ End time must be after start time. Please fix the time range.');
+                return false;
+            }
+
+            // Check terms
+            const termsChecked = document.getElementById('termsCheckbox').checked;
+            if (!termsChecked) {
+                e.preventDefault();
+                document.getElementById('termsCheckboxWrapper').classList.add('error');
+                document.getElementById('termsErrorMsg').classList.add('visible');
+                alert('⚠️ Please agree to the Terms and Conditions before submitting.');
+                return false;
+            }
+
+            // Check availability
+            const statusDiv = document.getElementById('availabilityStatus');
+            if (!statusDiv.classList.contains('available')) {
+                e.preventDefault();
+                alert('⚠️ This time slot is not available. Please choose a different date or time.');
+                return false;
+            }
+
+            // Check 10-day rule
+            const eventDate = document.getElementById('eventDate').value;
+            const selectedDate = new Date(eventDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diffDays = Math.ceil((selectedDate - today) / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 10) {
+                e.preventDefault();
+                alert('⚠️ Please apply at least 10 days before the event date.');
+                return false;
+            }
+        });
+
+        // ===== 5 & 6. REFERENCE NUMBER + QUEUING NUMBER GENERATION =====
+        function generateReferenceNumber() {
+            const prefix = 'BP';
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `${prefix}-${year}${month}${day}-${random}`;
+        }
+
+        function generateQueuingNumber() {
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `Q-${random}`;
+        }
+
+        // ===== 7. SUCCESS MODAL =====
+        function showPermitModal(data) {
+            const referenceNum = generateReferenceNumber();
+            const queuingNum = generateQueuingNumber();
+
+            document.getElementById('refNumberDisplay').textContent = referenceNum;
+            document.getElementById('queuingBadge').textContent = 'Queue ' + queuingNum;
+
+            document.getElementById('modalEventName').textContent = data.event_name || 'N/A';
+            document.getElementById('modalEventDate').textContent = data.event_date ? new Date(data.event_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
+            document.getElementById('modalEventTime').textContent = (data.start_time ? data.start_time.substring(0, 5) : 'N/A') + ' - ' + (data.end_time ? data.end_time.substring(0, 5) : 'N/A');
+            document.getElementById('modalVenue').textContent = data.venue || 'N/A';
+
+            document.getElementById('permitModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('permitModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('permitModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // ===== 10. NOTIFICATIONS =====
+        async function loadUnreadCount() {
+            try {
+                const response = await fetch('/api/permits/notifications/unread_count');
+                if (response.ok) {
+                    const data = await response.json();
+                    // Update notification badge if exists
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        // ===== FORM SUBMISSION =====
+        document.getElementById('permitForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
             submitBtn.disabled = true;
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/permits', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        event_name: data.event_name,
+                        event_description: data.event_description,
+                        purpose: data.purpose || '',
+                        event_date: data.event_date,
+                        start_time: data.start_time,
+                        end_time: data.end_time,
+                        estimated_attendees: data.estimated_attendees || 0,
+                        venue: data.venue,
+                        requirement: data.requirement ? data.requirement.name : null
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showPermitModal(data);
+                    this.reset();
+                    document.getElementById('availabilityStatus').className = 'availability-status';
+                    document.getElementById('availabilityStatus').style.display = 'none';
+                    document.getElementById('submitBtn').disabled = true;
+                    document.getElementById('termsCheckbox').checked = false;
+                    document.getElementById('termsCheckboxWrapper').classList.remove('error');
+                    document.getElementById('termsErrorMsg').classList.remove('visible');
+
+                    // Reset date
+                    const today = new Date();
+                    const minDate = new Date(today);
+                    minDate.setDate(today.getDate() + 10);
+                    document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
+                    document.getElementById('dateHint').innerHTML = 'Min: <strong>' + minDate.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' }) + '</strong> (10 days from now)';
+
+                    if (termsOpen) {
+                        toggleTerms();
+                    }
+                } else {
+                    alert('Error: ' + (result.message || 'Something went wrong.'));
+                }
+            } catch (error) {
+                alert('Connection error. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+                submitBtn.disabled = false;
+            }
         });
 
-        // ===== FLASH MESSAGES =====
-        // Show flash messages from server
-        // This will be populated by Flask's flash messages
-        // Add this script to show flash messages from Flask
-        document.addEventListener('DOMContentLoaded', function() {
-            const flashContainer = document.getElementById('flashMessages');
-            // Flask will render messages here
-            // This is handled by the server-side flash messages
-        });
+        // ===== AUTO-HIDE FLASH MESSAGES =====
+        setTimeout(function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(msg) {
+                msg.style.transition = 'opacity 0.5s ease';
+                msg.style.opacity = '0';
+                setTimeout(function() { msg.remove(); }, 500);
+            });
+        }, 5000);
     </script>
 
 </body>
