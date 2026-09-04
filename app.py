@@ -3,6 +3,8 @@ import mysql.connector
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 import os
+import datetime
+import random
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-in-production'
@@ -116,7 +118,144 @@ def register():
     
     return render_template('register.html')
 
+# ============================================================
+# ===== RESIDENT ROUTES =====
+# ============================================================
+
+@app.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    return render_template('dashboard.html')
+
+@app.route('/request-document')
+def request_document():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    return render_template('request_document.html')
+
+@app.route('/apply-permit', methods=['GET'])
+def apply_permit():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    return render_template('apply_permit.html')
+
+@app.route('/apply-permit', methods=['POST'])
+def apply_permit_post():
+    """Submit event permit application - Residents only"""
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    # Get form data
+    event_name = request.form.get('event_name', '').strip()
+    event_description = request.form.get('event_description', '').strip()
+    purpose = request.form.get('purpose', '').strip()
+    event_date = request.form.get('event_date', '').strip()
+    start_time = request.form.get('start_time', '').strip()
+    end_time = request.form.get('end_time', '').strip()
+    estimated_attendees = request.form.get('estimated_attendees', '').strip()
+    venue = request.form.get('venue', '').strip()
+    
+    # Validation
+    if not event_name or not event_date or not start_time or not end_time or not venue:
+        flash('Please fill in all required fields.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    # Validate time range
+    if start_time >= end_time:
+        flash('End time must be after start time.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    # Validate time limits (8:00 AM to 10:00 PM)
+    if start_time < '08:00' or start_time > '22:00':
+        flash('Start time must be between 8:00 AM and 10:00 PM.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    if end_time < '08:00' or end_time > '22:00':
+        flash('End time must be between 8:00 AM and 10:00 PM.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    # Validate 10-day rule
+    try:
+        selected_date = datetime.datetime.strptime(event_date, '%Y-%m-%d').date()
+        today = datetime.date.today()
+        diff_days = (selected_date - today).days
+        
+        if diff_days < 10:
+            flash('Please apply at least 10 days before the event date.', 'danger')
+            return redirect(url_for('apply_permit'))
+    except ValueError:
+        flash('Invalid date format.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    # File upload handling
+    file_data = None
+    if 'requirement' in request.files:
+        file = request.files['requirement']
+        if file and file.filename:
+            # Save file or store filename
+            file_data = file.filename
+    
+    # Generate reference number and queuing number
+    ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    queue_num = f"Q-{random.randint(1, 999):03d}"
+    
+    # Insert into database
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            INSERT INTO event_permits (
+                user_id, event_name, event_description, purpose, event_date, 
+                start_time, end_time, estimated_attendees, venue, 
+                status, requirements_file, reference_number, queuing_number
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s)
+        """, (
+            session['user_id'],
+            event_name,
+            event_description,
+            purpose,
+            event_date,
+            start_time,
+            end_time,
+            estimated_attendees if estimated_attendees else 0,
+            venue,
+            file_data,
+            ref_num,
+            queue_num
+        ))
+        conn.commit()
+        permit_id = cursor.lastrowid
+        
+        # Create notification for user
+        cursor.execute("""
+            INSERT INTO notifications (user_id, title, message, notification_type)
+            VALUES (%s, %s, %s, 'permit_submitted')
+        """, (
+            session['user_id'],
+            'Permit Application Submitted',
+            f'Your event permit "{event_name}" has been submitted for review. Reference: {ref_num} | Queue: {queue_num}'
+        ))
+        conn.commit()
+        
+        flash('Permit application submitted successfully!', 'success')
+        return redirect(url_for('dashboard'))
+        
+    except mysql.connector.Error as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('apply_permit'))
+    finally:
+        conn.close()
+
+# ============================================================
 # ===== HEAD ADMIN DASHBOARD =====
+# ============================================================
+
 @app.route('/head-admin-dashboard')
 def head_admin_dashboard():
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -171,14 +310,6 @@ def admin_dashboard():
     return render_template('admin/admin_dashboard.html',
                          pending_requests=pending_requests,
                          pending_events=pending_events)
-
-# ===== DASHBOARD FOR RESIDENTS =====
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        flash('Please login first.', 'warning')
-        return redirect(url_for('login'))
-    return render_template('dashboard.html')
 
 # ============================================================
 # ===== USER MANAGEMENT (RESIDENTS ONLY) =====
@@ -554,6 +685,209 @@ def send_email_all():
     
     flash(f'Email sent to {len(users)} users!', 'success')
     return redirect(url_for('announcements'))
+
+# ============================================================
+# ===== EVENT PERMITS (RESIDENT + ADMIN) =====
+# ============================================================
+
+@app.route('/api/permits', methods=['GET', 'POST'])
+def api_permits():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    if request.method == 'GET':
+        cursor.execute("""
+            SELECT * FROM event_permits 
+            WHERE user_id = %s 
+            ORDER BY created_at DESC
+        """, (session['user_id'],))
+        permits = cursor.fetchall()
+        conn.close()
+        return jsonify(permits)
+    
+    if request.method == 'POST':
+        data = request.json
+        
+        ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+        queue_num = f"Q-{random.randint(1, 999):03d}"
+        
+        cursor.execute("""
+            INSERT INTO event_permits (
+                user_id, applicant_name, contact_number, event_name, 
+                event_date, start_time, end_time, estimated_attendees, venue, 
+                purpose, documents, reference_number, queuing_number, status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+        """, (
+            session['user_id'],
+            data.get('applicant_name'),
+            data.get('contact_number'),
+            data.get('event_name'),
+            data.get('event_date'),
+            data.get('start_time'),
+            data.get('end_time'),
+            data.get('estimated_attendees'),
+            data.get('venue'),
+            data.get('purpose', ''),
+            data.get('documents', ''),
+            ref_num,
+            queue_num
+        ))
+        conn.commit()
+        permit_id = cursor.lastrowid
+        
+        cursor.execute("""
+            INSERT INTO notifications (user_id, title, message, notification_type)
+            VALUES (%s, %s, %s, 'permit_submitted')
+        """, (
+            session['user_id'],
+            'Permit Application Submitted',
+            f'Your event permit "{data.get("event_name")}" has been submitted for review. Reference: {ref_num} | Queue: {queue_num}'
+        ))
+        conn.commit()
+        
+        conn.close()
+        
+        return jsonify({
+            'message': 'Permit submitted successfully',
+            'id': permit_id,
+            'reference_number': ref_num,
+            'queuing_number': queue_num
+        }), 201
+
+@app.route('/api/permits/check-availability', methods=['GET'])
+def check_availability():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    date = request.args.get('date')
+    start_time = request.args.get('start_time')
+    end_time = request.args.get('end_time')
+    venue = request.args.get('venue')
+    
+    if not all([date, start_time, end_time, venue]):
+        return jsonify({'error': 'Missing parameters'}), 400
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Check ONLY approved events (not pending/reviewing)
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM event_permits 
+        WHERE venue = %s 
+        AND event_date = %s 
+        AND status = 'approved'
+        AND (
+            (start_time <= %s AND end_time > %s) OR
+            (start_time < %s AND end_time >= %s) OR
+            (start_time >= %s AND end_time <= %s)
+        )
+    """, (venue, date, start_time, end_time, start_time, end_time, start_time, end_time))
+    
+    result = cursor.fetchone()
+    conn.close()
+    
+    if result['count'] > 0:
+        return jsonify({'available': False, 'message': 'This time slot is already taken by an approved event.'})
+    else:
+        return jsonify({'available': True, 'message': 'Time slot is available'})
+
+@app.route('/api/permits/notifications', methods=['GET'])
+def api_notifications():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT * FROM notifications 
+        WHERE user_id = %s 
+        ORDER BY created_at DESC 
+        LIMIT 50
+    """, (session['user_id'],))
+    notifications = cursor.fetchall()
+    conn.close()
+    
+    return jsonify(notifications)
+
+@app.route('/api/permits/notifications/unread_count', methods=['GET'])
+def api_unread_count():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT COUNT(*) as unread_count 
+        FROM notifications 
+        WHERE user_id = %s AND is_read = FALSE
+    """, (session['user_id'],))
+    result = cursor.fetchone()
+    conn.close()
+    
+    return jsonify({'unread_count': result['unread_count']})
+
+@app.route('/api/permits/notifications/<int:notif_id>/mark_read', methods=['POST'])
+def api_mark_read(notif_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        UPDATE notifications 
+        SET is_read = TRUE 
+        WHERE id = %s AND user_id = %s
+    """, (notif_id, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'message': 'Marked as read'})
+
+@app.route('/api/permits/notifications/mark_all_read', methods=['POST'])
+def api_mark_all_read():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        UPDATE notifications 
+        SET is_read = TRUE 
+        WHERE user_id = %s
+    """, (session['user_id'],))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'message': 'All notifications marked as read'})
+
+# ============================================================
+# ===== API: DOCUMENT REQUESTS =====
+# ============================================================
+
+@app.route('/api/document-requests')
+def api_document_requests():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT * FROM document_requests 
+        WHERE user_id = %s 
+        ORDER BY created_at DESC
+    """, (session['user_id'],))
+    requests = cursor.fetchall()
+    conn.close()
+    
+    return jsonify(requests)
 
 # ============================================================
 # ===== CHECK SESSION =====
