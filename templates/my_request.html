@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Requests | Barangay Sto. Niño</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-800: #0f3d2a;
+            --primary-700: #145233;
+            --primary-600: #1a6b42;
+            --primary-500: #228b54;
+            --accent-600: #c42828;
+            --neutral-50: #f4f8f5;
+            --neutral-100: #dde8e1;
+            --neutral-500: #6b8475;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--neutral-50); min-height: 100vh; }
+
+        /* ===== SIDEBAR (GREEN) ===== */
+        .sidebar {
+            width: 260px; height: 100vh; background: linear-gradient(180deg, var(--primary-800), var(--primary-600));
+            position: fixed; left: 0; top: 0;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
+            transition: all 0.3s ease; z-index: 100;
+        }
+        .sidebar-brand {
+            display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 24px;
+        }
+        .sidebar-brand .logo-img {
+            width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex;
+            align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px;
+        }
+        .sidebar-brand h4 { color: white; font-weight: 700; font-size: 1rem; }
+        .sidebar-brand small { display: block; color: rgba(255,255,255,0.7); font-size: 0.7rem; font-weight: 400; }
+
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px;
+            color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .sidebar-nav a i { width: 20px; text-align: center; font-size: 1rem; }
+        .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+        .sidebar-nav a.active i { color: white; }
+        .sidebar-nav .logout { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; color: white; }
+        .sidebar-nav .logout:hover { background: rgba(255,0,0,0.2); color: white; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; padding: 30px 40px; min-height: 100vh; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary-800); }
+        .page-header p { color: var(--neutral-500); font-size: 0.9rem; margin-top: 4px; }
+
+        /* ===== REQUEST CARDS ===== */
+        .request-list {
+            display: flex; flex-direction: column; gap: 15px; max-width: 800px;
+        }
+
+        .request-card {
+            background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        }
+
+        .request-info { display: flex; align-items: center; gap: 15px; }
+
+        .request-icon {
+            width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+        .request-icon.document { background: #eaf4ee; color: var(--primary-600); }
+        .request-icon.permit { background: #e8f4fd; color: #2980b9; }
+
+        .request-info h4 { font-size: 1rem; font-weight: 600; color: var(--primary-800); }
+        .request-info p { font-size: 0.8rem; color: var(--neutral-500); margin-top: 2px; }
+
+        .status-badge {
+            padding: 6px 14px; border-radius: 60px; font-size: 0.75rem; font-weight: 600;
+        }
+        .status-badge.pending { background: #fef3c7; color: #92400e; }
+        .status-badge.approved { background: #d1fae5; color: #065f46; }
+        .status-badge.rejected { background: #fce4ec; color: #c62828; }
+        .status-badge.completed { background: #dbeafe; color: #1e40af; }
+        .status-badge.in_progress { background: #e0e7ff; color: #3730a3; }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            background: white; border-radius: 12px; padding: 40px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .empty-state i { font-size: 3rem; color: var(--neutral-500); margin-bottom: 15px; }
+        .empty-state h3 { font-size: 1.2rem; color: var(--primary-800); margin-bottom: 8px; }
+        .empty-state p { font-size: 0.9rem; color: var(--neutral-500); margin-bottom: 20px; }
+
+        /* ===== PINAKAMALIIT NA BUTTONS ===== */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 8px 16px; /* PINAKAMALIIT NA PADDING */
+            border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; text-decoration: none; border: none;
+            width: fit-content; /* EKSAKTONG SA TEXT LANG */
+            margin: 0 auto; /* PARA MA-CENTER */
+        }
+        .btn i { font-size: 0.9rem; }
+        .btn-primary { background: var(--primary-600); color: white; }
+        .btn-primary:hover { background: var(--primary-700); transform: translateY(-2px); box-shadow: 0 8px 16px -6px rgba(26, 107, 66, 0.4); }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .request-card { flex-direction: column; align-items: flex-start; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR (GREEN) -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-img">SN</div>
+            <div>
+                <h4>Barangay Sto. Niño</h4>
+                <small>Online Services</small>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/request-document"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="/apply-permit"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="/my-requests" class="active"><i class="fas fa-list"></i> My Requests</a>
+            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="/profile"><i class="fas fa-user-edit"></i> My Profile</a>
+            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>Track Requests</h1>
+                <p>Check the status of your applications</p>
+            </div>
+        </div>
+
+        <!-- DOCUMENT REQUESTS -->
+        <h3 style="margin-bottom: 15px; color: var(--primary-800); font-size: 1.2rem;">
+            <i class="fas fa-file-alt" style="margin-right: 8px; color: var(--primary-500);"></i> Document Requests
+        </h3>
+
+        {% if document_requests %}
+        <div class="request-list">
+            {% for req in document_requests %}
+            <div class="request-card">
+                <div class="request-info">
+                    <div class="request-icon document">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div>
+                        <h4>{{ req['type']|replace('_', ' ')|title }}</h4>
+                        <p>Requested on {{ req['created_at'] }}</p>
+                    </div>
+                </div>
+                <div class="status-badge {{ req['status']|lower }}">{{ req['status']|replace('_', ' ')|title }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <h3>No Document Requests Yet</h3>
+            <p>You haven't requested any documents yet.</p>
+            <a href="/request-document" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Request Document
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- EVENT PERMITS -->
+        <h3 style="margin: 30px 0 15px; color: var(--primary-800); font-size: 1.2rem;">
+            <i class="fas fa-calendar-check" style="margin-right: 8px; color: #2980b9;"></i> Event Permits
+        </h3>
+
+        {% if event_requests %}
+        <div class="request-list">
+            {% for req in event_requests %}
+            <div class="request-card">
+                <div class="request-info">
+                    <div class="request-icon permit">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <h4>{{ req['event_name'] }}</h4>
+                        <p>Applied on {{ req['created_at'] }}</p>
+                    </div>
+                </div>
+                <div class="status-badge {{ req['status']|lower }}">{{ req['status']|replace('_', ' ')|title }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <h3>No Event Permits Yet</h3>
+            <p>You haven't applied for any event permits yet.</p>
+            <a href="/apply-permit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Apply for Permit
+            </a>
+        </div>
+        {% endif %}
+    </main>
+
+    <script>
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.page-header');
+            const hamburger = document.createElement('button');
+            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none;';
+            hamburger.id = 'menuToggle';
+            hamburger.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+            header.prepend(hamburger);
+
+            if (window.innerWidth <= 768) {
+                hamburger.style.display = 'block';
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    hamburger.style.display = 'block';
+                } else {
+                    hamburger.style.display = 'none';
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
