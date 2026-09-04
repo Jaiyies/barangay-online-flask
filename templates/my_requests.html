@@ -26,7 +26,7 @@
             width: 260px; height: 100vh; background: linear-gradient(180deg, var(--primary-800), var(--primary-600));
             position: fixed; left: 0; top: 0;
             box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
-            transition: all 0.3s ease; z-index: 100;
+            transition: all 0.3s ease; z-index: 100; overflow-y: auto;
         }
         .sidebar-brand {
             display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.2);
@@ -101,11 +101,10 @@
         /* ===== PINAKAMALIIT NA BUTTONS ===== */
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            padding: 8px 16px; /* PINAKAMALIIT NA PADDING */
+            padding: 8px 16px;
             border-radius: 8px; font-size: 0.8rem; font-weight: 600;
             cursor: pointer; transition: all 0.3s ease; text-decoration: none; border: none;
-            width: fit-content; /* EKSAKTONG SA TEXT LANG */
-            margin: 0 auto; /* PARA MA-CENTER */
+            width: fit-content; margin: 0 auto;
         }
         .btn i { font-size: 0.9rem; }
         .btn-primary { background: var(--primary-600); color: white; }
@@ -165,8 +164,8 @@
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <div>
-                        <h4>{{ req['type']|replace('_', ' ')|title }}</h4>
-                        <p>Requested on {{ req['created_at'] }}</p>
+                        <h4>{{ req['document_type']|replace('_', ' ')|title }}</h4>
+                        <p>Requested on {{ req['requested_at'] }}</p>
                     </div>
                 </div>
                 <div class="status-badge {{ req['status']|lower }}">{{ req['status']|replace('_', ' ')|title }}</div>
@@ -189,9 +188,9 @@
             <i class="fas fa-calendar-check" style="margin-right: 8px; color: #2980b9;"></i> Event Permits
         </h3>
 
-        {% if event_requests %}
+        {% if event_permits %}
         <div class="request-list">
-            {% for req in event_requests %}
+            {% for req in event_permits %}
             <div class="request-card">
                 <div class="request-info">
                     <div class="request-icon permit">
@@ -199,7 +198,7 @@
                     </div>
                     <div>
                         <h4>{{ req['event_name'] }}</h4>
-                        <p>Applied on {{ req['created_at'] }}</p>
+                        <p>Applied on {{ req['requested_at'] }}</p>
                     </div>
                 </div>
                 <div class="status-badge {{ req['status']|lower }}">{{ req['status']|replace('_', ' ')|title }}</div>

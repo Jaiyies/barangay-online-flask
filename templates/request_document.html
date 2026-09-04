@@ -3,612 +3,367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Sto. Niño - Request Document</title>
+    <title>Request Document | Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ===== MATCHING DASHBOARD CSS ===== */
+        :root {
+            --primary-800: #0f3d2a;
+            --primary-700: #145233;
+            --primary-600: #1a6b42;
+            --primary-500: #228b54;
+            --primary-50: #e8f5ed;
+            --accent-600: #dc3545;
+            --neutral-50: #f4f8f5;
+            --neutral-100: #e2e8f0;
+            --neutral-200: #cbd5e1;
+            --neutral-500: #64748b;
+            --neutral-700: #334155;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            display: flex;
-            overflow-x: hidden;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--neutral-50); min-height: 100vh; }
 
-        /* ===== SIDEBAR (GREEN, FIXED PARA UMAABOT SA PINAKABABA) ===== */
+        /* ===== SIDEBAR (GREEN) ===== */
         .sidebar {
-            width: 260px;
-            background: linear-gradient(180deg, #0d2b1e, #1a5d3a);
-            border-right: none;
-            padding: 24px 18px;
-            height: 100vh;
-            overflow-y: auto;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            position: fixed; /* ITO ANG SUSI PARA UMAABOT SA BUONG SCREEN! */
-            left: 0;
-            top: 0;
-            z-index: 100;
+            width: 260px; height: 100vh; background: linear-gradient(180deg, var(--primary-800), var(--primary-600));
+            position: fixed; left: 0; top: 0;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
+            transition: all 0.3s ease; z-index: 100; overflow-y: auto;
         }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding-bottom: 20px;
+        .sidebar-brand {
+            display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 24px;
         }
+        .sidebar-brand .logo-img {
+            width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex;
+            align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px;
+        }
+        .sidebar-brand h4 { color: white; font-weight: 700; font-size: 1rem; }
+        .sidebar-brand small { display: block; color: rgba(255,255,255,0.7); font-size: 0.7rem; font-weight: 400; }
 
-        .logo-box {
-            width: 48px;
-            height: 48px;
-            background: rgba(255,255,255,0.2);
-            color: white;
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px;
+            color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .sidebar-nav a i { width: 20px; text-align: center; font-size: 1rem; }
+        .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+        .sidebar-nav a.active i { color: white; }
+        .sidebar-nav .logout { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 16px; color: white; }
+        .sidebar-nav .logout:hover { background: rgba(255,0,0,0.2); color: white; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; padding: 30px 40px; min-height: 100vh; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary-800); }
+        .page-header h1 small { font-size: 0.85rem; font-weight: 400; color: var(--neutral-500); display: block; margin-top: 4px; }
+        .page-header .user-badge { display: flex; align-items: center; gap: 12px; background: white; padding: 8px 16px 8px 20px; border-radius: 60px; box-shadow: var(--shadow-sm); }
+        .page-header .user-badge i { font-size: 1.2rem; color: var(--primary-500); }
+        .page-header .user-badge span { font-weight: 600; color: var(--primary-800); }
+
+        /* ===== BANNER ===== */
+        .banner {
             border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 20px;
+            align-items: flex-start;
+            gap: 16px;
         }
+        .banner i { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+        .banner-content h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .banner-content p { font-size: 14px; line-height: 1.6; }
 
-        .sidebar-header h2 {
-            font-size: 16px;
-            font-weight: 700;
-            color: white;
-            line-height: 1.2;
+        .banner-warning {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border: 1px solid #fcd34d;
         }
+        .banner-warning i { color: #d97706; }
+        .banner-warning h4 { color: #92400e; }
+        .banner-warning p { color: #78350f; }
 
-        .sidebar-header p {
-            font-size: 11px;
-            color: rgba(255,255,255,0.7);
-            margin-top: 2px;
-        }
-
-        .nav-links {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .nav-links li a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-links li a i {
-            font-size: 16px;
-            color: rgba(255,255,255,0.7);
-        }
-
-        .nav-links li a:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .nav-links li a.active {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            font-weight: 600;
-        }
-
-        .nav-links li a.active i {
-            color: white;
-        }
-
-        /* ===== LOGOUT (NASA PINAKABABA NA) ===== */
-        .logout-wrap {
-            margin-top: auto;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding-top: 15px;
-            padding-bottom: 5px;
-        }
-
-        .logout-wrap a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            font-weight: 600;
-            text-decoration: none;
-            font-size: 14px;
-            padding: 10px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .logout-wrap a:hover {
-            background: rgba(255, 0, 0, 0.2);
-            color: white;
-        }
-
-        /* ===== MAIN CONTENT (FULL WIDTH) ===== */
-        .main-content {
-            margin-left: 260px; /* ITO ANG NAGTUTULAK SA CONTENT PALAYO SA SIDEBAR */
-            flex: 1;
-            width: 100%;
-            min-width: 0;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        /* Form Container - Full Width */
-        .form-container {
+        /* ===== FORM CARD (PROFESSIONAL, SPREAD OUT) ===== */
+        .form-card {
             background: white;
-            border-radius: 16px;
-            border: 1px solid #e8edf0;
-            overflow: hidden;
-            width: 100%;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            max-width: 1100px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--neutral-100);
+            margin: 0 auto;
         }
 
-        /* FORM HEADER */
         .form-header {
             text-align: center;
-            padding: 24px 36px 20px;
-            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
-            color: white;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-50);
         }
-
-        .form-header .logo-section {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 4px;
+        .form-header .logo-icon {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 24px; margin: 0 auto 12px;
         }
+        .form-header h2 { color: var(--primary-800); font-weight: 800; font-size: 1.8rem; }
+        .form-header p { color: var(--neutral-500); font-size: 0.9rem; margin-top: 4px; }
 
-        .form-header .logo-section i {
-            font-size: 28px;
-            color: #a3dbb8;
-            background: rgba(255,255,255,0.15);
-            padding: 8px;
-            border-radius: 10px;
-        }
-
-        .form-header .republic {
-            color: rgba(255,255,255,0.85);
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .form-header .barangay-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: white;
-            margin-top: 2px;
-        }
-
-        .form-header .barangay-address {
-            font-size: 12px;
-            color: rgba(255,255,255,0.75);
-            margin-top: 2px;
-        }
-
-        .form-header .barangay-address i {
-            margin-right: 4px;
-            color: #a3dbb8;
-        }
-
-        /* FORM BODY */
-        .form-body {
-            padding: 28px 36px 32px;
-        }
-
-        /* FORM SECTIONS */
-        .form-section {
-            margin-bottom: 22px;
-        }
-
+        /* ===== FORM SECTION TITLES ===== */
         .form-section-title {
-            font-size: 15px;
+            background: var(--primary-50);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 700;
-            color: #0d2b1e;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 4px;
-            border-bottom: 2px solid #e8f5ee;
+            color: var(--primary-800);
         }
+        .form-section-title i { color: var(--primary-500); }
 
-        .form-section-title i {
-            color: #1a5d3a;
-            font-size: 14px;
-            width: 26px;
-            height: 26px;
-            background: #e8f5ee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-        }
+        /* ===== FORM GROUP ===== */
+        .form-row { display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; }
+        .form-col { flex: 1; min-width: 200px; }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px 18px;
-            margin-bottom: 8px;
-        }
-
-        .form-row.three-col {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-
-        .form-row.four-col {
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
+        .form-group { margin-bottom: 0; }
         .form-group label {
-            font-size: 11px;
+            display: block;
             font-weight: 600;
-            color: #3d5a4a;
+            color: var(--primary-800);
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.3px;
-            margin-bottom: 3px;
+            margin-bottom: 6px;
         }
-
-        .form-group label .required {
-            color: #dc3545;
-            margin-left: 2px;
-        }
-
-        .form-group label .optional {
-            color: #7a8f82;
-            font-weight: 400;
-            text-transform: none;
-            font-size: 10px;
-            margin-left: 4px;
-        }
+        .form-group label i { color: var(--primary-500); margin-right: 6px; }
+        .form-group label .required { color: var(--accent-600); }
+        .form-group label .optional { color: var(--neutral-500); font-weight: 400; text-transform: none; font-size: 0.7rem; }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
-            padding: 9px 14px;
-            border: 1.5px solid #e2e8e6;
-            border-radius: 8px;
-            font-size: 13px;
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--neutral-100);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
             font-family: inherit;
-            background: #fafbfc;
+            background: #fafcff;
             transition: all 0.3s ease;
-            color: #1a2b22;
         }
-
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #1a5d3a;
+            border-color: var(--primary-500);
             background: white;
-            box-shadow: 0 0 0 3px rgba(26, 93, 58, 0.08);
+            box-shadow: 0 0 0 4px rgba(34,139,84,0.1);
         }
+        .form-group textarea { min-height: 80px; resize: vertical; }
 
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: #b0c0b8;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 55px;
-        }
-
-        .form-group select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a6f64' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            cursor: pointer;
-        }
-
-        .form-group .radio-group {
-            display: flex;
-            gap: 14px;
-            align-items: center;
-            padding-top: 4px;
-            flex-wrap: wrap;
-        }
-
-        .form-group .radio-group label {
-            text-transform: none;
-            font-weight: 500;
-            font-size: 12px;
-            color: #1a2b22;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        .form-group .radio-group input[type="radio"] {
-            width: 15px;
-            height: 15px;
-            accent-color: #1a5d3a;
-            cursor: pointer;
-        }
+        /* Radio Groups */
+        .radio-group { display: flex; gap: 15px; align-items: center; padding-top: 5px; flex-wrap: wrap; }
+        .radio-group label { display: flex; align-items: center; gap: 5px; text-transform: none; font-weight: 500; font-size: 0.9rem; color: var(--neutral-700); cursor: pointer; }
+        .radio-group input[type="radio"] { width: 16px; height: 16px; accent-color: var(--primary-500); }
 
         /* File Upload */
         .file-upload-area {
-            border: 2px dashed #d0d8d4;
-            border-radius: 10px;
-            padding: 16px;
+            border: 2px dashed var(--neutral-200);
+            border-radius: var(--radius-sm);
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #fafbfc;
+            background: #fafcff;
             position: relative;
         }
+        .file-upload-area:hover { border-color: var(--primary-500); background: var(--primary-50); }
+        .file-upload-area i { font-size: 28px; color: var(--neutral-500); display: block; margin-bottom: 5px; }
+        .file-upload-area p { font-size: 0.9rem; color: var(--neutral-500); }
+        .file-upload-area .file-types { font-size: 0.75rem; color: var(--neutral-200); }
+        .file-upload-area input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        .file-upload-area:hover {
-            border-color: #1a5d3a;
-            background: #f0f8f3;
-        }
+        .file-list { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .file-tag { background: var(--primary-50); padding: 3px 10px 3px 8px; border-radius: 16px; font-size: 0.8rem; color: var(--primary-800); display: inline-flex; align-items: center; gap: 4px; }
+        .file-tag i { color: var(--primary-500); cursor: pointer; }
+        .file-tag i:hover { color: var(--accent-600); }
 
-        .file-upload-area.dragover {
-            border-color: #1a5d3a;
-            background: #e8f5ee;
-        }
-
-        .file-upload-area i {
-            font-size: 28px;
-            color: #7a8f82;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .file-upload-area p {
-            font-size: 12px;
-            color: #7a8f82;
-            margin: 0;
-        }
-
-        .file-upload-area .file-types {
-            font-size: 10px;
-            color: #b0c0b8;
-            margin-top: 2px;
-        }
-
-        .file-upload-area input[type="file"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .file-list {
-            margin-top: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .file-tag {
-            background: #e8f5ee;
-            padding: 3px 10px 3px 8px;
-            border-radius: 16px;
-            font-size: 11px;
-            color: #0d2b1e;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .file-tag i {
-            color: #1a5d3a;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .file-tag i:hover {
-            color: #dc3545;
-        }
-
-        /* CONSENT CHECKBOXES */
+        /* ===== TERMS / CONSENT ===== */
         .consent-section {
-            background: #f8faf9;
-            border: 1px solid #e8edf0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
+            margin: 30px 0 20px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--neutral-100);
+            overflow: hidden;
         }
-
-        .consent-section label {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #1a2b22;
-            line-height: 1.6;
-            cursor: pointer;
-        }
-
-        .consent-section input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin-top: 3px;
-            accent-color: #1a5d3a;
-        }
-
         .consent-section .consent-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #0d2b1e;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 18px;
+            background: var(--primary-50);
+            font-weight: 700; color: var(--primary-800);
         }
+        .consent-section .consent-title i { color: var(--primary-500); }
+        .consent-body { padding: 16px 18px; }
+        .consent-checkbox { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        .consent-checkbox:last-child { margin-bottom: 0; }
+        .consent-checkbox input[type="checkbox"] { width: 18px; height: 18px; min-width: 18px; margin-top: 2px; accent-color: var(--primary-500); cursor: pointer; }
+        .consent-checkbox label { font-size: 0.85rem; color: var(--neutral-500); line-height: 1.6; cursor: pointer; }
+        .consent-checkbox label strong { color: var(--primary-800); }
 
-        /* Submit */
-        .submit-section {
-            margin-top: 8px;
-            padding-top: 18px;
-            border-top: 2px solid #e8edf0;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 32px;
+        /* ===== BUTTONS ===== */
+        .form-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; justify-content: flex-end; }
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            padding: 14px 40px;
             border: none;
             border-radius: 50px;
-            font-size: 14px;
             font-weight: 700;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
+            gap: 10px;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,107,66,0.3); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-cancel {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            padding: 14px 30px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
             gap: 8px;
-            font-family: inherit;
         }
+        .btn-cancel:hover { background: #cbd5e1; }
 
-        .btn-primary {
-            background: linear-gradient(105deg, #0d2b1e, #1a5d3a);
-            color: white;
+        /* ===== FLASH MESSAGES ===== */
+        .flash-message {
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px -10px #1a5d3a;
-        }
-
-        .btn-secondary {
-            background: #eef2f0;
-            color: #3d5a4a;
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8e6;
-        }
+        .flash-message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .flash-message.danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .flash-message.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .flash-message.info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .form-row.four-col {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
         @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 10px;
-            }
-            .form-header {
-                padding: 20px 16px 16px;
-            }
-            .form-body {
-                padding: 20px 16px;
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .form-row.three-col {
-                grid-template-columns: 1fr;
-            }
-            .form-row.four-col {
-                grid-template-columns: 1fr;
-            }
-            .submit-section {
-                flex-direction: column;
-            }
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .form-card { padding: 20px; }
+            .form-row { flex-direction: column; gap: 0; }
+            .form-col { min-width: 100%; }
+            .form-actions { flex-direction: column; }
+            .btn-submit, .btn-cancel { width: 100%; justify-content: center; }
+            .banner { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== SIDEBAR (FIXED, GREEN) ===== -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-box">SN</div>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-img">SN</div>
             <div>
-                <h2>Barangay Sto. Niño</h2>
-                <p>Online Services</p>
+                <h4>Barangay Sto. Niño</h4>
+                <small>Online Services</small>
             </div>
         </div>
-
-        <ul class="nav-links">
-            <li><a href="/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
-            <li><a href="/request-document" class="active"><i class="fas fa-file-alt"></i> Request Document</a></li>
-            <li><a href="/apply-for-permit"><i class="fas fa-clipboard-check"></i> Apply for Permit</a></li>
-            <li><a href="/my-requests"><i class="fas fa-list"></i> My Requests</a></li>
-            <li><a href="/events"><i class="fas fa-calendar-alt"></i> Events</a></li>
-        </ul>
-
-        <!-- NASA PINAKABABA NA ITO! -->
-        <div class="logout-wrap">
-            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/request-document" class="active"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="/apply-permit"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
+            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
+            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
 
-        <!-- FORM CONTAINER -->
-        <div class="form-container" id="formContainer">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1>
+                    <i class="fas fa-file-alt" style="color: var(--primary-500); margin-right: 10px;"></i>
+                    Request Document
+                    <small>Submit a request for barangay documents</small>
+                </h1>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ session.fullname or 'Resident' }}</span>
+            </div>
+        </div>
 
-            <!-- FORM HEADER - GREEN -->
+        <!-- ===== WARNING BANNER ===== -->
+        <div class="banner banner-warning">
+            <i class="fas fa-clock"></i>
+            <div class="banner-content">
+                <h4>⚠️ Important: Please Complete All Required Fields</h4>
+                <p>Make sure to fill in all information marked with <strong>*</strong> and upload the required signature before submitting.</p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div id="flashMessages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- ===== FORM CARD (PROFESSIONAL, SPREAD OUT) ===== -->
+        <div class="form-card">
             <div class="form-header">
-                <div class="logo-section">
-                    <i class="fas fa-landmark"></i>
-                    <span class="republic">Republica ng Pilipinas</span>
-                </div>
-                <div class="barangay-name">LUNGSOD NG PARANAQUE · BARANGAY NG STO. NIÑO</div>
-                <div class="barangay-address">
-                    <i class="fas fa-map-pin"></i> E. Rodriguez Avenue, Sto. Niño Parañaque City
-                    <span style="margin: 0 8px;">·</span>
-                    <i class="fas fa-phone"></i> 8852-7477
-                </div>
+                <div class="logo-icon"><i class="fas fa-file-alt"></i></div>
+                <h2>Document Request Form</h2>
+                <p>Barangay Sto. Niño Online Services</p>
             </div>
 
-            <!-- FORM BODY -->
-            <div class="form-body">
-
-                <!-- FORM -->
-                <form id="clearanceForm" onsubmit="handleSubmit(event)">
-
-                    <!-- DOCUMENT TYPE -->
-                    <div class="form-section">
-                        <div class="form-section-title">
-                            <i class="fas fa-file-alt"></i> Document Type <span style="font-weight:400;font-size:12px;color:#dc3545;">*</span>
-                        </div>
+            <form id="clearanceForm" onsubmit="handleSubmit(event)">
+                <!-- DOCUMENT TYPE -->
+                <div class="form-section-title"><i class="fas fa-file-alt"></i> Document Type</div>
+                <div class="form-row">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label>Select Document Type <span class="required">*</span></label>
+                            <label for="documentType">Select Document Type <span class="required">*</span></label>
                             <select name="document_type" id="documentType" required>
                                 <option value="">-- Select Document Type --</option>
                                 <option value="clearance">Barangay Clearance</option>
@@ -617,102 +372,125 @@
                             </select>
                         </div>
                     </div>
+                </div>
 
-                    <!-- PERSONAL INFORMATION -->
-                    <div class="form-section">
-                        <div class="form-section-title">
-                            <i class="fas fa-user"></i> Personal Information
+                <!-- PERSONAL INFORMATION -->
+                <div class="form-section-title"><i class="fas fa-user"></i> Personal Information</div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="surname">Surname <span class="required">*</span></label>
+                            <input type="text" name="surname" id="surname" placeholder="Surname" required>
                         </div>
-
-                        <div class="form-row three-col">
-                            <div class="form-group">
-                                <label>Surname <span class="required">*</span></label>
-                                <input type="text" name="surname" id="surname" placeholder="Surname" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Given Name <span class="required">*</span></label>
-                                <input type="text" name="given_name" id="givenName" placeholder="Given Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Middle Name <span class="optional">(leave blank if no middle name)</span></label>
-                                <input type="text" name="middle_name" id="middleName" placeholder="Middle Name (Optional)">
-                            </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="givenName">Given Name <span class="required">*</span></label>
+                            <input type="text" name="given_name" id="givenName" placeholder="Given Name" required>
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Address <span class="required">*</span></label>
-                                <input type="text" name="address" id="address" placeholder="Complete Address" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Phone Number <span class="required">*</span> <span style="font-size: 9px; color: #7a8f82;">(11 digits only)</span></label>
-                                <input type="text" name="contact_no" id="contactNo" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
-                            </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="middleName">Middle Name <span class="optional">(leave blank if no middle name)</span></label>
+                            <input type="text" name="middle_name" id="middleName" placeholder="Middle Name (Optional)">
                         </div>
+                    </div>
+                </div>
 
-                        <div class="form-row four-col">
-                            <div class="form-group">
-                                <label>Civil Status <span class="required">*</span></label>
-                                <select name="civil_status" id="civilStatus" required>
-                                    <option value="">Select</option>
-                                    <option value="Single">Single</option>
-                                    <option value="Married">Married</option>
-                                    <option value="Widowed">Widowed</option>
-                                    <option value="Separated">Separated</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Age <span class="required">*</span></label>
-                                <input type="number" name="age" id="age" placeholder="Age" min="0" max="120" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Date of Birth <span class="required">*</span></label>
-                                <input type="date" name="dob" id="dob" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Precinct No. <span class="required">*</span></label>
-                                <input type="text" name="precinct_no" id="precinctNo" placeholder="Precinct No." required>
-                            </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="address">Address <span class="required">*</span></label>
+                            <input type="text" name="address" id="address" placeholder="Complete Address" required>
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Place of Birth <span class="required">*</span></label>
-                                <input type="text" name="place_of_birth" id="placeOfBirth" placeholder="Place of Birth" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Length of Stay in Barangay <span class="required">*</span></label>
-                                <input type="text" name="length_of_stay" id="lengthOfStay" placeholder="e.g. 5 years" required>
-                            </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="contactNo">Phone Number <span class="required">*</span></label>
+                            <input type="text" name="contact_no" id="contactNo" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="form-row three-col">
-                            <div class="form-group">
-                                <label>Residency Type <span class="required">*</span></label>
-                                <div class="radio-group">
-                                    <label><input type="radio" name="residency_type" value="Owner" required> Owner</label>
-                                    <label><input type="radio" name="residency_type" value="Renter" required> Renter</label>
-                                    <label><input type="radio" name="residency_type" value="Sharer" required> Sharer</label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Name on the Property Deed <span class="required">*</span></label>
-                                <input type="text" name="lessor_name" id="lessorName" placeholder="Name on Property Deed" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Owner's Address <span class="required">*</span></label>
-                                <input type="text" name="lessor_address" id="lessorAddress" placeholder="Address of Owner" required>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="civilStatus">Civil Status <span class="required">*</span></label>
+                            <select name="civil_status" id="civilStatus" required>
+                                <option value="">Select</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Widowed">Widowed</option>
+                                <option value="Separated">Separated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="age">Age <span class="required">*</span></label>
+                            <input type="number" name="age" id="age" placeholder="Age" min="0" max="120" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="dob">Date of Birth <span class="required">*</span></label>
+                            <input type="date" name="dob" id="dob" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="precinctNo">Precinct No. <span class="required">*</span></label>
+                            <input type="text" name="precinct_no" id="precinctNo" placeholder="Precinct No." required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="placeOfBirth">Place of Birth <span class="required">*</span></label>
+                            <input type="text" name="place_of_birth" id="placeOfBirth" placeholder="Place of Birth" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="lengthOfStay">Length of Stay in Barangay <span class="required">*</span></label>
+                            <input type="text" name="length_of_stay" id="lengthOfStay" placeholder="e.g. 5 years" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Residency Type <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="residency_type" value="Owner" required> Owner</label>
+                                <label><input type="radio" name="residency_type" value="Renter" required> Renter</label>
+                                <label><input type="radio" name="residency_type" value="Sharer" required> Sharer</label>
                             </div>
                         </div>
                     </div>
-
-                    <!-- UPLOAD AREA REPRESENTATIVE SIGNATURE -->
-                    <div class="form-section">
-                        <div class="form-section-title">
-                            <i class="fas fa-pen-fancy"></i> Area Representative Signature <span style="font-weight:400;font-size:12px;color:#dc3545;">*</span>
-                        </div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <label>Select Area Representative Position <span class="required">*</span></label>
+                            <label for="lessorName">Name on the Property Deed <span class="required">*</span></label>
+                            <input type="text" name="lessor_name" id="lessorName" placeholder="Name on Property Deed" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="lessorAddress">Owner's Address <span class="required">*</span></label>
+                            <input type="text" name="lessor_address" id="lessorAddress" placeholder="Address of Owner" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AREA REPRESENTATIVE SIGNATURE -->
+                <div class="form-section-title"><i class="fas fa-pen-fancy"></i> Area Representative Signature</div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="repPosition">Select Area Representative Position <span class="required">*</span></label>
                             <select name="rep_position" id="repPosition" required>
                                 <option value="">-- Select Position --</option>
                                 <option value="barangay_kagawad">Barangay Kagawad</option>
@@ -724,149 +502,189 @@
                                 <option value="purok_leader">Purok Leader</option>
                             </select>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="form-group" style="margin-top:10px;">
-                            <label>Upload a Signature of Area Representative <span class="required">*</span></label>
-                            <div class="file-upload-area" id="fileUploadArea">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p><strong>Click to upload</strong> or drag and drop</p>
-                                <p class="file-types">JPG, PNG, PDF (Max: 5MB)</p>
-                                <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" required>
-                            </div>
-                            <div class="file-list" id="fileList"></div>
-                            <small style="color:#7a8f82;font-size:10px;margin-top:3px;">Please upload a clear signature of the Area Representative above their printed name with the date signed below.</small>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Upload a Signature of Area Representative <span class="required">*</span></label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p><strong>Click to upload</strong> or drag and drop</p>
+                        <p class="file-types">JPG, PNG, PDF (Max: 5MB)</p>
+                        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" required>
+                    </div>
+                    <div class="file-list" id="fileList"></div>
+                    <small style="color: var(--neutral-500); font-size: 0.75rem; margin-top: 3px;">Please upload a clear signature of the Area Representative above their printed name with the date signed below.</small>
+                </div>
+
+                <!-- FAMILY INFORMATION -->
+                <div class="form-section-title"><i class="fas fa-users"></i> Family Information</div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="fatherName">Name of Father <span class="required">*</span></label>
+                            <input type="text" name="father_name" id="fatherName" placeholder="Father's Name" required>
                         </div>
                     </div>
-
-                    <!-- FAMILY INFORMATION -->
-                    <div class="form-section">
-                        <div class="form-section-title">
-                            <i class="fas fa-users"></i> Family Information
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Name of Father <span class="required">*</span></label>
-                                <input type="text" name="father_name" id="fatherName" placeholder="Father's Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Name of Mother <span class="required">*</span></label>
-                                <input type="text" name="mother_name" id="motherName" placeholder="Mother's Name" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Name of Spouse <span class="optional">(leave blank if not applicable)</span></label>
-                                <input type="text" name="spouse_name" id="spouseName" placeholder="Spouse's Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Occupation <span class="required">*</span></label>
-                                <input type="text" name="occupation" id="occupation" placeholder="Occupation" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>In Case of Emergency <span class="required">*</span></label>
-                                <input type="text" name="emergency_name" id="emergencyName" placeholder="Emergency Contact Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Emergency Contact No. <span class="required">*</span></label>
-                                <input type="text" name="emergency_number" id="emergencyNumber" placeholder="Emergency Contact No." maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
-                            </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="motherName">Name of Mother <span class="required">*</span></label>
+                            <input type="text" name="mother_name" id="motherName" placeholder="Mother's Name" required>
                         </div>
                     </div>
+                </div>
 
-                    <!-- REFERENCE PERSONS -->
-                    <div class="form-section">
-                        <div class="form-section-title">
-                            <i class="fas fa-user-friends"></i> Reference Person <span style="font-weight:400;font-size:12px;color:#7a8f82;">(Not Related to You)</span>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Reference 1 - Name <span class="required">*</span></label>
-                                <input type="text" name="ref1_name" id="ref1Name" placeholder="Reference Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Reference 1 - Address <span class="required">*</span></label>
-                                <input type="text" name="ref1_address" id="ref1Address" placeholder="Reference Address" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Reference 2 - Name <span class="required">*</span></label>
-                                <input type="text" name="ref2_name" id="ref2Name" placeholder="Reference Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Reference 2 - Address <span class="required">*</span></label>
-                                <input type="text" name="ref2_address" id="ref2Address" placeholder="Reference Address" required>
-                            </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="spouseName">Name of Spouse <span class="optional">(leave blank if not applicable)</span></label>
+                            <input type="text" name="spouse_name" id="spouseName" placeholder="Spouse's Name">
                         </div>
                     </div>
-
-                    <!-- PURPOSE & SIGNATURE -->
-                    <div class="form-section">
-                        <div class="form-section-title">
-                            <i class="fas fa-bullseye"></i> Purpose &amp; Signature
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="occupation">Occupation <span class="required">*</span></label>
+                            <input type="text" name="occupation" id="occupation" placeholder="Occupation" required>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="form-group" style="margin-bottom:12px;">
-                            <label>Purpose of Securing Document <span class="required">*</span></label>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="emergencyName">In Case of Emergency <span class="required">*</span></label>
+                            <input type="text" name="emergency_name" id="emergencyName" placeholder="Emergency Contact Name" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="emergencyNumber">Emergency Contact No. <span class="required">*</span></label>
+                            <input type="text" name="emergency_number" id="emergencyNumber" placeholder="Emergency Contact No." maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REFERENCE PERSONS -->
+                <div class="form-section-title"><i class="fas fa-user-friends"></i> Reference Person <span style="font-weight:400;font-size:0.75rem;color:var(--neutral-500);">(Not Related to You)</span></div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="ref1Name">Reference 1 - Name <span class="required">*</span></label>
+                            <input type="text" name="ref1_name" id="ref1Name" placeholder="Reference Name" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="ref1Address">Reference 1 - Address <span class="required">*</span></label>
+                            <input type="text" name="ref1_address" id="ref1Address" placeholder="Reference Address" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="ref2Name">Reference 2 - Name <span class="required">*</span></label>
+                            <input type="text" name="ref2_name" id="ref2Name" placeholder="Reference Name" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="ref2Address">Reference 2 - Address <span class="required">*</span></label>
+                            <input type="text" name="ref2_address" id="ref2Address" placeholder="Reference Address" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PURPOSE & SIGNATURE -->
+                <div class="form-section-title"><i class="fas fa-bullseye"></i> Purpose & Signature</div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="purpose">Purpose of Securing Document <span class="required">*</span></label>
                             <textarea name="purpose" id="purpose" placeholder="State the purpose of your request..." required></textarea>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Printed Name (Digital Signature) <span class="required">*</span></label>
-                                <input type="text" name="printed_name" id="printedName" placeholder="Type your full name here" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Date <span class="required">*</span></label>
-                                <input type="date" name="signature_date" id="signatureDate" required>
-                            </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="printedName">Printed Name (Digital Signature) <span class="required">*</span></label>
+                            <input type="text" name="printed_name" id="printedName" placeholder="Type your full name here" required>
                         </div>
                     </div>
-
-                    <!-- CONSENT SECTION -->
-                    <div class="consent-section">
-                        <div class="consent-title">
-                            <i class="fas fa-shield-alt"></i> Terms and Conditions
-                        </div>
-                        <div style="margin-bottom: 12px;">
-                            <label>
-                                <input type="checkbox" id="digitalSignatureConsent" required>
-                                <span>By typing my printed name above, I acknowledge that this serves as my <strong>digital signature</strong>, and I agree to the terms and conditions stated in this document request.</span>
-                            </label>
-                        </div>
-                        <div style="margin-bottom: 12px;">
-                            <label>
-                                <input type="checkbox" id="dataPrivacyConsent" required>
-                                <span>I hereby give my <strong>informed consent</strong> for the Barangay Sto. Niño to collect, store, and process my personal information in accordance with the <strong>Data Privacy Act of 2012 (RA 10173)</strong> for the sole purpose of processing my document request.</span>
-                            </label>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="signatureDate">Date <span class="required">*</span></label>
+                            <input type="date" name="signature_date" id="signatureDate" required>
                         </div>
                     </div>
+                </div>
 
-                    <!-- SUBMIT -->
-                    <div class="submit-section">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i> Submit Request
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <i class="fas fa-undo"></i> Clear Form
-                        </button>
+                <!-- TERMS AND CONDITIONS -->
+                <div class="consent-section">
+                    <div class="consent-title">
+                        <i class="fas fa-shield-alt"></i> Terms and Conditions
                     </div>
+                    <div class="consent-body">
+                        <div class="consent-checkbox">
+                            <input type="checkbox" id="digitalSignatureConsent" required>
+                            <label for="digitalSignatureConsent">By typing my printed name above, I acknowledge that this serves as my <strong>digital signature</strong>, and I agree to the terms and conditions stated in this document request.</label>
+                        </div>
+                        <div class="consent-checkbox">
+                            <input type="checkbox" id="dataPrivacyConsent" required>
+                            <label for="dataPrivacyConsent">I hereby give my <strong>informed consent</strong> for the Barangay Sto. Niño to collect, store, and process my personal information in accordance with the <strong>Data Privacy Act of 2012 (RA 10173)</strong> for the sole purpose of processing my document request.</label>
+                        </div>
+                    </div>
+                </div>
 
-                </form>
-            </div>
+                <!-- FORM ACTIONS -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> Submit Request
+                    </button>
+                    <button type="reset" class="btn-cancel">
+                        <i class="fas fa-undo"></i> Clear Form
+                    </button>
+                </div>
+            </form>
         </div>
 
     </main>
 
+    <!-- ===== SCRIPTS ===== -->
     <script>
-        // File upload handling
+        // ===== MOBILE SIDEBAR TOGGLE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.page-header');
+            const hamburger = document.createElement('button');
+            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none; padding: 4px 8px;';
+            hamburger.id = 'menuToggle';
+            hamburger.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+            header.prepend(hamburger);
+
+            if (window.innerWidth <= 768) {
+                hamburger.style.display = 'block';
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    hamburger.style.display = 'block';
+                } else {
+                    hamburger.style.display = 'none';
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+
+            // Set default date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('signatureDate').value = today;
+        });
+
+        // ===== FILE UPLOAD HANDLING =====
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const fileUploadArea = document.getElementById('fileUploadArea');
@@ -915,7 +733,7 @@
             updateFileList(fileInput.files);
         }
 
-        // Auto-calculate age from DOB
+        // ===== AUTO-CALCULATE AGE FROM DOB =====
         document.getElementById('dob').addEventListener('change', function() {
             if (this.value) {
                 const birthDate = new Date(this.value);
@@ -931,13 +749,7 @@
             }
         });
 
-        // Set default date
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('signatureDate').value = today;
-        });
-
-        // Form Submit Handler
+        // ===== FORM SUBMIT HANDLER =====
         function handleSubmit(e) {
             e.preventDefault();
 
@@ -1006,20 +818,21 @@
 
             console.log('📝 Request Data:', data);
 
-            // Show success message
-            const successMsg = document.getElementById('successMessage');
-            successMsg.classList.add('show');
-            document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
             // Disable submit button
             const submitBtn = form.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
+            // Show success message
+            alert('Request submitted successfully!');
+
             // Simulate API call
             setTimeout(() => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+                form.reset();
+                fileList.innerHTML = '';
+                document.getElementById('signatureDate').value = new Date().toISOString().split('T')[0];
             }, 2000);
         }
 
@@ -1041,6 +854,16 @@
                 fileUploadArea.style.borderColor = '#1a5d3a';
             }
         });
+
+        // Auto-hide flash messages
+        setTimeout(function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(msg) {
+                msg.style.transition = 'opacity 0.5s ease';
+                msg.style.opacity = '0';
+                setTimeout(function() { msg.remove(); }, 500);
+            });
+        }, 5000);
     </script>
 
 </body>

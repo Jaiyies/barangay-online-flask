@@ -27,6 +27,7 @@
             position: fixed; left: 0; top: 0;
             box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
             transition: all 0.3s ease; z-index: 100;
+            overflow-y: auto; /* Allows scrolling if sidebar is too long */
         }
         .sidebar-brand {
             display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.2);
@@ -57,6 +58,7 @@
 
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
         .page-header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary-800); }
+        .page-header p { color: var(--neutral-500); }
         .page-header .user-badge { display: flex; align-items: center; gap: 12px; background: white; padding: 8px 16px 8px 20px; border-radius: 60px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .page-header .user-badge i { font-size: 1.2rem; color: var(--primary-500); }
         .page-header .user-badge span { font-weight: 600; color: var(--primary-800); }
@@ -77,7 +79,7 @@
             color: var(--primary-800); transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             border: 1px solid transparent;
         }
-        .action-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: var(--primary-100); }
+        .action-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: var(--neutral-100); }
         .action-card i { font-size: 2.2rem; color: var(--primary-500); margin-bottom: 12px; display: block; }
         .action-card h4 { font-size: 1rem; font-weight: 600; }
         .action-card p { font-size: 0.8rem; color: var(--neutral-500); margin-top: 4px; }
@@ -127,6 +129,7 @@
             <a href="/apply-permit"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
             <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
             <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
             <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
@@ -136,7 +139,7 @@
         <div class="page-header">
             <div>
                 <h1>Dashboard</h1>
-                <p style="color: var(--neutral-500);">Welcome back, <strong>{{ session['fullname'] }}</strong>!</p>
+                <p>Welcome back, <strong>{{ session['fullname'] }}</strong>!</p>
             </div>
             <div class="user-badge">
                 <i class="fas fa-user-circle"></i>
@@ -147,19 +150,19 @@
         <!-- STATS -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number">5</div>
+                <div class="stat-number">{{ total_requests or 0 }}</div>
                 <div class="stat-label">Total Document Requests</div>
             </div>
             <div class="stat-card pending">
-                <div class="stat-number">2</div>
+                <div class="stat-number">{{ pending_requests or 0 }}</div>
                 <div class="stat-label">Pending Requests</div>
             </div>
             <div class="stat-card approved">
-                <div class="stat-number">3</div>
+                <div class="stat-number">{{ approved_requests or 0 }}</div>
                 <div class="stat-label">Approved</div>
             </div>
             <div class="stat-card permit">
-                <div class="stat-number">1</div>
+                <div class="stat-number">{{ total_permits or 0 }}</div>
                 <div class="stat-label">Event Permits</div>
             </div>
         </div>
@@ -191,41 +194,30 @@
         <!-- RECENT ACTIVITY -->
         <div class="activity-section">
             <h3><i class="fas fa-clock" style="margin-right: 8px; color: var(--neutral-500);"></i> Recent Activity</h3>
-            <div class="activity-item">
-                <div class="info">
-                    <i class="fas fa-file-alt"></i>
-                    <span><strong>Barangay Clearance</strong> - Requested</span>
+            {% if recent_activities %}
+                {% for activity in recent_activities %}
+                <div class="activity-item">
+                    <div class="info">
+                        <i class="fas {% if activity.type == 'document' %}fa-file-alt{% else %}fa-calendar-check{% endif %}"></i>
+                        <span><strong>{{ activity.title }}</strong> - {{ activity.action }}</span>
+                    </div>
+                    <span class="status-badge {{ activity.status }}">{{ activity.status|capitalize }}</span>
                 </div>
-                <span class="status-badge pending">Pending</span>
-            </div>
-            <div class="activity-item">
-                <div class="info">
-                    <i class="fas fa-file-alt"></i>
-                    <span><strong>Certificate of Indigency</strong> - Approved</span>
+                {% endfor %}
+            {% else %}
+                <div class="activity-item">
+                    <div class="info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>No recent activity found.</span>
+                    </div>
                 </div>
-                <span class="status-badge approved">Approved</span>
-            </div>
-            <div class="activity-item">
-                <div class="info">
-                    <i class="fas fa-calendar-check"></i>
-                    <span><strong>Christmas Party</strong> - Permit Applied</span>
-                </div>
-                <span class="status-badge pending">Pending</span>
-            </div>
-            <div class="activity-item">
-                <div class="info">
-                    <i class="fas fa-file-alt"></i>
-                    <span><strong>Proof of Residency</strong> - Completed</span>
-                </div>
-                <span class="status-badge completed">Completed</span>
-            </div>
+            {% endif %}
         </div>
     </main>
 
     <script>
         // Mobile sidebar toggle
         document.addEventListener('DOMContentLoaded', function() {
-            // Create hamburger menu for mobile
             const header = document.querySelector('.page-header');
             const hamburger = document.createElement('button');
             hamburger.innerHTML = '<i class="fas fa-bars"></i>';
@@ -236,7 +228,6 @@
             });
             header.prepend(hamburger);
 
-            // Show hamburger on mobile
             if (window.innerWidth <= 768) {
                 hamburger.style.display = 'block';
             }

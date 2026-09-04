@@ -3,6 +3,7 @@ import mysql.connector
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 import os
+import time
 import datetime
 import random
 import glob
@@ -28,7 +29,6 @@ def get_db():
 # ===== LOGIN ROUTE (MAY LOCKOUT) =====
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Check kung naka-lockout ba
     if session.get('login_attempts', 0) >= 3:
         lockout_time = session.get('lockout_time', 0)
         current_time = time.time()
@@ -37,7 +37,6 @@ def login():
             lockout_msg = f"Too many failed attempts. Please wait {remaining} seconds before trying again."
             return render_template('login.html', login_error=True, lockout_message=lockout_msg)
         else:
-            # Reset attempts after lockout expires
             session['login_attempts'] = 0
             session['lockout_time'] = 0
 
@@ -57,7 +56,6 @@ def login():
         conn.close()
         
         if user:
-            # Kapag mali ang password
             if not check_password_hash(user['password'], password):
                 session['login_attempts'] = session.get('login_attempts', 0) + 1
                 if session['login_attempts'] >= 3:
@@ -67,7 +65,6 @@ def login():
                 else:
                     return render_template('login.html', login_error=True)
             
-            # Kapag tama na
             session['login_attempts'] = 0
             session['lockout_time'] = 0
             
@@ -89,7 +86,6 @@ def login():
             else:
                 return redirect(url_for('dashboard'))
         else:
-            # Kapag walang user
             session['login_attempts'] = session.get('login_attempts', 0) + 1
             if session['login_attempts'] >= 3:
                 session['lockout_time'] = time.time() + 30
@@ -160,13 +156,131 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template('dashboard.html')
 
-@app.route('/request-document')
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+    conn.close()
+    
+    return render_template('profile.html', user=user)
+
+@app.route('/events')
+def events():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    return render_template('events.html')
+
+@app.route('/my-requests')
+def my_requests():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Get document requests (requested_at exists here)
+    cursor.execute("""
+        SELECT * FROM document_requests 
+        WHERE user_id = %s 
+        ORDER BY requested_at DESC
+    """, (session['user_id'],))
+    document_requests = cursor.fetchall()
+    
+    # Get event permits (NO ORDER BY - column doesn't exist)
+    cursor.execute("""
+        SELECT * FROM event_permits 
+        WHERE user_id = %s
+    """, (session['user_id'],))
+    event_permits = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('my_requests.html', 
+                         document_requests=document_requests,
+                         event_permits=event_permits)
+
+@app.route('/my_request')
+def my_request():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Get document requests (requested_at exists here)
+    cursor.execute("""
+        SELECT * FROM document_requests 
+        WHERE user_id = %s 
+        ORDER BY requested_at DESC
+    """, (session['user_id'],))
+    document_requests = cursor.fetchall()
+    
+    # Get event permits (NO ORDER BY - column doesn't exist)
+    cursor.execute("""
+        SELECT * FROM event_permits 
+        WHERE user_id = %s
+    """, (session['user_id'],))
+    event_permits = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('my_request.html', 
+                         document_requests=document_requests,
+                         event_permits=event_permits)
+
+# ===== REQUEST DOCUMENT (GET) =====
+@app.route('/request-document', methods=['GET'])
 def request_document():
     if 'user_id' not in session:
         flash('Please login first.', 'warning')
         return redirect(url_for('login'))
     return render_template('request_document.html')
 
+# ===== REQUEST DOCUMENT (POST) - NEWLY ADDED =====
+@app.route('/request-document', methods=['POST'])
+def request_document_post():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    document_type = request.form.get('document_type', '').strip()
+    purpose = request.form.get('purpose', '').strip()
+    
+    if not document_type:
+        flash('Please select a document type.', 'danger')
+        return redirect(url_for('request_document'))
+    
+    ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            INSERT INTO document_requests (user_id, document_type, purpose, reference_number, status)
+            VALUES (%s, %s, %s, %s, 'pending')
+        """, (session['user_id'], document_type, purpose, ref_num))
+        conn.commit()
+        
+        flash('Document request submitted successfully! Reference: ' + ref_num, 'success')
+        return redirect(url_for('my_requests'))
+        
+    except mysql.connector.Error as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('request_document'))
+    finally:
+        conn.close()
+
+# ===== APPLY FOR PERMIT =====
 @app.route('/apply-permit', methods=['GET'])
 def apply_permit():
     if 'user_id' not in session:
@@ -176,12 +290,10 @@ def apply_permit():
 
 @app.route('/apply-permit', methods=['POST'])
 def apply_permit_post():
-    """Submit event permit application - Residents only"""
     if 'user_id' not in session:
         flash('Please login first.', 'warning')
         return redirect(url_for('login'))
     
-    # Get form data
     event_name = request.form.get('event_name', '').strip()
     event_description = request.form.get('event_description', '').strip()
     purpose = request.form.get('purpose', '').strip()
@@ -191,17 +303,14 @@ def apply_permit_post():
     estimated_attendees = request.form.get('estimated_attendees', '').strip()
     venue = request.form.get('venue', '').strip()
     
-    # Validation
     if not event_name or not event_date or not start_time or not end_time or not venue:
         flash('Please fill in all required fields.', 'danger')
         return redirect(url_for('apply_permit'))
     
-    # Validate time range
     if start_time >= end_time:
         flash('End time must be after start time.', 'danger')
         return redirect(url_for('apply_permit'))
     
-    # Validate time limits (8:00 AM to 10:00 PM)
     if start_time < '08:00' or start_time > '22:00':
         flash('Start time must be between 8:00 AM and 10:00 PM.', 'danger')
         return redirect(url_for('apply_permit'))
@@ -210,7 +319,6 @@ def apply_permit_post():
         flash('End time must be between 8:00 AM and 10:00 PM.', 'danger')
         return redirect(url_for('apply_permit'))
     
-    # Validate 10-day rule
     try:
         selected_date = datetime.datetime.strptime(event_date, '%Y-%m-%d').date()
         today = datetime.date.today()
@@ -223,19 +331,15 @@ def apply_permit_post():
         flash('Invalid date format.', 'danger')
         return redirect(url_for('apply_permit'))
     
-    # File upload handling
     file_data = None
     if 'requirement' in request.files:
         file = request.files['requirement']
         if file and file.filename:
-            # Save file or store filename
             file_data = file.filename
     
-    # Generate reference number and queuing number
     ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
     queue_num = f"Q-{random.randint(1, 999):03d}"
     
-    # Insert into database
     conn = get_db()
     cursor = conn.cursor()
     
@@ -247,29 +351,18 @@ def apply_permit_post():
                 status, requirements_file, reference_number, queuing_number
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s)
         """, (
-            session['user_id'],
-            event_name,
-            event_description,
-            purpose,
-            event_date,
-            start_time,
-            end_time,
-            estimated_attendees if estimated_attendees else 0,
-            venue,
-            file_data,
-            ref_num,
-            queue_num
+            session['user_id'], event_name, event_description, purpose, event_date,
+            start_time, end_time, estimated_attendees if estimated_attendees else 0,
+            venue, file_data, ref_num, queue_num
         ))
         conn.commit()
         permit_id = cursor.lastrowid
         
-        # Create notification for user
         cursor.execute("""
             INSERT INTO notifications (user_id, title, message, notification_type)
             VALUES (%s, %s, %s, 'permit_submitted')
         """, (
-            session['user_id'],
-            'Permit Application Submitted',
+            session['user_id'], 'Permit Application Submitted',
             f'Your event permit "{event_name}" has been submitted for review. Reference: {ref_num} | Queue: {queue_num}'
         ))
         conn.commit()
@@ -365,7 +458,6 @@ def user_management():
     
     return render_template('admin/user_management.html', users=users)
 
-# ===== UPDATE USER ROLE =====
 @app.route('/update-role/<int:user_id>', methods=['POST'])
 def update_user_role(user_id):
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -699,7 +791,6 @@ def increment_announcement_view(announcement_id):
         conn = get_db()
         cursor = conn.cursor()
         
-        # Increment view count
         cursor.execute("""
             UPDATE announcements 
             SET view_count = COALESCE(view_count, 0) + 1 
@@ -707,7 +798,6 @@ def increment_announcement_view(announcement_id):
         """, (announcement_id,))
         conn.commit()
         
-        # Get updated view count
         cursor.execute("SELECT view_count FROM announcements WHERE id = %s", (announcement_id,))
         result = cursor.fetchone()
         conn.close()
@@ -758,8 +848,7 @@ def api_permits():
     if request.method == 'GET':
         cursor.execute("""
             SELECT * FROM event_permits 
-            WHERE user_id = %s 
-            ORDER BY created_at DESC
+            WHERE user_id = %s
         """, (session['user_id'],))
         permits = cursor.fetchall()
         conn.close()
@@ -830,7 +919,6 @@ def check_availability():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     
-    # Check ONLY approved events (not pending/reviewing)
     cursor.execute("""
         SELECT COUNT(*) as count FROM event_permits 
         WHERE venue = %s 
@@ -939,7 +1027,7 @@ def api_document_requests():
     cursor.execute("""
         SELECT * FROM document_requests 
         WHERE user_id = %s 
-        ORDER BY created_at DESC
+        ORDER BY requested_at DESC
     """, (session['user_id'],))
     requests = cursor.fetchall()
     conn.close()
@@ -959,7 +1047,6 @@ def settings():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     
-    # Create system_config table if it doesn't exist
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS system_config (
             id INT PRIMARY KEY AUTO_INCREMENT,
@@ -974,7 +1061,6 @@ def settings():
     """)
     conn.commit()
     
-    # Get config values
     cursor.execute("SELECT * FROM system_config LIMIT 1")
     config = cursor.fetchone()
     
@@ -1018,7 +1104,6 @@ def update_profile():
     conn.commit()
     conn.close()
     
-    # Update session
     session['fullname'] = f"{first_name} {last_name}"
     session['email'] = email
     
@@ -1079,7 +1164,6 @@ def system_config():
     conn = get_db()
     cursor = conn.cursor()
     
-    # Check if config exists
     cursor.execute("SELECT id FROM system_config LIMIT 1")
     config_exists = cursor.fetchone()
     
@@ -1112,7 +1196,6 @@ def toggle_maintenance():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     
-    # Get current maintenance mode
     cursor.execute("SELECT maintenance_mode FROM system_config WHERE id = 1")
     config = cursor.fetchone()
     
@@ -1147,7 +1230,6 @@ def backup_database():
         return jsonify({'error': 'Unauthorized'}), 401
     
     try:
-        # Create backup directory if it doesn't exist
         backup_dir = 'backups'
         if not os.path.exists(backup_dir):
             os.makedirs(backup_dir)
@@ -1155,7 +1237,6 @@ def backup_database():
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"{backup_dir}/barangay_backup_{timestamp}.sql"
         
-        # Create backup using mysqldump
         cmd = f"mysqldump -u root -pbsit2026@123 barangay_online_services > {filename}"
         os.system(cmd)
         
@@ -1174,20 +1255,20 @@ def download_backup():
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     
-    # Get the most recent backup file
     backup_files = glob.glob('backups/barangay_backup_*.sql')
     
     if not backup_files:
         flash('No backup files found.', 'danger')
         return redirect(url_for('settings'))
     
-    # Get the latest backup
     latest_backup = max(backup_files, key=os.path.getctime)
     
     return send_file(latest_backup, as_attachment=True, download_name=f"barangay_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.sql")
 
 # ============================================================
 # ===== CHECK SESSION =====
+# ============================================================
+
 @app.route('/check-session')
 def check_session():
     if 'user_id' in session:
