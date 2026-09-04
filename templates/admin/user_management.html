@@ -13,60 +13,26 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* ===== ANIMATIONS ===== */
+        /* ===== MINIMIZED ANIMATIONS ===== */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
+            from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
         }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
         @keyframes modalFadeOut {
             from { opacity: 1; transform: scale(1) translateY(0); }
-            to { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 0; transform: scale(0.95) translateY(10px); }
         }
         @keyframes toastSlide {
             from { transform: translateX(100px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes buttonPulse {
-            0% { box-shadow: 0 0 0 0 rgba(26,107,66,0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(26,107,66,0); }
-            100% { box-shadow: 0 0 0 0 rgba(26,107,66,0); }
-        }
-        @keyframes iconBounce {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-        @keyframes rowGlow {
-            0% { background: transparent; }
-            50% { background: rgba(26,107,66,0.05); }
-            100% { background: transparent; }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        @keyframes confirmPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
 
         .sidebar-custom {
@@ -81,13 +47,34 @@
             z-index: 100;
             overflow-y: auto;
             box-shadow: 2px 0 20px rgba(0,0,0,0.08);
-            animation: slideInLeft 0.5s ease;
+            animation: slideInLeft 0.4s ease;
         }
+        .sidebar-custom::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-custom::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        .sidebar-custom::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
         .sidebar-header {
             text-align: center;
             padding-bottom: 30px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             margin-bottom: 25px;
+            position: relative;
+        }
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(107,196,142,0.5), transparent);
         }
         .sidebar-header .logo-img {
             width: 70px;
@@ -98,23 +85,29 @@
             margin-bottom: 12px;
             background: white;
             padding: 4px;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
         }
         .sidebar-header .logo-img:hover {
             transform: rotate(-10deg) scale(1.05);
+            border-color: rgba(107,196,142,0.6);
         }
         .sidebar-header h2 {
             font-size: 18px;
             font-weight: 700;
             margin-bottom: 2px;
+            letter-spacing: 0.5px;
         }
         .sidebar-header small {
             font-size: 11px;
             opacity: 0.6;
             letter-spacing: 0.5px;
+            font-weight: 400;
         }
         .sidebar-menu { list-style: none; }
-        .sidebar-menu li { margin-bottom: 4px; }
+        .sidebar-menu li { 
+            margin-bottom: 4px;
+            position: relative;
+        }
         .sidebar-menu a {
             display: flex;
             align-items: center;
@@ -123,7 +116,7 @@
             color: rgba(255,255,255,0.65);
             text-decoration: none;
             border-radius: 10px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             font-size: 14px;
             font-weight: 500;
             position: relative;
@@ -138,7 +131,7 @@
             height: 0;
             background: #6bc48e;
             border-radius: 0 4px 4px 0;
-            transition: height 0.3s ease;
+            transition: height 0.2s ease;
         }
         .sidebar-menu a:hover::before,
         .sidebar-menu .active a::before {
@@ -147,20 +140,38 @@
         .sidebar-menu a:hover {
             background: rgba(255,255,255,0.08);
             color: white;
-            transform: translateX(4px);
         }
         .sidebar-menu .active a {
             background: rgba(255,255,255,0.1);
             color: white;
         }
-        .sidebar-menu i { width: 22px; font-size: 15px; transition: transform 0.3s ease; }
-        .sidebar-menu a:hover i { transform: scale(1.15); }
+        .sidebar-menu .active a::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: #6bc48e;
+            border-radius: 4px 0 0 4px;
+        }
+        .sidebar-menu i { 
+            width: 22px; 
+            font-size: 15px; 
+            transition: all 0.2s ease;
+        }
+        .sidebar-menu a:hover i { 
+            transform: scale(1.1);
+        }
+        .sidebar-menu .active i {
+            color: #6bc48e;
+        }
 
         .main-with-sidebar {
             margin-left: 280px;
             padding: 25px 30px;
             min-height: 100vh;
-            animation: fadeInUp 0.5s ease;
+            animation: fadeInUp 0.4s ease;
         }
 
         .top-bar {
@@ -174,7 +185,8 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             flex-wrap: wrap;
             gap: 12px;
-            animation: fadeInUp 0.6s ease;
+            animation: fadeInUp 0.4s ease;
+            border: 1px solid rgba(0,0,0,0.03);
         }
         .welcome-text h2 {
             color: #0d2b1e;
@@ -183,7 +195,6 @@
         }
         .welcome-text h2 i {
             color: #1a5d3a;
-            animation: pulse 2s infinite;
         }
         .welcome-text p {
             color: #7a8f82;
@@ -207,11 +218,8 @@
             align-items: center;
             gap: 8px;
         }
-        .clock-badge i {
-            animation: pulse 2s infinite;
-        }
         .role-badge {
-            background: #0d2b1e;
+            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
             color: white;
             padding: 7px 18px;
             border-radius: 50px;
@@ -228,17 +236,14 @@
             cursor: pointer;
             font-weight: 500;
             font-size: 13px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         .logout-btn:hover {
             background: #b91c1c;
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 4px 16px rgba(220,53,69,0.3);
-        }
-        .logout-btn:active {
-            transform: scale(0.97);
         }
 
         .top-actions {
@@ -248,7 +253,7 @@
             margin-bottom: 28px;
             flex-wrap: wrap;
             gap: 16px;
-            animation: fadeInUp 0.7s ease;
+            animation: fadeInUp 0.5s ease;
         }
         .search-box {
             display: flex;
@@ -259,14 +264,13 @@
             border-radius: 50px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             border: 1px solid #eef2f0;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             flex: 1;
             max-width: 400px;
         }
         .search-box:focus-within {
             border-color: #1a5d3a;
-            box-shadow: 0 0 0 4px rgba(26,107,66,0.1);
-            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(26,107,66,0.1);
         }
         .search-box input {
             border: none;
@@ -290,23 +294,13 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 13px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .search-box button:hover {
             background: #0d2b1e;
-            transform: scale(1.05);
-        }
-        .search-box button:active {
-            transform: scale(0.95);
-        }
-        .search-box button i {
-            transition: transform 0.3s ease;
-        }
-        .search-box button:hover i {
-            transform: rotate(90deg);
         }
 
         .table-section {
@@ -315,11 +309,7 @@
             padding: 22px 24px 24px;
             border: 1px solid #eef2f0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            animation: fadeInUp 0.8s ease;
-            transition: all 0.3s ease;
-        }
-        .table-section:hover {
-            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            animation: fadeInUp 0.6s ease;
         }
         .table-header {
             display: flex;
@@ -346,12 +336,12 @@
             font-size: 12px;
             padding: 2px 14px;
             border-radius: 50px;
-            animation: pulse 2s infinite;
         }
         .table-container {
             overflow-x: auto;
             max-height: 500px;
             overflow-y: auto;
+            border-radius: 8px;
         }
         .table-container::-webkit-scrollbar {
             width: 6px;
@@ -386,49 +376,16 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            border-bottom: 2px solid #eef2f0;
         }
         tr {
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
         }
         tr:hover {
             background: #f9fafb;
-            transform: scale(1.002);
-            animation: rowGlow 0.6s ease;
         }
         tr:last-child td {
             border-bottom: none;
-        }
-
-        .role-badge-small {
-            padding: 4px 14px;
-            border-radius: 40px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-        .role-head-admin {
-            background: #0d2b1e;
-            color: white;
-        }
-        .role-head-admin:hover {
-            transform: scale(1.08);
-            box-shadow: 0 2px 12px rgba(13,43,30,0.3);
-        }
-        .role-admin {
-            background: #1a5d3a;
-            color: white;
-        }
-        .role-admin:hover {
-            transform: scale(1.08);
-            box-shadow: 0 2px 12px rgba(26,107,66,0.3);
-        }
-        .role-resident {
-            background: #e0f5e8;
-            color: #1a5d3a;
-        }
-        .role-resident:hover {
-            transform: scale(1.08);
         }
 
         .status-badge {
@@ -437,51 +394,28 @@
             font-size: 11px;
             font-weight: 600;
             display: inline-block;
-            transition: all 0.3s ease;
         }
         .status-verified {
             background: #e0f5e8;
             color: #1a5d3a;
         }
-        .status-verified:hover {
-            transform: scale(1.08);
-        }
         .status-blocked {
             background: #ffe0e0;
             color: #dc3545;
         }
-        .status-blocked:hover {
-            transform: scale(1.08);
-        }
 
         .btn-action {
             border: none;
-            padding: 8px 16px;
+            padding: 7px 14px;
             border-radius: 30px;
             cursor: pointer;
             font-size: 12px;
             font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease;
             margin: 2px;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-action::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
-            transform: rotate(45deg) translateX(-100%);
-            transition: all 0.6s ease;
-        }
-        .btn-action:hover::after {
-            transform: rotate(45deg) translateX(100%);
         }
         .btn-view {
             background: #0d2b1e;
@@ -489,17 +423,6 @@
         }
         .btn-view:hover {
             background: #1a5d3a;
-            transform: translateY(-3px) scale(1.08);
-            box-shadow: 0 6px 20px rgba(13,43,30,0.3);
-        }
-        .btn-view:active {
-            transform: scale(0.93);
-        }
-        .btn-view i {
-            transition: transform 0.3s ease;
-        }
-        .btn-view:hover i {
-            transform: scale(1.2);
         }
 
         .btn-block {
@@ -508,17 +431,6 @@
         }
         .btn-block:hover {
             background: #d97706;
-            transform: translateY(-3px) scale(1.08);
-            box-shadow: 0 6px 20px rgba(245,158,11,0.3);
-        }
-        .btn-block:active {
-            transform: scale(0.93);
-        }
-        .btn-block i {
-            transition: transform 0.3s ease;
-        }
-        .btn-block:hover i {
-            transform: scale(1.2);
         }
 
         .btn-unblock {
@@ -527,17 +439,6 @@
         }
         .btn-unblock:hover {
             background: #16a34a;
-            transform: translateY(-3px) scale(1.08);
-            box-shadow: 0 6px 20px rgba(34,197,94,0.3);
-        }
-        .btn-unblock:active {
-            transform: scale(0.93);
-        }
-        .btn-unblock i {
-            transition: transform 0.3s ease;
-        }
-        .btn-unblock:hover i {
-            transform: scale(1.2);
         }
 
         .btn-delete {
@@ -546,57 +447,6 @@
         }
         .btn-delete:hover {
             background: #b91c1c;
-            transform: translateY(-3px) scale(1.08);
-            box-shadow: 0 6px 20px rgba(220,53,69,0.3);
-        }
-        .btn-delete:active {
-            transform: scale(0.93);
-        }
-        .btn-delete i {
-            transition: transform 0.3s ease;
-        }
-        .btn-delete:hover i {
-            transform: scale(1.2) rotate(15deg);
-        }
-
-        .role-select {
-            padding: 6px 12px;
-            border: 2px solid #eef2f0;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #0d2b1e;
-        }
-        .role-select:focus {
-            border-color: #1a5d3a;
-            box-shadow: 0 0 0 4px rgba(26,107,66,0.1);
-        }
-        .role-select:hover {
-            transform: scale(1.02);
-        }
-        .btn-apply-role {
-            background: #1a5d3a;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-left: 4px;
-        }
-        .btn-apply-role:hover {
-            background: #0d2b1e;
-            transform: scale(1.08);
-        }
-        .btn-apply-role:active {
-            transform: scale(0.93);
         }
 
         .protected-text {
@@ -617,7 +467,7 @@
             margin-top: 28px;
             color: #8a9a8f;
             font-size: 11px;
-            animation: fadeInUp 0.9s ease;
+            border-top: 1px solid #eef2f0;
         }
 
         /* ===== TOAST ===== */
@@ -626,20 +476,20 @@
             bottom: 30px;
             right: 30px;
             background: white;
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 16px 24px;
             display: flex;
             align-items: center;
             gap: 14px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             z-index: 2000;
             transform: translateX(400px);
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border-left: 5px solid;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-left: 4px solid;
         }
         .toast-notification.show {
             transform: translateX(0);
-            animation: toastSlide 0.5s ease;
+            animation: toastSlide 0.4s ease;
         }
         .toast-notification.success {
             border-left-color: #28a745;
@@ -648,8 +498,7 @@
             border-left-color: #dc3545;
         }
         .toast-notification i {
-            font-size: 24px;
-            animation: iconBounce 0.5s ease;
+            font-size: 22px;
         }
         .toast-notification.success i {
             color: #28a745;
@@ -672,34 +521,34 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
         .modal-content {
             background: white;
-            border-radius: 24px;
-            padding: 40px;
+            border-radius: 20px;
+            padding: 35px;
             width: 90%;
-            max-width: 520px;
-            animation: modalFadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            animation: modalFadeIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
         .modal-content.closing {
-            animation: modalFadeOut 0.3s ease forwards;
+            animation: modalFadeOut 0.25s ease forwards;
         }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
             border-bottom: 2px solid #f0f2f5;
         }
         .modal-header h3 {
             color: #0d2b1e;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -707,17 +556,17 @@
         }
         .modal-header h3 i {
             color: #1a5d3a;
-            font-size: 24px;
+            font-size: 22px;
         }
         .close-modal {
-            font-size: 28px;
+            font-size: 26px;
             cursor: pointer;
             color: #999;
             background: none;
             border: none;
-            transition: all 0.3s ease;
-            width: 40px;
-            height: 40px;
+            transition: all 0.2s ease;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -726,11 +575,10 @@
         .close-modal:hover {
             color: #dc3545;
             background: #fef2f2;
-            transform: rotate(90deg);
         }
 
         .modal-body .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
         .modal-body label {
             display: block;
@@ -739,7 +587,7 @@
             color: #0d2b1e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         .modal-body label i {
             color: #1a5d3a;
@@ -748,21 +596,20 @@
         }
         .modal-body input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 11px 16px;
             border: 2px solid #eef2f0;
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 14px;
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             color: #0d2b1e;
         }
         .modal-body input:focus {
             border-color: #1a5d3a;
             background: white;
-            box-shadow: 0 0 0 4px rgba(26,107,66,0.1);
-            transform: scale(1.01);
+            box-shadow: 0 0 0 3px rgba(26,107,66,0.1);
         }
         .modal-body input::placeholder {
             color: #b0c0b8;
@@ -771,45 +618,24 @@
         .modal-actions {
             display: flex;
             gap: 12px;
-            margin-top: 24px;
+            margin-top: 20px;
             justify-content: flex-end;
         }
         .modal-btn {
-            padding: 12px 32px;
+            padding: 10px 28px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-        .modal-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg) translateX(-100%);
-            transition: all 0.6s ease;
-        }
-        .modal-btn:hover::after {
-            transform: rotate(45deg) translateX(100%);
+            transition: all 0.2s ease;
         }
         .modal-btn.submit {
-            background: linear-gradient(135deg, #1a5d3a 0%, #2a7a52 100%);
+            background: #1a5d3a;
             color: white;
-            box-shadow: 0 4px 16px rgba(26,107,66,0.25);
         }
         .modal-btn.submit:hover {
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 8px 30px rgba(26,107,66,0.35);
-        }
-        .modal-btn.submit:active {
-            transform: scale(0.95);
+            background: #0d2b1e;
         }
         .modal-btn.cancel {
             background: #6c757d;
@@ -817,32 +643,27 @@
         }
         .modal-btn.cancel:hover {
             background: #5a6268;
-            transform: translateY(-3px) scale(1.03);
-        }
-        .modal-btn.cancel:active {
-            transform: scale(0.95);
         }
 
-        /* ===== CONFIRM DELETE MODAL ===== */
+        /* ===== CONFIRM MODAL ===== */
         .confirm-icon {
-            font-size: 60px;
-            color: #dc3545;
+            font-size: 50px;
             display: block;
-            margin: 0 auto 16px;
-            animation: shake 0.8s ease;
+            margin: 0 auto 12px;
+            text-align: center;
         }
         .confirm-title {
             text-align: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #0d2b1e;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .confirm-message {
             text-align: center;
             font-size: 14px;
             color: #6b7a72;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             line-height: 1.6;
         }
         .confirm-message strong {
@@ -854,30 +675,25 @@
             justify-content: center;
         }
         .confirm-btn {
-            padding: 12px 32px;
+            padding: 10px 28px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            min-width: 100px;
+            justify-content: center;
         }
         .confirm-btn.yes {
             background: #dc3545;
             color: white;
-            box-shadow: 0 4px 16px rgba(220,53,69,0.25);
-            animation: confirmPulse 1.5s infinite;
         }
         .confirm-btn.yes:hover {
             background: #b91c1c;
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 30px rgba(220,53,69,0.35);
-        }
-        .confirm-btn.yes:active {
-            transform: scale(0.95);
         }
         .confirm-btn.no {
             background: #6c757d;
@@ -885,10 +701,20 @@
         }
         .confirm-btn.no:hover {
             background: #5a6268;
-            transform: translateY(-3px) scale(1.05);
         }
-        .confirm-btn.no:active {
-            transform: scale(0.95);
+        .confirm-btn.block-yes {
+            background: #f59e0b;
+            color: white;
+        }
+        .confirm-btn.block-yes:hover {
+            background: #d97706;
+        }
+        .confirm-btn.unblock-yes {
+            background: #22c55e;
+            color: white;
+        }
+        .confirm-btn.unblock-yes:hover {
+            background: #16a34a;
         }
 
         .no-results {
@@ -916,11 +742,10 @@
             .search-box { max-width: 100%; }
             .top-bar { flex-direction: column; align-items: flex-start; }
             .confirm-actions { flex-direction: column; }
-            .confirm-btn { width: 100%; justify-content: center; }
+            .confirm-btn { width: 100%; }
             table { font-size: 12px; }
             th, td { padding: 8px 10px; }
-            .btn-action { padding: 6px 12px; font-size: 11px; }
-            .role-select { font-size: 11px; padding: 4px 8px; }
+            .btn-action { padding: 5px 10px; font-size: 11px; }
         }
         @media (max-width: 480px) {
             .modal-content { padding: 20px; }
@@ -929,7 +754,7 @@
             .search-box { padding: 4px 4px 4px 14px; }
             .search-box input { font-size: 13px; padding: 8px 0; }
             .search-box button { padding: 8px 16px; font-size: 12px; }
-            .btn-action { font-size: 10px; padding: 4px 10px; }
+            .btn-action { font-size: 10px; padding: 4px 8px; }
         }
     </style>
 </head>
@@ -945,16 +770,16 @@
         </div>
         <h2>Barangay Sto. Niño</h2>
         <small>Head Admin Panel</small>
-</div>
+    </div>
     <ul class="sidebar-menu">
-        <li class="active"><a href="{{ url_for('head_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('user_management') }}"><i class="fas fa-users"></i> <span>Users</span></a></li>
-        <li><a href="{{ url_for('admin_management') }}"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
-        <li><a href="#"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
-        <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
-        <li><a href="{{ url_for('announcements') }}"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>  <!-- ← CHANGED -->
-        <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
-    </ul>
+    <li><a href="{{ url_for('head_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+    <li class="active"><a href="{{ url_for('user_management') }}"><i class="fas fa-users"></i> <span>Users</span></a></li>
+    <li><a href="{{ url_for('admin_management') }}"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
+    <li><a href="#"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+    <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+    <li><a href="{{ url_for('announcements') }}"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
+    <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+</ul>
 </div>
 
 <!-- ===== MAIN CONTENT ===== -->
@@ -964,7 +789,7 @@
     <div class="top-bar">
         <div class="welcome-text">
             <h2><i class="fas fa-users"></i> User Management</h2>
-            <p>View, manage, and assign roles to all registered users</p>
+            <p>View and manage all registered users</p>
         </div>
         <div class="top-bar-right">
             <div class="clock-badge">
@@ -1002,7 +827,6 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Contact</th>
-                        <th>Role</th>
                         <th>Status</th>
                         <th>Joined</th>
                         <th>Actions</th>
@@ -1016,26 +840,6 @@
                         <td>{{ user.email }}</td>
                         <td>{{ user.contact_number or 'N/A' }}</td>
                         <td>
-                            {% if user.id != session.user_id %}
-                                <form method="POST" action="{{ url_for('update_user_role', user_id=user.id) }}" style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-                                    <select name="role" class="role-select">
-                                        <option value="resident" {% if user.role == 'resident' %}selected{% endif %}>Resident</option>
-                                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
-                                        <option value="head_admin" {% if user.role == 'head_admin' %}selected{% endif %}>Head Admin</option>
-                                    </select>
-                                    <button type="submit" class="btn-apply-role"><i class="fas fa-check"></i></button>
-                                </form>
-                            {% else %}
-                                <span class="role-badge-small 
-                                    {% if user.role == 'head_admin' %}role-head-admin
-                                    {% elif user.role == 'admin' %}role-admin
-                                    {% else %}role-resident{% endif %}">
-                                    {{ user.role|upper }}
-                                </span>
-                                <span class="protected-text"><i class="fas fa-lock"></i></span>
-                            {% endif %}
-                        </td>
-                        <td>
                             <span class="status-badge 
                                 {% if user.is_verified %}status-verified{% else %}status-blocked{% endif %}">
                                 {% if user.is_verified %}✅ Active{% else %}🚫 Blocked{% endif %}
@@ -1048,11 +852,11 @@
                             </button>
                             {% if user.id != session.user_id %}
                                 {% if user.is_verified %}
-                                    <button class="btn-action btn-block" onclick="toggleBlock('{{ user.id }}')" title="Block User">
+                                    <button class="btn-action btn-block" onclick="confirmBlock('{{ user.id }}')" title="Block User">
                                         <i class="fas fa-ban"></i> Block
                                     </button>
                                 {% else %}
-                                    <button class="btn-action btn-unblock" onclick="toggleBlock('{{ user.id }}')" title="Unblock User">
+                                    <button class="btn-action btn-unblock" onclick="confirmUnblock('{{ user.id }}')" title="Unblock User">
                                         <i class="fas fa-check-circle"></i> Unblock
                                     </button>
                                 {% endif %}
@@ -1087,7 +891,6 @@
             <p style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f2f5;"><strong>Email:</strong> <span id="viewEmail"></span></p>
             <p style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f2f5;"><strong>Contact:</strong> <span id="viewContact"></span></p>
             <p style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f2f5;"><strong>Address:</strong> <span id="viewAddress"></span></p>
-            <p style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f2f5;"><strong>Role:</strong> <span id="viewRole"></span></p>
             <p style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f2f5;"><strong>Status:</strong> <span id="viewStatus"></span></p>
             <p style="display: flex; justify-content: space-between; padding: 8px 0;"><strong>Joined:</strong> <span id="viewJoined"></span></p>
         </div>
@@ -1101,15 +904,15 @@
 <div id="confirmDeleteModal" class="modal">
     <div class="modal-content">
         <div class="modal-body" style="text-align: center; padding: 10px 0;">
-            <div class="confirm-icon">
+            <div class="confirm-icon" style="color: #dc3545;">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <div class="confirm-title">Delete User?</div>
+            <div class="confirm-title">⚠️ Delete User?</div>
             <div class="confirm-message">
                 Are you sure you want to delete <strong id="confirmUserName"></strong>?<br>
                 This action <strong>cannot be undone</strong> and will permanently remove this user account.
             </div>
-            <div style="background: #fef2f2; border-radius: 12px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+            <div style="background: #fef2f2; border-radius: 10px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
                 <p style="font-size: 13px; color: #dc3545; margin: 0;">
                     <i class="fas fa-info-circle"></i> Email: <span id="confirmUserEmail"></span>
                 </p>
@@ -1126,6 +929,30 @@
     </div>
 </div>
 
+<!-- ===== CONFIRM BLOCK/UNBLOCK MODAL ===== -->
+<div id="confirmBlockModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-body" style="text-align: center; padding: 10px 0;">
+            <div class="confirm-icon" id="blockIcon" style="color: #f59e0b;">
+                <i class="fas fa-ban"></i>
+            </div>
+            <div class="confirm-title" id="blockTitle">⚠️ Block User?</div>
+            <div class="confirm-message" id="blockMessage">
+                Are you sure you want to block this user?<br>
+                They will <strong>not</strong> be able to access their account.
+            </div>
+            <div class="confirm-actions">
+                <button class="confirm-btn no" onclick="closeConfirmBlock()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="confirm-btn block-yes" id="blockConfirmBtn" onclick="confirmBlockAction()">
+                    <i class="fas fa-ban"></i> Yes, Block
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== TOAST ===== -->
 <div id="toastNotification" class="toast-notification">
     <i id="toastIcon" class="fas fa-check-circle"></i>
@@ -1135,6 +962,8 @@
 <script>
     // Variables
     let deleteUserId = null;
+    let blockUserId = null;
+    let blockAction = null; // 'block' or 'unblock'
 
     // Update user count
     document.getElementById('userCount').textContent = document.querySelectorAll('#userTableBody tr').length;
@@ -1193,7 +1022,59 @@
         setTimeout(() => {
             modal.style.display = 'none';
             content.classList.remove('closing');
-        }, 300);
+        }, 250);
+    }
+
+    // ===== CONFIRM BLOCK/UNBLOCK =====
+    function confirmBlock(userId) {
+        blockUserId = userId;
+        blockAction = 'block';
+        document.getElementById('blockIcon').innerHTML = '<i class="fas fa-ban"></i>';
+        document.getElementById('blockIcon').style.color = '#f59e0b';
+        document.getElementById('blockTitle').textContent = '⚠️ Block User?';
+        document.getElementById('blockMessage').innerHTML = 'Are you sure you want to block this user?<br>They will <strong>not</strong> be able to access their account.';
+        document.getElementById('blockConfirmBtn').innerHTML = '<i class="fas fa-ban"></i> Yes, Block';
+        document.getElementById('blockConfirmBtn').className = 'confirm-btn block-yes';
+        document.getElementById('confirmBlockModal').style.display = 'flex';
+    }
+
+    function confirmUnblock(userId) {
+        blockUserId = userId;
+        blockAction = 'unblock';
+        document.getElementById('blockIcon').innerHTML = '<i class="fas fa-check-circle"></i>';
+        document.getElementById('blockIcon').style.color = '#22c55e';
+        document.getElementById('blockTitle').textContent = '✅ Unblock User?';
+        document.getElementById('blockMessage').innerHTML = 'Are you sure you want to unblock this user?<br>They will regain access to their account.';
+        document.getElementById('blockConfirmBtn').innerHTML = '<i class="fas fa-check-circle"></i> Yes, Unblock';
+        document.getElementById('blockConfirmBtn').className = 'confirm-btn unblock-yes';
+        document.getElementById('confirmBlockModal').style.display = 'flex';
+    }
+
+    function closeConfirmBlock() {
+        closeModal('confirmBlockModal');
+        blockUserId = null;
+        blockAction = null;
+    }
+
+    function confirmBlockAction() {
+        if (!blockUserId || !blockAction) return;
+        
+        fetch(`/api/user/${blockUserId}/toggle-block`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (response.ok) {
+                    closeConfirmBlock();
+                    const message = blockAction === 'block' ? '✅ User blocked successfully!' : '✅ User unblocked successfully!';
+                    showToast(message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(data.error || '❌ Error toggling user status', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('❌ Error toggling user status', 'error');
+                console.error('Error:', error);
+            });
     }
 
     // ===== CONFIRM DELETE =====
@@ -1217,14 +1098,14 @@
             .then(data => {
                 if (response.ok) {
                     closeConfirmDelete();
-                    showToast(data.message, 'success');
+                    showToast('✅ User deleted successfully!', 'success');
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    showToast(data.error || 'Error deleting user', 'error');
+                    showToast(data.error || '❌ Error deleting user', 'error');
                 }
             })
             .catch(error => {
-                showToast('Error deleting user', 'error');
+                showToast('❌ Error deleting user', 'error');
                 console.error('Error:', error);
             });
     }
@@ -1238,35 +1119,14 @@
                 document.getElementById('viewEmail').textContent = user.email;
                 document.getElementById('viewContact').textContent = user.contact_number || 'N/A';
                 document.getElementById('viewAddress').textContent = user.address || 'N/A';
-                document.getElementById('viewRole').textContent = user.role.toUpperCase();
                 document.getElementById('viewStatus').textContent = user.is_verified ? '✅ Active' : '🚫 Blocked';
                 document.getElementById('viewJoined').textContent = user.created_at || 'N/A';
                 document.getElementById('viewModal').style.display = 'flex';
             })
             .catch(error => {
-                showToast('Error loading user details', 'error');
+                showToast('❌ Error loading user details', 'error');
                 console.error('Error:', error);
             });
-    }
-
-    // ===== TOGGLE BLOCK =====
-    function toggleBlock(userId) {
-        if (confirm('Are you sure you want to block/unblock this user?')) {
-            fetch(`/api/user/${userId}/toggle-block`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (response.ok) {
-                        showToast(data.message, 'success');
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        showToast(data.error || 'Error toggling user status', 'error');
-                    }
-                })
-                .catch(error => {
-                    showToast('Error toggling user status', 'error');
-                    console.error('Error:', error);
-                });
-        }
     }
 
     window.onclick = function(e) {

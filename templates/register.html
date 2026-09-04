@@ -28,6 +28,10 @@
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
+        @keyframes strengthBar {
+            from { width: 0; }
+            to { width: var(--strength-width); }
+        }
 
         .register-image {
             flex: 1;
@@ -225,6 +229,98 @@
             transform: translateY(-50%) scale(1.1);
         }
 
+        /* ===== PASSWORD STRENGTH INDICATOR ===== */
+        .password-strength {
+            margin-top: 8px;
+            display: none;
+        }
+        .password-strength.active {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+        .strength-bar {
+            width: 100%;
+            height: 6px;
+            background: #eef2f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .strength-bar-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 10px;
+            transition: width 0.4s ease, background 0.4s ease;
+            --strength-width: 0%;
+        }
+        .strength-bar-fill.weak {
+            background: #dc3545;
+            width: 25%;
+        }
+        .strength-bar-fill.fair {
+            background: #f59e0b;
+            width: 50%;
+        }
+        .strength-bar-fill.good {
+            background: #3b82f6;
+            width: 75%;
+        }
+        .strength-bar-fill.strong {
+            background: #22c55e;
+            width: 100%;
+        }
+
+        .strength-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8a9a8f;
+        }
+        .strength-text .label {
+            font-weight: 600;
+        }
+        .strength-text .label.weak { color: #dc3545; }
+        .strength-text .label.fair { color: #f59e0b; }
+        .strength-text .label.good { color: #3b82f6; }
+        .strength-text .label.strong { color: #22c55e; }
+
+        .password-requirements {
+            display: none;
+            margin-top: 10px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #eef2f0;
+        }
+        .password-requirements.active {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+        .password-requirements .req {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            font-size: 13px;
+            color: #6b7a72;
+            transition: all 0.3s ease;
+        }
+        .password-requirements .req i {
+            width: 18px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .password-requirements .req.met {
+            color: #22c55e;
+        }
+        .password-requirements .req.met i {
+            color: #22c55e;
+        }
+        .password-requirements .req.unmet i {
+            color: #dc3545;
+        }
+
         .register-btn {
             width: 100%;
             padding: 16px;
@@ -331,6 +427,27 @@
             border: 1px solid #bae6fd;
         }
 
+        .weak-password-warning {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            color: #92400e;
+            font-size: 13px;
+        }
+        .weak-password-warning.active {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInUp 0.3s ease;
+        }
+        .weak-password-warning i {
+            color: #f59e0b;
+            font-size: 18px;
+        }
+
         @media (max-width: 992px) {
             body { flex-direction: column; }
             .register-image { min-height: 200px; padding: 30px; }
@@ -388,7 +505,7 @@
             </div>
 
             <!-- Register Form -->
-            <form method="POST" action="{{ url_for('register') }}">
+            <form method="POST" action="{{ url_for('register') }}" id="registerForm">
                 <div class="input-group">
                     <label for="firstName"><i class="fas fa-user"></i> First Name</label>
                     <input type="text" name="first_name" id="firstName" placeholder="Enter your first name" required>
@@ -422,6 +539,42 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
+                    
+                    <!-- Password Strength Indicator -->
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-bar-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text">
+                            <span class="label" id="strengthLabel">Enter a password</span>
+                            <span id="strengthText"></span>
+                        </div>
+                    </div>
+
+                    <!-- Password Requirements -->
+                    <div class="password-requirements" id="passwordRequirements">
+                        <div class="req unmet" id="reqLength">
+                            <i class="fas fa-circle"></i> At least 8 characters
+                        </div>
+                        <div class="req unmet" id="reqUpper">
+                            <i class="fas fa-circle"></i> At least 1 uppercase letter
+                        </div>
+                        <div class="req unmet" id="reqLower">
+                            <i class="fas fa-circle"></i> At least 1 lowercase letter
+                        </div>
+                        <div class="req unmet" id="reqNumber">
+                            <i class="fas fa-circle"></i> At least 1 number
+                        </div>
+                        <div class="req unmet" id="reqSpecial">
+                            <i class="fas fa-circle"></i> At least 1 special character (!@#$%^&*)
+                        </div>
+                    </div>
+
+                    <!-- Weak Password Warning (only shows if password is weak) -->
+                    <div class="weak-password-warning" id="weakPasswordWarning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Your password is weak. For better security, consider using a stronger password.</span>
+                    </div>
                 </div>
 
                 <div class="input-group">
@@ -432,9 +585,12 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
+                    <div id="confirmMatch" style="font-size: 13px; margin-top: 6px; display: none;">
+                        <i class="fas fa-check-circle" style="color: #22c55e;"></i> Passwords match
+                    </div>
                 </div>
 
-                <button type="submit" class="register-btn">
+                <button type="submit" class="register-btn" id="registerBtn">
                     <i class="fas fa-user-plus"></i> Register
                 </button>
             </form>
@@ -447,7 +603,7 @@
     </div>
 
     <script>
-        // Password toggle
+        // ===== PASSWORD TOGGLE =====
         document.getElementById('togglePassword').addEventListener('click', function() {
             const input = document.getElementById('password');
             const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -464,7 +620,152 @@
             this.querySelector('i').classList.toggle('fa-eye-slash');
         });
 
-        // Auto-hide flash messages after 5 seconds
+        // ===== PASSWORD STRENGTH CHECKER =====
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirmPassword');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthLabel = document.getElementById('strengthLabel');
+        const strengthText = document.getElementById('strengthText');
+        const strengthDiv = document.getElementById('passwordStrength');
+        const requirementsDiv = document.getElementById('passwordRequirements');
+        const weakWarning = document.getElementById('weakPasswordWarning');
+        const confirmMatch = document.getElementById('confirmMatch');
+
+        const reqLength = document.getElementById('reqLength');
+        const reqUpper = document.getElementById('reqUpper');
+        const reqLower = document.getElementById('reqLower');
+        const reqNumber = document.getElementById('reqNumber');
+        const reqSpecial = document.getElementById('reqSpecial');
+
+        function checkPasswordStrength(password) {
+            let score = 0;
+            let checks = {
+                length: password.length >= 8,
+                upper: /[A-Z]/.test(password),
+                lower: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+
+            // Update requirements
+            updateRequirement(reqLength, checks.length);
+            updateRequirement(reqUpper, checks.upper);
+            updateRequirement(reqLower, checks.lower);
+            updateRequirement(reqNumber, checks.number);
+            updateRequirement(reqSpecial, checks.special);
+
+            // Count fulfilled requirements
+            const fulfilled = Object.values(checks).filter(Boolean).length;
+
+            // Determine strength
+            let strength = 'weak';
+            let label = 'Weak';
+            let color = '#dc3545';
+            
+            if (fulfilled === 5 && password.length >= 8) {
+                strength = 'strong';
+                label = 'Strong';
+                color = '#22c55e';
+            } else if (fulfilled >= 4) {
+                strength = 'good';
+                label = 'Good';
+                color = '#3b82f6';
+            } else if (fulfilled >= 3) {
+                strength = 'fair';
+                label = 'Fair';
+                color = '#f59e0b';
+            } else if (fulfilled >= 1) {
+                strength = 'weak';
+                label = 'Weak';
+                color = '#dc3545';
+            } else {
+                strength = 'none';
+                label = 'Enter a password';
+                color = '#eef2f0';
+            }
+
+            return { strength, label, color, fulfilled, total: 5 };
+        }
+
+        function updateRequirement(element, met) {
+            if (met) {
+                element.classList.remove('unmet');
+                element.classList.add('met');
+                element.querySelector('i').className = 'fas fa-check-circle';
+            } else {
+                element.classList.remove('met');
+                element.classList.add('unmet');
+                element.querySelector('i').className = 'fas fa-circle';
+            }
+        }
+
+        function updateStrength() {
+            const password = passwordInput.value;
+            
+            if (password.length === 0) {
+                strengthDiv.classList.remove('active');
+                requirementsDiv.classList.remove('active');
+                weakWarning.classList.remove('active');
+                strengthFill.className = 'strength-bar-fill';
+                strengthFill.style.width = '0%';
+                strengthLabel.textContent = 'Enter a password';
+                strengthText.textContent = '';
+                return;
+            }
+
+            strengthDiv.classList.add('active');
+            requirementsDiv.classList.add('active');
+
+            const result = checkPasswordStrength(password);
+            
+            // Update strength bar
+            strengthFill.className = 'strength-bar-fill ' + result.strength;
+            strengthFill.style.width = result.strength === 'none' ? '0%' : 
+                result.strength === 'weak' ? '25%' : 
+                result.strength === 'fair' ? '50%' : 
+                result.strength === 'good' ? '75%' : '100%';
+            
+            strengthLabel.textContent = result.label;
+            strengthLabel.className = 'label ' + result.strength;
+            strengthText.textContent = `${result.fulfilled}/${result.total} requirements met`;
+            strengthText.style.color = result.color;
+
+            // Show weak password warning
+            if (result.strength === 'weak' || result.strength === 'fair') {
+                weakWarning.classList.add('active');
+            } else {
+                weakWarning.classList.remove('active');
+            }
+
+            // Check password match
+            checkPasswordMatch();
+        }
+
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+            
+            if (confirm.length === 0) {
+                confirmMatch.style.display = 'none';
+                return;
+            }
+            
+            if (password === confirm) {
+                confirmMatch.style.display = 'block';
+                confirmMatch.innerHTML = '<i class="fas fa-check-circle" style="color: #22c55e;"></i> Passwords match';
+                confirmMatch.style.color = '#22c55e';
+            } else {
+                confirmMatch.style.display = 'block';
+                confirmMatch.innerHTML = '<i class="fas fa-times-circle" style="color: #dc3545;"></i> Passwords do not match';
+                confirmMatch.style.color = '#dc3545';
+            }
+        }
+
+        // Event listeners
+        passwordInput.addEventListener('input', updateStrength);
+        confirmInput.addEventListener('input', checkPasswordMatch);
+
+        // ===== AUTO-HIDE FLASH MESSAGES =====
         setTimeout(() => {
             const flashMessages = document.querySelectorAll('.flash-message');
             flashMessages.forEach(msg => {
@@ -473,6 +774,27 @@
                 setTimeout(() => msg.remove(), 500);
             });
         }, 5000);
+
+        // ===== FORM SUBMIT - Only check if passwords match =====
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+            
+            // Only check if passwords match
+            if (password !== confirm) {
+                e.preventDefault();
+                alert('Passwords do not match. Please check and try again.');
+                return;
+            }
+            
+            // Allow registration even with weak password
+            // Just show a friendly reminder
+            const result = checkPasswordStrength(password);
+            if (result.strength === 'weak' || result.strength === 'fair') {
+                // Allow registration but user already sees the warning
+                // Let it proceed
+            }
+        });
     </script>
 
 </body>

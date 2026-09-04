@@ -907,15 +907,15 @@
         <h2>Barangay Sto. Niño</h2>
         <small>Head Admin Panel</small>
     </div>
-    <ul class="sidebar-menu">
-        <li class="active"><a href="{{ url_for('head_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('user_management') }}"><i class="fas fa-users"></i> <span>Users</span></a></li>
-        <li><a href="{{ url_for('admin_management') }}"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
-        <li><a href="#"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
-        <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
-        <li><a href="{{ url_for('announcements') }}"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>  <!-- ← CHANGED -->
-        <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
-    </ul>
+   <ul class="sidebar-menu">
+    <li><a href="{{ url_for('head_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+    <li><a href="{{ url_for('user_management') }}"><i class="fas fa-users"></i> <span>Users</span></a></li>
+    <li class="active"><a href="{{ url_for('admin_management') }}"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
+    <li><a href="#"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+    <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+    <li><a href="{{ url_for('announcements') }}"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
+    <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+</ul>
 </div>
 
 <!-- ===== MAIN CONTENT ===== -->
