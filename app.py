@@ -18,15 +18,29 @@ def index():
 # ===== DATABASE CONNECTION =====
 def get_db():
     return mysql.connector.connect(
-        host='localhost',
+        host='127.0.0.1',
+        port=3306,
         user='root',
         password='bsit2026@123',
         database='barangay_online_services'
     )
 
-# ===== LOGIN ROUTE =====
+# ===== LOGIN ROUTE (MAY LOCKOUT) =====
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Check kung naka-lockout ba
+    if session.get('login_attempts', 0) >= 3:
+        lockout_time = session.get('lockout_time', 0)
+        current_time = time.time()
+        if current_time < lockout_time:
+            remaining = int(lockout_time - current_time)
+            lockout_msg = f"Too many failed attempts. Please wait {remaining} seconds before trying again."
+            return render_template('login.html', login_error=True, lockout_message=lockout_msg)
+        else:
+            # Reset attempts after lockout expires
+            session['login_attempts'] = 0
+            session['lockout_time'] = 0
+
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
@@ -43,30 +57,46 @@ def login():
         conn.close()
         
         if user:
-            if check_password_hash(user['password'], password):
-                if role == 'admin' and user['role'] not in ['admin', 'head_admin']:
-                    flash('You are not authorized as admin.', 'danger')
-                    return render_template('login.html')
-                
-                session['user_id'] = user['id']
-                session['fullname'] = f"{user['first_name']} {user['last_name']}"
-                session['email'] = user['email']
-                session['role'] = user['role']
-                
-                flash(f'Welcome back, {session["fullname"]}!', 'success')
-                
-                if user['role'] == 'head_admin':
-                    return redirect(url_for('head_admin_dashboard'))
-                elif user['role'] == 'admin':
-                    return redirect(url_for('admin_dashboard'))
+            # Kapag mali ang password
+            if not check_password_hash(user['password'], password):
+                session['login_attempts'] = session.get('login_attempts', 0) + 1
+                if session['login_attempts'] >= 3:
+                    session['lockout_time'] = time.time() + 30
+                    lockout_msg = "Too many failed attempts. Please wait 30 seconds before trying again."
+                    return render_template('login.html', login_error=True, lockout_message=lockout_msg)
                 else:
-                    return redirect(url_for('dashboard'))
+                    return render_template('login.html', login_error=True)
+            
+            # Kapag tama na
+            session['login_attempts'] = 0
+            session['lockout_time'] = 0
+            
+            if role == 'admin' and user['role'] not in ['admin', 'head_admin']:
+                flash('You are not authorized as admin.', 'danger')
+                return render_template('login.html')
+            
+            session['user_id'] = user['id']
+            session['fullname'] = f"{user['first_name']} {user['last_name']}"
+            session['email'] = user['email']
+            session['role'] = user['role']
+            
+            flash(f'Welcome back, {session["fullname"]}!', 'success')
+            
+            if user['role'] == 'head_admin':
+                return redirect(url_for('head_admin_dashboard'))
+            elif user['role'] == 'admin':
+                return redirect(url_for('admin_dashboard'))
             else:
-                flash('Invalid email or password.', 'danger')
+                return redirect(url_for('dashboard'))
         else:
-            flash('Invalid email or password.', 'danger')
-        
-        return render_template('login.html')
+            # Kapag walang user
+            session['login_attempts'] = session.get('login_attempts', 0) + 1
+            if session['login_attempts'] >= 3:
+                session['lockout_time'] = time.time() + 30
+                lockout_msg = "Too many failed attempts. Please wait 30 seconds before trying again."
+                return render_template('login.html', login_error=True, lockout_message=lockout_msg)
+            else:
+                return render_template('login.html', login_error=True)
     
     return render_template('login.html')
 
@@ -313,7 +343,7 @@ def admin_dashboard():
                          pending_events=pending_events)
 
 # ============================================================
-# ===== USER MANAGEMENT (RESIDENTS ONLY) =====
+# ===== USER MANAGEMENT =====
 # ============================================================
 
 @app.route('/users')
@@ -432,10 +462,7 @@ def api_delete_user(user_id):
     
     return jsonify({'message': 'User deleted successfully'})
 
-# ============================================================
-# ===== ADMIN MANAGEMENT (HEAD ADMIN ONLY) =====
-# ============================================================
-
+# ===== ADMIN MANAGEMENT =====
 @app.route('/admins')
 def admin_management():
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -578,10 +605,7 @@ def create_admin():
     flash('Admin created successfully!', 'success')
     return redirect(url_for('admin_management'))
 
-# ============================================================
-# ===== ANNOUNCEMENTS (HEAD ADMIN ONLY) =====
-# ============================================================
-
+# ===== ANNOUNCEMENTS =====
 @app.route('/announcements')
 def announcements():
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -1164,8 +1188,6 @@ def download_backup():
 
 # ============================================================
 # ===== CHECK SESSION =====
-# ============================================================
-
 @app.route('/check-session')
 def check_session():
     if 'user_id' in session:

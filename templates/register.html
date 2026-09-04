@@ -28,10 +28,6 @@
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-        @keyframes strengthBar {
-            from { width: 0; }
-            to { width: var(--strength-width); }
-        }
 
         .register-image {
             flex: 1;
@@ -58,7 +54,6 @@
             text-align: center;
             padding: 40px;
             max-width: 500px;
-            animation: fadeInUp 0.6s ease-out;
         }
         .register-image-content h1 {
             font-size: 3rem;
@@ -90,11 +85,6 @@
             font-weight: 600;
             border: 1px solid rgba(255,255,255,0.15);
             backdrop-filter: blur(6px);
-            transition: all 0.3s ease;
-        }
-        .register-image-content .badge-group span:hover {
-            background: rgba(255,255,255,0.20);
-            transform: translateY(-2px);
         }
 
         .register-form-wrapper {
@@ -109,7 +99,6 @@
         .register-container {
             width: 100%;
             max-width: 480px;
-            animation: fadeInUp 0.6s ease;
         }
 
         .register-header {
@@ -125,11 +114,7 @@
             box-shadow: 0 8px 24px rgba(26,107,66,0.15);
             border: 3px solid white;
             display: block;
-            background: var(--primary-50);
-            transition: transform 0.3s ease;
-        }
-        .register-header .logo-img:hover {
-            transform: scale(1.05);
+            background: #f0f2f5;
         }
         .register-header h2 {
             font-size: 1.8rem;
@@ -214,7 +199,6 @@
             cursor: pointer;
             font-size: 18px;
             padding: 6px;
-            transition: all 0.3s ease;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -226,7 +210,6 @@
         .password-toggle:hover {
             color: #1a5d3a;
             background: rgba(26,107,66,0.08);
-            transform: translateY(-50%) scale(1.1);
         }
 
         /* ===== PASSWORD STRENGTH INDICATOR ===== */
@@ -336,23 +319,7 @@
             justify-content: center;
             align-items: center;
             gap: 12px;
-            position: relative;
-            overflow: hidden;
             margin-top: 8px;
-        }
-        .register-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: rotate(45deg) translateX(-100%);
-            transition: all 0.6s ease;
-        }
-        .register-btn:hover::after {
-            transform: rotate(45deg) translateX(100%);
         }
         .register-btn:hover {
             transform: translateY(-2px);
@@ -373,58 +340,10 @@
             color: #1a5d3a;
             text-decoration: none;
             font-weight: 700;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        .login-link a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #1a5d3a;
-            transition: width 0.3s ease;
-        }
-        .login-link a:hover::after {
-            width: 100%;
         }
         .login-link a:hover {
             color: #0d2b1e;
-        }
-
-        .flash-message {
-            padding: 12px 18px;
-            border-radius: 28px;
-            margin-bottom: 12px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 500;
-            animation: fadeInUp 0.4s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .flash-message.success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-        .flash-message.danger {
-            background: #fef2f2;
-            color: #dc3545;
-            border: 1px solid #fecaca;
-        }
-        .flash-message.warning {
-            background: #fffbeb;
-            color: #92400e;
-            border: 1px solid #fde68a;
-        }
-        .flash-message.info {
-            background: #e0f2fe;
-            color: #075985;
-            border: 1px solid #bae6fd;
+            text-decoration: underline;
         }
 
         .weak-password-warning {
@@ -466,7 +385,6 @@
 </head>
 <body>
 
-    <!-- LEFT PANEL -->
     <div class="register-image">
         <div class="register-image-content">
             <h1>Barangay <span>Sto. Niño</span></h1>
@@ -479,7 +397,6 @@
         </div>
     </div>
 
-    <!-- RIGHT: REGISTER FORM -->
     <div class="register-form-wrapper">
         <div class="register-container">
 
@@ -505,7 +422,7 @@
             </div>
 
             <!-- Register Form -->
-            <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+            <form method="POST" action="{{ url_for('register') }}">
                 <div class="input-group">
                     <label for="firstName"><i class="fas fa-user"></i> First Name</label>
                     <input type="text" name="first_name" id="firstName" placeholder="Enter your first name" required>
@@ -603,7 +520,7 @@
     </div>
 
     <script>
-        // ===== PASSWORD TOGGLE =====
+        // Password toggle
         document.getElementById('togglePassword').addEventListener('click', function() {
             const input = document.getElementById('password');
             const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -620,152 +537,7 @@
             this.querySelector('i').classList.toggle('fa-eye-slash');
         });
 
-        // ===== PASSWORD STRENGTH CHECKER =====
-        const passwordInput = document.getElementById('password');
-        const confirmInput = document.getElementById('confirmPassword');
-        const strengthFill = document.getElementById('strengthFill');
-        const strengthLabel = document.getElementById('strengthLabel');
-        const strengthText = document.getElementById('strengthText');
-        const strengthDiv = document.getElementById('passwordStrength');
-        const requirementsDiv = document.getElementById('passwordRequirements');
-        const weakWarning = document.getElementById('weakPasswordWarning');
-        const confirmMatch = document.getElementById('confirmMatch');
-
-        const reqLength = document.getElementById('reqLength');
-        const reqUpper = document.getElementById('reqUpper');
-        const reqLower = document.getElementById('reqLower');
-        const reqNumber = document.getElementById('reqNumber');
-        const reqSpecial = document.getElementById('reqSpecial');
-
-        function checkPasswordStrength(password) {
-            let score = 0;
-            let checks = {
-                length: password.length >= 8,
-                upper: /[A-Z]/.test(password),
-                lower: /[a-z]/.test(password),
-                number: /[0-9]/.test(password),
-                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-            };
-
-            // Update requirements
-            updateRequirement(reqLength, checks.length);
-            updateRequirement(reqUpper, checks.upper);
-            updateRequirement(reqLower, checks.lower);
-            updateRequirement(reqNumber, checks.number);
-            updateRequirement(reqSpecial, checks.special);
-
-            // Count fulfilled requirements
-            const fulfilled = Object.values(checks).filter(Boolean).length;
-
-            // Determine strength
-            let strength = 'weak';
-            let label = 'Weak';
-            let color = '#dc3545';
-            
-            if (fulfilled === 5 && password.length >= 8) {
-                strength = 'strong';
-                label = 'Strong';
-                color = '#22c55e';
-            } else if (fulfilled >= 4) {
-                strength = 'good';
-                label = 'Good';
-                color = '#3b82f6';
-            } else if (fulfilled >= 3) {
-                strength = 'fair';
-                label = 'Fair';
-                color = '#f59e0b';
-            } else if (fulfilled >= 1) {
-                strength = 'weak';
-                label = 'Weak';
-                color = '#dc3545';
-            } else {
-                strength = 'none';
-                label = 'Enter a password';
-                color = '#eef2f0';
-            }
-
-            return { strength, label, color, fulfilled, total: 5 };
-        }
-
-        function updateRequirement(element, met) {
-            if (met) {
-                element.classList.remove('unmet');
-                element.classList.add('met');
-                element.querySelector('i').className = 'fas fa-check-circle';
-            } else {
-                element.classList.remove('met');
-                element.classList.add('unmet');
-                element.querySelector('i').className = 'fas fa-circle';
-            }
-        }
-
-        function updateStrength() {
-            const password = passwordInput.value;
-            
-            if (password.length === 0) {
-                strengthDiv.classList.remove('active');
-                requirementsDiv.classList.remove('active');
-                weakWarning.classList.remove('active');
-                strengthFill.className = 'strength-bar-fill';
-                strengthFill.style.width = '0%';
-                strengthLabel.textContent = 'Enter a password';
-                strengthText.textContent = '';
-                return;
-            }
-
-            strengthDiv.classList.add('active');
-            requirementsDiv.classList.add('active');
-
-            const result = checkPasswordStrength(password);
-            
-            // Update strength bar
-            strengthFill.className = 'strength-bar-fill ' + result.strength;
-            strengthFill.style.width = result.strength === 'none' ? '0%' : 
-                result.strength === 'weak' ? '25%' : 
-                result.strength === 'fair' ? '50%' : 
-                result.strength === 'good' ? '75%' : '100%';
-            
-            strengthLabel.textContent = result.label;
-            strengthLabel.className = 'label ' + result.strength;
-            strengthText.textContent = `${result.fulfilled}/${result.total} requirements met`;
-            strengthText.style.color = result.color;
-
-            // Show weak password warning
-            if (result.strength === 'weak' || result.strength === 'fair') {
-                weakWarning.classList.add('active');
-            } else {
-                weakWarning.classList.remove('active');
-            }
-
-            // Check password match
-            checkPasswordMatch();
-        }
-
-        function checkPasswordMatch() {
-            const password = passwordInput.value;
-            const confirm = confirmInput.value;
-            
-            if (confirm.length === 0) {
-                confirmMatch.style.display = 'none';
-                return;
-            }
-            
-            if (password === confirm) {
-                confirmMatch.style.display = 'block';
-                confirmMatch.innerHTML = '<i class="fas fa-check-circle" style="color: #22c55e;"></i> Passwords match';
-                confirmMatch.style.color = '#22c55e';
-            } else {
-                confirmMatch.style.display = 'block';
-                confirmMatch.innerHTML = '<i class="fas fa-times-circle" style="color: #dc3545;"></i> Passwords do not match';
-                confirmMatch.style.color = '#dc3545';
-            }
-        }
-
-        // Event listeners
-        passwordInput.addEventListener('input', updateStrength);
-        confirmInput.addEventListener('input', checkPasswordMatch);
-
-        // ===== AUTO-HIDE FLASH MESSAGES =====
+        // Auto-hide flash messages after 5 seconds
         setTimeout(() => {
             const flashMessages = document.querySelectorAll('.flash-message');
             flashMessages.forEach(msg => {
@@ -774,27 +546,6 @@
                 setTimeout(() => msg.remove(), 500);
             });
         }, 5000);
-
-        // ===== FORM SUBMIT - Only check if passwords match =====
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            const password = passwordInput.value;
-            const confirm = confirmInput.value;
-            
-            // Only check if passwords match
-            if (password !== confirm) {
-                e.preventDefault();
-                alert('Passwords do not match. Please check and try again.');
-                return;
-            }
-            
-            // Allow registration even with weak password
-            // Just show a friendly reminder
-            const result = checkPasswordStrength(password);
-            if (result.strength === 'weak' || result.strength === 'fair') {
-                // Allow registration but user already sees the warning
-                // Let it proceed
-            }
-        });
     </script>
 
 </body>
