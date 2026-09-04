@@ -128,26 +128,6 @@
             box-shadow: 0 4px 16px rgba(34, 139, 84, 0.3);
         }
 
-        .navbar-custom .nav-links .btn-nav-outline {
-            border: 2px solid var(--primary-500);
-            color: var(--primary-500);
-            background: transparent;
-        }
-
-        .navbar-custom .nav-links .btn-nav-outline:hover {
-            background: var(--primary-50);
-            transform: translateY(-2px);
-        }
-
-        .navbar-custom .nav-links .btn-nav-logout {
-            background: #fef2f2;
-            color: #dc3545;
-        }
-
-        .navbar-custom .nav-links .btn-nav-logout:hover {
-            background: #fecaca;
-        }
-
         .hamburger {
             display: none;
             flex-direction: column;
@@ -267,13 +247,7 @@
             <li><a href="{{ url_for('index') }}#services">Services</a></li>
             <li><a href="{{ url_for('index') }}#announcements">Announcements</a></li>
             <li><a href="{{ url_for('index') }}#events">Events</a></li>
-            {% if session.user_id %}
-                <li><a href="{{ url_for('dashboard') }}" class="btn-nav btn-nav-primary"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="{{ url_for('logout') }}" class="btn-nav btn-nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            {% else %}
-                <li><a href="{{ url_for('login') }}" class="btn-nav btn-nav-outline"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-                <li><a href="{{ url_for('register') }}" class="btn-nav btn-nav-primary"><i class="fas fa-user-plus"></i> Register</a></li>
-            {% endif %}
+            <!-- Removed login/register/logout buttons and dashboard link -->
         </ul>
     </nav>
 
