@@ -27,7 +27,7 @@
             position: fixed; left: 0; top: 0;
             box-shadow: 2px 0 12px rgba(0,0,0,0.06); padding: 24px 20px; display: flex; flex-direction: column;
             transition: all 0.3s ease; z-index: 100;
-            overflow-y: auto; /* Allows scrolling if sidebar is too long */
+            overflow-y: auto;
         }
         .sidebar-brand {
             display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.2);
@@ -150,19 +150,19 @@
         <!-- STATS -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number">{{ total_requests or 0 }}</div>
+                <div class="stat-number">{{ total_document_requests or 0 }}</div>
                 <div class="stat-label">Total Document Requests</div>
             </div>
             <div class="stat-card pending">
-                <div class="stat-number">{{ pending_requests or 0 }}</div>
+                <div class="stat-number">{{ pending_document_requests or 0 }}</div>
                 <div class="stat-label">Pending Requests</div>
             </div>
             <div class="stat-card approved">
-                <div class="stat-number">{{ approved_requests or 0 }}</div>
+                <div class="stat-number">{{ approved_document_requests or 0 }}</div>
                 <div class="stat-label">Approved</div>
             </div>
             <div class="stat-card permit">
-                <div class="stat-number">{{ total_permits or 0 }}</div>
+                <div class="stat-number">{{ total_event_permits or 0 }}</div>
                 <div class="stat-label">Event Permits</div>
             </div>
         </div>
@@ -199,7 +199,7 @@
                 <div class="activity-item">
                     <div class="info">
                         <i class="fas {% if activity.type == 'document' %}fa-file-alt{% else %}fa-calendar-check{% endif %}"></i>
-                        <span><strong>{{ activity.title }}</strong> - {{ activity.action }}</span>
+                        <span><strong>{{ activity.title }}</strong> - {{ activity.status }}</span>
                     </div>
                     <span class="status-badge {{ activity.status }}">{{ activity.status|capitalize }}</span>
                 </div>

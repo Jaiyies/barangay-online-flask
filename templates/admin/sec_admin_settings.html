@@ -1,0 +1,549 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings · Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f4f6f8; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes modalFadeOut {
+            from { opacity: 1; transform: scale(1) translateY(0); }
+            to { opacity: 0; transform: scale(0.95) translateY(20px); }
+        }
+        @keyframes toastSlide {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: #0d2b1e;
+            color: white;
+            padding: 32px 20px;
+            z-index: 100;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.06);
+            animation: slideInLeft 0.4s ease;
+        }
+        .sidebar-header {
+            text-align: center;
+            padding-bottom: 28px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 24px;
+        }
+        .sidebar-header .logo-img {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+            margin-bottom: 14px;
+            background: white;
+            padding: 4px;
+        }
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .sidebar-header small {
+            font-size: 11px;
+            opacity: 0.5;
+            text-transform: uppercase;
+        }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 4px; }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 16px;
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.06);
+            color: white;
+        }
+        .sidebar-menu .active a {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+        .sidebar-menu i { width: 20px; }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 28px 32px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            border: 1px solid #eef0f2;
+            animation: fadeInUp 0.4s ease;
+        }
+        .welcome-text h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .welcome-text p {
+            color: #6b7a72;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+        .role-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #eef0f2;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .settings-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+            border-color: #0d2b1e;
+        }
+        .settings-card .card-header {
+            background: #f8f9fa;
+            padding: 16px 24px;
+            border-bottom: 1px solid #eef0f2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .settings-card .card-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            color: #1a1a2e;
+        }
+        .settings-card .card-body {
+            padding: 24px;
+            text-align: center;
+        }
+        .settings-card .card-body .icon {
+            font-size: 48px;
+            color: #0d2b1e;
+            margin-bottom: 12px;
+        }
+        .settings-card .card-body p {
+            color: #6b7a72;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .settings-card .card-body .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .settings-card .card-body .btn-primary {
+            background: #0d2b1e;
+            color: white;
+        }
+        .settings-card .card-body .btn-primary:hover {
+            background: #1a3d2a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13,43,30,0.2);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 28px;
+            color: #8a9a8f;
+            font-size: 12px;
+            border-top: 1px solid #eef0f2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            animation: modalFadeIn 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content.closing {
+            animation: modalFadeOut 0.3s ease forwards;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #eef0f2;
+        }
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .modal-header .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #8a9a8f;
+            background: none;
+            border: none;
+        }
+        .modal-header .close:hover { color: #dc3545; }
+
+        .modal-body .form-group { margin-bottom: 16px; }
+        .modal-body label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a2e;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .modal-body input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #eef0f2;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .modal-body input:focus {
+            border-color: #0d2b1e;
+            box-shadow: 0 0 0 3px rgba(13,43,30,0.1);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .modal-btn.submit {
+            background: #0d2b1e;
+            color: white;
+        }
+        .modal-btn.submit:hover {
+            background: #1a3d2a;
+        }
+        .modal-btn.cancel {
+            background: #6c757d;
+            color: white;
+        }
+        .modal-btn.cancel:hover {
+            background: #5a6268;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-left: 4px solid;
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+            animation: toastSlide 0.4s ease;
+        }
+        .toast-notification.success {
+            border-left-color: #28a745;
+        }
+        .toast-notification.error {
+            border-left-color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 72px; padding: 16px 10px; }
+            .sidebar-header h2, .sidebar-menu span { display: none; }
+            .sidebar-header .logo-img { width: 44px; height: 44px; }
+            .sidebar-menu a { justify-content: center; padding: 10px; }
+            .main-content { margin-left: 72px; padding: 16px; }
+            .settings-grid { grid-template-columns: 1fr; }
+            .top-bar { flex-direction: column; align-items: flex-start; }
+            .modal-actions { flex-direction: column; }
+            .modal-btn { width: 100%; text-align: center; }
+            .modal-content { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img">
+            <h2>Barangay Sto. Niño</h2>
+            <small>Admin Panel</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="{{ url_for('sec_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('admin_documents') }}"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+            <li><a href="{{ url_for('admin_events') }}"><i class="fas fa-calendar-check"></i> <span>Events</span></a></li>
+            <li class="active"><a href="{{ url_for('sec_admin_settings') }}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+        <div class="top-bar">
+            <div class="welcome-text">
+                <h2><i class="fas fa-cog" style="color: #0d2b1e;"></i> Settings</h2>
+                <p>Manage your profile and security</p>
+            </div>
+            <div>
+                <span class="role-badge"><i class="fas fa-shield-alt"></i> Admin</span>
+            </div>
+        </div>
+
+        <div class="settings-grid">
+
+            <!-- Profile Card -->
+            <div class="settings-card" onclick="openModal('profileModal')">
+                <div class="card-header">
+                    <i class="fas fa-user-circle" style="font-size: 20px; color: #0d2b1e;"></i>
+                    <h3>Update Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div class="icon"><i class="fas fa-user-edit"></i></div>
+                    <p>Update your name and email address</p>
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); openModal('profileModal')">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Password Card -->
+            <div class="settings-card" onclick="openModal('passwordModal')">
+                <div class="card-header">
+                    <i class="fas fa-key" style="font-size: 20px; color: #f59e0b;"></i>
+                    <h3>Change Password</h3>
+                </div>
+                <div class="card-body">
+                    <div class="icon"><i class="fas fa-lock"></i></div>
+                    <p>Update your password for better security</p>
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); openModal('passwordModal')">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Barangay Sto. Niño, Parañaque City</p>
+        </div>
+    </div>
+
+    <!-- ===== PROFILE MODAL ===== -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Update Profile</h3>
+                <button class="close" onclick="closeModal('profileModal')">&times;</button>
+            </div>
+            <!-- FIXED: Changed to admin_update_profile -->
+            <form method="POST" action="{{ url_for('admin_update_profile') }}" class="modal-body">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" value="{{ session.fullname.split()[0] if session.fullname else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" value="{{ session.fullname.split()[-1] if session.fullname and session.fullname.split()|length > 1 else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" value="{{ session.email }}" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn cancel" onclick="closeModal('profileModal')">Cancel</button>
+                    <button type="submit" class="modal-btn submit"><i class="fas fa-save"></i> Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== PASSWORD MODAL ===== -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Change Password</h3>
+                <button class="close" onclick="closeModal('passwordModal')">&times;</button>
+            </div>
+            <!-- FIXED: Changed to admin_change_password -->
+            <form method="POST" action="{{ url_for('admin_change_password') }}" class="modal-body">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" name="current_password" placeholder="Enter current password" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" placeholder="Enter new password" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" name="confirm_password" placeholder="Confirm new password" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn cancel" onclick="closeModal('passwordModal')">Cancel</button>
+                    <button type="submit" class="modal-btn submit"><i class="fas fa-save"></i> Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div id="toastNotification" class="toast-notification">
+        <i id="toastIcon" class="fas fa-check-circle"></i>
+        <span id="toastMessage" class="toast-message">Success!</span>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const d = now.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+            const clock = document.getElementById('liveClock');
+            if (clock) clock.textContent = `${d} · ${h}:${m} ${ampm}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+            
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+                toast.className = 'toast-notification success show';
+            } else {
+                icon.className = 'fas fa-exclamation-circle';
+                toast.className = 'toast-notification error show';
+            }
+            msg.innerText = message;
+            
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                content.classList.remove('closing');
+            }, 300);
+        }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target.id);
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal[style*="display: flex"]').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
+{% endblock %}

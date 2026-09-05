@@ -146,48 +146,6 @@
             transition: all 0.3s ease;
         }
 
-        /* ===== FOOTER ===== */
-        .footer-custom {
-            background: var(--primary-800);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 40px 20px;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .footer-custom .footer-logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-
-        .footer-custom .footer-logo span {
-            color: #a3dbb8;
-        }
-
-        .footer-custom p {
-            font-size: 14px;
-            margin-top: 8px;
-        }
-
-        .footer-custom .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .footer-custom .social-links a {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .footer-custom .social-links a:hover {
-            color: white;
-            transform: translateY(-2px);
-        }
-
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .navbar-custom {
@@ -247,7 +205,6 @@
             <li><a href="{{ url_for('index') }}#services">Services</a></li>
             <li><a href="{{ url_for('index') }}#announcements">Announcements</a></li>
             <li><a href="{{ url_for('index') }}#events">Events</a></li>
-            <!-- Removed login/register/logout buttons and dashboard link -->
         </ul>
     </nav>
 
@@ -255,23 +212,6 @@
     <main>
         {% block content %}{% endblock %}
     </main>
-
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer-custom">
-        <div class="container">
-            <div class="footer-logo">Barangay <span>Sto. Niño</span></div>
-            <p>E. Rodriguez Avenue, Sto. Niño Parañaque City | Tel: 8852-7477</p>
-            <p style="font-size: 12px; opacity: 0.6; margin-top: 4px;">
-                &copy; 2026 Barangay Sto. Niño. All rights reserved.
-            </p>
-            <div class="social-links">
-                <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-            </div>
-        </div>
-    </footer>
 
     <script>
         // Hamburger menu toggle

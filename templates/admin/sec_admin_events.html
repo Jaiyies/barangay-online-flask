@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Review · Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f4f6f8; font-family: 'Inter', sans-serif; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: #0d2b1e; color: white; padding: 32px 20px; z-index: 100; overflow-y: auto; }
+        .sidebar-header { text-align: center; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; }
+        .sidebar-header .logo-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); margin-bottom: 14px; background: white; padding: 4px; }
+        .sidebar-header h2 { font-size: 18px; font-weight: 600; }
+        .sidebar-header small { font-size: 11px; opacity: 0.5; text-transform: uppercase; }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 4px; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 14px; padding: 11px 16px; color: rgba(255,255,255,0.5); text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 14px; font-weight: 500; }
+        .sidebar-menu a:hover { background: rgba(255,255,255,0.06); color: white; }
+        .sidebar-menu .active a { background: rgba(255,255,255,0.08); color: white; }
+        .sidebar-menu i { width: 20px; }
+
+        .main-content { margin-left: 280px; padding: 28px 32px; }
+        .top-bar { background: white; padding: 16px 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; border: 1px solid #eef0f2; }
+        .welcome-text h2 { font-size: 20px; font-weight: 600; }
+        .welcome-text p { color: #6b7a72; font-size: 13px; margin-top: 2px; }
+        .role-badge { background: #1a1a2e; color: white; padding: 6px 18px; border-radius: 50px; font-size: 12px; font-weight: 500; }
+
+        .filter-bar { background: white; padding: 16px 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border: 1px solid #eef0f2; flex-wrap: wrap; gap: 12px; }
+        .filter-bar select { padding: 8px 16px; border: 1px solid #eef0f2; border-radius: 8px; font-size: 13px; background: #f8f9fa; outline: none; }
+        .filter-bar input { padding: 8px 16px; border: 1px solid #eef0f2; border-radius: 8px; font-size: 13px; outline: none; width: 200px; }
+
+        .table-section { background: white; border-radius: 12px; border: 1px solid #eef0f2; overflow: hidden; }
+        .table-section table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table-section th { background: #f8f9fa; color: #6b7a72; font-weight: 600; font-size: 11px; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid #eef0f2; }
+        .table-section td { padding: 12px 16px; border-bottom: 1px solid #f4f6f8; }
+        .table-section tr:hover { background: #fafbfc; }
+
+        .status-badge { display: inline-block; padding: 3px 12px; border-radius: 50px; font-size: 11px; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+
+        .btn-action { padding: 5px 12px; border: none; border-radius: 50px; font-size: 11px; font-weight: 500; transition: all 0.2s; margin: 2px; }
+        .btn-view { background: #0d2b1e; color: white; }
+        .btn-view:hover { background: #1a3d2a; }
+        .btn-approve { background: #22c55e; color: white; }
+        .btn-approve:hover { background: #16a34a; }
+        .btn-reject { background: #dc3545; color: white; }
+        .btn-reject:hover { background: #b91c1c; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 16px; padding: 32px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #eef0f2; }
+        .modal-header h3 { font-size: 20px; font-weight: 700; }
+        .modal-header .close { font-size: 28px; cursor: pointer; color: #8a9a8f; background: none; border: none; }
+        .modal-header .close:hover { color: #dc3545; }
+
+        .detail-row { display: flex; padding: 8px 0; border-bottom: 1px solid #f4f6f8; }
+        .detail-row .label { font-weight: 600; width: 140px; flex-shrink: 0; color: #6b7a72; }
+        .detail-row .value { color: #1a1a2e; }
+
+        .modal-actions { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; }
+        .modal-actions .btn { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .modal-actions .btn-approve { background: #22c55e; color: white; }
+        .modal-actions .btn-approve:hover { background: #16a34a; }
+        .modal-actions .btn-reject { background: #dc3545; color: white; }
+        .modal-actions .btn-reject:hover { background: #b91c1c; }
+        .modal-actions .btn-close { background: #6c757d; color: white; }
+        .modal-actions .btn-close:hover { background: #5a6268; }
+
+        .reject-reason { margin-top: 16px; display: none; }
+        .reject-reason textarea { width: 100%; padding: 12px; border: 1px solid #eef0f2; border-radius: 8px; font-family: inherit; font-size: 13px; resize: vertical; min-height: 80px; outline: none; }
+
+        .footer { text-align: center; padding: 20px; margin-top: 28px; color: #8a9a8f; font-size: 12px; border-top: 1px solid #eef0f2; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 72px; padding: 16px 10px; }
+            .sidebar-header h2, .sidebar-menu span { display: none; }
+            .sidebar-header .logo-img { width: 44px; height: 44px; }
+            .sidebar-menu a { justify-content: center; padding: 10px; }
+            .main-content { margin-left: 72px; padding: 16px; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-bar input { width: 100%; }
+            .detail-row { flex-direction: column; }
+            .detail-row .label { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img">
+            <h2>Barangay Sto. Niño</h2>
+            <small>Admin Panel</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="{{ url_for('sec_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('admin_documents') }}"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_events') }}"><i class="fas fa-calendar-check"></i> <span>Events</span></a></li>
+            <!-- FIXED: Changed from 'settings' to 'sec_admin_settings' -->
+            <li><a href="{{ url_for('sec_admin_settings') }}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <div class="top-bar">
+            <div class="welcome-text">
+                <h2>🎪 Event Review</h2>
+                <p>Review and manage event permit applications</p>
+            </div>
+            <div>
+                <span class="role-badge"><i class="fas fa-shield-alt"></i> Admin</span>
+            </div>
+        </div>
+
+        <!-- FILTER -->
+        <div class="filter-bar">
+            <div>
+                <select id="statusFilter" onchange="filterEvents()">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterEvents()">
+            </div>
+            <div>Total: <strong id="totalCount">{{ events|length }}</strong></div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Event Name</th>
+                        <th>Applicant</th>
+                        <th>Event Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="eventTable">
+                    {% for event in events %}
+                    <tr>
+                        <td><strong>{{ event.reference_number or 'N/A' }}</strong></td>
+                        <td>{{ event.event_name }}</td>
+                        <td>{{ event.first_name }} {{ event.last_name }}</td>
+                        <td>{{ event.event_date.strftime('%b %d, %Y') if event.event_date else 'N/A' }}</td>
+                        <td>
+                            <span class="status-badge 
+                                {% if event.status == 'pending' %}status-pending
+                                {% elif event.status == 'approved' %}status-approved
+                                {% else %}status-rejected{% endif %}">
+                                {{ event.status|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-action btn-view" onclick="viewEvent('{{ event.id }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% if event.status == 'pending' %}
+                            <button class="btn-action btn-approve" onclick="openAction('{{ event.id }}', 'approve')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn-action btn-reject" onclick="openAction('{{ event.id }}', 'reject')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Barangay Sto. Niño, Parañaque City</p>
+        </div>
+    </div>
+
+    <!-- VIEW MODAL -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Event Details</h3>
+                <button class="close" onclick="closeModal('viewModal')">&times;</button>
+            </div>
+            <div id="viewModalBody"></div>
+            <div class="modal-actions">
+                <button class="btn btn-close" onclick="closeModal('viewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTION MODAL -->
+    <div id="actionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="actionTitle">Confirm Action</h3>
+                <button class="close" onclick="closeModal('actionModal')">&times;</button>
+            </div>
+            <div id="actionModalBody">
+                <p id="actionMessage">Are you sure?</p>
+                <div class="reject-reason" id="rejectReasonDiv">
+                    <label>Reason for Rejection:</label>
+                    <textarea id="rejectReason" placeholder="Please provide a reason..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-close" onclick="closeModal('actionModal')">Cancel</button>
+                    <button class="btn btn-approve" id="confirmBtn" onclick="confirmAction()">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* eslint-disable */
+        var eventId = null;
+        var action = null;
+
+        function viewEvent(id) {
+            fetch('/admin/event/' + id + '/details')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(e) {
+                    var html = '';
+                    html += '<div class="detail-row"><span class="label">Reference</span><span class="value">' + (e.reference_number || 'N/A') + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Event Name</span><span class="value">' + e.event_name + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Applicant</span><span class="value">' + e.first_name + ' ' + e.last_name + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Email</span><span class="value">' + e.email + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Contact</span><span class="value">' + (e.contact_number || 'N/A') + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Event Date</span><span class="value">' + (e.event_date ? new Date(e.event_date).toLocaleDateString() : 'N/A') + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Start Time</span><span class="value">' + (e.start_time || 'N/A') + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">End Time</span><span class="value">' + (e.end_time || 'N/A') + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Venue</span><span class="value">' + e.venue + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Estimated Attendees</span><span class="value">' + (e.estimated_attendees || 'N/A') + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Purpose</span><span class="value">' + (e.purpose || 'N/A') + '</span></div>';
+                    html += '<div class="detail-row"><span class="label">Status</span><span class="value"><span class="status-badge ' + (e.status === 'pending' ? 'status-pending' : e.status === 'approved' ? 'status-approved' : 'status-rejected') + '">' + e.status.toUpperCase() + '</span></span></div>';
+                    if (e.admin_remarks) {
+                        html += '<div class="detail-row"><span class="label">Remarks</span><span class="value">' + e.admin_remarks + '</span></div>';
+                    }
+                    document.getElementById('viewModalBody').innerHTML = html;
+                    document.getElementById('viewModal').style.display = 'flex';
+                })
+                .catch(function(error) {
+                    alert('Error loading event details');
+                    console.log(error);
+                });
+        }
+
+        function openAction(id, act) {
+            eventId = id;
+            action = act;
+            var title = document.getElementById('actionTitle');
+            var msg = document.getElementById('actionMessage');
+            var reasonDiv = document.getElementById('rejectReasonDiv');
+            var confirmBtn = document.getElementById('confirmBtn');
+            
+            if (act === 'approve') {
+                title.innerHTML = '✅ Approve Event';
+                msg.textContent = 'Approve this event permit?';
+                reasonDiv.style.display = 'none';
+                confirmBtn.className = 'btn btn-approve';
+                confirmBtn.textContent = 'Approve';
+            } else {
+                title.innerHTML = '❌ Reject Event';
+                msg.textContent = 'Reject this event permit?';
+                reasonDiv.style.display = 'block';
+                confirmBtn.className = 'btn btn-reject';
+                confirmBtn.textContent = 'Reject';
+            }
+            document.getElementById('actionModal').style.display = 'flex';
+        }
+
+        function confirmAction() {
+            var remarks = document.getElementById('rejectReason').value || '';
+            if (action === 'reject' && !remarks) {
+                alert('Please provide a reason for rejection.');
+                return;
+            }
+            
+            fetch('/api/event/' + eventId + '/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: action, remarks: remarks })
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(res) {
+                if (res.success) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert(res.error || 'Error');
+                }
+            })
+            .catch(function(error) {
+                alert('Error: ' + error.message);
+            });
+        }
+
+        function filterEvents() {
+            var status = document.getElementById('statusFilter').value;
+            var search = document.getElementById('searchInput').value.toLowerCase();
+            var rows = document.querySelectorAll('#eventTable tr');
+            var count = 0;
+            
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var statusText = row.querySelector('.status-badge');
+                var s = statusText ? statusText.textContent.toLowerCase() : '';
+                var t = row.textContent.toLowerCase();
+                var match = (status === 'all' || s.includes(status)) && t.includes(search);
+                row.style.display = match ? '' : 'none';
+                if (match) count++;
+            }
+            document.getElementById('totalCount').textContent = count;
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+</html>
+{% endblock %}
