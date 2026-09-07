@@ -69,8 +69,8 @@
         .stat-card .stat-number { font-size: 2rem; font-weight: 800; color: var(--primary-800); line-height: 1.2; }
         .stat-card .stat-label { color: var(--neutral-500); font-size: 0.85rem; font-weight: 500; margin-top: 4px; }
         .stat-card.pending { border-left-color: #f59e0b; }
-        .stat-card.permit { border-left-color: #3b82f6; }
         .stat-card.approved { border-left-color: var(--primary-500); }
+        .stat-card.rejected { border-left-color: #dc3545; }
 
         /* ===== QUICK ACTIONS ===== */
         .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 30px; }
@@ -92,16 +92,36 @@
             border-bottom: 1px solid var(--neutral-100);
         }
         .activity-item:last-child { border-bottom: none; }
-        .activity-item .info { display: flex; align-items: center; gap: 12px; }
+        .activity-item .info { display: flex; align-items: center; gap: 12px; flex: 1; }
         .activity-item .info i { color: var(--neutral-500); width: 20px; }
+        .activity-item .info .doc-title { font-weight: 600; color: var(--primary-800); }
+        .activity-item .info .doc-ref { font-size: 0.75rem; color: var(--neutral-500); margin-left: 8px; }
         .activity-item .status-badge {
-            padding: 4px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .status-badge.pending { background: #fef3c7; color: #92400e; }
         .status-badge.approved { background: #d1fae5; color: #065f46; }
         .status-badge.rejected { background: #fce4ec; color: #c62828; }
-        .status-badge.reviewing { background: #e0e7ff; color: #3730a3; }
-        .status-badge.completed { background: #dbeafe; color: #1e40af; }
+        .status-badge i { font-size: 0.65rem; }
+
+        /* ===== ANNOUNCEMENTS ===== */
+        .announcement-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-top: 20px; }
+        .announcement-section h3 { font-size: 1.1rem; font-weight: 600; color: var(--primary-800); margin-bottom: 16px; }
+        .announcement-item { padding: 10px 0; border-bottom: 1px solid var(--neutral-100); }
+        .announcement-item:last-child { border-bottom: none; }
+        .announcement-item h4 { font-size: 0.95rem; color: var(--primary-800); }
+        .announcement-item p { font-size: 0.85rem; color: var(--neutral-500); margin-top: 2px; }
+        .announcement-item .date { font-size: 0.7rem; color: var(--neutral-500); }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state-text { color: var(--neutral-500); font-size: 0.9rem; }
 
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 280px; }
@@ -109,6 +129,10 @@
             .main-content { margin-left: 0; padding: 20px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .quick-actions { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -124,13 +148,13 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="/dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="/request-document"><i class="fas fa-file-alt"></i> Request Document</a>
-            <a href="/apply-permit"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
-            <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
-            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
-            <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
-            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="{{ url_for('dashboard') }}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('request_document') }}"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="{{ url_for('apply_permit') }}"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="{{ url_for('my_requests') }}"><i class="fas fa-list"></i> My Requests</a>
+            <a href="{{ url_for('events') }}"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
 
@@ -139,80 +163,115 @@
         <div class="page-header">
             <div>
                 <h1>Dashboard</h1>
-                <p>Welcome back, <strong>{{ session['fullname'] }}</strong>!</p>
+                <p>Welcome back, <strong>{{ session.fullname or 'Resident' }}</strong>!</p>
             </div>
             <div class="user-badge">
                 <i class="fas fa-user-circle"></i>
-                <span>{{ session['fullname'] }}</span>
+                <span>{{ session.fullname or 'Resident' }}</span>
             </div>
         </div>
 
-        <!-- STATS -->
+        <!-- STATS - Galing sa database -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number">{{ total_document_requests or 0 }}</div>
-                <div class="stat-label">Total Document Requests</div>
+                <div class="stat-number">{{ total_docs or 0 }}</div>
+                <div class="stat-label">Total Documents</div>
             </div>
             <div class="stat-card pending">
-                <div class="stat-number">{{ pending_document_requests or 0 }}</div>
-                <div class="stat-label">Pending Requests</div>
+                <div class="stat-number">{{ pending_docs or 0 }}</div>
+                <div class="stat-label">Pending</div>
             </div>
             <div class="stat-card approved">
-                <div class="stat-number">{{ approved_document_requests or 0 }}</div>
+                <div class="stat-number">{{ approved_docs or 0 }}</div>
                 <div class="stat-label">Approved</div>
             </div>
-            <div class="stat-card permit">
-                <div class="stat-number">{{ total_event_permits or 0 }}</div>
-                <div class="stat-label">Event Permits</div>
+            <div class="stat-card rejected">
+                <div class="stat-number">{{ rejected_docs or 0 }}</div>
+                <div class="stat-label">Rejected</div>
             </div>
         </div>
 
         <!-- QUICK ACTIONS -->
         <div class="quick-actions">
-            <a href="/request-document" class="action-card">
+            <a href="{{ url_for('request_document') }}" class="action-card">
                 <i class="fas fa-file-alt"></i>
                 <h4>Request Document</h4>
                 <p>Clearance, Indigency, Residency</p>
             </a>
-            <a href="/apply-permit" class="action-card">
+            <a href="{{ url_for('apply_permit') }}" class="action-card">
                 <i class="fas fa-calendar-check"></i>
                 <h4>Apply for Permit</h4>
                 <p>Community event permits</p>
             </a>
-            <a href="/my-requests" class="action-card">
+            <a href="{{ url_for('my_requests') }}" class="action-card">
                 <i class="fas fa-search"></i>
                 <h4>Track Requests</h4>
                 <p>Check status of applications</p>
             </a>
-            <a href="/profile" class="action-card">
+            <a href="{{ url_for('profile') }}" class="action-card">
                 <i class="fas fa-user-edit"></i>
                 <h4>My Profile</h4>
                 <p>Update personal information</p>
             </a>
         </div>
 
-        <!-- RECENT ACTIVITY -->
-        <div class="activity-section">
-            <h3><i class="fas fa-clock" style="margin-right: 8px; color: var(--neutral-500);"></i> Recent Activity</h3>
-            {% if recent_activities %}
-                {% for activity in recent_activities %}
-                <div class="activity-item">
-                    <div class="info">
-                        <i class="fas {% if activity.type == 'document' %}fa-file-alt{% else %}fa-calendar-check{% endif %}"></i>
-                        <span><strong>{{ activity.title }}</strong> - {{ activity.status }}</span>
+        <!-- RECENT DOCUMENT REQUESTS - Galing sa database lang -->
+        <div class="activity-section" id="activitySection">
+            <h3><i class="fas fa-clock" style="margin-right: 8px; color: var(--neutral-500);"></i> Recent Document Requests</h3>
+            <div id="recentRequestsList">
+                <!-- From Database -->
+                {% if recent_docs %}
+                    {% for doc in recent_docs %}
+                    <div class="activity-item">
+                        <div class="info">
+                            <i class="fas fa-file-alt"></i>
+                            <span>
+                                <span class="doc-title">{{ doc.document_type|replace('_', ' ')|title }}</span>
+                                <span class="doc-ref">#{{ doc.reference_number or 'N/A' }}</span>
+                            </span>
+                        </div>
+                        <span class="status-badge {{ doc.status|lower }}">
+                            {% if doc.status == 'pending' %}
+                                <i class="fas fa-clock"></i> Pending
+                            {% elif doc.status == 'approved' %}
+                                <i class="fas fa-check-circle"></i> Approved
+                            {% elif doc.status == 'rejected' %}
+                                <i class="fas fa-times-circle"></i> Rejected
+                            {% else %}
+                                {{ doc.status|replace('_', ' ')|title }}
+                            {% endif %}
+                        </span>
                     </div>
-                    <span class="status-badge {{ activity.status }}">{{ activity.status|capitalize }}</span>
+                    {% endfor %}
+                {% else %}
+                    <div class="activity-item" id="emptyState">
+                        <div class="info">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="empty-state-text">No document requests yet.</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ANNOUNCEMENTS - Galing sa database -->
+        <div class="announcement-section">
+            <h3><i class="fas fa-bullhorn" style="margin-right: 8px; color: var(--neutral-500);"></i> Announcements</h3>
+            {% if announcements %}
+                {% for ann in announcements %}
+                <div class="announcement-item">
+                    <h4>{{ ann.title }}</h4>
+                    <p>{{ ann.content|truncate(100) }}</p>
+                    <span class="date">{{ ann.created_at.strftime('%b %d, %Y') if ann.created_at else 'N/A' }}</span>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="activity-item">
-                    <div class="info">
-                        <i class="fas fa-info-circle"></i>
-                        <span>No recent activity found.</span>
-                    </div>
+                <div class="announcement-item">
+                    <p class="empty-state-text">No announcements available.</p>
                 </div>
             {% endif %}
         </div>
+
     </main>
 
     <script>

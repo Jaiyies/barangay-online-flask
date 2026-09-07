@@ -237,14 +237,12 @@
             box-shadow: 0 0 0 4px rgba(34, 139, 84, 0.10);
         }
 
-        /* ERROR STATE PARA SA PASSWORD */
         .input-error {
             border-color: #dc3545 !important;
             background-color: #fff5f5 !important;
             box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1) !important;
         }
 
-        /* ERROR MESSAGE SA BABA NG PASSWORD */
         .error-message {
             display: flex;
             align-items: center;
@@ -281,7 +279,7 @@
             background: rgba(26, 107, 66, 0.08);
         }
 
-        button[type="submit"] {
+        .btn-submit {
             width: 100%;
             padding: 16px;
             background: linear-gradient(105deg, #145233, #228b54);
@@ -298,19 +296,24 @@
             gap: 12px;
         }
 
-        button[type="submit"]:hover:not(:disabled) {
+        .btn-submit:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 12px 28px -10px #1a6b42;
             background: linear-gradient(105deg, #0a2e1e, #1a6b42);
         }
 
-        .login-btn-admin {
+        .btn-submit-admin {
             background: linear-gradient(105deg, #8b1e1e, #c42828) !important;
         }
 
-        .login-btn-admin:hover:not(:disabled) {
+        .btn-submit-admin:hover:not(:disabled) {
             background: linear-gradient(105deg, #7a1a1a, #a52222) !important;
             box-shadow: 0 12px 28px -10px #c42828 !important;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .register-link {
@@ -330,6 +333,11 @@
         .register-link a:hover {
             color: #0a2e1e;
             text-decoration: underline;
+        }
+
+        /* Flash messages - nakatago na para walang lumabas */
+        .flash-messages {
+            display: none;
         }
 
         @media (max-width: 992px) {
@@ -409,9 +417,32 @@
             <div class="login-header">
                 <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Barangay Sto. Niño Logo" class="logo-img"
                      onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27100%27 height=%27100%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%231a6b42%27/%3E%3Ctext x=%2750%27 y=%2762%27 font-size=%2744%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27 font-weight=%27bold%27%3ESN%3C/text%3E%3C/svg%3E'">
-                <h2>Welcome <span>Back</span></h2>
-                <p>Sign in to continue</p>
+                <!-- INAYOS: Pinalitan ang "Welcome Back" ng mas simple -->
+                <h2>Sign in to <span>Your Account</span></h2>
+                <p>Enter your credentials to continue</p>
             </div>
+
+            <!-- FLASH MESSAGES - NAKATAGO NA -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">
+                                {% if category == 'success' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif category == 'danger' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                {% endif %}
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
             <div class="role-tabs">
                 <button class="tab-btn resident-tab active" id="residentTabBtn">
@@ -422,6 +453,7 @@
                 </button>
             </div>
 
+            <!-- RESIDENT LOGIN FORM -->
             <div id="residentForm" class="login-form active-form">
                 <form method="POST" action="{{ url_for('login') }}" id="residentLoginForm">
                     <input type="hidden" name="role" value="resident">
@@ -435,16 +467,12 @@
                             <input type="password" name="password" id="password" placeholder="Enter your password" autocomplete="current-password" required class="{{ 'input-error' if login_error else '' }}">
                             <button type="button" class="password-toggle" id="togglePassword"><i class="fas fa-eye"></i></button>
                         </div>
-                        
-                        <!-- ERROR MESSAGE SA BABA NG PASSWORD -->
                         {% if login_error %}
                         <div class="error-message">
                             <i class="fas fa-exclamation-circle"></i>
                             <span>Invalid email or password.</span>
                         </div>
                         {% endif %}
-
-                        <!-- LOCKOUT MESSAGE SA BABA NG PASSWORD (May countdown) -->
                         {% if lockout_message %}
                         <div class="error-message" id="lockoutMsg">
                             <i class="fas fa-hourglass-half"></i>
@@ -452,13 +480,14 @@
                         </div>
                         {% endif %}
                     </div>
-                    <button type="submit" id="submitBtn">
+                    <button type="submit" class="btn-submit" id="submitBtn">
                         <i class="fas fa-arrow-right-to-bracket"></i> Sign In
                     </button>
                 </form>
                 <div class="register-link">New to the barangay? <a href="{{ url_for('register') }}">Create an account</a></div>
             </div>
 
+            <!-- ADMIN LOGIN FORM -->
             <div id="adminForm" class="login-form">
                 <form method="POST" action="{{ url_for('login') }}" id="adminLoginForm">
                     <input type="hidden" name="role" value="admin">
@@ -472,16 +501,12 @@
                             <input type="password" name="password" id="adminPassword" placeholder="Enter admin password" autocomplete="current-password" required class="{{ 'input-error' if login_error else '' }}">
                             <button type="button" class="password-toggle" id="toggleAdminPassword"><i class="fas fa-eye"></i></button>
                         </div>
-
-                        <!-- ERROR MESSAGE SA BABA NG PASSWORD -->
                         {% if login_error %}
                         <div class="error-message">
                             <i class="fas fa-exclamation-circle"></i>
                             <span>Invalid email or password.</span>
                         </div>
                         {% endif %}
-
-                        <!-- LOCKOUT MESSAGE SA BABA NG PASSWORD (May countdown) -->
                         {% if lockout_message %}
                         <div class="error-message" id="lockoutMsgAdmin">
                             <i class="fas fa-hourglass-half"></i>
@@ -489,7 +514,7 @@
                         </div>
                         {% endif %}
                     </div>
-                    <button type="submit" class="login-btn-admin">
+                    <button type="submit" class="btn-submit btn-submit-admin">
                         <i class="fas fa-shield-alt"></i> Sign In as Admin
                     </button>
                 </form>
@@ -529,6 +554,7 @@
                 setActiveTab(adminTab);
             });
 
+            // Toggle password visibility
             document.getElementById('togglePassword').addEventListener('click', function() {
                 const input = document.getElementById('password');
                 const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -545,19 +571,23 @@
                 this.querySelector('i').classList.toggle('fa-eye-slash');
             });
 
-            // Clear error state kapag nag-type na
+            // Clear error state when typing
             const passwordInput = document.getElementById('password');
             const adminPasswordInput = document.getElementById('adminPassword');
 
             passwordInput.addEventListener('input', function() {
                 this.classList.remove('input-error');
+                const errorMsg = this.closest('.input-group').querySelector('.error-message');
+                if (errorMsg) errorMsg.remove();
             });
 
             adminPasswordInput.addEventListener('input', function() {
                 this.classList.remove('input-error');
+                const errorMsg = this.closest('.input-group').querySelector('.error-message');
+                if (errorMsg) errorMsg.remove();
             });
 
-            // COUNTDOWN TIMER PARA SA LOCKOUT (30 seconds) - Resident
+            // COUNTDOWN TIMER FOR LOCKOUT - Resident
             const lockoutMsg = document.getElementById('lockoutMsg');
             if (lockoutMsg) {
                 const text = lockoutMsg.innerText;
@@ -576,7 +606,7 @@
                 }
             }
 
-            // COUNTDOWN TIMER PARA SA LOCKOUT (30 seconds) - Admin
+            // COUNTDOWN TIMER FOR LOCKOUT - Admin
             const lockoutMsgAdmin = document.getElementById('lockoutMsgAdmin');
             if (lockoutMsgAdmin) {
                 const text = lockoutMsgAdmin.innerText;

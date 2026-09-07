@@ -62,22 +62,29 @@
         /* ===== PROFILE CARD ===== */
         .profile-card {
             background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            width: 100%; overflow: hidden;
+            width: 100%; overflow: hidden; border: 1px solid #f0f1f3;
         }
 
+        /* ===== BAGONG WHITE HEADER ===== */
         .profile-header {
-            background: linear-gradient(135deg, var(--primary-800), var(--primary-600));
-            padding: 30px 30px; text-align: center; color: white;
+            background: white; /* Puti na siya! */
+            padding: 20px 30px; 
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #f0f1f3; /* May linya sa baba para hiwalay sa form */
         }
 
         .profile-avatar {
-            width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
-            border: 3px solid rgba(255,255,255,0.4); font-size: 2rem;
+            width: 55px; height: 55px; border-radius: 50%; 
+            background: var(--neutral-100); /* Light grey na background */
+            color: var(--primary-600);
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2rem; flex-shrink: 0;
         }
 
-        .profile-header h2 { font-size: 1.2rem; font-weight: 700; }
-        .profile-header p { font-size: 0.85rem; opacity: 0.9; margin-top: 2px; }
+        .profile-header h2 { font-size: 1.3rem; font-weight: 700; color: var(--primary-800); }
+        .profile-header p { font-size: 0.9rem; color: var(--neutral-500); margin-top: 2px; }
 
         .profile-body { padding: 30px; }
 
@@ -165,6 +172,7 @@
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 20px; }
             .info-grid { grid-template-columns: 1fr; }
+            .profile-header { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -200,13 +208,15 @@
         </div>
 
         <div class="profile-card">
-            <!-- MALIIT NA GREEN HEADER -->
+            <!-- BAGONG WHITE HEADER (WALA NG GREEN BG) -->
             <div class="profile-header">
                 <div class="profile-avatar">
                     <i class="fas fa-user-circle"></i>
                 </div>
-                <h2>{{ session['fullname'] }}</h2>
-                <p>{{ user['email'] }}</p>
+                <div>
+                    <h2>{{ session['fullname'] }}</h2>
+                    <p>{{ user['email'] }}</p>
+                </div>
             </div>
 
             <div class="profile-body">

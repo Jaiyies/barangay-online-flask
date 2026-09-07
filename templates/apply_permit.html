@@ -17,6 +17,7 @@
             --neutral-50: #f4f8f5;
             --neutral-100: #e2e8f0;
             --neutral-200: #cbd5e1;
+            --neutral-300: #94a3b8;
             --neutral-500: #64748b;
             --neutral-700: #334155;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
@@ -29,7 +30,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--neutral-50); min-height: 100vh; }
 
-        /* ===== SIDEBAR (MATCHING DASHBOARD) ===== */
+        /* ===== SIDEBAR (GREEN) ===== */
         .sidebar {
             width: 260px; height: 100vh; background: linear-gradient(180deg, var(--primary-800), var(--primary-600));
             position: fixed; left: 0; top: 0;
@@ -82,7 +83,6 @@
         .banner i { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
         .banner-content h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
         .banner-content p { font-size: 14px; line-height: 1.6; }
-
         .banner-warning {
             background: linear-gradient(135deg, #fffbeb, #fef3c7);
             border: 1px solid #fcd34d;
@@ -91,15 +91,14 @@
         .banner-warning h4 { color: #92400e; }
         .banner-warning p { color: #78350f; }
 
-        /* ===== FORM CARD (PROFESSIONAL, SPREAD OUT) ===== */
+        /* ===== FORM CARD (FULL WIDTH NA!) ===== */
         .form-card {
             background: white;
             border-radius: var(--radius-lg);
             padding: 40px;
-            max-width: 1100px;
+            width: 100%;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--neutral-100);
-            margin: 0 auto;
         }
 
         .form-header {
@@ -241,8 +240,10 @@
         .terms-checkbox-wrapper .error-msg { color: var(--accent-600); font-size: 12px; font-weight: 500; display: none; margin-top: 4px; }
         .terms-checkbox-wrapper .error-msg.visible { display: block; }
 
-        /* Buttons */
+        /* ===== BUTTONS - GINAYA SA REQUEST DOCUMENT (GREEN) ===== */
         .form-actions { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        
+        /* SUBMIT BUTTON - GREEN (GAYA NG REQUEST DOCUMENT) */
         .btn-submit {
             background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
             color: white;
@@ -260,6 +261,7 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,107,66,0.3); }
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
+        /* CANCEL BUTTON - HINDI GINALAW */
         .btn-cancel {
             background: var(--neutral-100);
             color: var(--neutral-700);
@@ -517,7 +519,7 @@
             {% endwith %}
         </div>
 
-        <!-- ===== FORM CARD (PROFESSIONAL, SPREAD OUT) ===== -->
+        <!-- ===== FORM CARD (FULL WIDTH) ===== -->
         <div class="form-card">
             <div class="form-header">
                 <div class="logo-icon"><i class="fas fa-file-contract"></i></div>
@@ -526,7 +528,6 @@
             </div>
 
             <form method="POST" action="{{ url_for('apply_permit') }}" enctype="multipart/form-data" id="permitForm">
-                <!-- CSRF Token -->
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
 
                 <!-- SECTION 1: EVENT INFO -->
@@ -657,7 +658,7 @@
 
                 <!-- FORM ACTIONS -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                    <button type="submit" class="btn-submit" id="submitBtn">
                         <i class="fas fa-paper-plane"></i> Submit Application
                     </button>
                     <a href="/dashboard" class="btn-cancel">
@@ -805,6 +806,8 @@
                 errorMsg.classList.remove('visible');
                 if (statusDiv.classList.contains('available')) {
                     submitBtn.disabled = false;
+                } else {
+                    submitBtn.disabled = true;
                 }
             } else {
                 wrapper.classList.add('error');
@@ -816,7 +819,6 @@
         // ===== TIME VALIDATION =====
         const startTimeInput = document.getElementById('startTime');
         const endTimeInput = document.getElementById('endTime');
-        const timeError = document.getElementById('timeError');
 
         function validateTimeRange() {
             const start = startTimeInput.value;
@@ -824,13 +826,11 @@
 
             startTimeInput.classList.remove('field-error');
             endTimeInput.classList.remove('field-error');
-            timeError.classList.remove('visible');
 
             if (start && end) {
                 if (start >= end) {
                     startTimeInput.classList.add('field-error');
                     endTimeInput.classList.add('field-error');
-                    timeError.classList.add('visible');
                     return false;
                 }
                 return true;

@@ -92,15 +92,14 @@
         .banner-warning h4 { color: #92400e; }
         .banner-warning p { color: #78350f; }
 
-        /* ===== FORM CARD (PROFESSIONAL, SPREAD OUT) ===== */
+        /* ===== FORM CARD (FULL WIDTH NA!) ===== */
         .form-card {
             background: white;
             border-radius: var(--radius-lg);
             padding: 40px;
-            max-width: 1100px;
+            width: 100%;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--neutral-100);
-            margin: 0 auto;
         }
 
         .form-header {
@@ -272,6 +271,250 @@
         .flash-message.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
         .flash-message.info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
 
+        /* ===== AREA REPRESENTATIVE SECTION - NAKATAGO BY DEFAULT ===== */
+        #areaRepSection {
+            display: none;
+        }
+        #areaRepSection.visible {
+            display: block;
+        }
+
+        /* ===== SUCCESS MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active {
+            display: flex !important;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 520px;
+            width: 90%;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.4s ease;
+            overflow: hidden;
+        }
+
+        .modal-header-success {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            padding: 30px 30px 24px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .modal-header-success .icon-circle {
+            width: 72px;
+            height: 72px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+        }
+        .modal-header-success h2 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .modal-header-success p {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 24px 30px 20px;
+        }
+
+        .reference-box {
+            background: linear-gradient(135deg, #e3f5e8, #d0ebdd);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .reference-box .ref-label {
+            font-size: 11px;
+            color: var(--primary-600);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .reference-box .ref-number {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary-700);
+            letter-spacing: 1px;
+            margin: 2px 0;
+        }
+        .reference-box .ref-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .doc-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 16px;
+            background: var(--neutral-50);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            border: 1px solid var(--neutral-100);
+            margin-bottom: 14px;
+        }
+        .doc-details-grid .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 0;
+            font-size: 13px;
+            color: var(--primary-800);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .doc-details-grid .detail-item:last-child,
+        .doc-details-grid .detail-item:nth-last-child(2) {
+            border-bottom: none;
+        }
+        .doc-details-grid .detail-item i {
+            color: var(--primary-500);
+            width: 16px;
+            font-size: 13px;
+        }
+        .doc-details-grid .detail-item .label {
+            font-weight: 600;
+            color: var(--neutral-500);
+            font-size: 11px;
+            min-width: 60px;
+        }
+        .doc-details-grid .detail-item .value {
+            font-weight: 500;
+            color: var(--primary-800);
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 3px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .waiting-banner-modal {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #93c5fd;
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        .waiting-banner-modal i {
+            font-size: 22px;
+            color: #2563eb;
+        }
+        .waiting-banner-modal .waiting-text h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 1px;
+        }
+        .waiting-banner-modal .waiting-text p {
+            font-size: 13px;
+            color: #1e3a8a;
+        }
+
+        .modal-footer-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 30px 24px;
+            flex-wrap: wrap;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        .modal-btn.primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+        }
+        .modal-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26,107,66,0.3);
+        }
+        .modal-btn.secondary {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-100);
+        }
+        .modal-btn.secondary:hover {
+            background: #cbd5e1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 280px; }
@@ -283,6 +526,10 @@
             .form-actions { flex-direction: column; }
             .btn-submit, .btn-cancel { width: 100%; justify-content: center; }
             .banner { flex-direction: column; text-align: center; }
+            .doc-details-grid { grid-template-columns: 1fr; }
+            .modal-footer-actions { flex-direction: column; }
+            .modal-btn { width: 100%; }
+            .modal-box { width: 95%; margin: 20px; }
         }
     </style>
 </head>
@@ -298,13 +545,13 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="/request-document" class="active"><i class="fas fa-file-alt"></i> Request Document</a>
-            <a href="/apply-permit"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
-            <a href="/my-requests"><i class="fas fa-list"></i> My Requests</a>
-            <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
-            <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
-            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('request_document') }}" class="active"><i class="fas fa-file-alt"></i> Request Document</a>
+            <a href="{{ url_for('apply_permit') }}"><i class="fas fa-calendar-check"></i> Apply for Permit</a>
+            <a href="{{ url_for('my_requests') }}"><i class="fas fa-list"></i> My Requests</a>
+            <a href="{{ url_for('events') }}"><i class="fas fa-calendar-alt"></i> Events</a>
+            <a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
 
@@ -349,7 +596,7 @@
             {% endwith %}
         </div>
 
-        <!-- ===== FORM CARD (PROFESSIONAL, SPREAD OUT) ===== -->
+        <!-- ===== FORM CARD (FULL WIDTH) ===== -->
         <div class="form-card">
             <div class="form-header">
                 <div class="logo-icon"><i class="fas fa-file-alt"></i></div>
@@ -357,8 +604,7 @@
                 <p>Barangay Sto. Niño Online Services</p>
             </div>
 
-            <form id="clearanceForm" onsubmit="handleSubmit(event)">
-                <!-- DOCUMENT TYPE -->
+            <form id="clearanceForm" action="/submit-document-request" method="POST" enctype="multipart/form-data">           <!-- DOCUMENT TYPE -->
                 <div class="form-section-title"><i class="fas fa-file-alt"></i> Document Type</div>
                 <div class="form-row">
                     <div class="form-col">
@@ -485,36 +731,38 @@
                     </div>
                 </div>
 
-                <!-- AREA REPRESENTATIVE SIGNATURE -->
-                <div class="form-section-title"><i class="fas fa-pen-fancy"></i> Area Representative Signature</div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="repPosition">Select Area Representative Position <span class="required">*</span></label>
-                            <select name="rep_position" id="repPosition" required>
-                                <option value="">-- Select Position --</option>
-                                <option value="barangay_kagawad">Barangay Kagawad</option>
-                                <option value="barangay_captain">Barangay Captain</option>
-                                <option value="barangay_tanod">Barangay Tanod</option>
-                                <option value="barangay_secretary">Barangay Secretary</option>
-                                <option value="barangay_treasurer">Barangay Treasurer</option>
-                                <option value="sk_chairman">SK Chairman</option>
-                                <option value="purok_leader">Purok Leader</option>
-                            </select>
+                <!-- ===== AREA REPRESENTATIVE SIGNATURE - NAKATAGO BY DEFAULT ===== -->
+                <div id="areaRepSection">
+                    <div class="form-section-title"><i class="fas fa-pen-fancy"></i> Area Representative Signature</div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="repPosition">Select Area Representative Position <span class="required">*</span></label>
+                                <select name="rep_position" id="repPosition" required>
+                                    <option value="">-- Select Position --</option>
+                                    <option value="barangay_kagawad">Barangay Kagawad</option>
+                                    <option value="barangay_captain">Barangay Captain</option>
+                                    <option value="barangay_tanod">Barangay Tanod</option>
+                                    <option value="barangay_secretary">Barangay Secretary</option>
+                                    <option value="barangay_treasurer">Barangay Treasurer</option>
+                                    <option value="sk_chairman">SK Chairman</option>
+                                    <option value="purok_leader">Purok Leader</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Upload a Signature of Area Representative <span class="required">*</span></label>
-                    <div class="file-upload-area" id="fileUploadArea">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p><strong>Click to upload</strong> or drag and drop</p>
-                        <p class="file-types">JPG, PNG, PDF (Max: 5MB)</p>
-                        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" required>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Upload a Signature of Area Representative <span class="required">*</span></label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p><strong>Click to upload</strong> or drag and drop</p>
+                            <p class="file-types">JPG, PNG, PDF (Max: 5MB)</p>
+                            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" required>
+                        </div>
+                        <div class="file-list" id="fileList"></div>
+                        <small style="color: var(--neutral-500); font-size: 0.75rem; margin-top: 3px;">Please upload a clear signature of the Area Representative above their printed name with the date signed below.</small>
                     </div>
-                    <div class="file-list" id="fileList"></div>
-                    <small style="color: var(--neutral-500); font-size: 0.75rem; margin-top: 3px;">Please upload a clear signature of the Area Representative above their printed name with the date signed below.</small>
                 </div>
 
                 <!-- FAMILY INFORMATION -->
@@ -641,10 +889,10 @@
 
                 <!-- FORM ACTIONS -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="btn-submit" id="submitBtn">
                         <i class="fas fa-paper-plane"></i> Submit Request
                     </button>
-                    <button type="reset" class="btn-cancel">
+                    <button type="reset" class="btn-cancel" id="clearBtn">
                         <i class="fas fa-undo"></i> Clear Form
                     </button>
                 </div>
@@ -652,6 +900,72 @@
         </div>
 
     </main>
+
+    <!-- ===== SUCCESS MODAL ===== -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-box">
+            <div class="modal-header-success">
+                <button class="modal-close-btn" onclick="closeSuccessModal()">&times;</button>
+                <div class="icon-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2>Request Submitted!</h2>
+                <p>Your document request has been received</p>
+            </div>
+            <div class="modal-body">
+                <!-- Reference Number -->
+                <div class="reference-box">
+                    <div class="ref-label"><i class="fas fa-qrcode"></i> Reference Number</div>
+                    <div class="ref-number" id="modalRefNumber">DOC-20260905-XXXX</div>
+                    <span class="ref-badge" id="modalQueueBadge">Queue #001</span>
+                </div>
+
+                <!-- Document Details -->
+                <div class="doc-details-grid" id="modalDetailsGrid">
+                    <div class="detail-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="label">Document:</span>
+                        <span class="value" id="modalDocType">N/A</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-user"></i>
+                        <span class="label">Applicant:</span>
+                        <span class="value" id="modalApplicant">N/A</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-calendar-day"></i>
+                        <span class="label">Date:</span>
+                        <span class="value" id="modalDate">N/A</span>
+                    </div>
+                    <div class="detail-item" style="border-bottom: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="label">Status:</span>
+                        <span class="value"><span class="status-badge">Pending Review</span></span>
+                    </div>
+                </div>
+
+                <!-- Waiting Banner -->
+                <div class="waiting-banner-modal">
+                    <i class="fas fa-hourglass-half"></i>
+                    <div class="waiting-text">
+                        <h4>Please Wait</h4>
+                        <p>Your request is now <strong>PENDING</strong>. Please allow <strong>1-2 business days</strong> for processing.</p>
+                    </div>
+                </div>
+                <p style="text-align:center;font-size:12px;color:var(--neutral-500);margin-top:8px;">
+                    <i class="fas fa-bell"></i> You will receive a notification once your document is ready.
+                </p>
+            </div>
+            <div class="modal-footer-actions">
+                <a href="{{ url_for('my_requests') }}" class="modal-btn primary">
+                    <i class="fas fa-search"></i> Track Status
+                </a>
+                <button onclick="closeSuccessModal()" class="modal-btn secondary">
+                    <i class="fas fa-plus"></i> Request Another
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== SCRIPTS ===== -->
     <script>
@@ -684,11 +998,29 @@
             document.getElementById('signatureDate').value = today;
         });
 
-        // ===== FILE UPLOAD HANDLING =====
+        // ===== SHOW/HIDE AREA REPRESENTATIVE SECTION =====
+        const documentTypeSelect = document.getElementById('documentType');
+        const areaRepSection = document.getElementById('areaRepSection');
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const fileUploadArea = document.getElementById('fileUploadArea');
 
+        documentTypeSelect.addEventListener('change', function() {
+            if (this.value === 'proof_residency') {
+                areaRepSection.classList.add('visible');
+                document.getElementById('repPosition').setAttribute('required', 'required');
+                fileInput.setAttribute('required', 'required');
+            } else {
+                areaRepSection.classList.remove('visible');
+                document.getElementById('repPosition').removeAttribute('required');
+                fileInput.removeAttribute('required');
+                fileInput.value = '';
+                fileList.innerHTML = '';
+                fileUploadArea.style.borderColor = '#cbd5e1';
+            }
+        });
+
+        // ===== FILE UPLOAD HANDLING =====
         fileInput.addEventListener('change', function(e) {
             updateFileList(this.files);
         });
@@ -749,17 +1081,96 @@
             }
         });
 
-        // ===== FORM SUBMIT HANDLER =====
-        function handleSubmit(e) {
-            e.preventDefault();
+        // ===== SUCCESS MODAL FUNCTIONS =====
+        function showSuccessModal() {
+            // Generate random reference number
+            const refNum = 'DOC-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + String(Math.floor(Math.random() * 9000) + 1000);
+            const queueNum = 'Q-' + String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+            
+            document.getElementById('modalRefNumber').textContent = refNum;
+            document.getElementById('modalQueueBadge').textContent = 'Queue #' + queueNum;
+            
+            const docType = document.getElementById('documentType').value;
+            const docTypes = {
+                'clearance': 'Barangay Clearance',
+                'indigency': 'Certificate of Indigency',
+                'proof_residency': 'Proof of Residency'
+            };
+            document.getElementById('modalDocType').textContent = docTypes[docType] || docType || 'N/A';
+            
+            const surname = document.getElementById('surname').value || '';
+            const givenName = document.getElementById('givenName').value || '';
+            document.getElementById('modalApplicant').textContent = givenName + ' ' + surname;
+            
+            const dateObj = new Date(document.getElementById('signatureDate').value);
+            document.getElementById('modalDate').textContent = dateObj.toLocaleDateString('en-PH', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
 
-            const form = document.getElementById('clearanceForm');
+            // SHOW THE MODAL
+            const modal = document.getElementById('successModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            console.log('Modal should be visible now');
+            
+            // ✅ SAVE TO LOCAL STORAGE para lumabas sa dashboard
+            const requestData = {
+                id: Date.now(),
+                reference_number: refNum,
+                document_type: docType,
+                applicant: givenName + ' ' + surname,
+                date: document.getElementById('signatureDate').value,
+                status: 'pending',
+                created_at: new Date().toISOString()
+            };
+            
+            // Get existing requests from localStorage
+            let requests = JSON.parse(localStorage.getItem('document_requests') || '[]');
+            requests.unshift(requestData);
+            localStorage.setItem('document_requests', JSON.stringify(requests));
+            
+            console.log('✅ Saved to localStorage:', requestData);
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            
+            // Redirect to dashboard after closing
+            window.location.href = "{{ url_for('dashboard') }}";
+        }
+
+        // Close modal on outside click
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSuccessModal();
+            }
+        });
+
+        // ===== FORM SUBMIT HANDLER - FRONTEND ONLY =====
+        document.getElementById('clearanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted - FRONTEND ONLY');
+
+            const form = this;
 
             // Basic validation
             const required = form.querySelectorAll('[required]');
             let valid = true;
             required.forEach(field => {
-                if (!field.value.trim()) {
+                if (field.type === 'checkbox') {
+                    if (!field.checked) {
+                        field.style.outline = '2px solid #dc3545';
+                        valid = false;
+                    } else {
+                        field.style.outline = 'none';
+                    }
+                    return;
+                }
+                if (!field.value || !field.value.trim()) {
                     field.style.borderColor = '#dc3545';
                     valid = false;
                 } else {
@@ -767,12 +1178,14 @@
                 }
             });
 
-            // Check if file is uploaded
-            if (fileInput.files.length === 0) {
-                fileUploadArea.style.borderColor = '#dc3545';
-                valid = false;
-            } else {
-                fileUploadArea.style.borderColor = '#1a5d3a';
+            const docType = document.getElementById('documentType').value;
+            if (docType === 'proof_residency') {
+                if (fileInput.files.length === 0) {
+                    fileUploadArea.style.borderColor = '#dc3545';
+                    valid = false;
+                } else {
+                    fileUploadArea.style.borderColor = '#1a5d3a';
+                }
             }
 
             if (!valid) {
@@ -780,61 +1193,52 @@
                 return;
             }
 
-            // Collect data
-            const data = {
-                document_type: document.getElementById('documentType').value,
-                surname: document.getElementById('surname').value,
-                given_name: document.getElementById('givenName').value,
-                middle_name: document.getElementById('middleName').value,
-                address: document.getElementById('address').value,
-                contact_no: document.getElementById('contactNo').value,
-                civil_status: document.getElementById('civilStatus').value,
-                age: document.getElementById('age').value,
-                dob: document.getElementById('dob').value,
-                precinct_no: document.getElementById('precinctNo').value,
-                place_of_birth: document.getElementById('placeOfBirth').value,
-                length_of_stay: document.getElementById('lengthOfStay').value,
-                residency_type: document.querySelector('input[name="residency_type"]:checked')?.value || '',
-                lessor_name: document.getElementById('lessorName').value,
-                lessor_address: document.getElementById('lessorAddress').value,
-                rep_position: document.getElementById('repPosition').value,
-                files: Array.from(fileInput.files).map(f => f.name),
-                father_name: document.getElementById('fatherName').value,
-                mother_name: document.getElementById('motherName').value,
-                spouse_name: document.getElementById('spouseName').value,
-                occupation: document.getElementById('occupation').value,
-                emergency_name: document.getElementById('emergencyName').value,
-                emergency_number: document.getElementById('emergencyNumber').value,
-                ref1_name: document.getElementById('ref1Name').value,
-                ref1_address: document.getElementById('ref1Address').value,
-                ref2_name: document.getElementById('ref2Name').value,
-                ref2_address: document.getElementById('ref2Address').value,
-                purpose: document.getElementById('purpose').value,
-                printed_name: document.getElementById('printedName').value,
-                signature_date: document.getElementById('signatureDate').value,
-                digital_signature_consent: document.getElementById('digitalSignatureConsent').checked,
-                data_privacy_consent: document.getElementById('dataPrivacyConsent').checked,
-            };
-
-            console.log('📝 Request Data:', data);
-
             // Disable submit button
             const submitBtn = form.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-            // Show success message
-            alert('Request submitted successfully!');
-
-            // Simulate API call
+            // Simulate loading
             setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+                // Show success modal
+                showSuccessModal();
+                
+                // Reset form
                 form.reset();
                 fileList.innerHTML = '';
                 document.getElementById('signatureDate').value = new Date().toISOString().split('T')[0];
-            }, 2000);
-        }
+                areaRepSection.classList.remove('visible');
+                document.getElementById('repPosition').removeAttribute('required');
+                fileInput.removeAttribute('required');
+                fileUploadArea.style.borderColor = '#cbd5e1';
+                
+                document.querySelectorAll('input, select, textarea').forEach(f => {
+                    f.style.borderColor = '#e2e8e6';
+                });
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+            }, 1500);
+        });
+
+        // ===== CLEAR FORM BUTTON =====
+        document.getElementById('clearBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to clear all fields?')) {
+                const form = document.getElementById('clearanceForm');
+                form.reset();
+                fileList.innerHTML = '';
+                fileInput.value = '';
+                document.getElementById('signatureDate').value = new Date().toISOString().split('T')[0];
+                areaRepSection.classList.remove('visible');
+                document.getElementById('repPosition').removeAttribute('required');
+                fileInput.removeAttribute('required');
+                fileUploadArea.style.borderColor = '#cbd5e1';
+                document.querySelectorAll('input, select, textarea').forEach(f => {
+                    f.style.borderColor = '#e2e8e6';
+                });
+            }
+        });
 
         // Clear border colors when user types
         document.querySelectorAll('input, select, textarea').forEach(field => {
@@ -848,7 +1252,6 @@
             });
         });
 
-        // Clear file upload border on file selection
         fileInput.addEventListener('change', function() {
             if (this.files.length > 0) {
                 fileUploadArea.style.borderColor = '#1a5d3a';
@@ -867,4 +1270,116 @@
     </script>
 
 </body>
+<script>
+    // ===== FORM SUBMIT HANDLER - MAY TOTOONG BACKEND SAVE =====
+    document.getElementById('clearanceForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Para hindi ma-refresh yung page
+        
+        // Basic validation
+        const required = this.querySelectorAll('[required]');
+        let valid = true;
+        required.forEach(field => {
+            if (field.type === 'checkbox') {
+                if (!field.checked) {
+                    field.style.outline = '2px solid #dc3545';
+                    valid = false;
+                } else {
+                    field.style.outline = 'none';
+                }
+                return;
+            }
+            if (!field.value || !field.value.trim()) {
+                field.style.borderColor = '#dc3545';
+                valid = false;
+            } else {
+                field.style.borderColor = '#1a5d3a';
+            }
+        });
+
+        const docType = document.getElementById('documentType').value;
+        if (docType === 'proof_residency') {
+            if (fileInput.files.length === 0) {
+                fileUploadArea.style.borderColor = '#dc3545';
+                valid = false;
+            } else {
+                fileUploadArea.style.borderColor = '#1a5d3a';
+            }
+        }
+
+        if (!valid) {
+            alert('Please fill in all required fields (marked with *) and upload the signature.');
+            return;
+        }
+
+        // Disable submit button
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+        // ===== ACTUAL SAVE SA BACKEND =====
+        const formData = new FormData(this);
+
+        fetch('/submit-document-request', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // ✅ KUHA NATIN YUNG TOTOONG DATA GALING SA SERVER
+                document.getElementById('modalRefNumber').textContent = data.reference_number;
+                document.getElementById('modalQueueBadge').textContent = 'Queue #' + data.queuing_number;
+                
+                // Kunin yung details para sa modal
+                const docType2 = document.getElementById('documentType').value;
+                const docTypes = {
+                    'clearance': 'Barangay Clearance',
+                    'indigency': 'Certificate of Indigency',
+                    'proof_residency': 'Proof of Residency'
+                };
+                document.getElementById('modalDocType').textContent = docTypes[docType2] || docType2 || 'N/A';
+                
+                const surname = document.getElementById('surname').value || '';
+                const givenName = document.getElementById('givenName').value || '';
+                document.getElementById('modalApplicant').textContent = givenName + ' ' + surname;
+                
+                const dateObj = new Date(document.getElementById('signatureDate').value);
+                document.getElementById('modalDate').textContent = dateObj.toLocaleDateString('en-PH', { 
+                    year: 'numeric', month: 'long', day: 'numeric' 
+                });
+
+                // SHOW THE MODAL
+                showSuccessModal();
+
+                // Reset form
+                document.getElementById('clearanceForm').reset();
+                document.getElementById('fileList').innerHTML = '';
+                document.getElementById('signatureDate').value = new Date().toISOString().split('T')[0];
+                areaRepSection.classList.remove('visible');
+                document.getElementById('repPosition').removeAttribute('required');
+                fileInput.removeAttribute('required');
+                fileUploadArea.style.borderColor = '#cbd5e1';
+                document.querySelectorAll('input, select, textarea').forEach(f => {
+                    f.style.borderColor = '#e2e8e6';
+                });
+
+                // Enable button ulit
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+
+            } else {
+                // Kung may error sa server
+                alert('Error: ' + (data.error || 'Unknown error'));
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error: ' + error);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+        });
+    });
+</script>
 </html>

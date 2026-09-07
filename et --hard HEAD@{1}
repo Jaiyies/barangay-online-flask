@@ -1,0 +1,15 @@
+[33m43b09c0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to origin/main
+[33m43b09c0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: pull origin main --rebase (finish): returning to refs/heads/main
+[33m43b09c0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{2}: pull origin main --rebase (start): checkout 43b09c0d98e074f50f810fd9a8979f986f310a37
+[33m2bb1629[m HEAD@{3}: commit: Updated app.py with new features
+[33ma5558d2[m HEAD@{4}: commit: Update track request
+[33md9e2135[m HEAD@{5}: pull origin main: Fast-forward
+[33m8effd7d[m HEAD@{6}: commit (merge): all
+[33m323cb9f[m HEAD@{7}: commit (merge): Saving my current changes
+[33m35bb90d[m HEAD@{8}: commit: My local changes
+[33m2f87b01[m HEAD@{9}: pull origin main: updating HEAD
+[33m2f87b01[m HEAD@{10}: pull origin main: updating HEAD
+[33m2f87b01[m HEAD@{11}: commit (merge): Fixed base.html layout and footer issues
+[33m12c19e2[m HEAD@{12}: commit: Updated base.html template
+[33m044ef12[m HEAD@{13}: commit: Updated code
+[33m35c7d00[m HEAD@{14}: clone: from https://github.com/Jen-Sanchez/barangay-online-flask.git

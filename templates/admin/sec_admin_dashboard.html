@@ -333,11 +333,12 @@
             <small>Admin Panel</small>
         </div>
         <ul class="sidebar-menu">
-            <li class="active"><a href="{{ url_for('sec_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <!-- FIXED: Changed from sec_admin_dashboard to admin_dashboard -->
+            <li class="active"><a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('admin_documents') }}"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
             <li><a href="{{ url_for('admin_events') }}"><i class="fas fa-calendar-check"></i> <span>Events</span></a></li>
-            <!-- FIXED: Changed from 'settings' to 'sec_admin_settings' -->
-            <li><a href="{{ url_for('sec_admin_settings') }}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <!-- FIXED: Changed from sec_admin_settings to admin_settings -->
+            <li><a href="{{ url_for('admin_settings') }}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
             <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
         </ul>
     </div>
