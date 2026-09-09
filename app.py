@@ -11,20 +11,20 @@ import glob
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-in-production'
 
-# ===== DATABASE CONNECTION =====
-def get_db():
-    return mysql.connector.connect(
-        host='127.0.0.1',
-        port=3307,
-        user='root',
-        password='bsit2026@123',
-        database='barangay_online_services'
-    )
-
 # ===== HOME/INDEX ROUTE =====
 @app.route('/')
 def index():
     return redirect(url_for('login'))
+
+# ===== DATABASE CONNECTION =====
+def get_db():
+    return mysql.connector.connect(
+        host='127.0.0.1',
+        port=3306,
+        user='root',
+        password='bsit2026@123',
+        database='barangay_online_services'
+    )
 
 # ===== LOGIN ROUTE (MAY LOCKOUT) =====
 @app.route('/login', methods=['GET', 'POST'])
@@ -77,10 +77,12 @@ def login():
             session['email'] = user['email']
             session['role'] = user['role']
             
+            flash(f'Welcome back, {session["fullname"]}!', 'success')
+            
             if user['role'] == 'head_admin':
                 return redirect(url_for('head_admin_dashboard'))
             elif user['role'] == 'admin':
-                return redirect(url_for('admin_dashboard'))
+                return redirect(url_for('sec_admin_dashboard'))
             else:
                 return redirect(url_for('dashboard'))
         else:
@@ -326,7 +328,7 @@ def my_requests():
     cursor.execute("""
         SELECT * FROM event_permits 
         WHERE user_id = %s
-        ORDER BY created_at DESC
+        ORDER BY requested_at DESC
     """, (session['user_id'],))
     event_permits = cursor.fetchall()
     
@@ -355,7 +357,7 @@ def my_request():
     cursor.execute("""
         SELECT * FROM event_permits 
         WHERE user_id = %s
-        ORDER BY created_at DESC
+        ORDER BY requested_at DESC
     """, (session['user_id'],))
     event_permits = cursor.fetchall()
     
@@ -372,9 +374,102 @@ def request_document():
         return redirect(url_for('login'))
     return render_template('request_document.html')
 
-# ============================================================
-# ===== SUBMIT DOCUMENT REQUEST - FINAL FIX =====
-# ============================================================
+# ===== REQUEST DOCUMENT (POST) - UPDATED WITH ALL FIELDS =====
+@app.route('/request-document', methods=['POST'])
+def request_document_post():
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
+        return redirect(url_for('login'))
+    
+    # Kunin lahat ng data from form
+    document_type = request.form.get('document_type', '').strip()
+    surname = request.form.get('surname', '').strip()
+    given_name = request.form.get('given_name', '').strip()
+    middle_name = request.form.get('middle_name', '').strip()
+    address = request.form.get('address', '').strip()
+    contact_no = request.form.get('contact_no', '').strip()
+    civil_status = request.form.get('civil_status', '').strip()
+    age = request.form.get('age', 0)
+    dob = request.form.get('dob', '').strip()
+    precinct_no = request.form.get('precinct_no', '').strip()
+    place_of_birth = request.form.get('place_of_birth', '').strip()
+    length_of_stay = request.form.get('length_of_stay', '').strip()
+    residency_type = request.form.get('residency_type', '').strip()
+    lessor_name = request.form.get('lessor_name', '').strip()
+    lessor_address = request.form.get('lessor_address', '').strip()
+    rep_position = request.form.get('rep_position', '').strip()
+    father_name = request.form.get('father_name', '').strip()
+    mother_name = request.form.get('mother_name', '').strip()
+    spouse_name = request.form.get('spouse_name', '').strip()
+    occupation = request.form.get('occupation', '').strip()
+    emergency_name = request.form.get('emergency_name', '').strip()
+    emergency_number = request.form.get('emergency_number', '').strip()
+    ref1_name = request.form.get('ref1_name', '').strip()
+    ref1_address = request.form.get('ref1_address', '').strip()
+    ref2_name = request.form.get('ref2_name', '').strip()
+    ref2_address = request.form.get('ref2_address', '').strip()
+    purpose = request.form.get('purpose', '').strip()
+    printed_name = request.form.get('printed_name', '').strip()
+    signature_date = request.form.get('signature_date', '').strip()
+    
+    # Validate required fields
+    if not document_type or not surname or not given_name or not address:
+        flash('Please fill in all required fields.', 'danger')
+        return redirect(url_for('request_document'))
+    
+    # Generate reference number
+    ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    queue_num = f"Q-{random.randint(1, 999):03d}"
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            INSERT INTO document_requests (
+                user_id, document_type, surname, given_name, middle_name,
+                address, contact_no, civil_status, age, dob,
+                precinct_no, place_of_birth, length_of_stay, residency_type,
+                lessor_name, lessor_address, rep_position,
+                father_name, mother_name, spouse_name, occupation,
+                emergency_name, emergency_number,
+                ref1_name, ref1_address, ref2_name, ref2_address,
+                purpose, printed_name, signature_date,
+                reference_number, queuing_number, status
+            ) VALUES (
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s,
+                %s, %s, %s, %s,
+                %s, %s, %s,
+                %s, %s, 'pending'
+            )
+        """, (
+            session['user_id'], document_type, surname, given_name, middle_name,
+            address, contact_no, civil_status, age, dob,
+            precinct_no, place_of_birth, length_of_stay, residency_type,
+            lessor_name, lessor_address, rep_position,
+            father_name, mother_name, spouse_name, occupation,
+            emergency_name, emergency_number,
+            ref1_name, ref1_address, ref2_name, ref2_address,
+            purpose, printed_name, signature_date,
+            ref_num, queue_num
+        ))
+        conn.commit()
+        
+        flash('Document request submitted successfully! Reference: ' + ref_num, 'success')
+        return redirect(url_for('my_requests'))
+        
+    except mysql.connector.Error as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('request_document'))
+    finally:
+        conn.close()
+
+# ===== SUBMIT DOCUMENT REQUEST =====
 @app.route('/submit-document-request', methods=['POST'])
 def submit_document_request():
     if 'user_id' not in session:
@@ -392,7 +487,6 @@ def submit_document_request():
         conn = get_db()
         cursor = conn.cursor()
         
-        # 1. TIGNAN MUNA NATIN ANG ACTUAL COLUMNS NG TABLE
         cursor.execute("DESCRIBE document_requests")
         columns = cursor.fetchall()
         print("📋 ACTUAL COLUMNS OF document_requests:")
@@ -402,7 +496,6 @@ def submit_document_request():
             col_names.append(col[0])
         print("=" * 50)
         
-        # 2. I-CHECK KUNG MAY MISSING COLUMNS
         required_columns = ['user_id', 'document_type', 'reference_number', 'status']
         missing_columns = [col for col in required_columns if col not in col_names]
         
@@ -412,31 +505,21 @@ def submit_document_request():
             conn.close()
             return jsonify({'error': error_msg}), 500
         
-        # 3. Generate reference number at queue number
         ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
         queue_num = f"Q-{random.randint(1, 999):03d}"
         
-        # 4. I-INSERT LANG YUNG MGA MAY COLUMNS NA (para safe)
-        # DITO ANG PINAKAMAHALAGA - WALANG DUPLICATE AT I-SKIP YUNG 'type'
         insert_cols = ['user_id', 'document_type', 'reference_number', 'status']
         insert_vals = [session['user_id'], data.get('document_type', 'clearance'), ref_num, 'pending']
         
-        # Kung may queuing_number sa database, idagdag natin
         if 'queuing_number' in col_names:
             insert_cols.append('queuing_number')
             insert_vals.append(queue_num)
         
-        # Para sa lahat ng ibang fields na nasa form (surname, given_name, etc.)
-        # Para hindi mag-error sa "Unknown column" o "Duplicate column", susuriin natin kung meron sa database
-        # IMPORTANTE: I-SKIP natin yung mga key na nandun na sa insert_cols para walang duplicate
-        # IMPORTANTE: I-SKIP yung 'type' kasi hindi natin kailangan
-        # IMPORTANTE: I-SKIP yung 'fileInput' (file input ay hindi kailangan isave ngayon)
         for key, value in data.items():
             if key in col_names and key not in insert_cols and key != 'type' and key != 'fileInput':
                 insert_cols.append(key)
                 insert_vals.append(value)
         
-        # Gumawa ng dynamic SQL string para sa mga columns na meron
         placeholders = ', '.join(['%s'] * len(insert_cols))
         columns_str = ', '.join(insert_cols)
         
@@ -445,11 +528,9 @@ def submit_document_request():
         print(f"🔧 VALUES: {insert_vals}")
         print("=" * 50)
         
-        # 5. EXECUTE AT COMMIT
         cursor.execute(sql, tuple(insert_vals))
         conn.commit()
         
-        # 6. CHECK KUNG TALAGANG NAPASOK
         cursor.execute("SELECT * FROM document_requests ORDER BY id DESC LIMIT 1")
         last_row = cursor.fetchone()
         print("✅ LAST ROW SA DATABASE:")
@@ -550,19 +631,9 @@ def apply_permit_post():
             venue, file_data, ref_num, queue_num
         ))
         conn.commit()
-        permit_id = cursor.lastrowid
         
-        cursor.execute("""
-            INSERT INTO notifications (user_id, title, message, notification_type)
-            VALUES (%s, %s, %s, 'permit_submitted')
-        """, (
-            session['user_id'], 'Permit Application Submitted',
-            f'Your event permit "{event_name}" has been submitted for review. Reference: {ref_num} | Queue: {queue_num}'
-        ))
-        conn.commit()
-        
-        flash('Permit application submitted successfully!', 'success')
-        return redirect(url_for('dashboard'))
+        flash('Permit application submitted successfully! Reference: ' + ref_num, 'success')
+        return redirect(url_for('my_requests'))
         
     except mysql.connector.Error as e:
         flash(f'Database error: {str(e)}', 'danger')
@@ -583,6 +654,7 @@ def head_admin_dashboard():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     
+    # Stats
     cursor.execute("SELECT COUNT(*) as total FROM users")
     total_users = cursor.fetchone()['total']
     
@@ -598,14 +670,34 @@ def head_admin_dashboard():
     cursor.execute("SELECT COUNT(*) as total FROM event_permits")
     total_events = cursor.fetchone()['total']
     
+    # Pending counts
+    cursor.execute("SELECT COUNT(*) as pending FROM document_requests WHERE status = 'pending'")
+    pending_docs = cursor.fetchone()['pending']
+    
+    cursor.execute("SELECT COUNT(*) as pending FROM event_permits WHERE status = 'pending'")
+    pending_events = cursor.fetchone()['pending']
+    
+    # Pending Documents
     cursor.execute("""
-        SELECT d.*, u.first_name, u.last_name 
+        SELECT d.*, u.first_name, u.last_name, u.email
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
+        WHERE d.status = 'pending'
         ORDER BY d.created_at DESC
         LIMIT 5
     """)
-    recent_requests = cursor.fetchall()
+    pending_documents = cursor.fetchall()
+    
+    # Pending Events - FIXED: e.requested_at instead of e.created_at
+    cursor.execute("""
+        SELECT e.*, u.first_name, u.last_name, u.email
+        FROM event_permits e
+        JOIN users u ON e.user_id = u.id
+        WHERE e.status = 'pending'
+        ORDER BY e.requested_at DESC
+        LIMIT 5
+    """)
+    pending_events_list = cursor.fetchall()
     
     conn.close()
     
@@ -615,20 +707,43 @@ def head_admin_dashboard():
                          total_admins=total_admins,
                          total_requests=total_requests,
                          total_events=total_events,
-                         recent_requests=recent_requests)
+                         pending_docs=pending_docs,
+                         pending_events=pending_events,
+                         pending_documents=pending_documents,
+                         pending_events_list=pending_events_list)
+
+# ============================================================
+# ===== HEAD ADMIN ALL DOCUMENTS =====
+# ============================================================
+
+@app.route('/head-admin/all-documents')
+def head_admin_all_documents():
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        flash('Unauthorized access. Head Admin only.', 'danger')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT d.*, u.first_name, u.last_name, u.email, u.contact_number
+        FROM document_requests d
+        JOIN users u ON d.user_id = u.id
+        ORDER BY d.created_at DESC
+    """)
+    documents = cursor.fetchall()
+    conn.close()
+    
+    return render_template('admin/head_admin_all_documents.html', documents=documents)
 
 # ============================================================
 # ===== SECONDARY ADMIN DASHBOARD =====
 # ============================================================
 
-@app.route('/admin-dashboard')
-def admin_dashboard():
-    if 'user_id' not in session:
-        flash('Please login first.', 'warning')
-        return redirect(url_for('login'))
-    
-    if session.get('role') not in ['admin', 'head_admin']:
-        flash('Unauthorized access. Admin only.', 'danger')
+@app.route('/sec-admin-dashboard')
+def sec_admin_dashboard():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        flash('Please login as Admin.', 'danger')
         return redirect(url_for('login'))
     
     conn = get_db()
@@ -644,10 +759,10 @@ def admin_dashboard():
     total_requests = cursor.fetchone()['total']
     
     cursor.execute("SELECT COUNT(*) as total FROM event_permits")
-    total_events_total = cursor.fetchone()['total']
+    total_events = cursor.fetchone()['total']
     
     cursor.execute("""
-        SELECT d.*, u.first_name, u.last_name, u.email 
+        SELECT d.*, u.first_name, u.last_name 
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
         WHERE d.status = 'pending'
@@ -657,11 +772,11 @@ def admin_dashboard():
     pending_documents = cursor.fetchall()
     
     cursor.execute("""
-        SELECT e.*, u.first_name, u.last_name, u.email 
+        SELECT e.*, u.first_name, u.last_name 
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.status = 'pending'
-        ORDER BY e.created_at DESC
+        ORDER BY e.requested_at DESC
         LIMIT 5
     """)
     pending_events_list = cursor.fetchall()
@@ -672,7 +787,7 @@ def admin_dashboard():
                          pending_requests=pending_requests,
                          pending_events=pending_events,
                          total_requests=total_requests,
-                         total_events=total_events_total,
+                         total_events=total_events,
                          pending_documents=pending_documents,
                          pending_events_list=pending_events_list)
 
@@ -833,16 +948,93 @@ def admin_event_details(event_id):
     return jsonify(event)
 
 # ============================================================
-# ===== SETTINGS =====
+# ===== SECONDARY ADMIN SETTINGS =====
 # ============================================================
 
-@app.route('/admin-settings')
-def admin_settings():
-    if 'user_id' not in session or session.get('role') not in ['admin', 'head_admin']:
+@app.route('/sec-admin-settings')
+def sec_admin_settings():
+    if 'user_id' not in session or session.get('role') != 'admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     
-    return render_template('admin/settings.html')
+    return render_template('admin/sec_admin_settings.html')
+
+# ============================================================
+# ===== ADMIN PROFILE UPDATE (FOR REGULAR ADMINS) =====
+# ============================================================
+
+@app.route('/admin-update-profile', methods=['POST'])
+def admin_update_profile():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    
+    first_name = request.form.get('first_name', '').strip()
+    last_name = request.form.get('last_name', '').strip()
+    email = request.form.get('email', '').strip()
+    
+    if not first_name or not last_name or not email:
+        flash('Please fill in all fields.', 'danger')
+        return redirect(url_for('sec_admin_settings'))
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE users SET first_name = %s, last_name = %s, email = %s
+        WHERE id = %s
+    """, (first_name, last_name, email, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    session['fullname'] = f"{first_name} {last_name}"
+    session['email'] = email
+    
+    flash('Profile updated successfully!', 'success')
+    return redirect(url_for('sec_admin_settings'))
+
+# ============================================================
+# ===== ADMIN PASSWORD CHANGE (FOR REGULAR ADMINS) =====
+# ============================================================
+
+@app.route('/admin-change-password', methods=['POST'])
+def admin_change_password():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+    
+    if not current_password or not new_password or not confirm_password:
+        flash('Please fill in all fields.', 'danger')
+        return redirect(url_for('sec_admin_settings'))
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('sec_admin_settings'))
+    
+    if len(new_password) < 8:
+        flash('New password must be at least 8 characters.', 'danger')
+        return redirect(url_for('sec_admin_settings'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+    
+    if not user or not check_password_hash(user['password'], current_password):
+        conn.close()
+        flash('Current password is incorrect.', 'danger')
+        return redirect(url_for('sec_admin_settings'))
+    
+    hashed_password = generate_password_hash(new_password)
+    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    flash('Password changed successfully!', 'success')
+    return redirect(url_for('sec_admin_settings'))
 
 # ============================================================
 # ===== USER MANAGEMENT =====
@@ -1239,6 +1431,231 @@ def send_email_all():
     return redirect(url_for('announcements'))
 
 # ============================================================
+# ===== EVENT PERMITS =====
+# ============================================================
+
+@app.route('/api/permits', methods=['GET', 'POST'])
+def api_permits():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    if request.method == 'GET':
+        cursor.execute("""
+            SELECT * FROM event_permits 
+            WHERE user_id = %s
+        """, (session['user_id'],))
+        permits = cursor.fetchall()
+        conn.close()
+        return jsonify(permits)
+    
+    if request.method == 'POST':
+        data = request.json
+        
+        ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+        queue_num = f"Q-{random.randint(1, 999):03d}"
+        
+        cursor.execute("""
+            INSERT INTO event_permits (
+                user_id, applicant_name, contact_number, event_name, 
+                event_date, start_time, end_time, estimated_attendees, venue, 
+                purpose, documents, reference_number, queuing_number, status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+        """, (
+            session['user_id'],
+            data.get('applicant_name'),
+            data.get('contact_number'),
+            data.get('event_name'),
+            data.get('event_date'),
+            data.get('start_time'),
+            data.get('end_time'),
+            data.get('estimated_attendees'),
+            data.get('venue'),
+            data.get('purpose', ''),
+            data.get('documents', ''),
+            ref_num,
+            queue_num
+        ))
+        conn.commit()
+        permit_id = cursor.lastrowid
+        
+        cursor.execute("""
+            INSERT INTO notifications (user_id, title, message, notification_type)
+            VALUES (%s, %s, %s, 'permit_submitted')
+        """, (
+            session['user_id'],
+            'Permit Application Submitted',
+            f'Your event permit "{data.get("event_name")}" has been submitted for review. Reference: {ref_num} | Queue: {queue_num}'
+        ))
+        conn.commit()
+        
+        conn.close()
+        
+        return jsonify({
+            'message': 'Permit submitted successfully',
+            'id': permit_id,
+            'reference_number': ref_num,
+            'queuing_number': queue_num
+        }), 201
+
+@app.route('/api/permits/check-availability', methods=['GET'])
+def check_availability():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    date = request.args.get('date')
+    start_time = request.args.get('start_time')
+    end_time = request.args.get('end_time')
+    venue = request.args.get('venue')
+    
+    if not all([date, start_time, end_time, venue]):
+        return jsonify({'error': 'Missing parameters'}), 400
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM event_permits 
+        WHERE venue = %s 
+        AND event_date = %s 
+        AND status = 'approved'
+        AND (
+            (start_time <= %s AND end_time > %s) OR
+            (start_time < %s AND end_time >= %s) OR
+            (start_time >= %s AND end_time <= %s)
+        )
+    """, (venue, date, start_time, end_time, start_time, end_time, start_time, end_time))
+    
+    result = cursor.fetchone()
+    conn.close()
+    
+    if result['count'] > 0:
+        return jsonify({'available': False, 'message': 'This time slot is already taken by an approved event.'})
+    else:
+        return jsonify({'available': True, 'message': 'Time slot is available'})
+
+@app.route('/api/permits/notifications', methods=['GET'])
+def api_notifications():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT * FROM notifications 
+        WHERE user_id = %s 
+        ORDER BY created_at DESC 
+        LIMIT 50
+    """, (session['user_id'],))
+    notifications = cursor.fetchall()
+    conn.close()
+    
+    return jsonify(notifications)
+
+@app.route('/api/permits/notifications/unread_count', methods=['GET'])
+def api_unread_count():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT COUNT(*) as unread_count 
+        FROM notifications 
+        WHERE user_id = %s AND is_read = FALSE
+    """, (session['user_id'],))
+    result = cursor.fetchone()
+    conn.close()
+    
+    return jsonify({'unread_count': result['unread_count']})
+
+@app.route('/api/permits/notifications/<int:notif_id>/mark_read', methods=['POST'])
+def api_mark_read(notif_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        UPDATE notifications 
+        SET is_read = TRUE 
+        WHERE id = %s AND user_id = %s
+    """, (notif_id, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'message': 'Marked as read'})
+
+@app.route('/api/permits/notifications/mark_all_read', methods=['POST'])
+def api_mark_all_read():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        UPDATE notifications 
+        SET is_read = TRUE 
+        WHERE user_id = %s
+    """, (session['user_id'],))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'message': 'All notifications marked as read'})
+
+# ============================================================
+# ===== API: DOCUMENT REQUESTS =====
+# ============================================================
+
+@app.route('/api/document-requests')
+def api_document_requests():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT * FROM document_requests 
+        WHERE user_id = %s 
+        ORDER BY created_at DESC
+    """, (session['user_id'],))
+    requests = cursor.fetchall()
+    conn.close()
+    
+    return jsonify(requests)
+
+# ============================================================
+# ===== HEAD ADMIN ALL EVENTS =====
+# ============================================================
+
+@app.route('/head-admin/events')
+def head_admin_events():
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        flash('Unauthorized access. Head Admin only.', 'danger')
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        SELECT e.*, u.first_name, u.last_name, u.email, u.contact_number
+        FROM event_permits e
+        JOIN users u ON e.user_id = u.id
+        ORDER BY e.id DESC
+    """)
+    events = cursor.fetchall()
+    conn.close()
+    
+    return render_template('admin/head_admin_events.html', events=events)
+
+# ============================================================
 # ===== SETTINGS (HEAD ADMIN ONLY) =====
 # ============================================================
 
@@ -1484,7 +1901,7 @@ def check_session():
         <p><strong>Role:</strong> {session['role']}</p>
         <hr>
         <a href="/head-admin-dashboard">Head Admin Dashboard</a><br>
-        <a href="/admin-dashboard">Admin Dashboard</a><br>
+        <a href="/sec-admin-dashboard">Admin Dashboard</a><br>
         <a href="/dashboard">Resident Dashboard</a><br>
         <a href="/users">User Management</a><br>
         <a href="/admins">Admin Management</a><br>
@@ -1500,6 +1917,7 @@ def check_session():
 @app.route('/logout')
 def logout():
     session.clear()
+    flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
