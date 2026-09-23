@@ -1,3 +1,4 @@
+import builtins
 import mysql.connector
 
 try:
@@ -8,7 +9,7 @@ try:
         password='bsit2026@123',  # ✅ TAMA YAN! Yan ang root password mo!
         database='barangay_online_services'
     )
-    print("✅ Connected to MySQL successfully!")
+    builtins.print("✅ Connected to MySQL successfully!")
     conn.close()
-except Exception as e:
-    print(f"❌ Error: {e}")
+except builtins.Exception as e:
+    builtins.print(f"❌ Error: {e}")

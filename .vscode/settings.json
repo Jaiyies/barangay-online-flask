@@ -1,0 +1,10 @@
+{
+    "jinja2-html-enhancer.customVariables": {
+        "c:\\barangay-online-flask\\templates\\apply_permit.html": [
+            "message"
+        ],
+        "c:\\barangay-online-flask\\templates\\login.html": [
+            "lockout_message"
+        ]
+    }
+}
