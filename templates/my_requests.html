@@ -20,6 +20,26 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--neutral-50); min-height: 100vh; }
 
+        /* ===== PAGE TRANSITION (FADE IN/OUT) ===== */
+        body {
+            animation: fadeInPage 0.4s ease-in;
+        }
+        @keyframes fadeInPage {
+            from { 
+                opacity: 0; 
+                transform: translateY(8px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        body.fade-out {
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: all 0.3s ease;
+        }
+
         /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px; height: 100vh; background: linear-gradient(180deg, var(--primary-800), var(--primary-600));
@@ -271,20 +291,20 @@
             .stats-grid { grid-template-columns: 1fr; }
         }
         /* ===== BADGE NOTIFICATION ===== */
-.badge-notification {
-    background: #dc3545;
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 10px;
-    min-width: 18px;
-    text-align: center;
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
+        .badge-notification {
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -353,7 +373,7 @@
                         <div class="name">{{ session.fullname or 'Resident' }}</div>
                         <div class="email">{{ session.email or 'resident@email.com' }}</div>
                     </div>
-                    <a href="{{ url_for('user_settings') }}" class="user-menu-item">
+                    <a href="{{ url_for('settings') }}" class="user-menu-item">
                         <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
                     </a>
                     <a href="{{ url_for('logout') }}" class="user-menu-item logout-item">
@@ -450,11 +470,14 @@
                                     <i class="fas fa-info-circle"></i> {{ req.status|replace('_', ' ')|title }}
                                 {% endif %}
                             </span>
-                            <button class="btn-view doc-view-btn"
-                                    data-type="{{ req.document_type }}"
-                                    data-ref="{{ req.reference_number or '' }}"
-                                    data-date="{{ req.created_at.strftime('%b %d, %Y') if req.created_at else 'N/A' }}"
-                                    data-status="{{ req.status }}">
+                            <button class="btn-view"
+                                data-type="{{ req.document_type|replace('_', ' ')|title }}"
+                                data-ref="{{ req.reference_number or 'N/A' }}"
+                                data-date="{{ req.created_at.strftime('%b %d, %Y') if req.created_at else 'N/A' }}"
+                                data-status="{{ req.status|title }}"
+                                data-purpose="{{ req.purpose or 'N/A' }}"
+                                data-notes="{{ req.admin_remarks or 'N/A' }}"
+                                onclick="showDocumentModal(this)">
                                 <i class="fas fa-eye"></i> <span class="translatable">View</span>
                             </button>
                         </div>
@@ -505,11 +528,16 @@
                                     <i class="fas fa-info-circle"></i> {{ req.status|replace('_', ' ')|title }}
                                 {% endif %}
                             </span>
-                            <button class="btn-view event-view-btn"
-                                    data-name="{{ req.event_name }}"
-                                    data-ref="{{ req.reference_number or '' }}"
-                                    data-date="{{ req.event_date.strftime('%b %d, %Y') if req.event_date else 'N/A' }}"
-                                    data-status="{{ req.status }}">
+                            <button class="btn-view"
+                                data-name="{{ req.event_name }}"
+                                data-ref="{{ req.reference_number or 'N/A' }}"
+                                data-date="{{ req.event_date.strftime('%b %d, %Y') if req.event_date else 'N/A' }}"
+                                data-status="{{ req.status|title }}"
+                                data-time="{{ req.start_time }} - {{ req.end_time }}"
+                                data-venue="{{ req.venue or 'N/A' }}"
+                                data-purpose="{{ req.purpose or 'N/A' }}"
+                                data-description="{{ req.event_description or 'N/A' }}"
+                                onclick="showEventModal(this)">
                                 <i class="fas fa-eye"></i> <span class="translatable">View</span>
                             </button>
                         </div>
@@ -533,12 +561,14 @@
         <div class="modal-box">
             <div class="modal-header">
                 <h3><i class="fas fa-file-alt"></i> <span class="translatable">Document Details</span></h3>
-                <button type="button" class="modal-close-btn" onclick="closeDocumentModal()">&times;</button>
+                <button class="modal-close-btn" onclick="closeDocumentModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <p><strong class="translatable">Document Type:</strong> <span id="modalDocType"></span></p>
                 <p><strong class="translatable">Reference No:</strong> <span id="modalDocRef"></span></p>
                 <p><strong class="translatable">Date Requested:</strong> <span id="modalDocDate"></span></p>
+                <p><strong class="translatable">Purpose:</strong> <span id="modalDocPurpose"></span></p>
+                <p><strong class="translatable">Notes:</strong> <span id="modalDocNotes"></span></p>
                 <p><strong class="translatable">Status:</strong> <span id="modalDocStatus"></span></p>
             </div>
         </div>
@@ -549,12 +579,16 @@
         <div class="modal-box">
             <div class="modal-header">
                 <h3><i class="fas fa-calendar-check"></i> <span class="translatable">Event Permit Details</span></h3>
-                <button type="button" class="modal-close-btn" onclick="closeEventModal()">&times;</button>
+                <button class="modal-close-btn" onclick="closeEventModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <p><strong class="translatable">Event Name:</strong> <span id="modalEventName"></span></p>
                 <p><strong class="translatable">Reference No:</strong> <span id="modalEventRef"></span></p>
                 <p><strong class="translatable">Event Date:</strong> <span id="modalEventDate"></span></p>
+                <p><strong class="translatable">Event Time:</strong> <span id="modalEventTime"></span></p>
+                <p><strong class="translatable">Venue:</strong> <span id="modalEventVenue"></span></p>
+                <p><strong class="translatable">Purpose:</strong> <span id="modalEventPurpose"></span></p>
+                <p><strong class="translatable">Description:</strong> <span id="modalEventDescription"></span></p>
                 <p><strong class="translatable">Status:</strong> <span id="modalEventStatus"></span></p>
             </div>
         </div>
@@ -583,6 +617,23 @@
                     hamburger.style.display = 'none';
                     document.getElementById('sidebar').classList.remove('open');
                 }
+            });
+        });
+
+        // ===== SMOOTH PAGE TRANSITION (SIDEBAR LINKS) =====
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                
+                // Skip kung naka-active na (same page) o walang href
+                if (this.classList.contains('active') || !href || href === '#') return;
+                
+                e.preventDefault();
+                document.body.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 300);
             });
         });
 
@@ -628,6 +679,7 @@
                 'Apply for Permit': 'Apply for Permit',
                 'My Requests': 'My Requests',
                 'Events Calendar': 'Events Calendar',
+                'Announcements': 'Announcements',
                 'Settings': 'Settings',
                 'Logout': 'Logout',
                 'Track the status of your document requests and event permits': 'Track the status of your document requests and event permits',
@@ -652,7 +704,12 @@
                 'Date Requested:': 'Date Requested:',
                 'Status:': 'Status:',
                 'Event Name:': 'Event Name:',
-                'Event Date:': 'Event Date:'
+                'Event Date:': 'Event Date:',
+                'Event Time:': 'Event Time:',
+                'Venue:': 'Venue:',
+                'Purpose:': 'Purpose:',
+                'Notes:': 'Notes:',
+                'Description:': 'Description:'
             },
             'tl': {
                 'Dashboard': 'Dashboard',
@@ -660,6 +717,7 @@
                 'Apply for Permit': 'Mag-apply ng Permit',
                 'My Requests': 'Aking mga Request',
                 'Events Calendar': 'Kalendaryo ng mga Kaganapan',
+                'Announcements': 'Mga Anunsyo',
                 'Settings': 'Settings',
                 'Logout': 'Mag-logout',
                 'Track the status of your document requests and event permits': 'Tingnan ang status ng iyong mga dokumento at permit',
@@ -684,7 +742,12 @@
                 'Date Requested:': 'Petsa ng Request:',
                 'Status:': 'Status:',
                 'Event Name:': 'Pangalan ng Kaganapan:',
-                'Event Date:': 'Petsa ng Kaganapan:'
+                'Event Date:': 'Petsa ng Kaganapan:',
+                'Event Time:': 'Oras ng Kaganapan:',
+                'Venue:': 'Lugar:',
+                'Purpose:': 'Layunin:',
+                'Notes:': 'Mga Tala:',
+                'Description:': 'Paglalarawan:'
             }
         };
 
@@ -717,12 +780,14 @@
             }
         });
 
-        // ===== FUNCTIONS PARA SA DOCUMENT =====
-        function showDocumentModal(type, ref, date, status) {
-            document.getElementById('modalDocType').textContent = type;
-            document.getElementById('modalDocRef').textContent = ref;
-            document.getElementById('modalDocDate').textContent = date;
-            document.getElementById('modalDocStatus').textContent = status;
+        // ===== FUNCTIONS PARA SA DOCUMENT (DATA ATTRIBUTES) =====
+        function showDocumentModal(btn) {
+            document.getElementById('modalDocType').textContent = btn.dataset.type || 'N/A';
+            document.getElementById('modalDocRef').textContent = btn.dataset.ref || 'N/A';
+            document.getElementById('modalDocDate').textContent = btn.dataset.date || 'N/A';
+            document.getElementById('modalDocPurpose').textContent = btn.dataset.purpose || 'N/A';
+            document.getElementById('modalDocNotes').textContent = btn.dataset.notes || 'N/A';
+            document.getElementById('modalDocStatus').textContent = btn.dataset.status || 'N/A';
             document.getElementById('documentModal').classList.remove('hidden');
         }
 
@@ -730,12 +795,16 @@
             document.getElementById('documentModal').classList.add('hidden');
         }
 
-        // ===== FUNCTIONS PARA SA EVENT =====
-        function showEventModal(name, ref, date, status) {
-            document.getElementById('modalEventName').textContent = name;
-            document.getElementById('modalEventRef').textContent = ref;
-            document.getElementById('modalEventDate').textContent = date;
-            document.getElementById('modalEventStatus').textContent = status;
+        // ===== FUNCTIONS PARA SA EVENT (DATA ATTRIBUTES) =====
+        function showEventModal(btn) {
+            document.getElementById('modalEventName').textContent = btn.dataset.name || 'N/A';
+            document.getElementById('modalEventRef').textContent = btn.dataset.ref || 'N/A';
+            document.getElementById('modalEventDate').textContent = btn.dataset.date || 'N/A';
+            document.getElementById('modalEventTime').textContent = btn.dataset.time || 'N/A';
+            document.getElementById('modalEventVenue').textContent = btn.dataset.venue || 'N/A';
+            document.getElementById('modalEventPurpose').textContent = btn.dataset.purpose || 'N/A';
+            document.getElementById('modalEventDescription').textContent = btn.dataset.description || 'N/A';
+            document.getElementById('modalEventStatus').textContent = btn.dataset.status || 'N/A';
             document.getElementById('eventModal').classList.remove('hidden');
         }
 
@@ -750,33 +819,6 @@
             } else if (e.target.id === 'eventModal') {
                 closeEventModal();
             }
-        });
-
-        // ===== EVENT LISTENERS PARA SA VIEW BUTTONS (FIXED) =====
-        document.addEventListener('DOMContentLoaded', function () {
-            // Document view buttons
-            document.querySelectorAll('.doc-view-btn').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    showDocumentModal(
-                        this.dataset.type,
-                        this.dataset.ref,
-                        this.dataset.date,
-                        this.dataset.status
-                    );
-                });
-            });
-
-            // Event view buttons
-            document.querySelectorAll('.event-view-btn').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    showEventModal(
-                        this.dataset.name,
-                        this.dataset.ref,
-                        this.dataset.date,
-                        this.dataset.status
-                    );
-                });
-            });
         });
     </script>
 

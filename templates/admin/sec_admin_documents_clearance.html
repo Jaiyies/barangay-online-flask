@@ -295,8 +295,18 @@
         }
         .view-item .value {
             font-size: 14px; font-weight: 500; color: #0d2b1e;
+            word-break: break-word;
         }
         .view-item.full-width { grid-column: 1 / -1; }
+
+        .view-section-title {
+            grid-column: 1 / -1;
+            font-size: 12px; font-weight: 700;
+            color: #1a5d3a; text-transform: uppercase;
+            letter-spacing: 1px; margin-top: 12px;
+            padding-bottom: 6px; border-bottom: 2px solid #d4f0df;
+        }
+        .view-section-title:first-child { margin-top: 0; }
 
         /* ===== APPROVE/REJECT MODAL ===== */
         .form-group { margin-bottom: 16px; }
@@ -325,6 +335,7 @@
         .modal-btn {
             padding: 11px 28px; border: none; border-radius: 10px;
             cursor: pointer; font-weight: 600; font-size: 14px;
+            font-family: 'Inter', sans-serif;
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .modal-btn.approve { background: #22c55e; color: white; }
@@ -557,7 +568,6 @@
             <button class="modal-close" onclick="closeApproveModal()">&times;</button>
         </div>
         
-        <!-- Step 1: Confirmation -->
         <div id="approveStep1">
             <p style="color:#5a6e7a; font-size:14px; margin-bottom:16px;">
                 Are you sure you want to <strong>approve</strong> the document request of <strong id="approveName"></strong>?
@@ -574,7 +584,6 @@
             </div>
         </div>
 
-        <!-- Step 2: Final Confirmation -->
         <div id="approveStep2" style="display:none;">
             <div style="text-align:center; padding:20px 0;">
                 <i class="fas fa-check-circle" style="font-size:56px; color:#22c55e; margin-bottom:16px;"></i>
@@ -604,7 +613,6 @@
             <button class="modal-close" onclick="closeRejectModal()">&times;</button>
         </div>
         
-        <!-- Step 1: Reason for Rejection -->
         <div id="rejectStep1">
             <p style="color:#5a6e7a; font-size:14px; margin-bottom:16px;">
                 Are you sure you want to <strong>reject</strong> the document request of <strong id="rejectName"></strong>?
@@ -624,7 +632,6 @@
             </div>
         </div>
 
-        <!-- Step 2: Final Confirmation -->
         <div id="rejectStep2" style="display:none;">
             <div style="text-align:center; padding:20px 0;">
                 <i class="fas fa-exclamation-triangle" style="font-size:56px; color:#dc3545; margin-bottom:16px;"></i>
@@ -691,6 +698,12 @@
         filterTable();
     });
 
+    // ===== HELPER: Safe value display =====
+    function safe(val) {
+        if (val === null || val === undefined || val === '') return 'N/A';
+        return String(val);
+    }
+
     // ===== VIEW DOCUMENT =====
     function viewDocument(filename) {
         const modal = document.getElementById('docModal');
@@ -725,12 +738,12 @@
         document.getElementById('docModal').classList.remove('active');
     }
 
-    // ===== VIEW DETAILS =====
+    // ===== VIEW DETAILS (KUMPLETO NA!) =====
     function viewDetails(docId) {
         const modal = document.getElementById('detailsModal');
         const body = document.getElementById('detailsBody');
         modal.classList.add('active');
-        body.innerHTML = '<p>Loading details...</p>';
+        body.innerHTML = '<p style="text-align:center; padding:20px;">Loading details...</p>';
         
         fetch(`/admin/document/${docId}/details`)
             .then(response => response.json())
@@ -741,61 +754,158 @@
                 
                 body.innerHTML = `
                     <div class="view-grid">
+
+                        <div class="view-section-title">Request Information</div>
                         <div class="view-item">
                             <span class="label">Reference Number</span>
-                            <span class="value">${String(doc.reference_number || 'N/A')}</span>
+                            <span class="value">${safe(doc.reference_number)}</span>
                         </div>
                         <div class="view-item">
                             <span class="label">Status</span>
-                            <span class="value"><span class="status-badge ${statusClass}">${String(doc.status || 'PENDING').toUpperCase()}</span></span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Applicant Name</span>
-                            <span class="value">${String(doc.given_name || '')} ${String(doc.surname || '')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Contact Number</span>
-                            <span class="value">${String(doc.contact_no || 'N/A')}</span>
-                        </div>
-                        <div class="view-item full-width">
-                            <span class="label">Address</span>
-                            <span class="value">${String(doc.address || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Civil Status</span>
-                            <span class="value">${String(doc.civil_status || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Age</span>
-                            <span class="value">${String(doc.age || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Date of Birth</span>
-                            <span class="value">${String(doc.dob || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Place of Birth</span>
-                            <span class="value">${String(doc.place_of_birth || 'N/A')}</span>
+                            <span class="value"><span class="status-badge ${statusClass}">${safe(doc.status).toUpperCase()}</span></span>
                         </div>
                         <div class="view-item">
                             <span class="label">Date Submitted</span>
-                            <span class="value">${String(doc.created_at_formatted || doc.created_at || 'N/A')}</span>
+                            <span class="value">${safe(doc.created_at_formatted || doc.created_at)}</span>
                         </div>
+                        <div class="view-item">
+                            <span class="label">Document Type</span>
+                            <span class="value">${safe(doc.document_type).replace('_', ' ').toUpperCase()}</span>
+                        </div>
+
+                        <div class="view-section-title">Personal Information</div>
+                        <div class="view-item">
+                            <span class="label">Surname</span>
+                            <span class="value">${safe(doc.surname)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Given Name</span>
+                            <span class="value">${safe(doc.given_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Middle Name</span>
+                            <span class="value">${safe(doc.middle_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Contact Number</span>
+                            <span class="value">${safe(doc.contact_no)}</span>
+                        </div>
+                        <div class="view-item full-width">
+                            <span class="label">Address</span>
+                            <span class="value">${safe(doc.address)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Civil Status</span>
+                            <span class="value">${safe(doc.civil_status)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Age</span>
+                            <span class="value">${safe(doc.age)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Date of Birth</span>
+                            <span class="value">${safe(doc.dob)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Place of Birth</span>
+                            <span class="value">${safe(doc.place_of_birth)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Precinct No.</span>
+                            <span class="value">${safe(doc.precinct_no)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Occupation</span>
+                            <span class="value">${safe(doc.occupation)}</span>
+                        </div>
+
+                        <div class="view-section-title">Residency Details</div>
+                        <div class="view-item">
+                            <span class="label">Length of Stay</span>
+                            <span class="value">${safe(doc.length_of_stay)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Residency Type</span>
+                            <span class="value">${safe(doc.residency_type)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Lessor Name</span>
+                            <span class="value">${safe(doc.lessor_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Lessor Address</span>
+                            <span class="value">${safe(doc.lessor_address)}</span>
+                        </div>
+
+                        <div class="view-section-title">Family Information</div>
+                        <div class="view-item">
+                            <span class="label">Father's Name</span>
+                            <span class="value">${safe(doc.father_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Mother's Name</span>
+                            <span class="value">${safe(doc.mother_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Spouse Name</span>
+                            <span class="value">${safe(doc.spouse_name)}</span>
+                        </div>
+
+                        <div class="view-section-title">Emergency Contact</div>
+                        <div class="view-item">
+                            <span class="label">Emergency Contact Name</span>
+                            <span class="value">${safe(doc.emergency_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Emergency Contact Number</span>
+                            <span class="value">${safe(doc.emergency_number)}</span>
+                        </div>
+
+                        <div class="view-section-title">Character References</div>
+                        <div class="view-item">
+                            <span class="label">Reference 1 - Name</span>
+                            <span class="value">${safe(doc.ref1_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Reference 1 - Address</span>
+                            <span class="value">${safe(doc.ref1_address)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Reference 2 - Name</span>
+                            <span class="value">${safe(doc.ref2_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Reference 2 - Address</span>
+                            <span class="value">${safe(doc.ref2_address)}</span>
+                        </div>
+
+                        <div class="view-section-title">Purpose & Signature</div>
                         <div class="view-item full-width">
                             <span class="label">Purpose</span>
-                            <span class="value">${String(doc.purpose || 'N/A')}</span>
+                            <span class="value">${safe(doc.purpose)}</span>
                         </div>
+                        <div class="view-item">
+                            <span class="label">Printed Name</span>
+                            <span class="value">${safe(doc.printed_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Signature Date</span>
+                            <span class="value">${safe(doc.signature_date)}</span>
+                        </div>
+
                         ${doc.admin_remarks ? `
+                        <div class="view-section-title">Admin Remarks</div>
                         <div class="view-item full-width">
-                            <span class="label">Admin Remarks</span>
-                            <span class="value">${String(doc.admin_remarks)}</span>
+                            <span class="label">Remarks</span>
+                            <span class="value">${safe(doc.admin_remarks)}</span>
                         </div>
                         ` : ''}
+
                     </div>
                 `;
             })
             .catch(error => {
-                body.innerHTML = `<p style="color:red;">Error loading details: ${error.message}</p>`;
+                body.innerHTML = `<p style="color:red; padding:20px;">Error loading details: ${error.message}</p>`;
             });
     }
 
