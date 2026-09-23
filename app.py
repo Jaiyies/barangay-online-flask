@@ -129,7 +129,7 @@ def index():
     return redirect(url_for('login'))
 
 # ============================================================
-# DATABASE CONNECTION
+# DATABASE CONNECTION (PORT 3307)
 # ============================================================
 
 def get_db():
@@ -140,6 +140,34 @@ def get_db():
         password='bsit2026@123',
         database='barangay_online_services'
     )
+
+# ============================================================
+# QUEUE NUMBER GENERATOR (GALING SA FILE 1)
+# ============================================================
+
+def get_next_queue_number(table_name):
+    """Kunin ang susunod na queue number base sa existing records ngayong araw."""
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    today = datetime.date.today()
+    
+    if table_name == 'event_permits':
+        cursor.execute("""
+            SELECT COUNT(*) as total FROM event_permits 
+            WHERE DATE(requested_at) = %s
+        """, (today,))
+    else:
+        cursor.execute("""
+            SELECT COUNT(*) as total FROM document_requests 
+            WHERE DATE(created_at) = %s
+        """, (today,))
+    
+    result = cursor.fetchone()
+    conn.close()
+    
+    count = (result['total'] if result else 0) + 1
+    return f"Q-{count:03d}"
 
 # ============================================================
 # LOGIN ROUTE
@@ -319,10 +347,10 @@ def dashboard():
     
     cursor.execute("""
         SELECT id, event_name, event_date, start_time, end_time, venue, 
-               status, reference_number, queuing_number, created_at
+               status, reference_number, queuing_number, requested_at
         FROM event_permits 
         WHERE user_id = %s 
-        ORDER BY created_at DESC 
+        ORDER BY requested_at DESC 
         LIMIT 5
     """, (session['user_id'],))
     recent_events = cursor.fetchall()
@@ -441,7 +469,7 @@ def events():
     return redirect(url_for('events_calendar'))
 
 # ============================================================
-# EVENT CRUD API
+# EVENT CRUD API (WITH HARD BLOCK - GALING SA FILE 1)
 # ============================================================
 
 @app.route('/api/events', methods=['GET'])
@@ -466,9 +494,9 @@ def api_get_events():
         if event.get('event_date'):
             if hasattr(event['event_date'], 'strftime'):
                 event['event_date'] = event['event_date'].strftime('%Y-%m-%d')
-        if event.get('created_at'):
-            if hasattr(event['created_at'], 'strftime'):
-                event['created_at'] = event['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+        if event.get('requested_at'):
+            if hasattr(event['requested_at'], 'strftime'):
+                event['requested_at'] = event['requested_at'].strftime('%Y-%m-%d %H:%M:%S')
         if event.get('start_time'):
             event['start_time'] = str(event['start_time'])
         if event.get('end_time'):
@@ -489,14 +517,25 @@ def api_create_event():
     event_name = data.get('event_name', '').strip()
     event_description = data.get('event_description', '').strip()
     purpose = data.get('purpose', '').strip()
+    contact_person = data.get('contact_person', '').strip()
+    contact_phone = data.get('contact_phone', '').strip()
     event_date = data.get('event_date', '').strip()
-    start_time = data.get('start_time', '').strip()
-    end_time = data.get('end_time', '').strip()
+    start_time = data.get('start_time', '').strip()[:5]
+    end_time = data.get('end_time', '').strip()[:5]
     estimated_attendees = data.get('estimated_attendees', 0)
     venue = data.get('venue', '').strip()
     
     if not event_name or not event_date or not start_time or not end_time or not venue:
         return jsonify({'error': 'Please fill in all required fields.'}), 400
+    
+    if not purpose or not purpose.strip():
+        return jsonify({'error': 'Purpose is required.'}), 400
+    
+    if not contact_person or not contact_person.strip():
+        return jsonify({'error': 'Contact person name is required.'}), 400
+    
+    if not contact_phone or not contact_phone.strip():
+        return jsonify({'error': 'Contact phone number is required.'}), 400
     
     if start_time >= end_time:
         return jsonify({'error': 'End time must be after start time.'}), 400
@@ -518,21 +557,41 @@ def api_create_event():
         return jsonify({'error': 'Invalid date format.'}), 400
     
     ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-    queue_num = f"Q-{random.randint(1, 999):03d}"
+    queue_num = get_next_queue_number('event_permits')
     
     conn = get_db()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     
     try:
+        # ===== HARD BLOCK: Approved conflict =====
+        cursor.execute("""
+            SELECT id FROM event_permits 
+            WHERE venue = %s 
+              AND event_date = %s 
+              AND status = 'approved'
+              AND start_time < %s 
+              AND end_time > %s
+            LIMIT 1
+        """, (venue, event_date, end_time, start_time))
+        
+        approved_conflict = cursor.fetchone()
+        if approved_conflict:
+            conn.close()
+            return jsonify({'error': 'This time slot is already taken by an approved event at this venue.'}), 409
+        
         cursor.execute("""
             INSERT INTO event_permits (
-                user_id, event_name, event_description, purpose, event_date, 
-                start_time, end_time, estimated_attendees, venue, 
+                user_id, event_name, event_description, purpose, 
+                contact_person, contact_phone,
+                event_date, start_time, end_time, 
+                estimated_attendees, venue, 
                 status, reference_number, queuing_number
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s)
         """, (
-            session['user_id'], event_name, event_description, purpose, event_date,
-            start_time, end_time, estimated_attendees if estimated_attendees else 0,
+            session['user_id'], event_name, event_description, purpose,
+            contact_person, contact_phone,
+            event_date, start_time, end_time,
+            estimated_attendees if estimated_attendees else 0,
             venue, ref_num, queue_num
         ))
         conn.commit()
@@ -584,9 +643,9 @@ def api_get_event(event_id):
     if event.get('event_date'):
         if hasattr(event['event_date'], 'strftime'):
             event['event_date'] = event['event_date'].strftime('%Y-%m-%d')
-    if event.get('created_at'):
-        if hasattr(event['created_at'], 'strftime'):
-            event['created_at'] = event['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+    if event.get('requested_at'):
+        if hasattr(event['requested_at'], 'strftime'):
+            event['requested_at'] = event['requested_at'].strftime('%Y-%m-%d %H:%M:%S')
     if event.get('start_time'):
         event['start_time'] = str(event['start_time'])
     if event.get('end_time'):
@@ -617,16 +676,30 @@ def api_update_event(event_id):
     
     event_name = data.get('event_name', event['event_name']).strip()
     event_description = data.get('event_description', event['event_description']).strip()
-    purpose = data.get('purpose', event['purpose']).strip()
+    purpose = data.get('purpose', event.get('purpose', '')).strip()
+    contact_person = data.get('contact_person', event.get('contact_person', '')).strip()
+    contact_phone = data.get('contact_phone', event.get('contact_phone', '')).strip()
     event_date = data.get('event_date', str(event['event_date'])).strip()
-    start_time = data.get('start_time', str(event['start_time'])).strip()
-    end_time = data.get('end_time', str(event['end_time'])).strip()
+    start_time = data.get('start_time', str(event['start_time'])).strip()[:5]
+    end_time = data.get('end_time', str(event['end_time'])).strip()[:5]
     estimated_attendees = data.get('estimated_attendees', event['estimated_attendees'])
     venue = data.get('venue', event['venue']).strip()
     
     if not event_name or not event_date or not start_time or not end_time or not venue:
         conn.close()
         return jsonify({'error': 'Please fill in all required fields.'}), 400
+    
+    if not purpose:
+        conn.close()
+        return jsonify({'error': 'Purpose is required.'}), 400
+    
+    if not contact_person:
+        conn.close()
+        return jsonify({'error': 'Contact person is required.'}), 400
+    
+    if not contact_phone:
+        conn.close()
+        return jsonify({'error': 'Contact phone is required.'}), 400
     
     if start_time >= end_time:
         conn.close()
@@ -637,13 +710,16 @@ def api_update_event(event_id):
             event_name = %s,
             event_description = %s,
             purpose = %s,
+            contact_person = %s,
+            contact_phone = %s,
             event_date = %s,
             start_time = %s,
             end_time = %s,
             estimated_attendees = %s,
             venue = %s
         WHERE id = %s
-    """, (event_name, event_description, purpose, event_date, start_time, end_time, estimated_attendees, venue, event_id))
+    """, (event_name, event_description, purpose, contact_person, contact_phone,
+          event_date, start_time, end_time, estimated_attendees, venue, event_id))
     conn.commit()
     conn.close()
     
@@ -797,7 +873,7 @@ def request_document_post():
             file_data = filename
     
     ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-    queue_num = f"Q-{random.randint(1, 999):03d}"
+    queue_num = get_next_queue_number('document_requests')
     
     conn = get_db()
     cursor = conn.cursor()
@@ -886,7 +962,7 @@ def submit_document_request():
             return jsonify({'error': error_msg}), 500
         
         ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-        queue_num = f"Q-{random.randint(1, 999):03d}"
+        queue_num = get_next_queue_number('document_requests')
         
         insert_cols = ['user_id', 'document_type', 'reference_number', 'status']
         insert_vals = [session['user_id'], data.get('document_type', 'clearance'), ref_num, 'pending']
@@ -929,7 +1005,7 @@ def submit_document_request():
         return jsonify({'error': str(e)}), 500
 
 # ============================================================
-# APPLY FOR PERMIT
+# APPLY FOR PERMIT (WITH HARD BLOCK - GALING SA FILE 1)
 # ============================================================
 
 @app.route('/apply-permit', methods=['GET'])
@@ -943,14 +1019,28 @@ def apply_permit_post():
     event_name = request.form.get('event_name', '').strip()
     event_description = request.form.get('event_description', '').strip()
     purpose = request.form.get('purpose', '').strip()
+    contact_person = request.form.get('contact_person', '').strip()
+    contact_phone = request.form.get('contact_phone', '').strip()
     event_date = request.form.get('event_date', '').strip()
-    start_time = request.form.get('start_time', '').strip()
-    end_time = request.form.get('end_time', '').strip()
+    start_time = request.form.get('start_time', '').strip()[:5]
+    end_time = request.form.get('end_time', '').strip()[:5]
     estimated_attendees = request.form.get('estimated_attendees', '').strip()
     venue = request.form.get('venue', '').strip()
     
     if not event_name or not event_date or not start_time or not end_time or not venue:
         flash('Please fill in all required fields.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    if not purpose:
+        flash('Purpose is required.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    if not contact_person:
+        flash('Contact person name is required.', 'danger')
+        return redirect(url_for('apply_permit'))
+    
+    if not contact_phone:
+        flash('Contact phone number is required.', 'danger')
         return redirect(url_for('apply_permit'))
     
     if start_time >= end_time:
@@ -986,21 +1076,39 @@ def apply_permit_post():
             file_data = filename
     
     ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-    queue_num = f"Q-{random.randint(1, 999):03d}"
+    queue_num = get_next_queue_number('event_permits')
     
     conn = get_db()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     
     try:
+        # ===== HARD BLOCK: Approved conflict =====
+        cursor.execute("""
+            SELECT id FROM event_permits 
+            WHERE venue = %s 
+              AND event_date = %s 
+              AND status = 'approved'
+              AND start_time < %s 
+              AND end_time > %s
+            LIMIT 1
+        """, (venue, event_date, end_time, start_time))
+        approved_conflict = cursor.fetchone()
+        if approved_conflict:
+            flash('This time slot is already taken by an approved event at this venue.', 'danger')
+            return redirect(url_for('apply_permit'))
+        
         cursor.execute("""
             INSERT INTO event_permits (
-                user_id, event_name, event_description, purpose, event_date, 
-                start_time, end_time, estimated_attendees, venue, 
+                user_id, event_name, event_description, purpose, 
+                contact_person, contact_phone,
+                event_date, start_time, end_time, estimated_attendees, venue, 
                 status, requirements_file, reference_number, queuing_number
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s)
         """, (
-            session['user_id'], event_name, event_description, purpose, event_date,
-            start_time, end_time, estimated_attendees if estimated_attendees else 0,
+            session['user_id'], event_name, event_description, purpose,
+            contact_person, contact_phone,
+            event_date, start_time, end_time,
+            estimated_attendees if estimated_attendees else 0,
             venue, file_data, ref_num, queue_num
         ))
         conn.commit()
@@ -1024,13 +1132,13 @@ def apply_permit_post():
         conn.close()
 
 # ============================================================
-# CHECK PERMIT AVAILABILITY
+# CHECK PERMIT AVAILABILITY (FILE 1 FORMAT - HARD BLOCK/SOFT WARNING)
 # ============================================================
 
 @app.route('/api/permits/check-availability', methods=['GET'])
 def check_permit_availability():
     if 'user_id' not in session:
-        return jsonify({'available': False, 'message': 'Please login first.'}), 401
+        return jsonify({'status': 'error', 'message': 'Please login first.'}), 401
     
     try:
         date_str = request.args.get('date')
@@ -1038,67 +1146,82 @@ def check_permit_availability():
         end_str = request.args.get('end_time')
         venue = request.args.get('venue')
         
+        print(f"\n🔍 CHECK: date={date_str}, start={start_str}, end={end_str}, venue={venue}")
+        
         if not all([date_str, start_str, end_str, venue]):
-            return jsonify({
-                'available': False,
-                'message': 'Kulang ang parameters.'
-            })
+            return jsonify({'status': 'error', 'message': 'Missing parameters.'})
         
         start_time = start_str[:5]
         end_time = end_str[:5]
         
         if start_time >= end_time:
-            return jsonify({
-                'available': False,
-                'message': 'End time dapat pagkatapos ng start time.'
-            })
+            return jsonify({'status': 'error', 'message': 'End time must be after start time.'})
         
         if start_time < '08:00' or start_time > '22:00':
-            return jsonify({
-                'available': False,
-                'message': 'Start time dapat 8:00 AM – 10:00 PM.'
-            })
+            return jsonify({'status': 'error', 'message': 'Start time must be between 8:00 AM and 10:00 PM.'})
         
         if end_time < '08:00' or end_time > '22:00':
-            return jsonify({
-                'available': False,
-                'message': 'End time dapat 8:00 AM – 10:00 PM.'
-            })
+            return jsonify({'status': 'error', 'message': 'End time must be between 8:00 AM and 10:00 PM.'})
         
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
         
+        # ===== CHECK APPROVED (HARD BLOCK) =====
         cursor.execute("""
             SELECT id, start_time, end_time 
             FROM event_permits 
             WHERE venue = %s 
               AND event_date = %s 
-              AND status IN ('pending', 'approved')
+              AND status = 'approved'
               AND start_time < %s 
               AND end_time > %s
             LIMIT 1
         """, (venue, date_str, end_time, start_time))
         
-        conflict = cursor.fetchone()
-        conn.close()
+        approved_conflict = cursor.fetchone()
+        print(f"   approved_conflict: {approved_conflict}")
         
-        if conflict:
-            conflict_start = str(conflict['start_time'])[:5]
-            conflict_end = str(conflict['end_time'])[:5]
+        if approved_conflict:
+            cs = str(approved_conflict['start_time'])[:5]
+            ce = str(approved_conflict['end_time'])[:5]
+            conn.close()
             return jsonify({
-                'available': False,
-                'message': f'May naka-book na sa {venue} mula {conflict_start} hanggang {conflict_end}.'
+                'status': 'blocked',
+                'message': f'This slot is already taken by an approved event ({cs} - {ce}).'
             })
         
-        return jsonify({'available': True})
+        # ===== CHECK PENDING (SOFT WARNING) =====
+        cursor.execute("""
+            SELECT id, start_time, end_time 
+            FROM event_permits 
+            WHERE venue = %s 
+              AND event_date = %s 
+              AND status = 'pending'
+              AND start_time < %s 
+              AND end_time > %s
+            LIMIT 1
+        """, (venue, date_str, end_time, start_time))
+        
+        pending_conflict = cursor.fetchone()
+        print(f"   pending_conflict: {pending_conflict}")
+        
+        conn.close()
+        
+        if pending_conflict:
+            cs = str(pending_conflict['start_time'])[:5]
+            ce = str(pending_conflict['end_time'])[:5]
+            return jsonify({
+                'status': 'pending_conflict',
+                'message': f'There is a pending permit for this slot ({cs} - {ce}). You may still apply, but it could conflict if approved.'
+            })
+        
+        print(f"   ✅ AVAILABLE")
+        return jsonify({'status': 'available'})
         
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({
-            'available': False,
-            'message': f'Server error: {str(e)}'
-        }), 500
+        return jsonify({'status': 'error', 'message': f'Server error: {str(e)}'}), 500
 
 # ============================================================
 # HEAD ADMIN DASHBOARD
@@ -1251,10 +1374,6 @@ def head_admin_events_calendar():
 @app.route('/api/events/all-approved')
 @login_required
 def api_all_approved_events():
-    """
-    Lahat ng approved events — para sa resident calendar at lahat ng admin.
-    Hindi naka-filter sa court.
-    """
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     
@@ -1291,13 +1410,12 @@ def api_all_approved_events():
     return jsonify(result)
 
 # ============================================================
-# API: APPROVED EVENTS PER COURT (PARA SA COURT CALENDARS)
+# API: APPROVED EVENTS PER COURT
 # ============================================================
 
 @app.route('/api/events/court/<court_role>')
 @login_required
 def api_events_by_court(court_role):
-    """Approved events ng specific court — pero pwede makita ng lahat."""
     if court_role not in COURT_CONFIG:
         return jsonify({'error': 'Invalid court'}), 400
     
@@ -1518,7 +1636,7 @@ def admin_documents_residency():
     return render_template('admin/sec_admin_documents_residency.html', documents=documents)
 
 # ============================================================
-# COURT DASHBOARDS (HELPER FUNCTION)
+# COURT DASHBOARDS (HELPER)
 # ============================================================
 
 def _render_court_dashboard(role):
@@ -1579,10 +1697,6 @@ def _render_court_dashboard(role):
                          pending_events_list=pending_events_list,
                          court_config=config)
 
-# ============================================================
-# COURT PENDING EVENTS (HELPER FUNCTION)
-# ============================================================
-
 def _render_court_pending(role):
     if 'user_id' not in session or session.get('role') != role:
         flash('Unauthorized access.', 'danger')
@@ -1608,7 +1722,6 @@ def _render_court_pending(role):
     pending_events = cursor.fetchall()
     conn.close()
     
-    # ✅ CONVERT timedelta to string para ma-json
     for event in pending_events:
         if event.get('start_time'):
             if hasattr(event['start_time'], 'total_seconds'):
@@ -1697,7 +1810,7 @@ def court4_calendar():
     return render_template('admin/admin_court4_calendar.html')
 
 # ============================================================
-# API: COURT EVENTS (DEPRECATED - PERO NANDIYAN PA RIN)
+# API: COURT EVENTS
 # ============================================================
 
 @app.route('/api/court1/events')
@@ -2180,10 +2293,6 @@ def admin_change_password():
     
     flash('Password changed successfully!', 'success')
     return redirect(url_for('sec_admin_settings'))
-
-# ============================================================
-# SECONDARY ADMIN SETTINGS (Documents Admin, Court 1-4)
-# ============================================================
 
 @app.route('/secondary-admin-settings')
 def secondary_admin_settings():
@@ -2745,7 +2854,7 @@ def send_email_all():
     return redirect(url_for('announcements'))
 
 # ============================================================
-# API: PERMITS
+# API: PERMITS (WITH HARD BLOCK - GALING SA FILE 1)
 # ============================================================
 
 @app.route('/api/permits', methods=['GET', 'POST'])
@@ -2777,23 +2886,24 @@ def api_permits():
             conn.close()
             return jsonify({'error': 'Please fill in all required fields.'}), 400
         
+        # ===== HARD BLOCK: Approved conflict =====
         cursor.execute("""
             SELECT id FROM event_permits 
             WHERE venue = %s 
               AND event_date = %s 
-              AND status IN ('pending', 'approved')
+              AND status = 'approved'
               AND start_time < %s 
               AND end_time > %s
             LIMIT 1
         """, (venue, event_date, end_time, start_time))
         
-        conflict = cursor.fetchone()
-        if conflict:
+        approved_conflict = cursor.fetchone()
+        if approved_conflict:
             conn.close()
-            return jsonify({'error': 'May naka-book na sa slot na ito.'}), 409
+            return jsonify({'error': 'This time slot is already taken by an approved event at this venue.'}), 409
         
         ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-        queue_num = f"Q-{random.randint(1, 999):03d}"
+        queue_num = get_next_queue_number('event_permits')
         
         cursor.execute("""
             INSERT INTO event_permits (
@@ -2937,51 +3047,68 @@ def api_document_requests():
     return jsonify(requests)
 
 # ============================================================
-# SETTINGS (HEAD ADMIN ONLY)
+# SETTINGS (DUAL PURPOSE: HEAD ADMIN + RESIDENT)
 # ============================================================
 
 @app.route('/settings')
 def settings():
-    if 'user_id' not in session or session.get('role') != 'head_admin':
-        flash('Please login as Head Admin.', 'danger')
+    if 'user_id' not in session:
+        flash('Please login first.', 'warning')
         return redirect(url_for('login'))
     
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
+    role = session.get('role')
     
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS system_config (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            barangay_name VARCHAR(255),
-            barangay_address VARCHAR(255),
-            contact_number VARCHAR(50),
-            email_notifications VARCHAR(20) DEFAULT 'enabled',
-            maintenance_mode BOOLEAN DEFAULT FALSE,
-            maintenance_message TEXT,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-    
-    cursor.execute("SELECT * FROM system_config LIMIT 1")
-    config = cursor.fetchone()
-    
-    if not config:
+    # HEAD ADMIN → System Settings
+    if role == 'head_admin':
+        conn = get_db()
+        cursor = conn.cursor(dictionary=True)
+        
         cursor.execute("""
-            INSERT INTO system_config (barangay_name, barangay_address, contact_number, email_notifications, maintenance_mode)
-            VALUES ('Barangay Sto. Nino', 'Paranaque City', 'N/A', 'enabled', FALSE)
+            CREATE TABLE IF NOT EXISTS system_config (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                barangay_name VARCHAR(255),
+                barangay_address VARCHAR(255),
+                contact_number VARCHAR(50),
+                email_notifications VARCHAR(20) DEFAULT 'enabled',
+                maintenance_mode BOOLEAN DEFAULT FALSE,
+                maintenance_message TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
         """)
         conn.commit()
+        
         cursor.execute("SELECT * FROM system_config LIMIT 1")
         config = cursor.fetchone()
+        
+        if not config:
+            cursor.execute("""
+                INSERT INTO system_config (barangay_name, barangay_address, contact_number, email_notifications, maintenance_mode)
+                VALUES ('Barangay Sto. Nino', 'Paranaque City', 'N/A', 'enabled', FALSE)
+            """)
+            conn.commit()
+            cursor.execute("SELECT * FROM system_config LIMIT 1")
+            config = cursor.fetchone()
+        
+        conn.close()
+        
+        maintenance_mode = config.get('maintenance_mode', False) if config else False
+        
+        return render_template('admin/settings.html', 
+                             config=config,
+                             maintenance_mode=maintenance_mode)
     
+    # LAHAT NG IBA → Profile Settings
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
     conn.close()
     
-    maintenance_mode = config.get('maintenance_mode', False) if config else False
-    
-    return render_template('admin/settings.html', 
-                         config=config,
-                         maintenance_mode=maintenance_mode)
+    return render_template('settings.html', user=user)
+
+# ============================================================
+# HEAD ADMIN SETTINGS HELPERS
+# ============================================================
 
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
