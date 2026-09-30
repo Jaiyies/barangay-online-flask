@@ -1,0 +1,34 @@
+# ===== DATABASE — SENSITIVE =====
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== PYTHON =====
+__pycache__/
+*.py[cod]
+*.so
+
+# ===== VIRTUAL ENV =====
+venv/
+env/
+.venv/
+ENV/
+
+# ===== FLASK =====
+instance/
+.flaskenv
+
+# ===== SECRETS =====
+.env
+.env.*
+
+# ===== IDE & OS =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ===== UPLOADS =====
+static/uploads/*
+!static/uploads/.gitkeep
