@@ -36,7 +36,7 @@
         .register-image {
             flex: 1;
             min-height: 100vh;
-            background: url('https://thumbs.dreamstime.com/b/barangay-benoni-part-camiguin-island-philippines-96707769.jpg') center center / cover no-repeat;
+            background: url('{{ url_for("static", filename="images/barangay-hall.jpg") }}') center center / cover no-repeat;
             position: relative;
             display: flex;
             align-items: center;
@@ -45,8 +45,9 @@
         .register-image::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(10,46,30,0.85), rgba(20,82,51,0.75));
+            inset: 0;
+            background: linear-gradient(135deg, rgba(10, 46, 30, 0.75), rgba(20, 82, 51, 0.65));
+            backdrop-filter: blur(2px);
         }
         .register-image-content {
             position: relative;
@@ -54,36 +55,52 @@
             color: white;
             text-align: center;
             padding: 40px;
-            max-width: 500px;
+            max-width: 520px;
         }
         .register-image-content h1 {
-            font-size: 3rem;
+            font-size: 3.2rem;
             font-weight: 800;
             letter-spacing: -0.5px;
             margin-bottom: 16px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            line-height: 1.2;
         }
-        .register-image-content h1 span { color: #ffb3b3; }
+        .register-image-content h1 span {
+            color: #ffb3b3;
+        }
         .register-image-content p {
             font-size: 1.1rem;
             opacity: 0.95;
-            line-height: 1.6;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            line-height: 1.7;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
         .register-image-content .badge-group {
             display: flex;
             gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 28px;
+            margin-top: 32px;
         }
         .register-image-content .badge-group span {
-            background: rgba(255,255,255,0.10);
-            padding: 8px 22px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 10px 24px;
             border-radius: 60px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            border: 1px solid rgba(255,255,255,0.15);
-            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .register-image-content .badge-group span:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .register-image-content .badge-group span i {
+            font-size: 0.9rem;
+            color: #a7f3d0;
         }
 
         /* ===== RIGHT SIDE (FORM) ===== */
@@ -95,6 +112,7 @@
             justify-content: center;
             padding: 40px 30px;
             background: white;
+            overflow-y: auto;
         }
         .register-container {
             width: 100%;
@@ -106,104 +124,121 @@
             margin-bottom: 28px;
         }
         .register-header .logo-img {
-            width: 72px; height: 72px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            margin: 0 auto 14px;
-            box-shadow: 0 8px 24px rgba(26,107,66,0.15);
-            border: 3px solid white;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 30px rgba(26, 107, 66, 0.2);
+            border: 4px solid white;
             display: block;
-            background: #f0f2f5;
+            transition: transform 0.3s ease;
+        }
+        .register-header .logo-img:hover {
+            transform: scale(1.05);
         }
         .register-header h2 {
-            font-size: 1.6rem;
+            font-size: 1.9rem;
             font-weight: 700;
             color: #0f3d2a;
+            letter-spacing: -0.3px;
         }
         .register-header h2 span { color: #a52222; }
         .register-header p {
             color: #6b8475;
-            font-size: 0.9rem;
-            margin-top: 2px;
+            font-size: 0.95rem;
+            margin-top: 4px;
         }
 
         /* ===== FORM GROUPS ===== */
         .input-group {
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             position: relative;
         }
         .input-group label {
             display: block;
             font-weight: 600;
             color: #0f3d2a;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 6px;
         }
         .input-group label i {
             color: #228b54;
-            margin-right: 6px;
-            width: 16px;
+            margin-right: 8px;
+            width: 18px;
+            font-size: 0.85rem;
         }
         .input-group input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 18px;
             border: 1.5px solid #dde8e1;
             border-radius: 28px;
-            font-size: 14px;
+            font-size: 15px;
             font-family: inherit;
             background: #f4f8f5;
             transition: all 0.3s ease;
+            color: #0f3d2a;
+        }
+        .input-group input::placeholder {
+            color: #9ab0a3;
         }
         .input-group input:focus {
             outline: none;
             border-color: #228b54;
             background: white;
-            box-shadow: 0 0 0 4px rgba(34,139,84,0.10);
+            box-shadow: 0 0 0 4px rgba(34, 139, 84, 0.1);
         }
-        .input-group input::placeholder { color: #b0c0b8; }
 
         .password-wrapper { position: relative; width: 100%; }
         .password-wrapper input {
             width: 100%;
-            padding: 12px 50px 12px 16px;
+            padding: 14px 50px 14px 18px;
             border: 1.5px solid #dde8e1;
             border-radius: 28px;
-            font-size: 14px;
+            font-size: 15px;
             font-family: inherit;
             background: #f4f8f5;
             transition: all 0.3s ease;
+            color: #0f3d2a;
+        }
+        .password-wrapper input::placeholder {
+            color: #9ab0a3;
         }
         .password-wrapper input:focus {
             outline: none;
             border-color: #228b54;
             background: white;
-            box-shadow: 0 0 0 4px rgba(34,139,84,0.10);
+            box-shadow: 0 0 0 4px rgba(34, 139, 84, 0.1);
         }
         .password-toggle {
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: transparent;
             border: none;
             color: #6b8475;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
             padding: 6px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
             z-index: 2;
+            width: 36px;
+            height: 36px;
+            transition: all 0.2s ease;
         }
-        .password-toggle:hover { color: #1a6b42; background: rgba(26,107,66,0.08); }
+        .password-toggle:hover {
+            color: #1a6b42;
+            background: rgba(26, 107, 66, 0.08);
+        }
 
         /* ===== PASSWORD STRENGTH ===== */
-        .password-strength { margin-top: 8px; display: none; }
+        .password-strength { margin-top: 10px; display: none; }
         .password-strength.active { display: block; animation: fadeInUp 0.3s ease; }
         .strength-bar {
             width: 100%;
@@ -240,9 +275,9 @@
         .password-requirements {
             display: none;
             margin-top: 10px;
-            padding: 10px 14px;
+            padding: 12px 16px;
             background: #f4f8f5;
-            border-radius: 12px;
+            border-radius: 14px;
             border: 1px solid #dde8e1;
         }
         .password-requirements.active { display: block; animation: fadeInUp 0.3s ease; }
@@ -250,7 +285,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 3px 0;
+            padding: 4px 0;
             font-size: 12px;
             color: #6b7a72;
             transition: all 0.3s ease;
@@ -263,65 +298,76 @@
         .weak-password-warning {
             display: none;
             margin-top: 10px;
-            padding: 10px 14px;
+            padding: 12px 16px;
             background: #fffbeb;
             border: 1px solid #fde68a;
-            border-radius: 12px;
+            border-radius: 14px;
             color: #92400e;
             font-size: 12px;
         }
-        .weak-password-warning.active { display: flex; align-items: center; gap: 8px; animation: fadeInUp 0.3s ease; }
+        .weak-password-warning.active {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeInUp 0.3s ease;
+        }
         .weak-password-warning i { color: #f59e0b; font-size: 16px; }
 
         /* ===== REGISTER BUTTON ===== */
         .register-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: linear-gradient(105deg, #145233, #228b54);
             color: white;
             border: none;
             border-radius: 50px;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            margin-top: 8px;
+            gap: 12px;
+            margin-top: 10px;
+            letter-spacing: 0.3px;
         }
         .register-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 28px -10px #1a6b42;
+            box-shadow: 0 12px 32px -10px #1a6b42;
             background: linear-gradient(105deg, #0a2e1e, #1a6b42);
         }
-        .register-btn:active { transform: scale(0.98); }
+        .register-btn:active { transform: translateY(0); }
 
         /* ===== LOGIN LINK ===== */
         .login-link {
             text-align: center;
-            margin-top: 18px;
+            margin-top: 22px;
             color: #6b8475;
-            font-size: 13px;
+            font-size: 14px;
         }
         .login-link a {
             color: #1a6b42;
             text-decoration: none;
             font-weight: 700;
+            transition: all 0.3s ease;
         }
-        .login-link a:hover { color: #0a2e1e; text-decoration: underline; }
+        .login-link a:hover {
+            color: #0a2e1e;
+            text-decoration: underline;
+        }
 
         /* ===== FLASH MESSAGES ===== */
         .flash-message {
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 14px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 18px;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 0.85rem;
+            animation: fadeInUp 0.3s ease;
         }
         .flash-message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .flash-message.danger { background: #fee; color: #991b1b; border: 1px solid #fecaca; }
@@ -331,32 +377,50 @@
         /* ===== CONFIRM PASSWORD MATCH ===== */
         #confirmMatch {
             font-size: 12px;
-            margin-top: 6px;
+            margin-top: 8px;
             display: none;
             align-items: center;
             gap: 6px;
+            font-weight: 600;
+            padding-left: 5px;
         }
-        #confirmMatch.show { display: flex; }
+        #confirmMatch.show { display: flex; animation: fadeInUp 0.3s ease; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
             body { flex-direction: column; }
-            .register-image { min-height: 200px; padding: 30px; }
-            .register-image-content h1 { font-size: 2rem; }
+            .register-image {
+                min-height: 260px;
+                padding: 30px;
+            }
+            .register-image-content h1 { font-size: 2.2rem; }
             .register-image-content p { font-size: 0.95rem; }
-            .register-form-wrapper { min-height: auto; padding: 30px 20px; }
+            .register-image-content .badge-group span { font-size: 0.75rem; padding: 8px 18px; }
+            .register-form-wrapper {
+                min-height: auto;
+                padding: 40px 24px;
+            }
             .register-container { max-width: 100%; }
         }
         @media (max-width: 600px) {
-            .register-image-content .badge-group span { font-size: 0.7rem; padding: 5px 14px; }
-            .register-header h2 { font-size: 1.4rem; }
-            .register-container { padding: 0 5px; }
-            .register-image-content h1 { font-size: 1.6rem; }
+            .register-image-content .badge-group { gap: 8px; }
+            .register-image-content .badge-group span { font-size: 0.7rem; padding: 6px 14px; }
+            .register-header h2 { font-size: 1.5rem; }
+            .register-container { padding: 0 4px; }
+            .register-image-content h1 { font-size: 1.8rem; }
+            .register-image-content p { font-size: 0.85rem; }
+            .register-form-wrapper { padding: 30px 16px; }
+        }
+        @media (max-width: 400px) {
+            .register-image { min-height: 200px; padding: 20px; }
+            .register-image-content h1 { font-size: 1.5rem; }
+            .register-image-content .badge-group span { font-size: 0.6rem; padding: 4px 10px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- ===== LEFT PANEL (IMAGE) ===== -->
     <div class="register-image">
         <div class="register-image-content">
             <h1>Barangay <span>Sto. Niño</span></h1>
@@ -369,11 +433,12 @@
         </div>
     </div>
 
+    <!-- ===== RIGHT PANEL (FORM) ===== -->
     <div class="register-form-wrapper">
         <div class="register-container">
 
             <div class="register-header">
-                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img" 
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Barangay Sto. Niño Logo" class="logo-img"
                      onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27100%27 height=%27100%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%231a6b42%27/%3E%3Ctext x=%2750%27 y=%2762%27 font-size=%2744%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27 font-weight=%27bold%27%3ESN%3C/text%3E%3C/svg%3E'">
                 <h2>Create <span>Account</span></h2>
                 <p>Join Barangay Sto. Niño Online Services</p>
@@ -428,7 +493,7 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    
+
                     <div class="password-strength" id="passwordStrength">
                         <div class="strength-bar">
                             <div class="strength-bar-fill" id="strengthFill"></div>
@@ -516,31 +581,31 @@
 
         passwordInput.addEventListener('input', function() {
             const password = this.value;
-            
+
             if (password.length === 0) {
                 strengthBar.classList.remove('active');
                 requirements.classList.remove('active');
                 weakWarning.classList.remove('active');
                 return;
             }
-            
+
             strengthBar.classList.add('active');
             requirements.classList.add('active');
-            
+
             // Check requirements
             const hasLength = password.length >= 8;
             const hasUpper = /[A-Z]/.test(password);
             const hasLower = /[a-z]/.test(password);
             const hasNumber = /[0-9]/.test(password);
             const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-            
+
             // Update requirements UI
             document.getElementById('reqLength').className = hasLength ? 'req met' : 'req unmet';
             document.getElementById('reqUpper').className = hasUpper ? 'req met' : 'req unmet';
             document.getElementById('reqLower').className = hasLower ? 'req met' : 'req unmet';
             document.getElementById('reqNumber').className = hasNumber ? 'req met' : 'req unmet';
             document.getElementById('reqSpecial').className = hasSpecial ? 'req met' : 'req unmet';
-            
+
             // Update icons
             ['reqLength', 'reqUpper', 'reqLower', 'reqNumber', 'reqSpecial'].forEach(id => {
                 const el = document.getElementById(id);
@@ -551,7 +616,7 @@
                     icon.className = 'fas fa-circle';
                 }
             });
-            
+
             // Calculate strength score
             let score = 0;
             if (hasLength) score++;
@@ -559,7 +624,7 @@
             if (hasLower) score++;
             if (hasNumber) score++;
             if (hasSpecial) score++;
-            
+
             // Update strength bar
             if (score <= 2) {
                 strengthFill.className = 'strength-bar-fill weak';
