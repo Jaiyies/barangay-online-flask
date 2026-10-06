@@ -1,0 +1,902 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviewed Events - Court 1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed; top: 0; left: 280px; right: 0; height: 68px;
+            background: white; border-bottom: 1px solid #eef2f0;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; z-index: 99; box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .navbar-left { display: flex; align-items: center; gap: 16px; }
+        .navbar-left .page-title { font-size: 17px; font-weight: 700; color: #0d2b1e; }
+        .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
+        .navbar-right { display: flex; align-items: center; gap: 16px; }
+
+        /* NOTIFICATION BELL */
+        .notification-bell-wrap { position: relative; margin-right: 12px; }
+        .bell-btn {
+            position: relative; background: #f4f8f5; border: 1px solid #eef2f0;
+            width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+            color: #1a5d3a; font-size: 16px; display: flex;
+            align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .bell-btn:hover { background: #eef8f2; border-color: #d4f0df; transform: translateY(-2px); }
+        .bell-badge {
+            position: absolute; top: -2px; right: -2px;
+            background: #dc3545; color: white; font-size: 10px; font-weight: 700;
+            min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid white; box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+        }
+        .bell-dropdown {
+            position: absolute; top: calc(100% + 12px); right: 0;
+            background: white; border-radius: 16px; border: 1px solid #eef2f0;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+            min-width: 340px; max-width: 380px;
+            opacity: 0; visibility: hidden; transform: translateY(-10px);
+            transition: all 0.2s ease; z-index: 1001; overflow: hidden;
+        }
+        .bell-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+        .bell-dropdown-header {
+            padding: 16px 20px; background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .bell-dropdown-header i { background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px; }
+        .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
+        .bell-item {
+            display: block; padding: 12px 14px; border-radius: 10px;
+            text-decoration: none; color: #0d2b1e;
+            transition: all 0.15s ease; border-bottom: 1px solid #f4f8f5;
+        }
+        .bell-item:last-child { border-bottom: none; }
+        .bell-item:hover { background: #f4f8f5; }
+        .bell-item-title { font-weight: 600; font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; }
+        .bell-item-date { font-size: 11px; color: #8a9a8f; display: flex; align-items: center; gap: 5px; }
+        .bell-loading, .bell-empty { text-align: center; padding: 30px 20px; color: #8a9a8f; font-size: 13px; }
+        .bell-empty i { font-size: 36px; color: #d4f0df; display: block; margin-bottom: 10px; }
+        .bell-dropdown-footer {
+            display: block; text-align: center; padding: 14px;
+            background: #f8fafc; color: #1a5d3a; text-decoration: none;
+            font-weight: 700; font-size: 13px; border-top: 1px solid #eef2f0;
+        }
+        .bell-dropdown-footer:hover { background: #eef8f2; }
+
+        /* PROFILE DROPDOWN */
+        .profile-dropdown { position: relative; }
+        .profile-trigger {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 14px 6px 6px; border-radius: 50px;
+            background: #f4f8f5; border: 1px solid #eef2f0;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .profile-trigger:hover { background: #eef8f2; border-color: #d4f0df; }
+        .profile-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #1a5d3a, #0d2b1e);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+        }
+        .profile-info { display: flex; flex-direction: column; line-height: 1.2; }
+        .profile-info .name { font-size: 13px; font-weight: 600; color: #0d2b1e; }
+        .profile-info .role { font-size: 11px; color: #8a9a8f; font-weight: 500; }
+        .profile-trigger .chevron { font-size: 11px; color: #8a9a8f; transition: transform 0.2s ease; }
+        .profile-dropdown.open .profile-trigger .chevron { transform: rotate(180deg); }
+
+        .profile-menu {
+            position: absolute; top: calc(100% + 8px); right: 0;
+            background: white; border-radius: 14px; border: 1px solid #eef2f0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); min-width: 220px;
+            padding: 8px; opacity: 0; visibility: hidden;
+            transform: translateY(-10px); transition: all 0.2s ease; z-index: 1000;
+        }
+        .profile-dropdown.open .profile-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .profile-menu-header { padding: 12px 14px; border-bottom: 1px solid #f0f3f2; margin-bottom: 6px; }
+        .profile-menu-header .menu-name { font-size: 14px; font-weight: 600; color: #0d2b1e; }
+        .profile-menu-header .menu-email { font-size: 12px; color: #8a9a8f; margin-top: 2px; }
+        .profile-menu a {
+            display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+            color: #3d5a4a; text-decoration: none; font-size: 13px; font-weight: 500;
+            border-radius: 8px; transition: all 0.15s ease;
+        }
+        .profile-menu a:hover { background: #f4f8f5; color: #1a5d3a; }
+        .profile-menu a i { width: 18px; font-size: 14px; color: #8a9a8f; }
+        .profile-menu a:hover i { color: #1a5d3a; }
+        .profile-menu .divider { height: 1px; background: #f0f3f2; margin: 6px 0; }
+        .profile-menu .logout-link { color: #dc3545; }
+        .profile-menu .logout-link:hover { background: #fff5f5; color: #b91c1c; }
+        .profile-menu .logout-link i { color: #dc3545; }
+
+        /* SIDEBAR */
+        .sidebar-custom {
+            position: fixed; left: 0; top: 0; width: 280px; height: 100%;
+            background: linear-gradient(180deg, #0d2b1e 0%, #1a5d3a 100%);
+            color: white; padding: 30px 20px; z-index: 100;
+            overflow-y: auto; box-shadow: 2px 0 20px rgba(0,0,0,0.08);
+        }
+        .sidebar-header {
+            text-align: center; padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;
+        }
+        .sidebar-header .logo-img {
+            width: 70px; height: 70px; border-radius: 50%; object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.2); margin-bottom: 12px;
+            background: white; padding: 4px;
+        }
+        .sidebar-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+        .sidebar-header small { font-size: 11px; opacity: 0.6; letter-spacing: 0.5px; }
+
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 4px; }
+        .sidebar-menu a {
+            display: flex; align-items: center; gap: 14px; padding: 11px 18px;
+            color: rgba(255,255,255,0.65); text-decoration: none; border-radius: 10px;
+            transition: all 0.3s ease; font-size: 14px; font-weight: 500; cursor: pointer;
+        }
+        .sidebar-menu a:hover { background: rgba(255,255,255,0.08); color: white; transform: translateX(8px); }
+        .sidebar-menu .active a { background: rgba(255,255,255,0.12); color: white; }
+        .sidebar-menu i { width: 22px; font-size: 15px; }
+
+        /* MAIN */
+        .main-with-sidebar {
+            margin-left: 280px; padding: 92px 30px 25px;
+            min-height: 100vh; animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SPLIT LAYOUT */
+        .split-container {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 24px; align-items: start;
+        }
+        .split-card {
+            background: white; border-radius: 20px;
+            border: 1px solid #eef2f0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            overflow: hidden; animation: fadeInUp 0.5s ease;
+        }
+        .split-card.approved { border-top: 4px solid #1a5d3a; }
+        .split-card.rejected { border-top: 4px solid #dc3545; }
+        .split-header {
+            padding: 20px 24px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid #f0f3f2;
+        }
+        .split-card.approved .split-header { background: linear-gradient(135deg, #f0f9f4, #e0f5e8); }
+        .split-card.rejected .split-header { background: linear-gradient(135deg, #fef2f2, #fee2e2); }
+        .split-header h2 {
+            font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+        }
+        .split-card.approved .split-header h2 { color: #1a5d3a; }
+        .split-card.rejected .split-header h2 { color: #dc3545; }
+        .split-header h2 i { padding: 8px; border-radius: 10px; font-size: 14px; }
+        .split-card.approved .split-header h2 i { background: #1a5d3a; color: white; }
+        .split-card.rejected .split-header h2 i { background: #dc3545; color: white; }
+        .split-count { font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 30px; }
+        .split-card.approved .split-count { background: #1a5d3a; color: white; }
+        .split-card.rejected .split-count { background: #dc3545; color: white; }
+
+        /* EVENT CARDS */
+        .event-list {
+            padding: 16px 20px 20px; max-height: calc(100vh - 240px);
+            overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+        }
+        .event-list::-webkit-scrollbar { width: 6px; }
+        .event-list::-webkit-scrollbar-track { background: transparent; }
+        .event-list::-webkit-scrollbar-thumb { background: rgba(26, 93, 58, 0.2); border-radius: 3px; }
+        .split-card.rejected .event-list::-webkit-scrollbar-thumb { background: rgba(220, 53, 69, 0.2); }
+        .event-card {
+            background: #f8fafc; border-radius: 12px; padding: 16px 18px;
+            border-left: 4px solid #1a5d3a; cursor: pointer;
+            transition: all 0.2s ease; position: relative;
+        }
+        .split-card.rejected .event-card { border-left-color: #dc3545; }
+        .event-card:hover { background: white; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .event-card-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 12px; margin-bottom: 10px;
+        }
+        .event-card-title { font-size: 14px; font-weight: 700; color: #0d2b1e; line-height: 1.3; flex: 1; }
+        .event-card-ref {
+            font-size: 10px; font-weight: 700; padding: 3px 10px;
+            border-radius: 20px; background: #e0f5e8; color: #1a5d3a; white-space: nowrap;
+        }
+        .split-card.rejected .event-card-ref { background: #fee2e2; color: #dc3545; }
+        .event-card-info { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #5a6e7a; }
+        .event-card-info .info-row { display: flex; align-items: center; gap: 8px; }
+        .event-card-info .info-row i { color: #1a5d3a; width: 14px; font-size: 11px; }
+        .split-card.rejected .event-card-info .info-row i { color: #dc3545; }
+        .event-card-remarks {
+            margin-top: 10px; padding-top: 10px;
+            border-top: 1px dashed #eef2f0; font-size: 11px;
+            color: #5a6e7a; line-height: 1.5;
+        }
+        .event-card-remarks strong { color: #dc3545; font-weight: 700; display: block; margin-bottom: 3px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #8a9a8f; }
+        .empty-state i { font-size: 48px; color: #d4f0df; margin-bottom: 12px; display: block; }
+        .split-card.rejected .empty-state i { color: #fecaca; }
+        .empty-state h3 { color: #0d2b1e; font-size: 15px; margin-bottom: 4px; font-weight: 700; }
+        .empty-state p { font-size: 12px; }
+        .footer {
+            text-align: center; padding: 18px; margin-top: 28px;
+            color: #8a9a8f; font-size: 11px; border-top: 1px solid #eef2f0;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px); z-index: 9999;
+            justify-content: center; align-items: center;
+            padding: 20px; opacity: 0; transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-box {
+            background: white; border-radius: 20px; max-width: 950px;
+            width: 100%; max-height: 92vh; overflow-y: auto;
+            animation: modalIn 0.3s ease; box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 24px 32px; color: white;
+            border-radius: 20px 20px 0 0;
+            position: sticky; top: 0; z-index: 10;
+        }
+        .modal-header.approved { background: linear-gradient(135deg, #0d2b1e, #1a5d3a); }
+        .modal-header.rejected { background: linear-gradient(135deg, #7f1d1d, #dc3545); }
+        .modal-header h3 {
+            color: white; font-size: 20px; font-weight: 700;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .modal-header h3 i {
+            background: rgba(255,255,255,0.15); padding: 8px;
+            border-radius: 10px; font-size: 16px;
+        }
+        .modal-close {
+            background: rgba(255,255,255,0.15); border: none;
+            font-size: 18px; color: white; cursor: pointer;
+            width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s ease;
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.3); transform: rotate(90deg); }
+        .modal-body-wrapper { padding: 28px 32px; }
+        .reference-highlight {
+            border-radius: 12px; padding: 18px 22px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px;
+        }
+        .reference-highlight.approved { background: linear-gradient(135deg, #e0f5e8, #d0ebdd); border: 1px solid #a3dbb8; }
+        .reference-highlight.rejected { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 1px solid #fca5a5; }
+        .reference-highlight .ref-label {
+            font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+        }
+        .reference-highlight.approved .ref-label { color: #1a5d3a; }
+        .reference-highlight.rejected .ref-label { color: #991b1b; }
+        .reference-highlight .ref-value { font-size: 22px; color: #0d2b1e; font-weight: 800; letter-spacing: 1px; }
+        .applicant-row {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 0; margin-bottom: 8px; border-bottom: 2px solid #f0f3f2;
+        }
+        .applicant-avatar {
+            width: 56px; height: 56px; border-radius: 50%;
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 700; flex-shrink: 0;
+        }
+        .applicant-avatar.approved { background: linear-gradient(135deg, #1a5d3a, #0d2b1e); }
+        .applicant-avatar.rejected { background: linear-gradient(135deg, #dc3545, #7f1d1d); }
+        .applicant-info { flex: 1; }
+        .applicant-info .name { font-size: 17px; font-weight: 700; color: #0d2b1e; margin-bottom: 4px; }
+        .applicant-info .contact { font-size: 13px; color: #5a6e7a; display: flex; gap: 18px; flex-wrap: wrap; }
+        .applicant-info .contact span { display: inline-flex; align-items: center; gap: 5px; }
+        .applicant-info .contact i { font-size: 11px; }
+        .applicant-info .contact i.approved-color { color: #1a5d3a; }
+        .applicant-info .contact i.rejected-color { color: #dc3545; }
+        .section-header {
+            font-size: 13px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin: 24px 0 12px; padding-bottom: 8px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-header.approved { color: #1a5d3a; border-bottom: 2px solid #e0f5e8; }
+        .section-header.rejected { color: #dc3545; border-bottom: 2px solid #fee2e2; }
+        .detail-row {
+            display: flex; padding: 12px 0; border-bottom: 1px solid #f4f8f5;
+            font-size: 14px; align-items: flex-start; gap: 16px;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row .label {
+            flex: 0 0 180px; color: #8a9a8f; font-weight: 600;
+            font-size: 12px; text-transform: uppercase;
+            letter-spacing: 0.5px; padding-top: 2px;
+        }
+        .detail-row .value { flex: 1; color: #0d2b1e; font-weight: 500; line-height: 1.5; word-break: break-word; }
+        .detail-row .value.strong { font-weight: 700; font-size: 15px; }
+        .remarks-display {
+            margin-top: 20px; padding: 18px 20px;
+            background: #fef2f2; border-radius: 12px;
+            border: 1.5px solid #fecaca; border-left: 4px solid #dc3545;
+        }
+        .remarks-display .label {
+            font-size: 12px; color: #991b1b; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+        }
+        .remarks-display .value { font-size: 14px; color: #0d2b1e; line-height: 1.6; }
+        .status-badge-modal {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 16px; border-radius: 40px;
+            font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .status-badge-modal.approved { background: #d1fae5; color: #065f46; }
+        .status-badge-modal.rejected { background: #fee2e2; color: #991b1b; }
+        .file-preview-section {
+            margin-top: 20px; padding: 16px 18px;
+            background: #eff6ff; border-radius: 12px;
+            border: 1.5px solid #bfdbfe;
+        }
+        .file-preview-section h4 {
+            font-size: 13px; color: #1e40af; font-weight: 700;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-view-file-inline {
+            background: linear-gradient(135deg, #1e40af, #1e3a8a);
+            color: white; border: none; padding: 12px 24px;
+            border-radius: 10px; cursor: pointer; font-size: 13px;
+            font-weight: 600; transition: all 0.2s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+            width: 100%; justify-content: center;
+        }
+        .btn-view-file-inline:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(30, 64, 175, 0.25); }
+
+        .file-viewer-modal { max-width: 1000px !important; }
+        .file-preview-container { text-align: center; padding: 20px; background: #f8f9fa; border-radius: 12px; }
+        .file-preview-container img { max-width: 100%; max-height: 650px; border-radius: 8px; border: 1px solid #eef0f2; }
+        .file-preview-container iframe { width: 100%; height: 700px; border: 1px solid #eef0f2; border-radius: 8px; }
+        .file-preview-container .download-btn {
+            display: inline-block; margin-top: 16px; padding: 12px 28px;
+            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 13px; transition: all 0.2s ease;
+        }
+        .file-preview-container .download-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13, 43, 30, 0.25); }
+        .modal-box::-webkit-scrollbar { width: 6px; }
+        .modal-box::-webkit-scrollbar-track { background: transparent; }
+        .modal-box::-webkit-scrollbar-thumb { background: rgba(26, 93, 58, 0.3); border-radius: 3px; }
+
+        @media (max-width: 992px) {
+            .split-container { grid-template-columns: 1fr; }
+            .event-list { max-height: 500px; }
+        }
+        @media (max-width: 768px) {
+            .sidebar-custom { width: 70px; padding: 16px 10px; }
+            .sidebar-header h2, .sidebar-menu span { display: none; }
+            .sidebar-header .logo-img { width: 45px; height: 45px; }
+            .sidebar-menu a { justify-content: center; padding: 10px; }
+            .navbar { left: 70px; padding: 0 16px; height: 60px; }
+            .profile-info { display: none; }
+            .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
+            .modal-header { padding: 20px; }
+            .modal-header h3 { font-size: 17px; }
+            .modal-body-wrapper { padding: 20px; }
+            .applicant-row { flex-direction: column; text-align: center; }
+            .reference-highlight { flex-direction: column; text-align: center; }
+            .detail-row { flex-direction: column; gap: 4px; }
+            .detail-row .label { flex: none; }
+            .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar-custom">
+    <div class="sidebar-header">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img" 
+             onerror="this.style.display='none'; this.parentElement.querySelector('.logo-fallback').style.display='flex'">
+        <div class="logo-fallback" style="display: none; width: 70px; height: 70px; background: rgba(255,255,255,0.12); border-radius: 50%; margin: 0 auto 12px; align-items: center; justify-content: center; font-size: 28px;">
+            <i class="fas fa-landmark"></i>
+        </div>
+        <h2>Barangay Sto. Niño</h2>
+        <small>Sto. Nino Sports Complex Court 1</small>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="{{ url_for('court1_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('court1_pending') }}"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+        <li class="active"><a href="{{ url_for('court1_reviewed') }}"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+        <li><a href="{{ url_for('court1_calendar') }}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+    </ul>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar-left">
+        <div class="page-title">
+            <i class="fas fa-history"></i> Reviewed Events
+        </div>
+    </div>
+    <div class="navbar-right">
+
+        <!-- NOTIFICATION BELL -->
+        <div class="notification-bell-wrap">
+            <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
+                <i class="fas fa-bell"></i>
+                <span class="bell-badge" id="bellBadge" style="display:none;">0</span>
+            </button>
+            <div class="bell-dropdown" id="bellDropdown">
+                <div class="bell-dropdown-header">
+                    <i class="fas fa-bullhorn"></i> Recent Announcements
+                </div>
+                <div class="bell-dropdown-body" id="bellList">
+                    <div class="bell-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+                <a href="/view-announcements" class="bell-dropdown-footer">
+                    View All Announcements <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-trigger" onclick="toggleProfile()">
+                <div class="profile-avatar">
+                    {{ session.fullname[0]|upper if session.fullname else 'A' }}
+                </div>
+                <div class="profile-info">
+                    <span class="name">{{ session.fullname or 'Court 1 Admin' }}</span>
+                    <span class="role">Court 1 Admin</span>
+                </div>
+                <i class="fas fa-chevron-down chevron"></i>
+            </div>
+            <div class="profile-menu">
+                <div class="profile-menu-header">
+                    <div class="menu-name">{{ session.fullname or 'Court 1 Admin' }}</div>
+                    <div class="menu-email">{{ session.email or 'admin@barangay.gov.ph' }}</div>
+                </div>
+                <a href="{{ url_for('secondary_admin_settings') }}">
+                    <i class="fas fa-user-cog"></i> Profile Settings
+                </a>
+                <div class="divider"></div>
+                <a href="{{ url_for('logout') }}" class="logout-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-with-sidebar">
+    <div class="split-container">
+        
+        <!-- APPROVED SIDE -->
+        <div class="split-card approved">
+            <div class="split-header">
+                <h2><i class="fas fa-check-circle"></i> Approved Events</h2>
+                <span class="split-count">{{ approved_events|length }}</span>
+            </div>
+            
+            <div class="event-list">
+                {% if approved_events %}
+                    {% for event in approved_events %}
+                    <div class="event-card" data-event-id="{{ event.id }}" data-status="approved">
+                        <div class="event-card-header">
+                            <div class="event-card-title">{{ event.event_name }}</div>
+                            <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
+                        </div>
+                        <div class="event-card-info">
+                            <div class="info-row">
+                                <i class="fas fa-user"></i>
+                                <span>{{ event.first_name }} {{ event.last_name }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>{{ event.event_date }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ event.start_time }} - {{ event.end_time }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Approved Events</h3>
+                        <p>Approved events will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- REJECTED SIDE -->
+        <div class="split-card rejected">
+            <div class="split-header">
+                <h2><i class="fas fa-times-circle"></i> Rejected Events</h2>
+                <span class="split-count">{{ rejected_events|length }}</span>
+            </div>
+            
+            <div class="event-list">
+                {% if rejected_events %}
+                    {% for event in rejected_events %}
+                    <div class="event-card" data-event-id="{{ event.id }}" data-status="rejected">
+                        <div class="event-card-header">
+                            <div class="event-card-title">{{ event.event_name }}</div>
+                            <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
+                        </div>
+                        <div class="event-card-info">
+                            <div class="info-row">
+                                <i class="fas fa-user"></i>
+                                <span>{{ event.first_name }} {{ event.last_name }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>{{ event.event_date }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ event.start_time }} - {{ event.end_time }}</span>
+                            </div>
+                        </div>
+                        {% if event.admin_remarks %}
+                        <div class="event-card-remarks">
+                            <strong><i class="fas fa-comment-alt"></i> Reason:</strong>
+                            {{ event.admin_remarks }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Rejected Events</h3>
+                        <p>Rejected events will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>2025 Barangay Sto. Nino, Paranaque City | Court 1 Reviewed Events</p>
+    </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-overlay" id="eventModal">
+    <div class="modal-box">
+        <div class="modal-header" id="modalHeader">
+            <h3 id="modalTitle"><i class="fas fa-info-circle"></i> Event Details</h3>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="modal-body-wrapper">
+            <div class="reference-highlight" id="referenceHighlight">
+                <div>
+                    <div class="ref-label"><i class="fas fa-barcode"></i> Reference Number</div>
+                    <div class="ref-value" id="refDisplay">-</div>
+                </div>
+                <div>
+                    <span class="status-badge-modal" id="statusBadge">
+                        <i class="fas fa-check-circle"></i> Approved
+                    </span>
+                </div>
+            </div>
+
+            <div class="applicant-row">
+                <div class="applicant-avatar" id="applicantAvatar">?</div>
+                <div class="applicant-info">
+                    <div class="name" id="applicantName">-</div>
+                    <div class="contact" id="applicantContact"></div>
+                </div>
+            </div>
+
+            <div class="section-header" id="sectionEventInfo">
+                <i class="fas fa-calendar-alt"></i> Event Information
+            </div>
+
+            <div class="detail-row">
+                <div class="label">Event Name</div>
+                <div class="value strong" id="eventNameDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Event Date</div>
+                <div class="value" id="eventDateDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Time</div>
+                <div class="value" id="eventTimeDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Venue</div>
+                <div class="value" id="eventVenueDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Estimated Attendees</div>
+                <div class="value" id="eventAttendeesDisplay">-</div>
+            </div>
+
+            <div class="section-header" id="sectionPurpose">
+                <i class="fas fa-bullseye"></i> Purpose & Description
+            </div>
+
+            <div class="detail-row">
+                <div class="label">Purpose</div>
+                <div class="value" id="eventPurposeDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Description</div>
+                <div class="value" id="eventDescDisplay">-</div>
+            </div>
+
+            <div class="remarks-display" id="remarksDisplay" style="display:none;">
+                <div class="label"><i class="fas fa-comment-alt"></i> Rejection Reason</div>
+                <div class="value" id="remarksValue">-</div>
+            </div>
+
+            <div class="file-preview-section" id="filePreviewSection" style="display:none;">
+                <h4><i class="fas fa-paperclip"></i> Attached Supporting Document</h4>
+                <button class="btn-view-file-inline" id="viewFileBtn">
+                    <i class="fas fa-file-alt"></i> View Uploaded File
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FILE VIEWER MODAL -->
+<div class="modal-overlay" id="fileViewerModal">
+    <div class="modal-box file-viewer-modal">
+        <div class="modal-header approved">
+            <h3><i class="fas fa-file-alt"></i> Uploaded Requirement</h3>
+            <button class="modal-close" onclick="closeFileViewer()"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="padding: 24px;">
+            <div class="file-preview-container" id="filePreviewContainer">
+                <p>Loading file...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EVENTS DATA -->
+<script id="approved-events-data" type="application/json">
+{{ approved_events | tojson | safe }}
+</script>
+<script id="rejected-events-data" type="application/json">
+{{ rejected_events | tojson | safe }}
+</script>
+
+<script>
+    const APPROVED_EVENTS = JSON.parse(document.getElementById('approved-events-data').textContent);
+    const REJECTED_EVENTS = JSON.parse(document.getElementById('rejected-events-data').textContent);
+
+    function toggleProfile() {
+        const dd = document.getElementById('profileDropdown');
+        const bell = document.getElementById('bellDropdown');
+        if (bell) bell.classList.remove('open');
+        dd.classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('profileDropdown');
+        if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    // NOTIFICATION BELL
+    function toggleBell(event) {
+        if (event) event.stopPropagation();
+        const dropdown = document.getElementById('bellDropdown');
+        const userDropdown = document.getElementById('profileDropdown');
+        if (userDropdown) userDropdown.classList.remove('open');
+        dropdown.classList.toggle('open');
+        if (dropdown.classList.contains('open')) loadRecentAnnouncements();
+    }
+
+    function loadRecentAnnouncements() {
+        const list = document.getElementById('bellList');
+        list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        fetch('/api/announcements/recent?limit=5')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.announcements || data.announcements.length === 0) {
+                    list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                    return;
+                }
+                let html = '';
+                data.announcements.forEach(a => {
+                    const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    html += `<a href="/announcements" class="bell-item"><div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div><div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div></a>`;
+                });
+                list.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Bell fetch error:', err);
+                list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
+            });
+    }
+
+    function updateBellBadge() {
+        fetch('/api/announcements/unread_count')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('bellBadge');
+                if (!badge) return;
+                const count = data.unread_count || 0;
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(err => console.error('Badge fetch error:', err));
+    }
+
+    function escapeHtmlBell(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.addEventListener('click', function(e) {
+        const bellWrap = document.querySelector('.notification-bell-wrap');
+        const dropdown = document.getElementById('bellDropdown');
+        if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
+    });
+
+    // MODAL LOGIC
+    let currentFileName = null;
+
+    document.querySelectorAll('.event-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            const eventId = parseInt(this.getAttribute('data-event-id'));
+            const status = this.getAttribute('data-status');
+            const eventList = status === 'approved' ? APPROVED_EVENTS : REJECTED_EVENTS;
+            const event = eventList.find(function(e) { return e.id === eventId; });
+            if (event) openModal(event, status);
+        });
+    });
+
+    function formatDate(dateStr) {
+        if (!dateStr || dateStr === 'N/A') return 'N/A';
+        try {
+            let cleanDate = dateStr;
+            if (cleanDate.includes('T')) cleanDate = cleanDate.split('T')[0];
+            const date = new Date(cleanDate + 'T00:00:00');
+            return date.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+        } catch (e) { return dateStr; }
+    }
+
+    function openModal(event, status) {
+        currentFileName = null;
+        const modalHeader = document.getElementById('modalHeader');
+        const referenceHighlight = document.getElementById('referenceHighlight');
+        const statusBadge = document.getElementById('statusBadge');
+        const applicantAvatar = document.getElementById('applicantAvatar');
+        const sectionEventInfo = document.getElementById('sectionEventInfo');
+        const sectionPurpose = document.getElementById('sectionPurpose');
+        const modalTitle = document.getElementById('modalTitle');
+
+        modalHeader.className = 'modal-header ' + status;
+        referenceHighlight.className = 'reference-highlight ' + status;
+        statusBadge.className = 'status-badge-modal ' + status;
+        applicantAvatar.className = 'applicant-avatar ' + status;
+        sectionEventInfo.className = 'section-header ' + status;
+        sectionPurpose.className = 'section-header ' + status;
+
+        if (status === 'approved') {
+            modalTitle.innerHTML = '<i class="fas fa-check-circle"></i> Approved Event';
+            statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Approved';
+        } else {
+            modalTitle.innerHTML = '<i class="fas fa-times-circle"></i> Rejected Event';
+            statusBadge.innerHTML = '<i class="fas fa-times-circle"></i> Rejected';
+        }
+
+        document.getElementById('refDisplay').textContent = event.reference_number || 'N/A';
+        const initial = (event.first_name || 'A')[0].toUpperCase();
+        applicantAvatar.textContent = initial;
+        document.getElementById('applicantName').textContent = `${event.first_name || ''} ${event.last_name || ''}`.trim() || 'N/A';
+
+        const contactClass = status === 'approved' ? 'approved-color' : 'rejected-color';
+        let contactHtml = '';
+        if (event.email) contactHtml += '<span><i class="fas fa-envelope ' + contactClass + '"></i> ' + event.email + '</span>';
+        if (event.contact_number) contactHtml += '<span><i class="fas fa-phone ' + contactClass + '"></i> ' + event.contact_number + '</span>';
+        document.getElementById('applicantContact').innerHTML = contactHtml || '<span>No contact info</span>';
+
+        document.getElementById('eventNameDisplay').textContent = event.event_name || 'N/A';
+        document.getElementById('eventDateDisplay').textContent = formatDate(event.event_date);
+        document.getElementById('eventTimeDisplay').textContent = `${event.start_time || '-'} - ${event.end_time || '-'}`;
+        document.getElementById('eventVenueDisplay').textContent = event.venue || 'N/A';
+        document.getElementById('eventAttendeesDisplay').textContent = `${event.estimated_attendees || 0} people`;
+        document.getElementById('eventPurposeDisplay').textContent = event.purpose || 'N/A';
+        document.getElementById('eventDescDisplay').textContent = event.event_description || 'N/A';
+
+        const remarksDisplay = document.getElementById('remarksDisplay');
+        const remarksValue = document.getElementById('remarksValue');
+        if (status === 'rejected' && event.admin_remarks) {
+            remarksDisplay.style.display = 'block';
+            remarksValue.textContent = event.admin_remarks;
+        } else {
+            remarksDisplay.style.display = 'none';
+        }
+
+        const fileSection = document.getElementById('filePreviewSection');
+        const viewFileBtn = document.getElementById('viewFileBtn');
+        if (event.requirements_file) {
+            currentFileName = event.requirements_file;
+            fileSection.style.display = 'block';
+            const newBtn = viewFileBtn.cloneNode(true);
+            viewFileBtn.parentNode.replaceChild(newBtn, viewFileBtn);
+            newBtn.addEventListener('click', function() { viewFile(currentFileName); });
+        } else {
+            fileSection.style.display = 'none';
+        }
+
+        document.getElementById('eventModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('eventModal').classList.remove('active');
+        currentFileName = null;
+    }
+
+    function viewFile(filename) {
+        const modal = document.getElementById('fileViewerModal');
+        const preview = document.getElementById('filePreviewContainer');
+        modal.classList.add('active');
+        const fileExt = filename.split('.').pop().toLowerCase();
+        const fileUrl = `/uploads/${filename}`;
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+            preview.innerHTML = '<img src="' + fileUrl + '" alt="Requirement"><br><a href="' + fileUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in New Tab</a>';
+        } else if (fileExt === 'pdf') {
+            preview.innerHTML = '<iframe src="' + fileUrl + '"></iframe><br><a href="' + fileUrl + '" target="_blank" class="download-btn"><i class="fas fa-download"></i> Download PDF</a>';
+        } else {
+            preview.innerHTML = '<p><i class="fas fa-file" style="font-size:64px;color:#6b7a72;"></i></p><p style="font-size:16px;font-weight:600;color:#0d2b1e;margin:12px 0;">' + filename + '</p><a href="' + fileUrl + '" target="_blank" class="download-btn"><i class="fas fa-download"></i> Download File</a>';
+        }
+    }
+
+    function closeFileViewer() {
+        document.getElementById('fileViewerModal').classList.remove('active');
+        document.getElementById('filePreviewContainer').innerHTML = '<p>Loading file...</p>';
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+    });
+</script>
+</body>
+</html>
+{% endblock %}

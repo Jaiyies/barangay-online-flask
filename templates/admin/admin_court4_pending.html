@@ -34,6 +34,143 @@
         .navbar-left .page-title i { color: #f59e0b; margin-right: 8px; }
         .navbar-right { display: flex; align-items: center; gap: 16px; }
 
+        /* ===== NOTIFICATION BELL (BAGO) ===== */
+        .notification-bell-wrap {
+            position: relative;
+            margin-right: 12px;
+        }
+        .bell-btn {
+            position: relative;
+            background: #f4f8f5;
+            border: 1px solid #eef2f0;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #1a5d3a;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .bell-btn:hover {
+            background: #eef8f2;
+            border-color: #d4f0df;
+            transform: translateY(-2px);
+        }
+        .bell-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+        }
+        .bell-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #eef2f0;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+            min-width: 340px;
+            max-width: 380px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        .bell-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .bell-dropdown-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bell-dropdown-header i {
+            background: rgba(255,255,255,0.15);
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .bell-dropdown-body {
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        .bell-item {
+            display: block;
+            padding: 12px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #0d2b1e;
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f4f8f5;
+        }
+        .bell-item:last-child { border-bottom: none; }
+        .bell-item:hover { background: #f4f8f5; }
+        .bell-item-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0d2b1e;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .bell-item-date {
+            font-size: 11px;
+            color: #8a9a8f;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .bell-loading, .bell-empty {
+            text-align: center;
+            padding: 30px 20px;
+            color: #8a9a8f;
+            font-size: 13px;
+        }
+        .bell-empty i {
+            font-size: 36px;
+            color: #d4f0df;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .bell-dropdown-footer {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            background: #f8fafc;
+            color: #1a5d3a;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            border-top: 1px solid #eef2f0;
+        }
+        .bell-dropdown-footer:hover { background: #eef8f2; }
+        /* ===== END NOTIFICATION BELL ===== */
+
         /* PROFILE DROPDOWN */
         .profile-dropdown { position: relative; }
         .profile-trigger {
@@ -253,6 +390,17 @@
             color: #b76e00;
         }
 
+        .queue-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
         .btn-review {
             background: #0d2b1e;
             color: white;
@@ -319,7 +467,7 @@
             border-top: 1px solid #eef2f0;
         }
 
-        /* MODAL */
+        /* ===== MODAL ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -335,37 +483,56 @@
             transition: opacity 0.25s ease;
         }
         .modal-overlay.active { display: flex; opacity: 1; }
+
         .modal-box {
             background: white;
-            border-radius: 16px;
-            max-width: 550px;
+            border-radius: 20px;
+            max-width: 950px;
             width: 100%;
-            max-height: 90vh;
+            max-height: 92vh;
             overflow-y: auto;
-            padding: 28px;
             animation: modalIn 0.3s ease;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.25);
         }
         @keyframes modalIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #eef2f0;
+            padding: 24px 32px;
+            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        .modal-header h3 { color: #0d2b1e; font-size: 18px; font-weight: 700; }
-        .modal-close {
-            background: none;
-            border: none;
+        .modal-header h3 {
+            color: white;
             font-size: 20px;
-            color: #8a9a8f;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-header h3 i {
+            background: rgba(255,255,255,0.15);
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .modal-close {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            font-size: 18px;
+            color: white;
             cursor: pointer;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -373,38 +540,156 @@
             transition: all 0.25s ease;
         }
         .modal-close:hover {
-            color: #dc3545;
-            background: #fef2f2;
+            background: rgba(220, 53, 69, 0.9);
             transform: rotate(90deg);
         }
 
-        .modal-row {
+        .modal-body-wrapper { padding: 28px 32px; }
+
+        .reference-highlight {
+            background: linear-gradient(135deg, #e0f5e8, #d0ebdd);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            border: 1px solid #a3dbb8;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f4f8f5;
-            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .modal-row .label { color: #8a9a8f; font-weight: 500; }
-        .modal-row .value {
-            color: #0d2b1e;
+        .reference-highlight .ref-label {
+            font-size: 12px;
+            color: #1a5d3a;
             font-weight: 600;
-            text-align: right;
-            max-width: 60%;
-            word-break: break-word;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .reference-highlight .ref-value {
+            font-size: 22px;
+            color: #0d2b1e;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
 
-        /* FILE PREVIEW SECTION */
+        .applicant-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #f0f3f2;
+        }
+        .applicant-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a5d3a, #0d2b1e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .applicant-info { flex: 1; }
+        .applicant-info .name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0d2b1e;
+            margin-bottom: 4px;
+        }
+        .applicant-info .contact {
+            font-size: 13px;
+            color: #5a6e7a;
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .applicant-info .contact span {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .applicant-info .contact i {
+            color: #1a5d3a;
+            font-size: 11px;
+        }
+
+        .section-header {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a5d3a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 24px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0f5e8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-header i {
+            color: #1a5d3a;
+            font-size: 14px;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f4f8f5;
+            font-size: 14px;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row .label {
+            flex: 0 0 180px;
+            color: #8a9a8f;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-top: 2px;
+        }
+        .detail-row .value {
+            flex: 1;
+            color: #0d2b1e;
+            font-weight: 500;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .detail-row .value.strong {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .status-badge-modal {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff4e0;
+            color: #b76e00;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .file-preview-section {
-            margin-top: 16px;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid #eef2f0;
+            margin-top: 20px;
+            padding: 16px 18px;
+            background: #eff6ff;
+            border-radius: 12px;
+            border: 1.5px solid #bfdbfe;
         }
         .file-preview-section h4 {
             font-size: 13px;
-            color: #0d2b1e;
+            color: #1e40af;
             font-weight: 700;
             margin-bottom: 12px;
             display: flex;
@@ -414,11 +699,11 @@
         .file-preview-section h4 i { color: #1e40af; }
 
         .btn-view-file-inline {
-            background: #1e40af;
+            background: linear-gradient(135deg, #1e40af, #1e3a8a);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
@@ -430,93 +715,217 @@
             justify-content: center;
         }
         .btn-view-file-inline:hover {
-            background: #1e3a8a;
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.25);
         }
 
-        /* FILE VIEWER MODAL */
-        .file-viewer-modal {
-            max-width: 900px !important;
-        }
+        .file-viewer-modal { max-width: 1000px !important; }
         .file-preview-container {
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 12px;
         }
         .file-preview-container img {
             max-width: 100%;
-            max-height: 550px;
+            max-height: 650px;
             border-radius: 8px;
             border: 1px solid #eef0f2;
         }
         .file-preview-container iframe {
             width: 100%;
-            height: 600px;
+            height: 700px;
             border: 1px solid #eef0f2;
             border-radius: 8px;
         }
         .file-preview-container .download-btn {
             display: inline-block;
             margin-top: 16px;
-            padding: 10px 24px;
-            background: #0d2b1e;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
             color: white;
-            border-radius: 8px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
             font-size: 13px;
             transition: all 0.2s ease;
         }
         .file-preview-container .download-btn:hover {
-            background: #1a5d3a;
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 43, 30, 0.25);
         }
 
         .remarks-box {
-            margin-top: 16px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f3f2;
         }
         .remarks-box label {
             display: block;
-            font-size: 12px;
-            color: #5a6e7a;
-            font-weight: 600;
-            margin-bottom: 6px;
+            font-size: 13px;
+            color: #0d2b1e;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .remarks-box label .required { color: #dc3545; }
+        .remarks-box label .hint {
+            color: #8a9a8f;
+            font-weight: 400;
+            font-size: 11px;
+            margin-left: 6px;
         }
         .remarks-box textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #eef2f0;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border: 1.5px solid #eef2f0;
+            border-radius: 10px;
             font-family: 'Inter', sans-serif;
             font-size: 13px;
             resize: vertical;
-            min-height: 70px;
+            min-height: 90px;
+            background: #f8fafc;
+            transition: all 0.2s ease;
         }
         .remarks-box textarea:focus {
             outline: none;
             border-color: #1a5d3a;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(26, 93, 58, 0.1);
         }
+        .remarks-box textarea.error {
+            border-color: #dc3545;
+            background: #fef2f2;
+        }
+        .remarks-box .error-msg {
+            color: #dc3545;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 6px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
+        .remarks-box .error-msg.visible { display: flex; }
 
         .modal-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid #f0f3f2;
         }
         .modal-actions button {
             flex: 1;
-            padding: 13px;
+            padding: 15px;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        .btn-approve { background: #1a5d3a; color: white; }
-        .btn-approve:hover { background: #0d2b1e; }
-        .btn-reject { background: #fee2e2; color: #dc3545; }
-        .btn-reject:hover { background: #fecaca; }
+        .btn-approve {
+            background: linear-gradient(135deg, #1a5d3a, #0d2b1e);
+            color: white;
+            box-shadow: 0 6px 16px rgba(26, 93, 58, 0.25);
+        }
+        .btn-approve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(26, 93, 58, 0.35);
+        }
+        .btn-reject {
+            background: #fee2e2;
+            color: #dc3545;
+            border: 1.5px solid #fecaca;
+        }
+        .btn-reject:hover {
+            background: #fecaca;
+            transform: translateY(-2px);
+        }
+
+        .confirm-modal-box { max-width: 460px !important; }
+        .confirm-icon {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .confirm-icon i { font-size: 72px; }
+        .confirm-icon.approve i { color: #1a5d3a; }
+        .confirm-icon.reject i { color: #dc3545; }
+        .confirm-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: #0d2b1e;
+            margin-bottom: 10px;
+        }
+        .confirm-message {
+            text-align: center;
+            font-size: 14px;
+            color: #5a6e7a;
+            margin-bottom: 28px;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+        .confirm-message strong {
+            color: #0d2b1e;
+            display: block;
+            margin-top: 10px;
+            font-size: 16px;
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            padding: 0 32px 32px;
+        }
+        .confirm-actions button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-confirm-cancel {
+            background: #f0f2f5;
+            color: #5a6e7a;
+        }
+        .btn-confirm-cancel:hover { background: #dde8e1; }
+        .btn-confirm-approve {
+            background: linear-gradient(135deg, #1a5d3a, #0d2b1e);
+            color: white;
+        }
+        .btn-confirm-approve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26, 93, 58, 0.3);
+        }
+        .btn-confirm-reject {
+            background: linear-gradient(135deg, #dc3545, #b91c1c);
+            color: white;
+        }
+        .btn-confirm-reject:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .modal-box::-webkit-scrollbar { width: 6px; }
+        .modal-box::-webkit-scrollbar-track { background: transparent; }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: rgba(26, 93, 58, 0.3);
+            border-radius: 3px;
+        }
 
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
@@ -526,6 +935,16 @@
             .navbar { left: 70px; padding: 0 16px; height: 60px; }
             .profile-info { display: none; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
+
+            .modal-header { padding: 20px; }
+            .modal-header h3 { font-size: 17px; }
+            .modal-body-wrapper { padding: 20px; }
+            .modal-actions { flex-direction: column; }
+            .applicant-row { flex-direction: column; text-align: center; }
+            .reference-highlight { flex-direction: column; text-align: center; }
+            .detail-row { flex-direction: column; gap: 4px; }
+            .detail-row .label { flex: none; }
+            .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
         }
     </style>
 </head>
@@ -545,6 +964,7 @@
     <ul class="sidebar-menu">
         <li><a href="{{ url_for('court4_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
         <li class="active"><a href="{{ url_for('court4_pending') }}"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+        <li><a href="{{ url_for('court4_reviewed') }}"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
         <li><a href="{{ url_for('court4_calendar') }}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
     </ul>
 </div>
@@ -557,6 +977,29 @@
         </div>
     </div>
     <div class="navbar-right">
+
+        <!-- ===== NOTIFICATION BELL (BAGO) ===== -->
+        <div class="notification-bell-wrap">
+            <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
+                <i class="fas fa-bell"></i>
+                <span class="bell-badge" id="bellBadge" style="display:none;">0</span>
+            </button>
+            <div class="bell-dropdown" id="bellDropdown">
+                <div class="bell-dropdown-header">
+                    <i class="fas fa-bullhorn"></i> Recent Announcements
+                </div>
+                <div class="bell-dropdown-body" id="bellList">
+                    <div class="bell-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+                <a href="/view-announcements" class="bell-dropdown-footer">
+                    View All Announcements <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <!-- ===== END NOTIFICATION BELL ===== -->
+
         <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-trigger" onclick="toggleProfile()">
                 <div class="profile-avatar">
@@ -601,6 +1044,7 @@
                 <thead>
                     <tr>
                         <th>Reference</th>
+                        <th style="text-align: center;">Queue</th>
                         <th>Event Name</th>
                         <th>Applicant</th>
                         <th>Event Date</th>
@@ -615,6 +1059,9 @@
                     {% for event in pending_events %}
                     <tr>
                         <td><strong>{{ event.reference_number or 'N/A' }}</strong></td>
+                        <td style="text-align: center;">
+                            <span class="queue-badge">{{ event.queuing_number or 'N/A' }}</span>
+                        </td>
                         <td>{{ event.event_name }}</td>
                         <td>{{ event.first_name }} {{ event.last_name }}</td>
                         <td>{{ event.event_date or 'N/A' }}</td>
@@ -658,30 +1105,100 @@
 <div class="modal-overlay" id="eventModal">
     <div class="modal-box">
         <div class="modal-header">
-            <h3 id="modalTitle">Event Details</h3>
+            <h3><i class="fas fa-clipboard-check"></i> Review Event Permit</h3>
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div id="modalBody"></div>
 
-        <div class="file-preview-section" id="filePreviewSection" style="display:none;">
-            <h4><i class="fas fa-paperclip"></i> Attached Requirement</h4>
-            <button class="btn-view-file-inline" id="viewFileBtn">
-                <i class="fas fa-file-alt"></i> View Uploaded File
-            </button>
-        </div>
+        <div class="modal-body-wrapper">
+            <div class="reference-highlight">
+                <div>
+                    <div class="ref-label"><i class="fas fa-barcode"></i> Reference Number</div>
+                    <div class="ref-value" id="refDisplay">-</div>
+                </div>
+                <div>
+                    <span class="status-badge-modal">
+                        <i class="fas fa-hourglass-half"></i> Pending Review
+                    </span>
+                </div>
+            </div>
 
-        <div class="remarks-box">
-            <label>Remarks (optional)</label>
-            <textarea id="remarksInput" placeholder="Enter reason for approval or rejection..."></textarea>
-        </div>
+            <div class="applicant-row">
+                <div class="applicant-avatar" id="applicantAvatar">?</div>
+                <div class="applicant-info">
+                    <div class="name" id="applicantName">-</div>
+                    <div class="contact" id="applicantContact"></div>
+                </div>
+            </div>
 
-        <div class="modal-actions">
-            <button class="btn-reject" onclick="updateStatus('rejected')">
-                <i class="fas fa-times"></i> Reject
-            </button>
-            <button class="btn-approve" onclick="updateStatus('approved')">
-                <i class="fas fa-check"></i> Approve
-            </button>
+            <div class="section-header">
+                <i class="fas fa-calendar-alt"></i> Event Information
+            </div>
+
+            <div class="detail-row">
+                <div class="label">Event Name</div>
+                <div class="value strong" id="eventNameDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Queue Number</div>
+                <div class="value" id="queueDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Event Date</div>
+                <div class="value" id="eventDateDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Time</div>
+                <div class="value" id="eventTimeDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Venue</div>
+                <div class="value" id="eventVenueDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Estimated Attendees</div>
+                <div class="value" id="eventAttendeesDisplay">-</div>
+            </div>
+
+            <div class="section-header">
+                <i class="fas fa-bullseye"></i> Purpose & Description
+            </div>
+
+            <div class="detail-row">
+                <div class="label">Purpose</div>
+                <div class="value" id="eventPurposeDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Description</div>
+                <div class="value" id="eventDescDisplay">-</div>
+            </div>
+
+            <div class="file-preview-section" id="filePreviewSection" style="display:none;">
+                <h4><i class="fas fa-paperclip"></i> Attached Supporting Document</h4>
+                <button class="btn-view-file-inline" id="viewFileBtn">
+                    <i class="fas fa-file-alt"></i> View Uploaded File
+                </button>
+            </div>
+
+            <div class="remarks-box">
+                <label for="remarksInput">
+                    <i class="fas fa-comment-alt"></i> Admin Remarks
+                    <span class="required" id="remarksRequired" style="display:none;">*</span>
+                    <span class="hint" id="remarksHint">(optional for approve, required for reject)</span>
+                </label>
+                <textarea id="remarksInput" placeholder="Enter reason for approval or rejection..."></textarea>
+                <div class="error-msg" id="remarksError">
+                    <i class="fas fa-exclamation-circle"></i> Please provide a reason for rejection.
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-reject" onclick="requestAction('rejected')">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn-approve" onclick="requestAction('approved')">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -693,8 +1210,34 @@
             <h3><i class="fas fa-file-alt"></i> Uploaded Requirement</h3>
             <button class="modal-close" onclick="closeFileViewer()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="file-preview-container" id="filePreviewContainer">
-            <p>Loading file...</p>
+        <div style="padding: 24px;">
+            <div class="file-preview-container" id="filePreviewContainer">
+                <p>Loading file...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRMATION MODAL -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-box confirm-modal-box">
+        <div style="padding: 32px;">
+            <div class="confirm-icon" id="confirmIcon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="confirm-title" id="confirmTitle">Confirm Action</div>
+            <div class="confirm-message" id="confirmMessage">
+                Are you sure?
+                <strong id="confirmEventName"></strong>
+            </div>
+            <div class="confirm-actions">
+                <button class="btn-confirm-cancel" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn-confirm-approve" id="confirmActionBtn" onclick="confirmAction()">
+                    <i class="fas fa-check"></i> Yes, Confirm
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -707,15 +1250,89 @@
     const EVENTS_DATA = JSON.parse(document.getElementById('events-data').textContent);
 
     function toggleProfile() {
-        document.getElementById('profileDropdown').classList.toggle('open');
+        const dd = document.getElementById('profileDropdown');
+        const bell = document.getElementById('bellDropdown');
+        if (bell) bell.classList.remove('open');
+        dd.classList.toggle('open');
     }
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('profileDropdown');
         if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
 
+    // ===== NOTIFICATION BELL (BAGO) =====
+    function toggleBell(event) {
+        if (event) event.stopPropagation();
+        const dropdown = document.getElementById('bellDropdown');
+        const userDropdown = document.getElementById('profileDropdown');
+        if (userDropdown) userDropdown.classList.remove('open');
+        dropdown.classList.toggle('open');
+        if (dropdown.classList.contains('open')) loadRecentAnnouncements();
+    }
+
+    function loadRecentAnnouncements() {
+        const list = document.getElementById('bellList');
+        list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        fetch('/api/announcements/recent?limit=5')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.announcements || data.announcements.length === 0) {
+                    list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                    return;
+                }
+                let html = '';
+                data.announcements.forEach(a => {
+                    const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    html += `<a href="/announcements" class="bell-item"><div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div><div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div></a>`;
+                });
+                list.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Bell fetch error:', err);
+                list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
+            });
+    }
+
+    function updateBellBadge() {
+        fetch('/api/announcements/unread_count')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('bellBadge');
+                if (!badge) return;
+                const count = data.unread_count || 0;
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(err => console.error('Badge fetch error:', err));
+    }
+
+    function escapeHtmlBell(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.addEventListener('click', function(e) {
+        const bellWrap = document.querySelector('.notification-bell-wrap');
+        const dropdown = document.getElementById('bellDropdown');
+        if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
+    });
+    // ===== END NOTIFICATION BELL =====
+
     let currentEventId = null;
     let currentFileName = null;
+    let currentEventData = null;
+    let pendingAction = null;
+    let pendingRemarks = '';
 
     document.querySelectorAll('.btn-review').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -732,29 +1349,48 @@
         });
     });
 
+    function formatDate(dateStr) {
+        if (!dateStr || dateStr === 'N/A') return 'N/A';
+        try {
+            let cleanDate = dateStr;
+            if (cleanDate.includes('T')) cleanDate = cleanDate.split('T')[0];
+            const date = new Date(cleanDate + 'T00:00:00');
+            return date.toLocaleDateString('en-PH', { 
+                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    }
+
     function openModal(event) {
         currentEventId = event.id;
-        document.getElementById('modalTitle').innerText = event.event_name;
-        document.getElementById('remarksInput').value = '';
-
-        let eventDate = event.event_date || 'N/A';
-        if (eventDate && eventDate.includes('T')) {
-            eventDate = eventDate.split('T')[0];
-        }
-
-        let html = `
-            <div class="modal-row"><span class="label">Reference:</span><span class="value">${event.reference_number || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Applicant:</span><span class="value">${event.first_name} ${event.last_name}</span></div>
-            <div class="modal-row"><span class="label">Email:</span><span class="value">${event.email || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Contact:</span><span class="value">${event.contact_number || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Date:</span><span class="value">${eventDate}</span></div>
-            <div class="modal-row"><span class="label">Time:</span><span class="value">${event.start_time || ''} - ${event.end_time || ''}</span></div>
-            <div class="modal-row"><span class="label">Venue:</span><span class="value">${event.venue || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Attendees:</span><span class="value">${event.estimated_attendees || 0}</span></div>
-            <div class="modal-row"><span class="label">Purpose:</span><span class="value">${event.purpose || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Description:</span><span class="value">${event.event_description || 'N/A'}</span></div>
+        currentEventData = event;
+        
+        document.getElementById('refDisplay').textContent = event.reference_number || 'N/A';
+        document.getElementById('queueDisplay').textContent = event.queuing_number || 'N/A';
+        
+        const initial = (event.first_name || 'A')[0].toUpperCase();
+        document.getElementById('applicantAvatar').textContent = initial;
+        document.getElementById('applicantName').textContent = `${event.first_name || ''} ${event.last_name || ''}`.trim() || 'N/A';
+        
+        const contactHtml = `
+            ${event.email ? `<span><i class="fas fa-envelope"></i> ${event.email}</span>` : ''}
+            ${event.contact_number ? `<span><i class="fas fa-phone"></i> ${event.contact_number}</span>` : ''}
         `;
-        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('applicantContact').innerHTML = contactHtml || '<span>No contact info</span>';
+
+        document.getElementById('eventNameDisplay').textContent = event.event_name || 'N/A';
+        document.getElementById('eventDateDisplay').textContent = formatDate(event.event_date);
+        document.getElementById('eventTimeDisplay').textContent = `${event.start_time || '-'} - ${event.end_time || '-'}`;
+        document.getElementById('eventVenueDisplay').textContent = event.venue || 'N/A';
+        document.getElementById('eventAttendeesDisplay').textContent = `${event.estimated_attendees || 0} people`;
+        document.getElementById('eventPurposeDisplay').textContent = event.purpose || 'N/A';
+        document.getElementById('eventDescDisplay').textContent = event.event_description || 'N/A';
+
+        document.getElementById('remarksInput').value = '';
+        document.getElementById('remarksInput').classList.remove('error');
+        document.getElementById('remarksError').classList.remove('visible');
 
         const fileSection = document.getElementById('filePreviewSection');
         const viewFileBtn = document.getElementById('viewFileBtn');
@@ -780,6 +1416,7 @@
         document.getElementById('eventModal').classList.remove('active');
         currentEventId = null;
         currentFileName = null;
+        currentEventData = null;
     }
 
     function viewFile(filename) {
@@ -795,7 +1432,7 @@
                 <img src="${fileUrl}" alt="Requirement">
                 <br>
                 <a href="${fileUrl}" target="_blank" class="download-btn">
-                    <i class="fas fa-download"></i> Open in New Tab
+                    <i class="fas fa-external-link-alt"></i> Open in New Tab
                 </a>
             `;
         } else if (fileExt === 'pdf') {
@@ -808,8 +1445,8 @@
             `;
         } else {
             preview.innerHTML = `
-                <p><i class="fas fa-file" style="font-size:48px;color:#6b7a72;"></i></p>
-                <p><strong>${filename}</strong></p>
+                <p><i class="fas fa-file" style="font-size:64px;color:#6b7a72;"></i></p>
+                <p style="font-size:16px;font-weight:600;color:#0d2b1e;margin:12px 0;">${filename}</p>
                 <a href="${fileUrl}" target="_blank" class="download-btn">
                     <i class="fas fa-download"></i> Download File
                 </a>
@@ -822,27 +1459,96 @@
         document.getElementById('filePreviewContainer').innerHTML = '<p>Loading file...</p>';
     }
 
-    function updateStatus(status) {
+    function requestAction(status) {
         if (!currentEventId) return;
         
         const remarks = document.getElementById('remarksInput').value.trim();
+        const remarksInput = document.getElementById('remarksInput');
+        const remarksError = document.getElementById('remarksError');
+
+        if (status === 'rejected' && !remarks) {
+            remarksInput.classList.add('error');
+            remarksError.classList.add('visible');
+            remarksInput.focus();
+            return;
+        }
+
+        remarksInput.classList.remove('error');
+        remarksError.classList.remove('visible');
+
+        pendingAction = status;
+        pendingRemarks = remarks;
+
+        openConfirmModal(status);
+    }
+
+    function openConfirmModal(status) {
+        const icon = document.getElementById('confirmIcon');
+        const title = document.getElementById('confirmTitle');
+        const message = document.getElementById('confirmMessage');
+        const eventName = document.getElementById('confirmEventName');
+        const actionBtn = document.getElementById('confirmActionBtn');
+
+        icon.className = 'confirm-icon';
+        actionBtn.className = '';
+
+        if (status === 'approved') {
+            icon.classList.add('approve');
+            icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            title.textContent = 'Approve this event?';
+            message.innerHTML = `You are about to <strong style="color:#1a5d3a;display:inline;">APPROVE</strong> this event permit. The resident will be notified via email.`;
+            actionBtn.className = 'btn-confirm-approve';
+            actionBtn.innerHTML = '<i class="fas fa-check"></i> Yes, Approve';
+        } else {
+            icon.classList.add('reject');
+            icon.innerHTML = '<i class="fas fa-times-circle"></i>';
+            title.textContent = 'Reject this event?';
+            message.innerHTML = `You are about to <strong style="color:#dc3545;display:inline;">REJECT</strong> this event permit. The resident will receive your remarks via email.`;
+            actionBtn.className = 'btn-confirm-reject';
+            actionBtn.innerHTML = '<i class="fas fa-times"></i> Yes, Reject';
+        }
+
+        eventName.textContent = currentEventData ? currentEventData.event_name : '';
+
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+        pendingAction = null;
+        pendingRemarks = '';
+    }
+
+    function confirmAction() {
+        if (!currentEventId || !pendingAction) return;
+
+        const actionBtn = document.getElementById('confirmActionBtn');
+        const originalHtml = actionBtn.innerHTML;
+        actionBtn.disabled = true;
+        actionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
         fetch(`/api/court4/event/${currentEventId}/update-status`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: status, remarks: remarks })
+            body: JSON.stringify({ status: pendingAction, remarks: pendingRemarks })
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert(`Event ${status} successfully!`);
+                closeConfirmModal();
+                closeModal();
+                alert(`Event ${pendingAction} successfully!`);
                 location.reload();
             } else {
                 alert('Error: ' + (data.error || 'Unknown error'));
+                actionBtn.disabled = false;
+                actionBtn.innerHTML = originalHtml;
             }
         })
         .catch(err => {
             alert('Network error: ' + err);
+            actionBtn.disabled = false;
+            actionBtn.innerHTML = originalHtml;
         });
     }
 

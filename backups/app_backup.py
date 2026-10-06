@@ -21,7 +21,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'barangay.stonino.paranaque@gmail.com'
-app.config['MAIL_PASSWORD'] = 'zcnv ovct phnh ppoo'  
+app.config['MAIL_PASSWORD'] = 'pcwn krsa ovcy nkbr'  
 app.config['MAIL_DEFAULT_SENDER'] = ('Barangay Sto. Nino', 'barangay.stonino.paranaque@gmail.com')
 
 mail = Mail(app)
@@ -179,114 +179,6 @@ def get_db():
         password='bsit2026@123',
         database='barangay_online_services'
     )
-
-# ============================================================
-# NOTIFICATION HELPER FUNCTIONS
-# ============================================================
-
-def create_notification(user_id, title, message, notif_type, link=None):
-    """Create internal notification para sa specific user."""
-    conn = get_db()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("""
-            INSERT INTO notifications (user_id, title, message, notification_type, link)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (user_id, title, message, notif_type, link))
-        conn.commit()
-        return True
-    except Exception as e:
-        print(f"❌ Notification error: {e}")
-        return False
-    finally:
-        conn.close()
-
-
-def notify_role(roles, title, message, notif_type, link=None):
-    """Send notification sa lahat ng users na may specific role."""
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    
-    placeholders = ','.join(['%s'] * len(roles))
-    cursor.execute(
-        f"SELECT id, email, first_name FROM users WHERE role IN ({placeholders})",
-        tuple(roles)
-    )
-    admins = cursor.fetchall()
-    conn.close()
-    
-    for admin in admins:
-        create_notification(admin['id'], title, message, notif_type, link)
-    
-    return admins
-
-
-def get_court_role_by_venue(venue):
-    """Determine kung anong court admin ang may-ari ng venue."""
-    venue_mapping = {
-        'Sto. Nino Sports Complex': 'admin_court_1',
-        'Sto. Nino Basketball Court': 'admin_court_2',
-        'Sampaguita Covered Court': 'admin_court_3',
-        '2nd Street Covered Court': 'admin_court_4',
-    }
-    return venue_mapping.get(venue)
-
-
-def send_admin_notification_email(recipient_email, subject, title, message,
-                                   reference_no=None, applicant_name=None,
-                                   action_type='new'):
-    """Send email notification para sa admin."""
-    if action_type == 'new':
-        icon = '🔔'
-        header_text = 'New Request Received'
-    elif action_type == 'approved':
-        icon = '✅'
-        header_text = 'Request Approved'
-    else:
-        icon = '❌'
-        header_text = 'Request Rejected'
-    
-    body_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
-        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
-            <tr><td align="center">
-                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
-                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">{icon}</div>
-                            <h1 style="margin:0;color:#fff;font-size:22px;">{header_text}</h1>
-                            <p style="margin:6px 0 0;color:#c9d6f0;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Barangay Sto. Nino Admin</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">{title}</h2>
-                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">{message}</p>
-                            {f'<p style="margin:0 0 10px;color:#334155;font-size:14px;"><strong>Reference:</strong> {reference_no}</p>' if reference_no else ''}
-                            {f'<p style="margin:0 0 10px;color:#334155;font-size:14px;"><strong>Applicant:</strong> {applicant_name}</p>' if applicant_name else ''}
-                            <table width="100%" style="margin:25px 0 10px;">
-                                <tr><td align="center">
-                                    <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">
-                                        🔓 Login to Admin Panel
-                                    </a>
-                                </td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:20px;text-align:center;">
-                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td></tr>
-        </table>
-    </body>
-    </html>
-    """
-    return send_email(recipient_email, subject, body_html)
 
 # ============================================================
 # QUEUE NUMBER GENERATOR
@@ -1291,60 +1183,6 @@ def request_document_post():
             file_data
         ))
         conn.commit()
-        doc_id = cursor.lastrowid
-        
-        # ===== INTERNAL NOTIFICATION — RESIDENT =====
-        create_notification(
-            session['user_id'],
-            '📄 Document Request Submitted',
-            f'Your {document_type.replace("_", " ").title()} request is now pending. Reference: {ref_num} | Queue: {queue_num}',
-            'document_submitted',
-            link='/my-requests'
-        )
-        
-        # ===== INTERNAL NOTIFICATION — DOCUMENTS ADMIN + HEAD ADMIN =====
-        admin_users = notify_role(
-            ['admin_documents', 'head_admin'],
-            '🔔 New Document Request',
-            f'{session["fullname"]} requested {document_type.replace("_", " ").title()}. Reference: {ref_num}',
-            'document_new_request',
-            link='/admin/documents'
-        )
-        
-        # ===== EXTERNAL EMAIL — RESIDENT =====
-        cursor2 = conn.cursor(dictionary=True)
-        cursor2.execute("SELECT first_name, email FROM users WHERE id = %s", (session['user_id'],))
-        resident_info = cursor2.fetchone()
-        
-        if resident_info:
-            subject = f"Document Request Received - {ref_num}"
-            body_html = f"""
-            <html><body style="font-family:Arial,sans-serif;padding:20px;">
-                <h2 style="color:#0f3d2a;">📄 Document Request Received</h2>
-                <p>Hello <strong>{resident_info['first_name']}</strong>,</p>
-                <p>Natanggap na namin ang iyong request para sa <strong>{document_type.replace('_', ' ').title()}</strong>.</p>
-                <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;">
-                    <tr><td><strong>Reference No:</strong> {ref_num}</td></tr>
-                    <tr><td><strong>Queue No:</strong> {queue_num}</td></tr>
-                    <tr><td><strong>Status:</strong> <span style="color:#d97706;">PENDING</span></td></tr>
-                </table>
-                <p>Maari kang mag-login para i-track ang status.</p>
-                <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:#0f3d2a;color:#fff;padding:12px 30px;text-decoration:none;border-radius:8px;margin-top:15px;">🔓 Login to Track</a>
-            </body></html>
-            """
-            send_email(resident_info['email'], subject, body_html)
-        
-        # ===== EXTERNAL EMAIL — ADMIN =====
-        for admin in admin_users:
-            send_admin_notification_email(
-                admin['email'],
-                f'New Document Request - {ref_num}',
-                f'New {document_type.replace("_", " ").title()} Request',
-                f'A resident has submitted a new document request.',
-                reference_no=ref_num,
-                applicant_name=session['fullname'],
-                action_type='new'
-            )
         
         flash('Document request submitted successfully! Reference: ' + ref_num, 'success')
         return redirect(url_for('my_requests'))
@@ -1610,28 +1448,15 @@ def apply_permit_post():
         ))
         conn.commit()
         
-             # ===== INTERNAL NOTIFICATION — RESIDENT =====
-        create_notification(
-            session['user_id'],
-            '🎉 Permit Application Submitted',
-            f'Your event permit "{event_name}" has been submitted for review. Reference: {ref_num} | Queue: {queue_num}',
-            'permit_submitted',
-            link='/my-requests'
-        )
-
-        # ===== INTERNAL NOTIFICATION — COURT ADMIN + HEAD ADMIN =====
-        court_role = get_court_role_by_venue(venue)
-        admin_roles = ['head_admin']
-        if court_role:
-            admin_roles.append(court_role)
-        
-        admin_users = notify_role(
-            admin_roles,
-            '🔔 New Permit Request',
-            f'{session["fullname"]} submitted a permit for "{event_name}" at {venue}. Reference: {ref_num}',
-            'permit_new_request',
-            link='/admin/events'
-        )
+        # ===== INSERT NOTIFICATION =====
+        cursor.execute("""
+            INSERT INTO notifications (user_id, title, message, notification_type)
+            VALUES (%s, %s, %s, 'permit_submitted')
+        """, (
+            session['user_id'], 'Permit Application Submitted',
+            f'Your event permit "{event_name}" has been submitted for review. Reference: {ref_num} | Queue: {queue_num}'
+        ))
+        conn.commit()
         
         # ===== GET RESIDENT INFO =====
         cursor.execute("SELECT first_name, email FROM users WHERE id = %s", (session['user_id'],))
@@ -2620,6 +2445,7 @@ def court4_update_event_status(event_id):
         return jsonify({'error': 'Unauthorized'}), 401
     return _update_event_status(event_id)
 
+
 def _update_event_status(event_id):
     data = request.json
     status = data.get('status')
@@ -2649,7 +2475,7 @@ def _update_event_status(event_id):
     conn.close()
     
     # ============================================
-    # SEND EMAIL + INTERNAL NOTIFICATION
+    # SEND EMAIL NOTIFICATION TO RESIDENT
     # ============================================
     if event_data:
         status_text = "APPROVED ✅" if status == 'approved' else "REJECTED ❌"
@@ -2708,6 +2534,10 @@ def _update_event_status(event_id):
                                         </tr>
                                     </table>
                                     
+                                    <p style="margin: 25px 0 0; color: #64748b; font-size: 14px; line-height: 1.7;">
+                                        You can log in to the system to view full details.
+                                    </p>
+                                    
                                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0 10px;">
                                         <tr>
                                             <td align="center">
@@ -2740,23 +2570,6 @@ def _update_event_status(event_id):
         </html>
         """
         send_email(event_data['email'], subject, body_html)
-        
-        # ===== INTERNAL NOTIFICATION — RESIDENT =====
-        conn2 = get_db()
-        cursor2 = conn2.cursor(dictionary=True)
-        cursor2.execute("SELECT user_id FROM event_permits WHERE id = %s", (event_id,))
-        permit_owner = cursor2.fetchone()
-        conn2.close()
-        
-        if permit_owner:
-            status_emoji = '✅' if status == 'approved' else '❌'
-            create_notification(
-                permit_owner['user_id'],
-                f'{status_emoji} Permit {status.title()}',
-                f'Your permit for "{event_data["event_name"]}" has been {status}. {("Remarks: " + remarks) if remarks else ""}',
-                f'permit_{status}',
-                link='/my-requests'
-            )
     
     return jsonify({
         'success': True,
@@ -2920,23 +2733,6 @@ def update_document_status(doc_id):
         </html>
         """
         send_email(user_data['email'], subject, body_html)
-        
-        # ===== INTERNAL NOTIFICATION — RESIDENT =====
-        conn2 = get_db()
-        cursor2 = conn2.cursor(dictionary=True)
-        cursor2.execute("SELECT user_id, document_type FROM document_requests WHERE id = %s", (doc_id,))
-        doc_info = cursor2.fetchone()
-        conn2.close()
-        
-        if doc_info:
-            status_emoji = '✅' if status == 'approved' else '❌'
-            create_notification(
-                doc_info['user_id'],
-                f'{status_emoji} Document {status.title()}',
-                f'Your {doc_info["document_type"].replace("_", " ").title()} request has been {status}. {("Remarks: " + remarks) if remarks else ""}',
-                f'document_{status}',
-                link='/my-requests'
-            )
     
     return jsonify({
         'success': True,

@@ -36,6 +36,143 @@
         .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
         .navbar-right { display: flex; align-items: center; gap: 16px; }
 
+        /* ===== NOTIFICATION BELL (BAGO) ===== */
+        .notification-bell-wrap {
+            position: relative;
+            margin-right: 12px;
+        }
+        .bell-btn {
+            position: relative;
+            background: #f4f8f5;
+            border: 1px solid #eef2f0;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #1a5d3a;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .bell-btn:hover {
+            background: #eef8f2;
+            border-color: #d4f0df;
+            transform: translateY(-2px);
+        }
+        .bell-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+        }
+        .bell-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #eef2f0;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+            min-width: 340px;
+            max-width: 380px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        .bell-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .bell-dropdown-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bell-dropdown-header i {
+            background: rgba(255,255,255,0.15);
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .bell-dropdown-body {
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        .bell-item {
+            display: block;
+            padding: 12px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #0d2b1e;
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f4f8f5;
+        }
+        .bell-item:last-child { border-bottom: none; }
+        .bell-item:hover { background: #f4f8f5; }
+        .bell-item-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0d2b1e;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .bell-item-date {
+            font-size: 11px;
+            color: #8a9a8f;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .bell-loading, .bell-empty {
+            text-align: center;
+            padding: 30px 20px;
+            color: #8a9a8f;
+            font-size: 13px;
+        }
+        .bell-empty i {
+            font-size: 36px;
+            color: #d4f0df;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .bell-dropdown-footer {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            background: #f8fafc;
+            color: #1a5d3a;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            border-top: 1px solid #eef2f0;
+        }
+        .bell-dropdown-footer:hover { background: #eef8f2; }
+        /* ===== END NOTIFICATION BELL ===== */
+
         /* PROFILE DROPDOWN */
         .profile-dropdown { position: relative; }
         .profile-trigger {
@@ -364,6 +501,7 @@
             .navbar { left: 70px; padding: 0 16px; height: 60px; }
             .profile-info { display: none; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
+            .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
         }
     </style>
 </head>
@@ -383,6 +521,7 @@
     <ul class="sidebar-menu">
         <li><a href="{{ url_for('court3_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
         <li><a href="{{ url_for('court3_pending') }}"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+        <li><a href="{{ url_for('court3_reviewed') }}"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
         <li class="active"><a href="{{ url_for('court3_calendar') }}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
     </ul>
 </div>
@@ -395,6 +534,29 @@
         </div>
     </div>
     <div class="navbar-right">
+
+        <!-- ===== NOTIFICATION BELL (BAGO) ===== -->
+        <div class="notification-bell-wrap">
+            <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
+                <i class="fas fa-bell"></i>
+                <span class="bell-badge" id="bellBadge" style="display:none;">0</span>
+            </button>
+            <div class="bell-dropdown" id="bellDropdown">
+                <div class="bell-dropdown-header">
+                    <i class="fas fa-bullhorn"></i> Recent Announcements
+                </div>
+                <div class="bell-dropdown-body" id="bellList">
+                    <div class="bell-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+                <a href="/view-announcements" class="bell-dropdown-footer">
+                    View All Announcements <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <!-- ===== END NOTIFICATION BELL ===== -->
+
         <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-trigger" onclick="toggleProfile()">
                 <div class="profile-avatar">
@@ -455,12 +617,83 @@
 
 <script>
     function toggleProfile() {
-        document.getElementById('profileDropdown').classList.toggle('open');
+        const dd = document.getElementById('profileDropdown');
+        const bell = document.getElementById('bellDropdown');
+        if (bell) bell.classList.remove('open');
+        dd.classList.toggle('open');
     }
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('profileDropdown');
         if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
+
+    // ===== NOTIFICATION BELL (BAGO) =====
+    function toggleBell(event) {
+        if (event) event.stopPropagation();
+        const dropdown = document.getElementById('bellDropdown');
+        const userDropdown = document.getElementById('profileDropdown');
+        if (userDropdown) userDropdown.classList.remove('open');
+        dropdown.classList.toggle('open');
+        if (dropdown.classList.contains('open')) loadRecentAnnouncements();
+    }
+
+    function loadRecentAnnouncements() {
+        const list = document.getElementById('bellList');
+        list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        fetch('/api/announcements/recent?limit=5')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.announcements || data.announcements.length === 0) {
+                    list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                    return;
+                }
+                let html = '';
+                data.announcements.forEach(a => {
+                    const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    html += `<a href="/announcements" class="bell-item"><div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div><div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div></a>`;
+                });
+                list.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Bell fetch error:', err);
+                list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
+            });
+    }
+
+    function updateBellBadge() {
+        fetch('/api/announcements/unread_count')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('bellBadge');
+                if (!badge) return;
+                const count = data.unread_count || 0;
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(err => console.error('Badge fetch error:', err));
+    }
+
+    function escapeHtmlBell(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.addEventListener('click', function(e) {
+        const bellWrap = document.querySelector('.notification-bell-wrap');
+        const dropdown = document.getElementById('bellDropdown');
+        if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
+    });
+    // ===== END NOTIFICATION BELL =====
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');

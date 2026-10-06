@@ -1251,13 +1251,30 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="purpose"><i class="fas fa-align-left"></i> Purpose of Event</label>
-                            <textarea name="purpose" id="purpose" rows="3" placeholder="Describe the purpose of your event..."></textarea>
+                            <label for="purpose"><i class="fas fa-align-left"></i> Purpose of Event <span class="required">*</span></label>
+                            <textarea name="purpose" id="purpose" rows="3" placeholder="Describe the purpose of your event..." required></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- SECTION 5: FILE UPLOAD -->
+                <!-- SECTION 5: CONTACT INFORMATION (BAGO) -->
+                <div class="form-section-title"><i class="fas fa-address-book"></i> Contact Information</div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="contactPerson"><i class="fas fa-user"></i> Contact Person <span class="required">*</span></label>
+                            <input type="text" name="contact_person" id="contactPerson" placeholder="e.g., Juan Dela Cruz" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="contactPhone"><i class="fas fa-phone"></i> Contact Phone <span class="required">*</span></label>
+                            <input type="text" name="contact_phone" id="contactPhone" placeholder="e.g., 09171234567" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 6: FILE UPLOAD -->
                 <div class="form-section-title"><i class="fas fa-upload"></i> Supporting Document</div>
                 <div class="form-group">
                     <div class="file-input-wrapper">
@@ -1266,7 +1283,7 @@
                     </div>
                 </div>
 
-                <!-- SECTION 6: TERMS -->
+                <!-- SECTION 7: TERMS -->
                 <div class="terms-section" id="termsSection">
                     <div class="terms-header" onclick="toggleTerms()">
                         <i class="fas fa-file-contract"></i>
@@ -1503,6 +1520,7 @@
                 }, 400);
             });
         });
+
         // ===== USER MENU DROPDOWN =====
         function toggleUserMenu(event) {
             if (event) {
@@ -1622,7 +1640,6 @@
         document.getElementById('termsCheckbox').addEventListener('change', function() {
             const wrapper = document.getElementById('termsCheckboxWrapper');
             const errorMsg = document.getElementById('termsErrorMsg');
-            const statusDiv = document.getElementById('availabilityStatus');
 
             if (this.checked) {
                 wrapper.classList.remove('error');
@@ -1808,7 +1825,7 @@
         function closeModal() {
             document.getElementById('permitModal').style.display = 'none';
             document.body.style.overflow = 'auto';
-            window.location.href = "{{ url_for('dashboard') }}";
+            window.location.href = "{{ url_for('my_requests') }}";
         }
 
         window.onclick = function(event) {
@@ -1857,27 +1874,18 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`Server error ${response.status}: ${text.substring(0, 200)}`);
-                    });
-                }
-                return response.text();
-            })
-            .then(html => {
-                // Check if response contains success indicators
-                if (html.includes('Permit Submitted') || html.includes('my-requests') || html.includes('success')) {
-                    // Since we don't get JSON back easily, show success modal with form data
-                    const formDataObj = new FormData(form);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success modal with TOTOONG data galing server
                     showPermitModal({
-                        reference_number: 'BP-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(1000 + Math.random() * 9000),
-                        queuing_number: 'Q-' + String(Math.floor(1 + Math.random() * 999)).padStart(3, '0'),
-                        event_name: formDataObj.get('event_name') || 'N/A',
-                        event_date: formDataObj.get('event_date') || 'N/A',
-                        start_time: formDataObj.get('start_time') || 'N/A',
-                        end_time: formDataObj.get('end_time') || 'N/A',
-                        venue: formDataObj.get('venue') || 'N/A'
+                        reference_number: data.reference_number,
+                        queuing_number: data.queuing_number,
+                        event_name: data.event_name,
+                        event_date: data.event_date,
+                        start_time: data.start_time,
+                        end_time: data.end_time,
+                        venue: data.venue
                     });
 
                     form.reset();
@@ -1896,8 +1904,7 @@
 
                     if (termsOpen) toggleTerms();
                 } else {
-                    alert('Submission completed. Please check your requests page.');
-                    window.location.href = '/my-requests';
+                    alert('Error: ' + (data.error || 'Unknown error'));
                 }
 
                 submitBtn.disabled = false;
