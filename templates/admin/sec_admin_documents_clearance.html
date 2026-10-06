@@ -13,13 +13,294 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* ===== NAVBAR ===== */
+        /* ===== SIDEBAR (CARD STYLE) ===== */
+        .sidebar-custom {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 85px;
+            height: 100%;
+            background: linear-gradient(180deg, #0d2b1e 0%, #1a5d3a 100%);
+            color: white;
+            padding: 24px 10px;
+            z-index: 200;
+            overflow-x: visible;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.08);
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-custom.expanded {
+            width: 280px;
+            padding: 24px 18px;
+            overflow-x: hidden;
+        }
+        .sidebar-custom::-webkit-scrollbar { width: 5px; }
+        .sidebar-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        .sidebar-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .sidebar-header .logo-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.2);
+            background: white;
+            padding: 3px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar-custom.expanded .sidebar-header .logo-img {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 12px;
+        }
+        .sidebar-header h2 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: opacity 0.25s ease 0.05s;
+        }
+        .sidebar-custom.expanded .sidebar-header h2 {
+            opacity: 1;
+            height: auto;
+        }
+        .sidebar-header small {
+            font-size: 11px;
+            opacity: 0;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+            transition: opacity 0.25s ease 0.05s;
+            height: 0;
+            overflow: hidden;
+        }
+        .sidebar-custom.expanded .sidebar-header small {
+            opacity: 0.6;
+            height: auto;
+        }
+
+        .sidebar-burger {
+            margin-top: 16px;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .sidebar-burger:hover {
+            background: rgba(107,196,142,0.2);
+            border-color: rgba(107,196,142,0.4);
+            color: #6bc48e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(107,196,142,0.15);
+        }
+        .sidebar-custom.expanded .sidebar-burger {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin-top: 0;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-menu li { 
+            margin: 0; 
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .sidebar-menu a,
+        .sidebar-menu a:link,
+        .sidebar-menu a:visited,
+        .sidebar-menu a:focus,
+        .sidebar-menu a:active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            padding: 0;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 14px;
+            transition: all 0.25s ease;
+            font-size: 18px;
+            background: rgba(255,255,255,0.04) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            outline: none !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+            overflow: hidden;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.1) !important;
+            border-color: rgba(255,255,255,0.18) !important;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        
+        .sidebar-menu .active a {
+            background: rgba(107,196,142,0.2) !important;
+            border-color: rgba(107,196,142,0.35) !important;
+            color: #6bc48e;
+            box-shadow: 0 4px 12px rgba(107,196,142,0.15) !important;
+        }
+        
+        .sidebar-menu i {
+            width: 24px;
+            min-width: 24px;
+            font-size: 18px;
+            text-align: center;
+            color: inherit;
+            transition: color 0.25s ease;
+            background: transparent !important;
+            border: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        .sidebar-menu .active a i,
+        .sidebar-menu a:hover i {
+            color: #6bc48e;
+        }
+        
+        .sidebar-menu span {
+            display: none;
+            opacity: 0;
+            max-width: 0;
+            overflow: hidden;
+            transition: opacity 0.25s ease 0.05s, max-width 0.3s ease;
+        }
+        
+        .sidebar-custom.expanded .sidebar-menu li {
+            justify-content: flex-start;
+        }
+        .sidebar-custom.expanded .sidebar-menu a {
+            justify-content: flex-start;
+            width: 100%;
+            height: auto;
+            padding: 14px 16px;
+            gap: 14px;
+            font-size: 13.5px;
+            font-weight: 500;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .sidebar-custom.expanded .sidebar-menu span {
+            display: inline-block;
+            opacity: 1;
+            max-width: 200px;
+        }
+        .sidebar-custom.expanded .sidebar-menu a:hover {
+            transform: translateX(4px);
+        }
+        .sidebar-custom.expanded .sidebar-menu .active a {
+            transform: translateX(4px);
+        }
+
+        .sidebar-custom:not(.expanded) .sidebar-menu a {
+            position: relative;
+        }
+        .sidebar-custom:not(.expanded) .sidebar-menu a::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 110%;
+            top: 50%;
+            transform: translateY(-50%) translateX(-10px);
+            background: #0d2b1e;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 999;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-custom:not(.expanded) .sidebar-menu a::before {
+            content: '';
+            position: absolute;
+            left: 105%;
+            top: 50%;
+            transform: translateY(-50%) translateX(-10px);
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent #0d2b1e transparent transparent;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            pointer-events: none;
+        }
+        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after,
+        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::before {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        /* ===== NAVBAR (CARD STYLE) ===== */
         .navbar {
-            position: fixed; top: 0; left: 280px; right: 0; height: 68px;
-            background: white; border-bottom: 1px solid #eef2f0;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 30px; z-index: 99;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+            position: fixed;
+            top: 12px;
+            left: 97px;
+            right: 12px;
+            height: 64px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 99;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f0;
+            gap: 16px;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body.sidebar-expanded .navbar {
+            left: 292px;
         }
         .navbar-left {
             display: flex;
@@ -36,10 +317,14 @@
         .navbar-left .page-title i {
             color: #1a5d3a; margin-right: 8px;
         }
+
         .navbar-search {
-            display: flex; align-items: center;
-            background: #f4f8f5; border-radius: 50px;
-            padding: 10px 22px; gap: 12px;
+            display: flex;
+            align-items: center;
+            background: #f4f8f5;
+            border-radius: 50px;
+            padding: 10px 22px;
+            gap: 12px;
             border: 1.5px solid #eef2f0;
             transition: all 0.2s ease;
             width: 100%;
@@ -199,7 +484,6 @@
             border-top: 1px solid #eef2f0;
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
-        /* ===== END NOTIFICATION BELL ===== */
 
         /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
@@ -248,52 +532,16 @@
         .profile-menu .logout-link:hover { background: #fff5f5; color: #b91c1c; }
         .profile-menu .logout-link i { color: #dc3545; }
 
-        /* ===== SIDEBAR ===== */
-        .sidebar-custom {
-            position: fixed; left: 0; top: 0; width: 280px; height: 100%;
-            background: linear-gradient(180deg, #0d2b1e 0%, #1a5d3a 100%);
-            color: white; padding: 30px 20px; z-index: 100;
-            overflow-y: auto; box-shadow: 2px 0 20px rgba(0,0,0,0.08);
-        }
-        .sidebar-header {
-            text-align: center; padding-bottom: 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;
-        }
-        .sidebar-header .logo-img {
-            width: 70px; height: 70px; border-radius: 50%; object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.2); margin-bottom: 12px;
-            background: white; padding: 4px; transition: transform 0.3s ease;
-        }
-        .sidebar-header .logo-img:hover { transform: rotate(-10deg) scale(1.05); }
-        .sidebar-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
-        .sidebar-header small { font-size: 11px; opacity: 0.6; letter-spacing: 0.5px; }
-
-        .sidebar-menu { list-style: none; }
-        .sidebar-menu li { margin-bottom: 4px; }
-        .sidebar-menu a {
-            display: flex; align-items: center; gap: 14px; padding: 11px 18px;
-            color: rgba(255,255,255,0.65); text-decoration: none; border-radius: 10px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 14px; font-weight: 500; position: relative; overflow: hidden;
-        }
-        .sidebar-menu a::before {
-            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            width: 3px; height: 0; background: #6bc48e; border-radius: 0 4px 4px 0;
-            transition: height 0.3s ease;
-        }
-        .sidebar-menu a:hover::before,
-        .sidebar-menu .active a::before { height: 24px; }
-        .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.08); color: white; transform: translateX(8px);
-        }
-        .sidebar-menu .active a { background: rgba(255,255,255,0.12); color: white; }
-        .sidebar-menu i { width: 22px; font-size: 15px; transition: transform 0.3s ease; }
-        .sidebar-menu a:hover i { transform: scale(1.15); }
-
         /* ===== MAIN CONTENT ===== */
         .main-with-sidebar {
-            margin-left: 280px; padding: 92px 30px 25px;
-            min-height: 100vh; animation: fadeInUp 0.4s ease;
+            margin-left: 85px;
+            padding: 100px 30px 25px;
+            min-height: 100vh;
+            animation: fadeInUp 0.4s ease;
+            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body.sidebar-expanded .main-with-sidebar {
+            margin-left: 280px;
         }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(15px); }
@@ -308,7 +556,6 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
-        /* ===== FILTERS ===== */
         .filter-bar {
             display: flex; justify-content: space-between;
             align-items: center; flex-wrap: wrap;
@@ -367,12 +614,8 @@
         .btn-action:hover { transform: translateY(-2px) scale(1.04); }
         .btn-action:active { transform: scale(0.95); }
 
-        .btn-doc { background: #1e40af; color: white; }
-        .btn-doc:hover { background: #1e3a8a; box-shadow: 0 4px 12px rgba(30,64,175,0.3); }
         .btn-view-details { background: #0d2b1e; color: white; }
         .btn-view-details:hover { background: #1a5d3a; box-shadow: 0 4px 12px rgba(13,43,30,0.3); }
-
-        .no-file { color: #b0b8b4; font-size: 11px; font-weight: 500; }
 
         .empty-state {
             text-align: center; padding: 50px 20px; color: #8a9a8f;
@@ -424,19 +667,6 @@
         }
         .modal-close:hover {
             color: #dc3545; background: #fef2f2; transform: rotate(90deg);
-        }
-
-        .modal-doc-preview {
-            text-align: center; padding: 15px;
-            background: #f8f9fa; border-radius: 12px;
-        }
-        .modal-doc-preview img {
-            max-width: 100%; max-height: 500px;
-            border-radius: 8px; border: 1px solid #eef0f2;
-        }
-        .modal-doc-preview iframe {
-            width: 100%; height: 500px;
-            border: 1px solid #eef0f2; border-radius: 8px;
         }
 
         /* ===== VIEW GRID ===== */
@@ -527,16 +757,16 @@
         }
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
-            .sidebar-header h2, .sidebar-menu span { display: none; }
-            .sidebar-header .logo-img { width: 45px; height: 45px; }
-            .sidebar-menu a { justify-content: center; padding: 10px; }
-            .navbar { left: 70px; padding: 0 16px; height: 60px; }
+            .sidebar-custom.expanded { width: 240px; }
+            .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
+            body.sidebar-expanded .navbar { left: 252px; }
             .navbar-left { gap: 12px; }
             .navbar-left .page-title { font-size: 15px; }
             .navbar-search { display: none; }
             .profile-info { display: none; }
             .profile-trigger { padding: 4px; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
+            body.sidebar-expanded .main-with-sidebar { margin-left: 240px; }
             .big-card { padding: 18px; border-radius: 20px; }
             .modal-box { padding: 20px; border-radius: 20px; }
             .view-grid { grid-template-columns: 1fr; gap: 10px; }
@@ -553,28 +783,32 @@
 </head>
 <body>
 
-<!-- ===== SIDEBAR ===== -->
-<div class="sidebar-custom">
+<!-- ===== SIDEBAR (CARD STYLE) ===== -->
+<div class="sidebar-custom" id="sidebar">
     <div class="sidebar-header">
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img" 
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img"
              onerror="this.style.display='none'; this.parentElement.querySelector('.logo-fallback').style.display='flex'">
-        <div class="logo-fallback" style="display: none; width: 70px; height: 70px; background: rgba(255,255,255,0.12); border-radius: 50%; margin: 0 auto 12px; align-items: center; justify-content: center; font-size: 28px;">
+        <div class="logo-fallback" style="display: none; width: 48px; height: 48px; background: rgba(255,255,255,0.12); border-radius: 50%; align-items: center; justify-content: center; font-size: 20px;">
             <i class="fas fa-landmark"></i>
         </div>
         <h2>Barangay Sto. Niño</h2>
         <small>Documents Admin</small>
+        
+        <button class="sidebar-burger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
     </div>
     <ul class="sidebar-menu">
-        <li><a href="{{ url_for('sec_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('admin_documents') }}"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
-        <li class="active"><a href="{{ url_for('admin_documents_clearance') }}"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
-        <li><a href="{{ url_for('admin_documents_indigency') }}"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
-        <li><a href="{{ url_for('admin_documents_residency') }}"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
-        <li><a href="{{ url_for('admin_activity_logs') }}"><i class="fas fa-history"></i> <span>Activity Logs</span></a></li>
+        <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('admin_documents') }}" data-title="All Documents"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
+        <li class="active"><a href="{{ url_for('admin_documents_clearance') }}" data-title="Barangay Clearance"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
+        <li><a href="{{ url_for('admin_documents_indigency') }}" data-title="Certificate of Indigency"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
+        <li><a href="{{ url_for('admin_documents_residency') }}" data-title="Proof of Residency"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
+        <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-history"></i> <span>Activity Logs</span></a></li>
     </ul>
 </div>
 
-<!-- ===== NAVBAR ===== -->
+<!-- ===== NAVBAR (CARD STYLE) ===== -->
 <nav class="navbar">
     <div class="navbar-left">
         <div class="page-title">
@@ -656,7 +890,7 @@
             </div>
         </div>
 
-        <!-- TABLE -->
+        <!-- TABLE (INALIS ANG DOCUMENT COLUMN) -->
         <div class="table-container">
             <table>
                 <thead>
@@ -666,7 +900,6 @@
                         <th>Applicant</th>
                         <th>Date Submitted</th>
                         <th>Status</th>
-                        <th>Document</th>
                         <th style="text-align:center;">Action</th>
                     </tr>
                 </thead>
@@ -684,15 +917,6 @@
                                 {% else %}status-rejected{% endif %}">
                                 {{ doc.status|upper }}
                             </span>
-                        </td>
-                        <td>
-                            {% if doc.document_path %}
-                                <button class="btn-action btn-doc" onclick="viewDocument('{{ doc.document_path }}')">
-                                    <i class="fas fa-file-alt"></i> View File
-                                </button>
-                            {% else %}
-                                <span class="no-file">No file</span>
-                            {% endif %}
                         </td>
                         <td style="text-align:center;">
                             <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
@@ -714,19 +938,6 @@
 
         <div class="footer">
             <p>© 2025 Barangay Sto. Niño, Parañaque City | Documents Admin</p>
-        </div>
-    </div>
-</div>
-
-<!-- ===== DOCUMENT VIEW MODAL ===== -->
-<div id="docModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3><i class="fas fa-file-alt"></i> Uploaded Document</h3>
-            <button class="modal-close" onclick="closeDocModal()">&times;</button>
-        </div>
-        <div class="modal-doc-preview" id="docPreview">
-            <p>Loading document...</p>
         </div>
     </div>
 </div>
@@ -854,6 +1065,27 @@
     let currentDocId = null;
     let currentDocData = null;
 
+    // ===== SIDEBAR TOGGLE =====
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const body = document.body;
+        sidebar.classList.toggle('expanded');
+        body.classList.toggle('sidebar-expanded');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('sidebarExpanded') === 'true') {
+            document.getElementById('sidebar').classList.add('expanded');
+            document.body.classList.add('sidebar-expanded');
+        }
+    });
+
+    const observer = new MutationObserver(function() {
+        localStorage.setItem('sidebarExpanded', 
+            document.getElementById('sidebar').classList.contains('expanded'));
+    });
+    observer.observe(document.getElementById('sidebar'), { attributes: true, attributeFilter: ['class'] });
+
     // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
         const dd = document.getElementById('profileDropdown');
@@ -932,7 +1164,6 @@
         updateBellBadge();
         setInterval(updateBellBadge, 30000);
     });
-    // ===== END NOTIFICATION BELL =====
 
     // ===== FILTER TABLE =====
     function filterTable() {
@@ -966,40 +1197,6 @@
     function safe(val) {
         if (val === null || val === undefined || val === '') return 'N/A';
         return String(val);
-    }
-
-    // ===== VIEW DOCUMENT =====
-    function viewDocument(filename) {
-        const modal = document.getElementById('docModal');
-        const preview = document.getElementById('docPreview');
-        modal.classList.add('active');
-        
-        const fileExt = filename.split('.').pop().toLowerCase();
-        const fileUrl = `/uploads/${filename}`;
-        
-        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
-            preview.innerHTML = `<img src="${fileUrl}" alt="Document">`;
-        } else if (fileExt === 'pdf') {
-            preview.innerHTML = `
-                <iframe src="${fileUrl}"></iframe>
-                <br><br>
-                <a href="${fileUrl}" target="_blank" class="btn-action btn-doc" style="padding:10px 24px;">
-                    <i class="fas fa-download"></i> Download PDF
-                </a>
-            `;
-        } else {
-            preview.innerHTML = `
-                <p><i class="fas fa-file" style="font-size:48px;color:#6b7a72;"></i></p>
-                <p><strong>${filename}</strong></p>
-                <a href="${fileUrl}" target="_blank" class="btn-action btn-doc" style="padding:10px 24px;">
-                    <i class="fas fa-download"></i> Download File
-                </a>
-            `;
-        }
-    }
-
-    function closeDocModal() {
-        document.getElementById('docModal').classList.remove('active');
     }
 
     // ===== VIEW DETAILS (may Split Approve/Reject sa baba) =====
@@ -1174,7 +1371,6 @@
                     </div>
                 `;
                 
-                // Show Approve/Reject split buttons kung pending pa
                 if (doc.status === 'pending') {
                     actions.style.display = 'grid';
                 } else {
