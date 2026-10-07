@@ -50,39 +50,34 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--neutral-50);
-            background-image: 
-                radial-gradient(circle at 100% 0%, rgba(34, 139, 84, 0.06) 0%, transparent 45%),
-                radial-gradient(circle at 0% 100%, rgba(34, 139, 84, 0.05) 0%, transparent 45%);
-            background-attachment: fixed;
+            background: url("{{ url_for('static', filename='images/barangay-hall.jpg') }}") center center / cover no-repeat fixed;
             min-height: 100vh;
             color: var(--neutral-900);
-            animation: fadeInPage 0.5s ease-out;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(7, 31, 20, 0.75) 0%,
+                rgba(15, 61, 42, 0.65) 50%,
+                rgba(20, 82, 51, 0.70) 100%
+            );
+            z-index: 0;
+            pointer-events: none;
         }
 
         @keyframes fadeInPage {
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        body.fade-out {
-            opacity: 0;
-            transform: translateY(-16px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body.fade-out::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            width: 100%;
-            background: linear-gradient(90deg, #228b54, #6bc48e);
-            z-index: 99999;
-            animation: loadingBar 0.4s ease-out forwards;
         }
 
         @keyframes loadingBar {
@@ -102,7 +97,7 @@
             padding: 26px 20px;
             display: flex;
             flex-direction: column;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
             overflow-y: auto;
             scrollbar-width: none;
@@ -122,7 +117,7 @@
             pointer-events: none;
         }
 
-        /* ===== SIDEBAR BRAND (Centered layout) ===== */
+        /* ===== SIDEBAR BRAND ===== */
         .sidebar-brand {
             display: flex;
             flex-direction: column;
@@ -133,7 +128,6 @@
             position: relative;
         }
 
-        /* Top row: logo centered + toggle absolute right */
         .sidebar-brand .brand-top {
             position: relative;
             width: 100%;
@@ -159,7 +153,7 @@
                 0 10px 24px rgba(0,0,0,0.28),
                 0 0 0 3px rgba(255,255,255,0.15);
             border: 2px solid rgba(255,255,255,0.3);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, width 0.35s ease, height 0.35s ease, padding 0.35s ease;
         }
 
         .sidebar-brand .logo-img:hover {
@@ -173,7 +167,6 @@
             border-radius: 50%;
         }
 
-        /* Toggle button — nasa kanan ng logo */
         .sidebar-toggle {
             position: absolute;
             right: 0;
@@ -192,12 +185,20 @@
             font-size: 1.15rem;
             transition: all 0.25s ease;
             flex-shrink: 0;
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.25),
+                0 3px 8px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-toggle:hover {
             background: rgba(255,255,255,0.18);
-            transform: translateY(-50%) scale(1.05);
+            transform: translateY(-50%) scale(1.08);
             border-color: rgba(255,255,255,0.5);
+            box-shadow: 
+                0 14px 32px rgba(0, 0, 0, 0.35),
+                0 6px 12px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .sidebar-toggle i {
@@ -256,7 +257,7 @@
         }
 
         .sidebar.collapsed .sidebar-toggle:hover {
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
 
         .sidebar.collapsed .sidebar-brand h4,
@@ -288,7 +289,6 @@
             justify-content: center;
         }
 
-        /* Tooltip kapag collapsed */
         .sidebar.collapsed .sidebar-nav a::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -338,6 +338,7 @@
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             letter-spacing: -0.01em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .sidebar-nav a i {
@@ -351,6 +352,9 @@
             background: rgba(255,255,255,0.08);
             color: white;
             transform: translateX(4px);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
         .sidebar.collapsed .sidebar-nav a:hover {
@@ -366,9 +370,9 @@
             color: white;
             font-weight: 600;
             box-shadow: 
-                0 8px 20px rgba(0,0,0,0.12),
-                inset 0 1px 0 rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.1);
+                0 12px 28px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-nav a.active::before {
@@ -399,7 +403,7 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* ===== BELL SA BABA-KANAN ===== */
+        /* ===== BELL ===== */
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
@@ -419,15 +423,26 @@
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.08);
             transition: all 0.3s ease;
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.25),
+                0 2px 6px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .sidebar-bell:hover {
             background: rgba(255, 255, 255, 0.18);
-            transform: scale(1.05);
+            transform: scale(1.08);
+            box-shadow: 
+                0 12px 28px rgba(0, 0, 0, 0.35),
+                0 4px 12px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .sidebar-bell.active {
             background: rgba(255, 255, 255, 0.22);
+            box-shadow: 
+                0 12px 28px rgba(0, 0, 0, 0.40),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .sidebar-bell i {
@@ -584,26 +599,55 @@
             gap: 12px;
         }
 
-        /* ===== MAIN CONTENT ===== */
+        /* ===== MAIN CONTENT: FIXED MARGIN, FADE ONLY HERE ===== */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px 48px;
             min-height: 100vh;
-            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, transform 0.3s ease;
             max-width: 1600px;
+            position: relative;
+            z-index: 1;
+            animation: fadeInPage 0.4s ease-out;
         }
 
         body.sidebar-collapsed .main-content {
             margin-left: var(--sidebar-collapsed-width);
         }
 
+        .main-content.fade-out {
+            opacity: 0;
+            transform: translateY(-16px);
+        }
+
+        .main-content.fade-out::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #228b54, #6bc48e);
+            z-index: 99999;
+            animation: loadingBar 0.3s ease-out forwards;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.sidebar-collapsed .main-content.fade-out::after {
+            left: var(--sidebar-collapsed-width);
+        }
+
         /* ===== PAGE HEADER ===== */
         .page-header {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
             border-radius: 24px;
             padding: 32px 36px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--neutral-100);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.25),
+                0 8px 20px rgba(0, 0, 0, 0.15),
+                0 2px 6px rgba(0, 0, 0, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -611,6 +655,8 @@
             flex-wrap: wrap;
             gap: 20px;
             position: relative;
+            overflow: visible;
+            z-index: 100;
         }
 
         .page-header h1 {
@@ -663,13 +709,19 @@
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
+            box-shadow: 
+                0 6px 16px rgba(15, 61, 42, 0.15),
+                0 2px 6px rgba(15, 61, 42, 0.10),
+                0 1px 2px rgba(15, 61, 42, 0.08);
         }
 
         .user-badge:hover {
             border-color: var(--primary-400);
             background: white;
-            box-shadow: 0 8px 20px rgba(34, 139, 84, 0.12);
-            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 28px rgba(34, 139, 84, 0.25),
+                0 6px 12px rgba(34, 139, 84, 0.15);
+            transform: translateY(-3px);
         }
 
         .user-badge .avatar {
@@ -716,18 +768,19 @@
             position: absolute;
             top: calc(100% + 12px);
             right: 0;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
+            background: #ffffff;
             border: 1px solid var(--neutral-100);
             border-radius: 18px;
-            box-shadow: var(--shadow-xl);
+            box-shadow: 
+                0 24px 60px rgba(0,0,0,0.25),
+                0 0 0 1px rgba(0,0,0,0.05);
             padding: 10px;
             min-width: 280px;
-            z-index: 9999;
+            z-index: 999999;
         }
 
         .user-menu.show {
-            display: block;
+            display: block !important;
             animation: menuSlide 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -798,26 +851,32 @@
             transition: all 0.25s ease;
             font-family: 'Inter', sans-serif;
             letter-spacing: -0.01em;
+            box-shadow: 
+                0 6px 16px rgba(15, 61, 42, 0.15),
+                0 2px 6px rgba(15, 61, 42, 0.10),
+                0 1px 2px rgba(15, 61, 42, 0.08);
         }
         .lang-switcher-btn:hover {
             background: var(--primary-50);
             border-color: var(--primary-300);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(34, 139, 84, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 24px rgba(34, 139, 84, 0.25),
+                0 4px 10px rgba(34, 139, 84, 0.15);
         }
         .lang-menu {
             display: none;
             position: absolute;
             top: 100%;
             right: 0;
-            background: white;
+            background: #ffffff;
             border: 1px solid var(--neutral-100);
             border-radius: 14px;
             box-shadow: var(--shadow-lg);
             padding: 8px;
             margin-top: 10px;
             min-width: 160px;
-            z-index: 9999;
+            z-index: 999999;
         }
         .lang-menu.show {
             display: block;
@@ -846,37 +905,59 @@
             gap: 24px;
             height: calc(100vh - 230px);
             min-height: 600px;
+            position: relative;
+            z-index: 1;
         }
 
         .calendar-panel {
             flex: 6.5;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
             border-radius: 24px;
             padding: 28px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--neutral-100);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.18),
+                0 4px 12px rgba(0, 0, 0, 0.10),
+                0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             transition: box-shadow 0.3s ease;
+            position: relative;
+            z-index: 10;
         }
 
-        .calendar-panel:hover { box-shadow: var(--shadow-lg); }
+        .calendar-panel:hover { 
+            box-shadow: 
+                0 24px 60px rgba(0, 0, 0, 0.28),
+                0 8px 20px rgba(0, 0, 0, 0.15);
+        }
 
         .details-panel {
             flex: 3.5;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
             border-radius: 24px;
             padding: 28px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--neutral-100);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.18),
+                0 4px 12px rgba(0, 0, 0, 0.10),
+                0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             transition: box-shadow 0.3s ease;
+            position: relative;
+            z-index: 10;
         }
 
-        .details-panel:hover { box-shadow: var(--shadow-lg); }
+        .details-panel:hover { 
+            box-shadow: 
+                0 24px 60px rgba(0, 0, 0, 0.28),
+                0 8px 20px rgba(0, 0, 0, 0.15);
+        }
 
         .details-panel::-webkit-scrollbar { width: 6px; }
         .details-panel::-webkit-scrollbar-track { background: transparent; }
@@ -918,7 +999,9 @@
             padding: 8px 14px !important;
             border-radius: 10px !important;
             text-transform: capitalize;
-            box-shadow: 0 4px 12px rgba(34, 139, 84, 0.25);
+            box-shadow: 
+                0 6px 16px rgba(34, 139, 84, 0.25),
+                0 2px 6px rgba(34, 139, 84, 0.15);
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             font-size: 0.85rem !important;
             opacity: 1 !important;
@@ -931,7 +1014,9 @@
         }
         .fc .fc-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(34, 139, 84, 0.35);
+            box-shadow: 
+                0 12px 28px rgba(34, 139, 84, 0.35),
+                0 4px 12px rgba(34, 139, 84, 0.20);
         }
         .fc .fc-button:focus {
             box-shadow: 0 0 0 3px rgba(34, 139, 84, 0.35) !important;
@@ -1124,6 +1209,10 @@
             animation: fadeInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
+            box-shadow: 
+                0 10px 30px rgba(15, 61, 42, 0.18),
+                0 6px 12px rgba(15, 61, 42, 0.12),
+                0 2px 4px rgba(15, 61, 42, 0.08);
         }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(12px); }
@@ -1144,7 +1233,9 @@
         .event-detail-card:hover {
             background: white;
             border-color: var(--primary-300);
-            box-shadow: 0 12px 32px rgba(34, 139, 84, 0.15);
+            box-shadow: 
+                0 22px 45px rgba(15, 61, 42, 0.28),
+                0 10px 20px rgba(15, 61, 42, 0.18);
             transform: translateY(-4px);
         }
         .event-detail-card:hover::before { opacity: 1; }
@@ -1199,7 +1290,9 @@
             font-size: 0.75rem;
             font-weight: 700;
             margin: 0;
-            box-shadow: 0 6px 16px rgba(34, 139, 84, 0.25);
+            box-shadow: 
+                0 6px 16px rgba(34, 139, 84, 0.25),
+                0 2px 6px rgba(34, 139, 84, 0.15);
             letter-spacing: 0.01em;
             align-self: flex-start;
             width: fit-content;
@@ -1235,6 +1328,7 @@
             .main-content { margin-left: 0; padding: 80px 22px 30px; }
             body.sidebar-collapsed .main-content { margin-left: 0; }
             body.sidebar-collapsed .notif-panel { left: 20px; }
+            .main-content.fade-out::after { left: 0; }
             .page-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -1287,7 +1381,6 @@
             <div class="logo-img">
                 <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Barangay Logo">
             </div>
-            <!-- 🔄 SIDEBAR TOGGLE BUTTON (Kanan ng logo) -->
             <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
                 <i class="fas fa-bars"></i>
             </button>
@@ -1307,7 +1400,6 @@
         </a>
       </nav>
 
-      <!-- 🔔 NOTIFICATION BELL -->
       <div class="sidebar-footer">
         <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
             <i class="fas fa-bell"></i>
@@ -1391,12 +1483,10 @@
 
         <!-- ===== SPLIT VIEW ===== -->
         <div class="split-view">
-            <!-- CALENDAR PANEL -->
             <div class="calendar-panel">
                 <div id="calendar"></div>
             </div>
 
-            <!-- DETAILS PANEL -->
             <div class="details-panel" id="detailsPanel">
                 <div class="details-header">
                     <h3><i class="fas fa-info-circle"></i> <span class="translatable">Event Details</span></h3>
@@ -1464,22 +1554,26 @@
                     sidebar.classList.toggle('collapsed');
                     document.body.classList.toggle('sidebar-collapsed');
                     localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-                    // Recalculate calendar size
                     setTimeout(() => window.dispatchEvent(new Event('resize')), 350);
                 });
             }
         });
 
-        // ===== SMOOTH PAGE TRANSITION =====
+        // ===== SMOOTH PAGE TRANSITION (main content only) =====
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 const href = this.getAttribute('href');
                 if (this.classList.contains('active') || !href || href === '#') return;
                 e.preventDefault();
-                document.body.classList.add('fade-out');
+                
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.classList.add('fade-out');
+                }
+                
                 setTimeout(() => {
                     window.location.href = href;
-                }, 400);
+                }, 300);
             });
         });
 
@@ -1517,7 +1611,7 @@
             }
         });
 
-        // ===== NOTIFICATION BELL DROPDOWN =====
+        // ===== NOTIFICATION BELL =====
         function toggleNotifPanel(event) {
             if (event) event.stopPropagation();
             const panel = document.getElementById('notifPanel');
@@ -1794,7 +1888,7 @@
             startAllDayKiller();
         });
 
-        // ===== KILL ALL-DAY: TANGGALIN ANG TEXT NODE (MONTH VIEW) =====
+        // ===== KILL ALL-DAY =====
         function killAllDay() {
             document.querySelectorAll('.fc-event-time').forEach(el => el.remove());
             document.querySelectorAll('.fc-daygrid-event').forEach(el => {
