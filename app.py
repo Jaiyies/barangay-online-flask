@@ -349,6 +349,11 @@ def login():
         conn.close()
 
         if user:
+            # ===== CHECK IF ACCOUNT IS DEACTIVATED =====
+            if not user['is_verified']:
+                flash('Your account has been deactivated. Please contact the administrator.', 'danger')
+                return render_template('login.html')
+
             if not check_password_hash(user['password'], password):
                 session['login_attempts'] = session.get('login_attempts', 0) + 1
                 if session['login_attempts'] >= 3:
@@ -668,9 +673,13 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) as rejected FROM event_permits WHERE user_id = %s AND status = 'rejected'", (session['user_id'],))
     rejected_events = cursor.fetchone()['rejected']
 
-    cursor.execute("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5")
+    cursor.execute("""
+        SELECT * FROM announcements
+        WHERE is_draft = FALSE
+        ORDER BY is_pinned DESC, created_at DESC
+        LIMIT 5
+    """)
     announcements = cursor.fetchall()
-
     cursor.execute("SELECT * FROM document_requests WHERE user_id = %s ORDER BY created_at DESC LIMIT 5", (session['user_id'],))
     recent_docs = cursor.fetchall()
 
@@ -1710,6 +1719,28 @@ def head_admin_dashboard():
     """)
     pending_events_list = cursor.fetchall()
 
+    # ===== MONTHLY DATA (Documents + Events) para sa chart =====
+    monthly_docs_data = []
+    monthly_events_data = []
+    current_year = datetime.date.today().year
+
+    for month in range(1, 13):  # Jan to Dec
+        # Documents count
+        cursor.execute("""
+            SELECT COUNT(*) as total FROM document_requests
+            WHERE MONTH(created_at) = %s
+            AND YEAR(created_at) = %s
+        """, (month, current_year))
+        monthly_docs_data.append(cursor.fetchone()['total'])
+
+        # Events count
+        cursor.execute("""
+            SELECT COUNT(*) as total FROM event_permits
+            WHERE MONTH(requested_at) = %s
+            AND YEAR(requested_at) = %s
+        """, (month, current_year))
+        monthly_events_data.append(cursor.fetchone()['total'])
+
     conn.close()
 
     return render_template('admin/head_admin_dashboard.html',
@@ -1724,7 +1755,9 @@ def head_admin_dashboard():
                          approved_total=approved_total,
                          rejected_total=rejected_total,
                          pending_documents=pending_documents,
-                         pending_events_list=pending_events_list)
+                         pending_events_list=pending_events_list,
+                         monthly_docs_data=monthly_docs_data,
+                         monthly_events_data=monthly_events_data)
 
 
 # ============================================================
@@ -1770,10 +1803,28 @@ def head_admin_events():
         ORDER BY e.id DESC
     """)
     events = cursor.fetchall()
+
+    # ===== STATS COUNTS =====
+    cursor.execute("SELECT COUNT(*) as total FROM event_permits")
+    total_events = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'pending'")
+    pending_count = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'approved'")
+    approved_count = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'rejected'")
+    rejected_count = cursor.fetchone()['total']
+
     conn.close()
 
-    return render_template('admin/head_admin_events.html', events=events)
-
+    return render_template('admin/head_admin_events.html',
+                         events=events,
+                         total_events=total_events,
+                         pending_count=pending_count,
+                         approved_count=approved_count,
+                         rejected_count=rejected_count)
 
 @app.route('/head-admin/events/calendar')
 def head_admin_events_calendar():
@@ -2101,7 +2152,7 @@ def _render_court_dashboard(role):
 
     monthly_data = []
     current_year = datetime.date.today().year
-    for month in range(1, 7):
+    for month in range(1, 13):
         cursor.execute("""
             SELECT COUNT(*) as total FROM event_permits
             WHERE venue = %s
@@ -2779,19 +2830,34 @@ def admin_activity_logs():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    role = session.get('role')
+
+    if role == 'head_admin':
+        # Head Admin: lahat ng logs (lahat ng admins)
+        # LEFT JOIN para lumabas din yung logs ng deleted admins
+        cursor.execute("""
+            SELECT l.*, u.first_name, u.last_name, u.role
+            FROM admin_activity_logs l
+            LEFT JOIN users u ON l.admin_id = u.id
+            ORDER BY l.created_at DESC
+            LIMIT 100
+        """)
+        logs = cursor.fetchall()
+        conn.close()
+        return render_template('admin/head_admin_activity_logs.html', logs=logs)
+
+    # Documents Admin at iba pa: sariling logs lang
     cursor.execute("""
         SELECT l.*, u.first_name, u.last_name
         FROM admin_activity_logs l
-        JOIN users u ON l.admin_id = u.id
+        LEFT JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
         ORDER BY l.created_at DESC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
     conn.close()
-
     return render_template('admin/sec_admin_activity_logs.html', logs=logs)
-
 
 @app.route('/api/document/<int:doc_id>/update-status', methods=['POST'])
 def update_document_status(doc_id):
@@ -3367,6 +3433,99 @@ def api_delete_user(user_id):
 
     return jsonify({'message': 'User deleted successfully'})
 
+# ============================================================
+# API: TOGGLE ADMIN ACTIVE (Deactivate/Activate)
+# ============================================================
+@app.route('/api/user/<int:user_id>/toggle-active', methods=['POST'])
+def api_toggle_admin_active(user_id):
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    if user_id == session['user_id']:
+        return jsonify({'error': 'You cannot deactivate your own account'}), 400
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, role, is_verified FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({'error': 'Admin not found'}), 404
+
+    # Prevent deactivating other head_admins
+    if user['role'] == 'head_admin':
+        conn.close()
+        return jsonify({'error': 'Cannot deactivate another Head Admin'}), 400
+
+    new_status = not user['is_verified']
+    cursor.execute("UPDATE users SET is_verified = %s WHERE id = %s", (new_status, user_id))
+    conn.commit()
+    conn.close()
+
+    status_text = 'activated' if new_status else 'deactivated'
+    return jsonify({
+        'success': True,
+        'message': f'Admin {status_text} successfully',
+        'status': new_status
+    })
+
+
+# ============================================================
+# API: DELETE ADMIN
+# ============================================================
+@app.route('/api/user/<int:user_id>/delete-admin', methods=['DELETE'])
+def api_delete_admin(user_id):
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    if user_id == session['user_id']:
+        return jsonify({'error': 'You cannot delete your own account'}), 400
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, role, email FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({'error': 'Admin not found'}), 404
+
+    # Prevent deleting other head_admins
+    if user['role'] == 'head_admin':
+        conn.close()
+        return jsonify({'error': 'Cannot delete another Head Admin'}), 400
+
+    try:
+        # ===== SET admin_id TO NULL IN ACTIVITY LOGS (preserve history) =====
+        cursor.execute("""
+            UPDATE admin_activity_logs
+            SET admin_id = NULL
+            WHERE admin_id = %s
+        """, (user_id,))
+
+        # ===== SET created_by TO NULL IN ANNOUNCEMENTS =====
+        cursor.execute("""
+            UPDATE announcements
+            SET created_by = NULL
+            WHERE created_by = %s
+        """, (user_id,))
+
+        # ===== DELETE THE USER =====
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Admin deleted successfully'
+        })
+
+    except mysql.connector.Error as e:
+        conn.rollback()
+        conn.close()
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
+
 
 # ============================================================
 # ADMIN MANAGEMENT
@@ -3560,13 +3719,34 @@ def announcements():
         SELECT a.*, u.first_name, u.last_name
         FROM announcements a
         LEFT JOIN users u ON a.created_by = u.id
-        ORDER BY a.created_at DESC
+        ORDER BY a.is_pinned DESC, a.created_at DESC
     """)
     announcements = cursor.fetchall()
+
+    # ===== STATS =====
+    cursor.execute("SELECT COUNT(*) as total FROM announcements")
+    total_announcements = cursor.fetchone()['total']
+
+    cursor.execute("""
+        SELECT COUNT(*) as total FROM announcements
+        WHERE MONTH(created_at) = MONTH(CURRENT_DATE())
+        AND YEAR(created_at) = YEAR(CURRENT_DATE())
+    """)
+    this_month = cursor.fetchone()['total']
+
+    cursor.execute("""
+        SELECT COUNT(*) as total FROM announcements
+        WHERE YEARWEEK(created_at, 1) = YEARWEEK(CURRENT_DATE(), 1)
+    """)
+    this_week = cursor.fetchone()['total']
+
     conn.close()
 
-    return render_template('admin/announcements.html', announcements=announcements)
-
+    return render_template('admin/announcements.html',
+                         announcements=announcements,
+                         total_announcements=total_announcements,
+                         this_month=this_month,
+                         this_week=this_week)
 
 @app.route('/create-announcement', methods=['POST'])
 def create_announcement():
@@ -3576,6 +3756,7 @@ def create_announcement():
 
     title = request.form.get('title', '').strip()
     content = request.form.get('content', '').strip()
+    is_draft = request.form.get('is_draft', '0') == '1'
 
     if not title or not content:
         flash('Please fill in all fields.', 'danger')
@@ -3584,13 +3765,16 @@ def create_announcement():
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO announcements (title, content, created_by)
-        VALUES (%s, %s, %s)
-    """, (title, content, session['user_id']))
+        INSERT INTO announcements (title, content, created_by, is_draft)
+        VALUES (%s, %s, %s, %s)
+    """, (title, content, session['user_id'], is_draft))
     conn.commit()
     conn.close()
 
-    flash('Announcement posted successfully!', 'success')
+    if is_draft:
+        flash('Announcement saved as draft!', 'info')
+    else:
+        flash('Announcement posted successfully!', 'success')
     return redirect(url_for('announcements'))
 
 
@@ -3659,37 +3843,167 @@ def increment_announcement_view(announcement_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# ============================================================
+# API: TOGGLE PIN
+# ============================================================
+@app.route('/api/announcement/<int:announcement_id>/toggle-pin', methods=['POST'])
+def toggle_announcement_pin(announcement_id):
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT id, is_pinned, title FROM announcements WHERE id = %s", (announcement_id,))
+    ann = cursor.fetchone()
+
+    if not ann:
+        conn.close()
+        return jsonify({'error': 'Announcement not found'}), 404
+
+    new_status = not ann['is_pinned']
+    cursor.execute("UPDATE announcements SET is_pinned = %s WHERE id = %s", (new_status, announcement_id))
+    conn.commit()
+    conn.close()
+
+    status_text = 'pinned' if new_status else 'unpinned'
+    return jsonify({
+        'success': True,
+        'message': f'Announcement {status_text} successfully',
+        'is_pinned': new_status
+    })
+
 
 # ============================================================
-# VIEW ANNOUNCEMENTS (Read-Only) - For All Admins
+# API: TOGGLE DRAFT
 # ============================================================
-@app.route('/view-announcements')
-def view_announcements():
-    """View announcements — para sa lahat ng admins (read-only)."""
+@app.route('/api/announcement/<int:announcement_id>/toggle-draft', methods=['POST'])
+def toggle_announcement_draft(announcement_id):
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT id, is_draft FROM announcements WHERE id = %s", (announcement_id,))
+    ann = cursor.fetchone()
+
+    if not ann:
+        conn.close()
+        return jsonify({'error': 'Announcement not found'}), 404
+
+    new_status = not ann['is_draft']
+    cursor.execute("UPDATE announcements SET is_draft = %s WHERE id = %s", (new_status, announcement_id))
+    conn.commit()
+    conn.close()
+
+    status_text = 'saved as draft' if new_status else 'published'
+    return jsonify({
+        'success': True,
+        'message': f'Announcement {status_text} successfully',
+        'is_draft': new_status
+    })
+
+# ============================================================
+# API: MARK ANNOUNCEMENT AS READ
+# ============================================================
+@app.route('/api/announcement/<int:announcement_id>/mark-read', methods=['POST'])
+def mark_announcement_read(announcement_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    try:
+        user_id = session['user_id']
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Insert if not yet read (using INSERT IGNORE para hindi mag-error kung existing)
+        cursor.execute("""
+            INSERT IGNORE INTO announcement_reads (user_id, announcement_id)
+            VALUES (%s, %s)
+        """, (user_id, announcement_id))
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Marked as read'})
+
+    except Exception as e:
+        print(f"Error marking as read: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ============================================================
+# API: MARK ALL ANNOUNCEMENTS AS READ
+# ============================================================
+@app.route('/api/announcements/mark-all-read', methods=['POST'])
+def mark_all_announcements_read():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    try:
+        user_id = session['user_id']
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Mark all visible announcements as read
+        cursor.execute("""
+            INSERT IGNORE INTO announcement_reads (user_id, announcement_id)
+            SELECT %s, id FROM announcements
+            WHERE is_draft = FALSE
+              AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        """, (user_id,))
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'All marked as read'})
+
+    except Exception as e:
+        print(f"Error marking all as read: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ============================================================
+# ADMIN VIEW ANNOUNCEMENTS (Read-Only) - Para sa lahat ng admins
+# ============================================================
+@app.route('/admin/announcements')
+def admin_view_announcements():
+    """Admin view announcements — read-only, para sa lahat ng admins."""
     if 'user_id' not in session:
         flash('Please login first.', 'warning')
         return redirect(url_for('login'))
 
-    allowed_roles = ['head_admin', 'admin_documents', 'admin_court_1',
-                     'admin_court_2', 'admin_court_3', 'admin_court_4']
+    allowed_roles = ['head_admin', 'admin_documents',
+                     'admin_court_1', 'admin_court_2',
+                     'admin_court_3', 'admin_court_4']
     if session.get('role') not in allowed_roles:
-        flash('Unauthorized access. Admins only.', 'danger')
+        flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    # Kunin yung announcements (visible lang — walang drafts)
     cursor.execute("""
         SELECT a.*, u.first_name, u.last_name
         FROM announcements a
         LEFT JOIN users u ON a.created_by = u.id
-        ORDER BY a.created_at DESC
+        WHERE a.is_draft = FALSE
+        ORDER BY a.is_pinned DESC, a.created_at DESC
     """)
     announcements = cursor.fetchall()
+
+    # ===== STATS =====
+    cursor.execute("SELECT COUNT(*) as total FROM announcements WHERE is_draft = FALSE")
+    total_announcements = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM announcements WHERE is_draft = FALSE AND is_pinned = TRUE")
+    pinned_count = cursor.fetchone()['total']
+
     conn.close()
 
-    return render_template('view_announcements.html', announcements=announcements)
-
+    return render_template('admin/admin_view_announcements.html',
+                         announcements=announcements,
+                         total_announcements=total_announcements,
+                         pinned_count=pinned_count)
 
 # ============================================================
 # USER ANNOUNCEMENTS
@@ -3704,11 +4018,12 @@ def user_announcements():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT a.*, u.first_name, u.last_name
-        FROM announcements a
-        LEFT JOIN users u ON a.created_by = u.id
-        ORDER BY a.created_at DESC
-    """)
+    SELECT a.*, u.first_name, u.last_name
+    FROM announcements a
+    LEFT JOIN users u ON a.created_by = u.id
+    WHERE a.is_draft = FALSE
+    ORDER BY a.is_pinned DESC, a.created_at DESC
+        """)
     announcements = cursor.fetchall()
     conn.close()
 
@@ -3724,14 +4039,22 @@ def api_unread_announcements_count():
         return jsonify({'unread_count': 0})
 
     try:
+        user_id = session['user_id']
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
+        # Count announcements from last 30 days na HINDI pa nabasa ng user
         cursor.execute("""
             SELECT COUNT(*) as count
-            FROM announcements
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-        """)
+            FROM announcements a
+            WHERE a.is_draft = FALSE
+              AND a.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+              AND NOT EXISTS (
+                  SELECT 1 FROM announcement_reads ar
+                  WHERE ar.announcement_id = a.id
+                    AND ar.user_id = %s
+              )
+        """, (user_id,))
 
         result = cursor.fetchone()
         conn.close()
@@ -3759,13 +4082,17 @@ def api_recent_announcements():
 
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
-
+        user_id = session['user_id']
         cursor.execute("""
-            SELECT id, title, content, created_at
-            FROM announcements
-            ORDER BY created_at DESC
+            SELECT a.id, a.title, a.content, a.created_at,
+                   CASE WHEN ar.id IS NOT NULL THEN 1 ELSE 0 END as is_read
+            FROM announcements a
+            LEFT JOIN announcement_reads ar 
+                ON ar.announcement_id = a.id AND ar.user_id = %s
+            WHERE a.is_draft = FALSE
+            ORDER BY a.is_pinned DESC, a.created_at DESC
             LIMIT %s
-        """, (limit,))
+        """, (user_id, limit))
         announcements = cursor.fetchall()
         conn.close()
 
@@ -3774,7 +4101,6 @@ def api_recent_announcements():
                 a['created_at'] = a['created_at'].strftime('%Y-%m-%d %H:%M:%S')
 
         return jsonify({'success': True, 'announcements': announcements})
-
     except Exception as e:
         print(f"Recent announcements error: {e}")
         return jsonify({'error': str(e), 'announcements': []}), 500

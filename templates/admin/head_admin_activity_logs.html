@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Logs · Court 2 Admin</title>
+    <title>Activity Logs · Head Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,320 +15,178 @@
 
         /* ===== SIDEBAR (CARD STYLE) ===== */
         .sidebar-custom {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 85px;
-            height: 100%;
+            position: fixed; left: 0; top: 0;
+            width: 85px; height: 100%;
             background: linear-gradient(180deg, #0d2b1e 0%, #1a5d3a 100%);
-            color: white;
-            padding: 24px 10px;
-            z-index: 200;
-            overflow-x: visible;
-            overflow-y: auto;
+            color: white; padding: 24px 10px;
+            z-index: 200; overflow-x: visible; overflow-y: auto;
             box-shadow: 2px 0 20px rgba(0,0,0,0.08);
             transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sidebar-custom.expanded {
-            width: 280px;
-            padding: 24px 18px;
-            overflow-x: hidden;
-        }
+        .sidebar-custom.expanded { width: 280px; padding: 24px 18px; overflow-x: hidden; }
         .sidebar-custom::-webkit-scrollbar { width: 5px; }
         .sidebar-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 
         .sidebar-header {
-            text-align: center;
-            padding-bottom: 20px;
+            text-align: center; padding-bottom: 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             margin-bottom: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
             position: relative;
         }
         .sidebar-header .logo-img {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.2);
-            background: white;
-            padding: 3px;
-            flex-shrink: 0;
+            width: 48px; height: 48px; border-radius: 50%;
+            object-fit: cover; border: 3px solid rgba(255,255,255,0.2);
+            background: white; padding: 3px; flex-shrink: 0;
             transition: all 0.3s ease;
         }
-        .sidebar-custom.expanded .sidebar-header .logo-img {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 12px;
-        }
+        .sidebar-custom.expanded .sidebar-header .logo-img { width: 64px; height: 64px; margin-bottom: 12px; }
         .sidebar-header h2 {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            opacity: 0;
-            height: 0;
-            overflow: hidden;
+            font-size: 17px; font-weight: 700; margin-bottom: 2px;
+            white-space: nowrap; opacity: 0; height: 0; overflow: hidden;
             transition: opacity 0.25s ease 0.05s;
         }
-        .sidebar-custom.expanded .sidebar-header h2 {
-            opacity: 1;
-            height: auto;
-        }
+        .sidebar-custom.expanded .sidebar-header h2 { opacity: 1; height: auto; }
         .sidebar-header small {
-            font-size: 11px;
-            opacity: 0;
-            white-space: nowrap;
-            letter-spacing: 0.5px;
-            transition: opacity 0.25s ease 0.05s;
-            height: 0;
-            overflow: hidden;
+            font-size: 11px; opacity: 0; white-space: nowrap;
+            letter-spacing: 0.5px; transition: opacity 0.25s ease 0.05s;
+            height: 0; overflow: hidden;
         }
-        .sidebar-custom.expanded .sidebar-header small {
-            opacity: 0.6;
-            height: auto;
-        }
+        .sidebar-custom.expanded .sidebar-header small { opacity: 0.6; height: auto; }
 
         .sidebar-burger {
-            margin-top: 16px;
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.08);
+            margin-top: 16px; width: 52px; height: 52px;
+            border-radius: 14px; background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.9);
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: rgba(255,255,255,0.9); font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.25s ease;
+            flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .sidebar-burger:hover {
             background: rgba(107,196,142,0.2);
             border-color: rgba(107,196,142,0.4);
-            color: #6bc48e;
-            transform: translateY(-2px);
+            color: #6bc48e; transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(107,196,142,0.15);
         }
         .sidebar-custom.expanded .sidebar-burger {
-            position: absolute;
-            top: 0;
-            right: 0;
-            margin-top: 0;
-            width: 40px;
-            height: 40px;
+            position: absolute; top: 0; right: 0;
+            margin-top: 0; width: 40px; height: 40px;
             background: rgba(255,255,255,0.06);
             border-color: rgba(255,255,255,0.12);
         }
 
         .sidebar-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-            padding: 0;
-            margin: 0;
+            list-style: none; display: flex; flex-direction: column;
+            gap: 10px; width: 100%; padding: 0; margin: 0;
         }
-        .sidebar-menu li { 
-            margin: 0; 
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-        
+        .sidebar-menu li { margin: 0; width: 100%; display: flex; justify-content: center; }
         .sidebar-menu a,
         .sidebar-menu a:link,
         .sidebar-menu a:visited,
         .sidebar-menu a:focus,
         .sidebar-menu a:active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 52px;
-            height: 52px;
-            padding: 0;
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            border-radius: 14px;
-            transition: all 0.25s ease;
-            font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            width: 52px; height: 52px; padding: 0;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            border-radius: 14px; transition: all 0.25s ease; font-size: 18px;
             background: rgba(255,255,255,0.04) !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
             outline: none !important;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
             overflow: hidden;
         }
-        
         .sidebar-menu a:hover {
             background: rgba(255,255,255,0.1) !important;
             border-color: rgba(255,255,255,0.18) !important;
-            color: white;
-            transform: translateY(-2px);
+            color: white; transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
-        
         .sidebar-menu .active a {
             background: rgba(107,196,142,0.2) !important;
             border-color: rgba(107,196,142,0.35) !important;
             color: #6bc48e;
             box-shadow: 0 4px 12px rgba(107,196,142,0.15) !important;
         }
-        
         .sidebar-menu i {
-            width: 24px;
-            min-width: 24px;
-            font-size: 18px;
-            text-align: center;
-            color: inherit;
+            width: 24px; min-width: 24px; font-size: 18px;
+            text-align: center; color: inherit;
             transition: color 0.25s ease;
             background: transparent !important;
             border: none !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             line-height: 1;
         }
-        
         .sidebar-menu .active a i,
-        .sidebar-menu a:hover i {
-            color: #6bc48e;
-        }
-        
+        .sidebar-menu a:hover i { color: #6bc48e; }
         .sidebar-menu span {
-            display: none;
-            opacity: 0;
-            max-width: 0;
-            overflow: hidden;
+            display: none; opacity: 0; max-width: 0; overflow: hidden;
             transition: opacity 0.25s ease 0.05s, max-width 0.3s ease;
         }
-        
-        .sidebar-custom.expanded .sidebar-menu li {
-            justify-content: flex-start;
-        }
+        .sidebar-custom.expanded .sidebar-menu li { justify-content: flex-start; }
         .sidebar-custom.expanded .sidebar-menu a {
-            justify-content: flex-start;
-            width: 100%;
-            height: auto;
-            padding: 14px 16px;
-            gap: 14px;
-            font-size: 13.5px;
-            font-weight: 500;
-            border-radius: 14px;
-            overflow: hidden;
+            justify-content: flex-start; width: 100%; height: auto;
+            padding: 14px 16px; gap: 14px; font-size: 13.5px;
+            font-weight: 500; border-radius: 14px; overflow: hidden;
         }
-        .sidebar-custom.expanded .sidebar-menu span {
-            display: inline-block;
-            opacity: 1;
-            max-width: 200px;
-        }
-        .sidebar-custom.expanded .sidebar-menu a:hover {
-            transform: translateX(4px);
-        }
-        .sidebar-custom.expanded .sidebar-menu .active a {
-            transform: translateX(4px);
-        }
+        .sidebar-custom.expanded .sidebar-menu span { display: inline-block; opacity: 1; max-width: 200px; }
+        .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
+        .sidebar-custom.expanded .sidebar-menu .active a { transform: translateX(4px); }
 
-        .sidebar-custom:not(.expanded) .sidebar-menu a {
-            position: relative;
-        }
+        .sidebar-custom:not(.expanded) .sidebar-menu a { position: relative; }
         .sidebar-custom:not(.expanded) .sidebar-menu a::after {
             content: attr(data-title);
-            position: absolute;
-            left: 110%;
-            top: 50%;
+            position: absolute; left: 110%; top: 50%;
             transform: translateY(-50%) translateX(-10px);
-            background: #0d2b1e;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
+            background: #0d2b1e; color: white;
+            padding: 8px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; white-space: nowrap;
+            opacity: 0; visibility: hidden;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 999;
-            pointer-events: none;
+            z-index: 999; pointer-events: none;
             border: 1px solid rgba(255,255,255,0.1);
         }
         .sidebar-custom:not(.expanded) .sidebar-menu a::before {
-            content: '';
-            position: absolute;
-            left: 105%;
-            top: 50%;
+            content: ''; position: absolute; left: 105%; top: 50%;
             transform: translateY(-50%) translateX(-10px);
-            border-width: 6px;
-            border-style: solid;
+            border-width: 6px; border-style: solid;
             border-color: transparent #0d2b1e transparent transparent;
-            opacity: 0;
-            visibility: hidden;
+            opacity: 0; visibility: hidden;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 999;
-            pointer-events: none;
+            z-index: 999; pointer-events: none;
         }
         .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after,
         .sidebar-custom:not(.expanded) .sidebar-menu a:hover::before {
-            opacity: 1;
-            visibility: visible;
+            opacity: 1; visibility: visible;
             transform: translateY(-50%) translateX(0);
         }
 
         /* ===== NAVBAR (CARD STYLE) ===== */
         .navbar {
-            position: fixed;
-            top: 12px;
-            left: 97px;
-            right: 12px;
-            height: 64px;
-            background: white;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 99;
+            position: fixed; top: 12px; left: 97px; right: 12px;
+            height: 64px; background: white; border-radius: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 99;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-            border: 1px solid #eef2f0;
-            gap: 16px;
+            border: 1px solid #eef2f0; gap: 16px;
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        body.sidebar-expanded .navbar {
-            left: 292px;
-        }
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            flex: 1;
-            min-width: 0;
-        }
+        body.sidebar-expanded .navbar { left: 292px; }
+        .navbar-left { display: flex; align-items: center; gap: 24px; flex: 1; min-width: 0; }
         .navbar-left .page-title {
             font-size: 17px; font-weight: 700; color: #0d2b1e;
-            white-space: nowrap;
-            flex-shrink: 0;
+            white-space: nowrap; flex-shrink: 0;
         }
-        .navbar-left .page-title i {
-            color: #1a5d3a; margin-right: 8px;
-        }
+        .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
 
         .navbar-search {
-            display: flex;
-            align-items: center;
-            background: #f4f8f5;
-            border-radius: 50px;
-            padding: 10px 22px;
-            gap: 12px;
+            display: flex; align-items: center;
+            background: #f4f8f5; border-radius: 50px;
+            padding: 10px 22px; gap: 12px;
             border: 1.5px solid #eef2f0;
             transition: all 0.2s ease;
-            width: 100%;
-            max-width: 480px;
+            width: 100%; max-width: 480px;
             margin: 0 auto;
         }
         .navbar-search:focus-within {
@@ -342,14 +200,9 @@
             font-size: 13px; font-family: inherit; color: #0d2b1e; width: 100%;
         }
         .navbar-search input::placeholder { color: #a8bdb2; }
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-shrink: 0;
-        }
+        .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
-        /* ===== NOTIFICATION BELL ===== */
+        /* NOTIFICATION BELL */
         .notification-bell-wrap { position: relative; margin-right: 12px; }
         .bell-btn {
             position: relative; background: #f4f8f5; border: 1px solid #eef2f0;
@@ -435,7 +288,7 @@
             }
         }
 
-        /* ===== PROFILE DROPDOWN ===== */
+        /* PROFILE DROPDOWN */
         .profile-dropdown { position: relative; }
         .profile-trigger {
             display: flex; align-items: center; gap: 10px;
@@ -484,33 +337,26 @@
 
         /* ===== MAIN CONTENT ===== */
         .main-with-sidebar {
-            margin-left: 85px;
-            padding: 100px 30px 25px;
-            min-height: 100vh;
-            animation: fadeInUp 0.4s ease;
+            margin-left: 85px; padding: 100px 30px 25px;
+            min-height: 100vh; animation: fadeInUp 0.4s ease;
             transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        body.sidebar-expanded .main-with-sidebar {
-            margin-left: 280px;
-        }
+        body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .big-card {
-            background: white;
-            border-radius: 28px;
-            padding: 32px 34px;
-            border: 1px solid #eef2f0;
+            background: white; border-radius: 28px;
+            padding: 32px 34px; border: 1px solid #eef2f0;
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
-        /* ===== TABLE ===== */
+        /* TABLE */
         .table-container {
-            overflow-x: auto; max-height: 600px;
-            overflow-y: auto;
-            border-radius: 16px;
+            overflow-x: auto; max-height: 650px;
+            overflow-y: auto; border-radius: 16px;
             border: 1px solid #eef2f0;
         }
         .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -529,6 +375,16 @@
             top: 0; z-index: 10; border-bottom: 2px solid #eef2f0;
         }
         tbody tr:hover { background: #f9fafb; }
+
+        .admin-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 50px;
+            font-size: 11px; font-weight: 600;
+            background: #e0f5e8; color: #1a5d3a;
+        }
+        .admin-badge.head-admin { background: #fef3c7; color: #92400e; }
+        .admin-badge.doc-admin { background: #dbeafe; color: #1e40af; }
+        .admin-badge.deleted-admin { background: #f0f2f5; color: #8a9a8f; }
 
         .action-badge {
             display: inline-flex; align-items: center; gap: 6px;
@@ -552,7 +408,7 @@
             border-top: 1px solid #eef2f0;
         }
 
-        /* ===== RESPONSIVE ===== */
+        /* RESPONSIVE */
         @media (max-width: 1024px) {
             .navbar-search { max-width: 300px; }
         }
@@ -579,7 +435,7 @@
 </head>
 <body>
 
-<!-- ===== SIDEBAR (CARD STYLE) ===== -->
+<!-- SIDEBAR -->
 <div class="sidebar-custom" id="sidebar">
     <div class="sidebar-header">
         <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img"
@@ -588,22 +444,24 @@
             <i class="fas fa-landmark"></i>
         </div>
         <h2>Barangay Sto. Niño</h2>
-        <small>Court 2 Admin</small>
-        
+        <small>Head Admin Panel</small>
+
         <button class="sidebar-burger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
             <i class="fas fa-bars"></i>
         </button>
     </div>
     <ul class="sidebar-menu">
-        <li><a href="{{ url_for('court2_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('court2_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
-        <li><a href="{{ url_for('court2_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
-        <li><a href="{{ url_for('court2_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
-        <li class="active"><a href="{{ url_for('court2_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        <li><a href="{{ url_for('head_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('user_management') }}" data-title="Users"><i class="fas fa-users"></i> <span>Users</span></a></li>
+        <li><a href="{{ url_for('admin_management') }}" data-title="Admins"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
+        <li><a href="{{ url_for('head_admin_all_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+        <li><a href="{{ url_for('head_admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+        <li><a href="{{ url_for('announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
+        <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
     </ul>
 </div>
 
-<!-- ===== NAVBAR (CARD STYLE) ===== -->
+<!-- NAVBAR -->
 <nav class="navbar">
     <div class="navbar-left">
         <div class="page-title">
@@ -649,17 +507,17 @@
                     {{ session.fullname[0]|upper if session.fullname else 'A' }}
                 </div>
                 <div class="profile-info">
-                    <span class="name">{{ session.fullname or 'Court 2 Admin' }}</span>
-                    <span class="role">Court 2 Admin</span>
+                    <span class="name">{{ session.fullname or 'Head Admin' }}</span>
+                    <span class="role">Head Admin</span>
                 </div>
                 <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="profile-menu">
                 <div class="profile-menu-header">
-                    <div class="menu-name">{{ session.fullname or 'Court 2 Admin' }}</div>
+                    <div class="menu-name">{{ session.fullname or 'Head Admin' }}</div>
                     <div class="menu-email">{{ session.email or 'admin@barangay.gov.ph' }}</div>
                 </div>
-                <a href="{{ url_for('secondary_admin_settings') }}">
+                <a href="{{ url_for('settings') }}">
                     <i class="fas fa-user-cog"></i> Profile Settings
                 </a>
                 <div class="divider"></div>
@@ -671,7 +529,7 @@
     </div>
 </nav>
 
-<!-- ===== MAIN CONTENT ===== -->
+<!-- MAIN CONTENT -->
 <div class="main-with-sidebar">
 
     <div class="big-card">
@@ -682,6 +540,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Admin</th>
                         <th>Action</th>
                         <th>ID</th>
                         <th>Details</th>
@@ -692,6 +551,21 @@
                     {% for log in logs %}
                     <tr>
                         <td>{{ loop.index }}</td>
+                        <td>
+                            {% if log.first_name %}
+                                <span class="admin-badge 
+                                    {% if log.role == 'head_admin' %}head-admin
+                                    {% elif log.role == 'admin_documents' %}doc-admin{% endif %}">
+                                    <i class="fas fa-user"></i>
+                                    {{ log.first_name }} {{ log.last_name }}
+                                </span>
+                            {% else %}
+                                <span class="admin-badge deleted-admin">
+                                    <i class="fas fa-user-slash"></i>
+                                    Deleted Admin
+                                </span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if log.action == 'approved' %}
                                 <span class="action-badge action-approved">
@@ -713,7 +587,7 @@
                         </td>
                         <td>
                             {% if log.document_id %}
-                                   <strong>#{{ log.document_id }}</strong>
+                                <strong>#{{ log.document_id }}</strong>
                             {% else %}
                                 <span style="color:#b0b8b4;">N/A</span>
                             {% endif %}
@@ -728,13 +602,13 @@
             <div class="empty-state">
                 <i class="fas fa-list-alt"></i>
                 <h4>No Activity Logs</h4>
-                <p>Wala pang actions na na-record para sa Court 2.</p>
+                <p>Wala pang actions na na-record.</p>
             </div>
             {% endif %}
         </div>
 
         <div class="footer">
-            <p>© 2025 Barangay Sto. Niño, Parañaque City | Court 2 Admin</p>
+            <p>© 2025 Barangay Sto. Niño, Parañaque City | Head Admin Panel</p>
         </div>
     </div>
 </div>
@@ -744,27 +618,19 @@
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const body = document.body;
-        if (!sidebar) return;
         sidebar.classList.toggle('expanded');
         body.classList.toggle('sidebar-expanded');
+        localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        if (localStorage.getItem('sidebarExpanded') === 'true' && sidebar) {
-            sidebar.classList.add('expanded');
+        if (localStorage.getItem('sidebarExpanded') === 'true') {
+            document.getElementById('sidebar').classList.add('expanded');
             document.body.classList.add('sidebar-expanded');
         }
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
     });
-
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        const observer = new MutationObserver(function() {
-            localStorage.setItem('sidebarExpanded',
-                sidebar.classList.contains('expanded'));
-        });
-        observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
-    }
 
     // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
@@ -872,11 +738,6 @@
         const bellWrap = document.querySelector('.notification-bell-wrap');
         const dropdown = document.getElementById('bellDropdown');
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBellBadge();
-        setInterval(updateBellBadge, 30000);
     });
 
     // ===== NAV SEARCH =====

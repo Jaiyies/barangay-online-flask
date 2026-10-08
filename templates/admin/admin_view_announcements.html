@@ -6,11 +6,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Court 2 Calendar - Barangay Sto. Nino</title>
+    <title>Announcements · Admin View</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
@@ -183,22 +181,15 @@
         }
         .bell-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
         .bell-dropdown-header {
-            padding: 14px 18px; background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
-            color: white; font-weight: 700; font-size: 13.5px;
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-        }
-        .bell-dropdown-header-left {
+            padding: 16px 20px; background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white; font-weight: 700; font-size: 14px;
             display: flex; align-items: center; gap: 10px;
-        }
-        .bell-dropdown-header i.fa-bullhorn {
-            background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
         }
         .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
         .bell-item {
             display: block; padding: 12px 14px; border-radius: 10px;
             text-decoration: none; color: #0d2b1e;
             transition: all 0.15s ease; border-bottom: 1px solid #f4f8f5;
-            position: relative;
         }
         .bell-item:last-child { border-bottom: none; }
         .bell-item:hover { background: #f4f8f5; }
@@ -212,35 +203,6 @@
             font-weight: 700; font-size: 13px; border-top: 1px solid #eef2f0;
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
-
-        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
-        .bell-item.unread::before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dc3545;
-            animation: pulse-dot 1.5s ease-in-out infinite;
-        }
-        .bell-item.unread {
-            padding-left: 22px;
-        }
-        .bell-item.unread .bell-item-title {
-            font-weight: 700;
-            color: #0d2b1e;
-        }
-        @keyframes pulse-dot {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-            }
-        }
 
         /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
@@ -262,7 +224,6 @@
         .profile-info .role { font-size: 11px; color: #8a9a8f; font-weight: 500; }
         .profile-trigger .chevron { font-size: 11px; color: #8a9a8f; transition: transform 0.2s ease; }
         .profile-dropdown.open .profile-trigger .chevron { transform: rotate(180deg); }
-
         .profile-menu {
             position: absolute; top: calc(100% + 8px); right: 0;
             background: white; border-radius: 14px; border: 1px solid #eef2f0;
@@ -296,112 +257,160 @@
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
 
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 16px; margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white; border-radius: 20px;
+            padding: 20px 22px; border: 1px solid #eef2f0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .stat-card.total::before { background: #1a5d3a; }
+        .stat-card.pinned::before { background: #f59e0b; }
+        .stat-card-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .stat-info { flex: 1; min-width: 0; }
+        .stat-label {
+            font-size: 11px; font-weight: 700; color: #8a9a8f;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+        }
+        .stat-value { font-size: 28px; font-weight: 800; color: #0d2b1e; line-height: 1; }
+        .stat-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+        }
+        .stat-card.total .stat-icon { background: #e0f5e8; color: #1a5d3a; }
+        .stat-card.pinned .stat-icon { background: #fef3c7; color: #d97706; }
+
+        /* ===== BIG CARD ===== */
         .big-card {
             background: white; border-radius: 28px;
             padding: 32px 34px; border: 1px solid #eef2f0;
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
-        .calendar-header {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 24px;
-            flex-wrap: wrap; gap: 12px;
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+            padding-bottom: 20px; border-bottom: 2px solid #f0f2f5;
         }
-        .calendar-header h2 {
-            font-size: 20px; color: #0d2b1e; font-weight: 700;
+        .filter-left { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
+        .search-box {
             display: flex; align-items: center; gap: 10px;
+            background: #f8fafc; padding: 4px 4px 4px 18px;
+            border-radius: 50px; border: 1.5px solid #d4f0df;
+            transition: all 0.25s ease; flex: 1; max-width: 480px;
         }
-        .calendar-header h2 i { color: #1a5d3a; }
-        .legend { display: flex; gap: 16px; flex-wrap: wrap; }
-        .legend-item {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 12px; color: #5a6e7a; font-weight: 500;
+        .search-box:focus-within {
+            border-color: #1a5d3a;
+            box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
+            background: white;
         }
-        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+        .search-box i { color: #8a9a8f; font-size: 14px; }
+        .search-box input {
+            border: none; padding: 10px 0; font-size: 14px;
+            font-family: inherit; outline: none; flex: 1;
+            background: transparent; color: #0d2b1e;
+        }
+        .search-box input::placeholder { color: #a8bdb2; }
+        .search-box button {
+            background: #1a5d3a; color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; cursor: pointer;
+            font-weight: 600; font-size: 13px;
+            transition: all 0.25s ease;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .search-box button:hover { background: #0d2b1e; transform: translateY(-2px); }
 
-        #calendar {
+        .filter-select {
+            padding: 9px 14px; border: 1.5px solid #d4f0df;
+            border-radius: 8px; font-size: 13px; background: #f8fafc;
+            outline: none; font-family: inherit; color: #0d2b1e;
+            cursor: pointer; font-weight: 500;
+        }
+        .filter-select:focus {
+            border-color: #1a5d3a; background: white;
+            box-shadow: 0 0 0 3px rgba(107,196,142,0.15);
+        }
+
+        .count-label {
+            font-size: 13px; color: #6b7a72; padding: 9px 16px;
+            background: #f8fafc; border-radius: 8px;
+            border: 1.5px solid #d4f0df; white-space: nowrap; font-weight: 500;
+        }
+        .count-label strong { color: #1a5d3a; font-weight: 700; }
+
+        /* ===== ANNOUNCEMENT CARD ===== */
+        .announcement-card {
             background: #f8fafc; border-radius: 14px;
-            padding: 16px; border: 1px solid #eef2f0;
+            padding: 20px 24px; border: 1px solid #eef2f0;
+            margin-bottom: 16px; transition: all 0.25s ease;
+            position: relative;
+        }
+        .announcement-card:hover {
+            border-color: #1a5d3a; background: white;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            transform: translateY(-2px);
+        }
+        .announcement-card.pinned {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #f59e0b;
+            box-shadow: 0 4px 16px rgba(245,158,11,0.15);
+        }
+        .announcement-card.pinned::before {
+            content: ''; position: absolute; left: 0; top: 0;
+            width: 4px; height: 100%; background: #f59e0b;
+            border-radius: 14px 0 0 14px;
+        }
+        .announcement-card .card-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+        }
+        .announcement-card .card-header h3 {
+            font-size: 17px; font-weight: 700; color: #0d2b1e;
+            flex: 1; display: flex; align-items: center; gap: 8px;
+        }
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px; font-size: 10px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .badge-pinned { background: #f59e0b; color: white; }
+        .badge-views {
+            background: #f0f2f5; color: #6b7a72; font-weight: 600;
+            text-transform: none; letter-spacing: 0;
+        }
+        .announcement-card .card-header .meta {
+            font-size: 12px; color: #8a9a8f;
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
+        .announcement-card .card-header .meta i { color: #1a5d3a; margin-right: 4px; }
+        .announcement-card .card-content p {
+            font-size: 14px; color: #4a5a52; line-height: 1.7;
         }
 
-        /* FullCalendar */
-        .fc .fc-toolbar-title { font-size: 18px !important; font-weight: 700 !important; color: #0d2b1e !important; }
-        .fc .fc-button {
-            background: #0d2b1e !important; border: none !important;
-            font-weight: 600 !important; font-size: 12px !important;
-            padding: 8px 14px !important; border-radius: 8px !important;
-            text-transform: capitalize !important;
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: #8a9a8f;
+            background: #f8fafc; border-radius: 14px; border: 1px solid #eef2f0;
         }
-        .fc .fc-button:hover { background: #1a5d3a !important; }
-        .fc .fc-button-active { background: #1a5d3a !important; }
-        .fc .fc-daygrid-day-number { color: #0d2b1e !important; font-weight: 600 !important; font-size: 13px !important; }
-        .fc .fc-col-header-cell-cushion {
-            color: #5a6e7a !important; font-weight: 700 !important;
-            font-size: 12px !important; text-transform: uppercase !important;
-            padding: 10px 0 !important;
-        }
-        .fc .fc-day-today { background: #f0f9f4 !important; }
-        .fc-event {
-            border: none !important; border-radius: 6px !important;
-            padding: 3px 6px !important; font-size: 11px !important;
-            font-weight: 600 !important; cursor: pointer !important;
-            background: #1a5d3a !important; color: white !important;
-        }
+        .empty-state i { font-size: 48px; color: #cde0d8; margin-bottom: 12px; display: block; }
+        .empty-state h4 { color: #1a1a2e; margin-bottom: 4px; }
+        .empty-state p { font-size: 14px; }
 
         .footer {
             text-align: center; padding: 20px; margin-top: 28px;
             color: #8a9a8f; font-size: 11px; border-top: 1px solid #eef2f0;
         }
 
-        /* MODAL */
-        .modal-overlay {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999; justify-content: center;
-            align-items: center; padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-box {
-            background: white; border-radius: 16px;
-            max-width: 500px; width: 100%;
-            max-height: 90vh; overflow-y: auto;
-            padding: 28px; animation: modalIn 0.3s ease;
-        }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-header {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 20px;
-            padding-bottom: 16px; border-bottom: 1px solid #eef2f0;
-        }
-        .modal-header h3 { color: #0d2b1e; font-size: 18px; font-weight: 700; }
-        .modal-close {
-            background: none; border: none; font-size: 20px;
-            color: #8a9a8f; cursor: pointer;
-        }
-        .modal-close:hover { color: #dc3545; }
-
-        .modal-row {
-            display: flex; justify-content: space-between;
-            padding: 10px 0; border-bottom: 1px solid #f4f8f5;
-            font-size: 13px;
-        }
-        .modal-row .label { color: #8a9a8f; font-weight: 500; }
-        .modal-row .value {
-            color: #0d2b1e; font-weight: 600;
-            text-align: right; max-width: 60%;
-        }
-        .approved-badge {
-            display: inline-block; padding: 4px 14px;
-            background: #e0f5e8; color: #1a5d3a;
-            border-radius: 30px; font-size: 11px;
-            font-weight: 700; letter-spacing: 0.5px;
-        }
-
-        /* RESPONSIVE */
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
             .sidebar-custom.expanded { width: 240px; }
@@ -412,14 +421,23 @@
             .profile-trigger { padding: 4px; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
             body.sidebar-expanded .main-with-sidebar { margin-left: 240px; }
-            .big-card { padding: 20px; border-radius: 20px; }
+            .big-card { padding: 18px; border-radius: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .search-box { max-width: 100%; }
+            .announcement-card .card-header { flex-direction: column; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
+        }
+        @media (max-width: 480px) {
+            .big-card { padding: 16px; }
+            .navbar-left .page-title { font-size: 13px; }
+            .stat-value { font-size: 22px; }
         }
     </style>
 </head>
 <body>
 
-<!-- ===== SIDEBAR ===== -->
+<!-- ===== SIDEBAR (dynamic base sa role) ===== -->
 <div class="sidebar-custom" id="sidebar">
     <div class="sidebar-header">
         <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img"
@@ -428,18 +446,59 @@
             <i class="fas fa-landmark"></i>
         </div>
         <h2>Barangay Sto. Niño</h2>
-        <small>Court 2 Admin</small>
+        <small>
+            {% if session.role == 'head_admin' %}Head Admin Panel
+            {% elif session.role == 'admin_documents' %}Documents Admin
+            {% elif session.role == 'admin_court_1' %}Court 1 Admin
+            {% elif session.role == 'admin_court_2' %}Court 2 Admin
+            {% elif session.role == 'admin_court_3' %}Court 3 Admin
+            {% elif session.role == 'admin_court_4' %}Court 4 Admin
+            {% else %}Admin Panel{% endif %}
+        </small>
 
         <button class="sidebar-burger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
             <i class="fas fa-bars"></i>
         </button>
     </div>
     <ul class="sidebar-menu">
-        <li><a href="{{ url_for('court2_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('court2_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
-        <li><a href="{{ url_for('court2_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
-        <li class="active"><a href="{{ url_for('court2_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
-        <li><a href="{{ url_for('court2_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% if session.role == 'head_admin' %}
+            <li><a href="{{ url_for('head_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('user_management') }}" data-title="Users"><i class="fas fa-users"></i> <span>Users</span></a></li>
+            <li><a href="{{ url_for('admin_management') }}" data-title="Admins"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
+            <li><a href="{{ url_for('head_admin_all_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+            <li><a href="{{ url_for('head_admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+            <li><a href="{{ url_for('announcements') }}" data-title="Manage Announcements"><i class="fas fa-bullhorn"></i> <span>Manage Announcements</span></a></li>
+            <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% elif session.role == 'admin_documents' %}
+            <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('admin_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+            <li><a href="{{ url_for('admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+            <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% elif session.role == 'admin_court_1' %}
+            <li><a href="{{ url_for('court1_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court1_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court1_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court1_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li><a href="{{ url_for('court1_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% elif session.role == 'admin_court_2' %}
+            <li><a href="{{ url_for('court2_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court2_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court2_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court2_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li><a href="{{ url_for('court2_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% elif session.role == 'admin_court_3' %}
+            <li><a href="{{ url_for('court3_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court3_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court3_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court3_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li><a href="{{ url_for('court3_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% elif session.role == 'admin_court_4' %}
+            <li><a href="{{ url_for('court4_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court4_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court4_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court4_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li><a href="{{ url_for('court4_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% endif %}
     </ul>
 </div>
 
@@ -447,7 +506,7 @@
 <nav class="navbar">
     <div class="navbar-left">
         <div class="page-title">
-            <i class="fas fa-calendar-alt"></i> Court 2 Calendar
+            <i class="fas fa-bullhorn"></i> Announcements
         </div>
     </div>
     <div class="navbar-right">
@@ -460,12 +519,7 @@
             </button>
             <div class="bell-dropdown" id="bellDropdown">
                 <div class="bell-dropdown-header">
-                    <div class="bell-dropdown-header-left">
-                        <i class="fas fa-bullhorn"></i> Recent Announcements
-                    </div>
-                    <button onclick="markAllRead(event)" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">
-                        <i class="fas fa-check-double"></i> Mark all
-                    </button>
+                    <i class="fas fa-bullhorn"></i> Recent Announcements
                 </div>
                 <div class="bell-dropdown-body" id="bellList">
                     <div class="bell-loading">
@@ -485,14 +539,22 @@
                     {{ session.fullname[0]|upper if session.fullname else 'A' }}
                 </div>
                 <div class="profile-info">
-                    <span class="name">{{ session.fullname or 'Court 2 Admin' }}</span>
-                    <span class="role">Court 2 Admin</span>
+                    <span class="name">{{ session.fullname or 'Admin' }}</span>
+                    <span class="role">
+                        {% if session.role == 'head_admin' %}Head Admin
+                        {% elif session.role == 'admin_documents' %}Documents Admin
+                        {% elif session.role == 'admin_court_1' %}Court 1 Admin
+                        {% elif session.role == 'admin_court_2' %}Court 2 Admin
+                        {% elif session.role == 'admin_court_3' %}Court 3 Admin
+                        {% elif session.role == 'admin_court_4' %}Court 4 Admin
+                        {% else %}Admin{% endif %}
+                    </span>
                 </div>
                 <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="profile-menu">
                 <div class="profile-menu-header">
-                    <div class="menu-name">{{ session.fullname or 'Court 2 Admin' }}</div>
+                    <div class="menu-name">{{ session.fullname or 'Admin' }}</div>
                     <div class="menu-email">{{ session.email or 'admin@barangay.gov.ph' }}</div>
                 </div>
                 <a href="{{ url_for('secondary_admin_settings') }}">
@@ -509,31 +571,86 @@
 
 <!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
-    <div class="big-card">
-        <div class="calendar-header">
-            <h2><i class="fas fa-calendar-alt"></i> Approved Events - Court 2</h2>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #1a5d3a;"></div> Approved Event
+
+    <!-- ===== STATS CARDS ===== -->
+    <div class="stats-grid">
+        <div class="stat-card total">
+            <div class="stat-card-inner">
+                <div class="stat-info">
+                    <div class="stat-label">Total Announcements</div>
+                    <div class="stat-value">{{ total_announcements or 0 }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-bullhorn"></i>
                 </div>
             </div>
         </div>
-        <div id="calendar"></div>
-    </div>
-
-    <div class="footer">
-        <p>© 2025 Barangay Sto. Niño, Parañaque City | Court 2 Calendar</p>
-    </div>
-</div>
-
-<!-- ===== EVENT MODAL ===== -->
-<div class="modal-overlay" id="eventModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3 id="modalTitle">Event Details</h3>
-            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        <div class="stat-card pinned">
+            <div class="stat-card-inner">
+                <div class="stat-info">
+                    <div class="stat-label">Pinned</div>
+                    <div class="stat-value">{{ pinned_count or 0 }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-thumbtack"></i>
+                </div>
+            </div>
         </div>
-        <div id="modalBody"></div>
+    </div>
+
+    <!-- ===== ANNOUNCEMENTS CARD ===== -->
+    <div class="big-card">
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div class="filter-left">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search announcements..." onkeyup="searchAnnouncements()">
+                    <button onclick="searchAnnouncements()"><i class="fas fa-search"></i> Search</button>
+                </div>
+                <select class="filter-select" id="filterSelect" onchange="filterAnnouncements()">
+                    <option value="all">All Announcements</option>
+                    <option value="pinned">Pinned Only</option>
+                </select>
+            </div>
+            <div class="count-label">Showing: <strong id="visibleCount">{{ announcements|length }}</strong></div>
+        </div>
+
+        <!-- ANNOUNCEMENTS LIST -->
+        <div id="announcementsList">
+            {% if announcements %}
+                {% for ann in announcements %}
+                <div class="announcement-card {% if ann.is_pinned %}pinned{% endif %}"
+                     data-pinned="{{ 'true' if ann.is_pinned else 'false' }}">
+                    <div class="card-header">
+                        <h3>
+                            {% if ann.is_pinned %}<span class="badge badge-pinned"><i class="fas fa-thumbtack"></i> PINNED</span>{% endif %}
+                            {{ ann.title }}
+                        </h3>
+                        <div class="meta">
+                            <span><i class="far fa-user"></i> {{ ann.first_name or 'Admin' }} {{ ann.last_name or '' }}</span>
+                            <span><i class="far fa-calendar-alt"></i> {{ ann.created_at.strftime('%b %d, %Y') if ann.created_at else 'N/A' }}</span>
+                            <span class="badge badge-views"><i class="far fa-eye"></i> {{ ann.view_count or 0 }} views</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <p>{{ ann.content }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-bullhorn"></i>
+                    <h4>No Announcements</h4>
+                    <p>Wala pang announcements na naka-post.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Barangay Sto. Niño, Parañaque City | Announcements View</p>
+        </div>
     </div>
 </div>
 
@@ -549,63 +666,11 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('sidebarExpanded') === 'true') {
-            var sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.add('expanded');
-            }
+            document.getElementById('sidebar').classList.add('expanded');
             document.body.classList.add('sidebar-expanded');
         }
-
         updateBellBadge();
         setInterval(updateBellBadge, 30000);
-
-        var calendarEl = document.getElementById('calendar');
-        var modal = document.getElementById('eventModal');
-
-        if (calendarEl) {
-            fetch('/api/court2/events', { credentials: 'same-origin' })
-                .then(function(res) {
-                    if (!res.ok) {
-                        throw new Error('Unauthorized or unavailable');
-                    }
-                    return res.json();
-                })
-                .then(function(events) {
-                    if (!Array.isArray(events)) {
-                        events = [];
-                    }
-
-                    var calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
-                        headerToolbar: {
-                            left: 'prev,next today',
-                            center: 'title',
-                            right: 'dayGridMonth,timeGridWeek,listMonth'
-                        },
-                        height: 'auto',
-                        events: events,
-                        eventClick: function(info) {
-                            showEventDetails(info.event);
-                        },
-                        noEventsContent: 'No approved events yet.'
-                    });
-
-                    calendar.render();
-                })
-                .catch(function(err) {
-                    console.error('Court 2 calendar fetch error:', err);
-                    calendarEl.innerHTML = '<div style="padding:32px 18px;text-align:center;color:#5a6e7a;font-size:14px;">' +
-                        '<i class="fas fa-exclamation-circle" style="display:block;font-size:28px;margin-bottom:10px;color:#dc3545;"></i>' +
-                        'Unable to load approved events right now. Please refresh or contact support.' +
-                        '</div>';
-                });
-        }
-
-        if (modal) {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
-        }
     });
 
     // ===== PROFILE DROPDOWN =====
@@ -630,6 +695,12 @@
         if (dropdown.classList.contains('open')) loadRecentAnnouncements();
     }
 
+    // ===== GET ANNOUNCEMENTS PAGE (HARDCODED) =====
+    function getUserAnnouncementsPage() {
+        return '/admin/announcements';
+    }
+
+    // ===== LOAD RECENT ANNOUNCEMENTS =====
     function loadRecentAnnouncements() {
         var list = document.getElementById('bellList');
         list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
@@ -643,13 +714,18 @@
                 var html = '';
                 data.announcements.forEach(function(a) {
                     var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                    var isUnread = !a.is_read;
-                    var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
-                    html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
-                        '<div class="bell-item-title">' + escapeHtmlBell(a.title || 'Untitled') + '</div>' +
+                    var unreadDot = a.is_read ? '' : '<span style="display:inline-block;width:8px;height:8px;background:#dc3545;border-radius:50%;margin-right:6px;vertical-align:middle;"></span>';
+                    var titleStyle = a.is_read ? 'color:#6b7a72;' : 'color:#0d2b1e;font-weight:700;';
+                    html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="bell-item">' +
+                        '<div class="bell-item-title" style="' + titleStyle + '">' + unreadDot + escapeHtmlBell(a.title || 'Untitled') + '</div>' +
                         '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
                     '</a>';
                 });
+                html += '<div style="padding:8px 12px;border-top:1px solid #f0f2f5;text-align:center;">' +
+                    '<button onclick="markAllRead(event)" style="background:none;border:none;color:#1a5d3a;font-weight:600;font-size:12px;cursor:pointer;padding:6px 12px;border-radius:8px;">' +
+                        '<i class="fas fa-check-double"></i> Mark all as read' +
+                    '</button>' +
+                '</div>';
                 list.innerHTML = html;
             })
             .catch(function(err) {
@@ -658,6 +734,7 @@
             });
     }
 
+    // ===== OPEN ANNOUNCEMENT FROM BELL =====
     function openAnnouncementFromBell(announcementId) {
         fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
             .then(function(res) { return res.json(); })
@@ -670,10 +747,11 @@
             .catch(function(err) { console.error('Mark read error:', err); });
 
         setTimeout(function() {
-            window.location.href = '/admin/announcements';
+            window.location.href = getUserAnnouncementsPage();
         }, 300);
     }
 
+    // ===== MARK ALL AS READ =====
     function markAllRead(event) {
         if (event) event.stopPropagation();
         fetch('/api/announcements/mark-all-read', { method: 'POST' })
@@ -687,6 +765,7 @@
             .catch(function(err) { console.error('Mark all read error:', err); });
     }
 
+    // ===== UPDATE BELL BADGE =====
     function updateBellBadge() {
         fetch('/api/announcements/unread_count')
             .then(function(res) { return res.json(); })
@@ -716,30 +795,43 @@
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
-    // ===== CALENDAR DETAIL MODAL =====
-    function showEventDetails(event) {
-        var props = event.extendedProps;
-
-        document.getElementById('modalTitle').innerText = event.title;
-
-        var html = '' +
-            '<div class="modal-row"><span class="label">Reference:</span><span class="value">' + (props.reference || 'N/A') + '</span></div>' +
-            '<div class="modal-row"><span class="label">Applicant:</span><span class="value">' + (props.organizer || 'N/A') + '</span></div>' +
-            '<div class="modal-row"><span class="label">Date:</span><span class="value">' + (event.startStr || 'N/A') + '</span></div>' +
-            '<div class="modal-row"><span class="label">Time:</span><span class="value">' + (props.start_time || '') + ' - ' + (props.end_time || '') + '</span></div>' +
-            '<div class="modal-row"><span class="label">Venue:</span><span class="value">' + (props.venue || 'N/A') + '</span></div>' +
-            '<div class="modal-row"><span class="label">Attendees:</span><span class="value">' + (props.attendees || 0) + '</span></div>' +
-            '<div class="modal-row"><span class="label">Purpose:</span><span class="value">' + (props.purpose || 'N/A') + '</span></div>' +
-            '<div class="modal-row">' +
-                '<span class="label">Status:</span>' +
-                '<span class="value"><span class="approved-badge">APPROVED</span></span>' +
-            '</div>';
-        document.getElementById('modalBody').innerHTML = html;
-        document.getElementById('eventModal').classList.add('active');
+    // ===== SEARCH =====
+    function searchAnnouncements() {
+        var input = document.getElementById('searchInput').value.toLowerCase();
+        var cards = document.querySelectorAll('.announcement-card');
+        var visible = 0;
+        cards.forEach(function(card) {
+            var text = card.textContent.toLowerCase();
+            if (text.indexOf(input) !== -1) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        document.getElementById('visibleCount').textContent = visible;
     }
 
-    function closeModal() {
-        document.getElementById('eventModal').classList.remove('active');
+    // ===== FILTER =====
+    function filterAnnouncements() {
+        var filter = document.getElementById('filterSelect').value;
+        var cards = document.querySelectorAll('.announcement-card');
+        var visible = 0;
+        cards.forEach(function(card) {
+            var isPinned = card.dataset.pinned === 'true';
+            var show = false;
+
+            if (filter === 'all') show = true;
+            else if (filter === 'pinned') show = isPinned;
+
+            if (show) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        document.getElementById('visibleCount').textContent = visible;
     }
 </script>
 </body>

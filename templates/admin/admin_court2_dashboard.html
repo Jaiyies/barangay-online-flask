@@ -14,7 +14,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* ===== SIDEBAR (SAME AS DASHBOARD) ===== */
         .sidebar-custom {
             position: fixed; left: 0; top: 0;
             width: 85px; height: 100%;
@@ -62,19 +61,16 @@
             color: rgba(255,255,255,0.9); font-size: 18px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.25s ease;
-            flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
         .sidebar-burger:hover {
             background: rgba(107,196,142,0.2);
             border-color: rgba(107,196,142,0.4);
             color: #6bc48e; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(107,196,142,0.15);
         }
         .sidebar-custom.expanded .sidebar-burger {
             position: absolute; top: 0; right: 0;
             margin-top: 0; width: 40px; height: 40px;
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.12);
         }
 
         .sidebar-menu {
@@ -82,41 +78,28 @@
             gap: 10px; width: 100%; padding: 0; margin: 0;
         }
         .sidebar-menu li { margin: 0; width: 100%; display: flex; justify-content: center; }
-        .sidebar-menu a,
-        .sidebar-menu a:link,
-        .sidebar-menu a:visited,
-        .sidebar-menu a:focus,
-        .sidebar-menu a:active {
+        .sidebar-menu a {
             display: flex; align-items: center; justify-content: center;
             width: 52px; height: 52px; padding: 0;
             color: rgba(255,255,255,0.7); text-decoration: none;
             border-radius: 14px; transition: all 0.25s ease; font-size: 18px;
-            background: rgba(255,255,255,0.04) !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            outline: none !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
         }
         .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.1) !important;
-            border-color: rgba(255,255,255,0.18) !important;
+            background: rgba(255,255,255,0.1);
             color: white; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
         .sidebar-menu .active a {
-            background: rgba(107,196,142,0.2) !important;
-            border-color: rgba(107,196,142,0.35) !important;
+            background: rgba(107,196,142,0.2);
+            border-color: rgba(107,196,142,0.35);
             color: #6bc48e;
-            box-shadow: 0 4px 12px rgba(107,196,142,0.15) !important;
         }
         .sidebar-menu i {
             width: 24px; min-width: 24px; font-size: 18px;
             text-align: center; color: inherit;
-            transition: color 0.25s ease;
-            background: transparent !important;
-            border: none !important;
             display: flex; align-items: center; justify-content: center;
-            line-height: 1;
         }
         .sidebar-menu .active a i,
         .sidebar-menu a:hover i { color: #6bc48e; }
@@ -128,7 +111,7 @@
         .sidebar-custom.expanded .sidebar-menu a {
             justify-content: flex-start; width: 100%; height: auto;
             padding: 14px 16px; gap: 14px; font-size: 13.5px;
-            font-weight: 500; border-radius: 14px; overflow: hidden;
+            font-weight: 500; border-radius: 14px;
         }
         .sidebar-custom.expanded .sidebar-menu span { display: inline-block; opacity: 1; max-width: 200px; }
         .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
@@ -143,33 +126,22 @@
             padding: 8px 14px; border-radius: 8px;
             font-size: 12px; font-weight: 600; white-space: nowrap;
             opacity: 0; visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 999; pointer-events: none;
-            border: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar-custom:not(.expanded) .sidebar-menu a::before {
-            content: ''; position: absolute; left: 105%; top: 50%;
-            transform: translateY(-50%) translateX(-10px);
-            border-width: 6px; border-style: solid;
-            border-color: transparent #0d2b1e transparent transparent;
-            opacity: 0; visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 999; pointer-events: none;
-        }
-        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after,
-        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::before {
+        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after {
             opacity: 1; visibility: visible;
             transform: translateY(-50%) translateX(0);
         }
 
-        /* ===== NAVBAR (CARD STYLE) ===== */
+        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed; top: 12px; left: 97px; right: 12px;
             height: 64px; background: white; border-radius: 16px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; z-index: 99;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             border: 1px solid #eef2f0; gap: 16px;
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -182,7 +154,7 @@
         .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
-        /* NOTIFICATION BELL */
+        /* ===== BELL ===== */
         .notification-bell-wrap { position: relative; margin-right: 12px; }
         .bell-btn {
             position: relative; background: #f4f8f5; border: 1px solid #eef2f0;
@@ -197,7 +169,7 @@
             background: #dc3545; color: white; font-size: 10px; font-weight: 700;
             min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid white; box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+            border: 2px solid white;
         }
         .bell-dropdown {
             position: absolute; top: calc(100% + 12px); right: 0;
@@ -209,16 +181,22 @@
         }
         .bell-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
         .bell-dropdown-header {
-            padding: 16px 20px; background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
-            color: white; font-weight: 700; font-size: 14px;
+            padding: 14px 18px; background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white; font-weight: 700; font-size: 13.5px;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        }
+        .bell-dropdown-header-left {
             display: flex; align-items: center; gap: 10px;
         }
-        .bell-dropdown-header i { background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px; }
+        .bell-dropdown-header i.fa-bullhorn {
+            background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
+        }
         .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
         .bell-item {
             display: block; padding: 12px 14px; border-radius: 10px;
             text-decoration: none; color: #0d2b1e;
             transition: all 0.15s ease; border-bottom: 1px solid #f4f8f5;
+            position: relative;
         }
         .bell-item:last-child { border-bottom: none; }
         .bell-item:hover { background: #f4f8f5; }
@@ -233,7 +211,36 @@
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
 
-        /* PROFILE DROPDOWN */
+        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
+        .bell-item.unread::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        .bell-item.unread {
+            padding-left: 22px;
+        }
+        .bell-item.unread .bell-item-title {
+            font-weight: 700;
+            color: #0d2b1e;
+        }
+        @keyframes pulse-dot {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
+            }
+        }
+
+        /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
         .profile-trigger {
             display: flex; align-items: center; gap: 10px;
@@ -280,17 +287,13 @@
         .profile-menu .logout-link:hover { background: #fff5f5; color: #b91c1c; }
         .profile-menu .logout-link i { color: #dc3545; }
 
-        /* ===== MAIN CONTENT ===== */
+        /* ===== MAIN ===== */
         .main-with-sidebar {
             margin-left: 85px; padding: 100px 30px 25px;
-            min-height: 100vh; animation: fadeInUp 0.4s ease;
-            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh; transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         .big-card {
             background: white; border-radius: 28px;
             padding: 32px 34px; border: 1px solid #eef2f0;
@@ -532,14 +535,19 @@
             </button>
             <div class="bell-dropdown" id="bellDropdown">
                 <div class="bell-dropdown-header">
-                    <i class="fas fa-bullhorn"></i> Recent Announcements
+                    <div class="bell-dropdown-header-left">
+                        <i class="fas fa-bullhorn"></i> Recent Announcements
+                    </div>
+                    <button onclick="markAllRead(event)" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">
+                        <i class="fas fa-check-double"></i> Mark all
+                    </button>
                 </div>
                 <div class="bell-dropdown-body" id="bellList">
                     <div class="bell-loading">
                         <i class="fas fa-spinner fa-spin"></i> Loading...
                     </div>
                 </div>
-                <a href="/view-announcements" class="bell-dropdown-footer">
+                <a href="/admin/announcements" class="bell-dropdown-footer">
                     View All Announcements <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -697,17 +705,18 @@
     </div>
 
     <div class="footer">
-        <p>2025 Barangay Sto. Nino, Paranaque City | Court 2 Dashboard</p>
+        <p>© 2025 Barangay Sto. Niño, Parañaque City | Court 2 Dashboard</p>
     </div>
 </div>
 
 <script>
     // ===== SIDEBAR TOGGLE =====
     function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const body = document.body;
+        var sidebar = document.getElementById('sidebar');
+        var body = document.body;
         sidebar.classList.toggle('expanded');
         body.classList.toggle('sidebar-expanded');
+        localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -715,66 +724,96 @@
             document.getElementById('sidebar').classList.add('expanded');
             document.body.classList.add('sidebar-expanded');
         }
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
     });
-
-    const observer = new MutationObserver(function() {
-        localStorage.setItem('sidebarExpanded',
-            document.getElementById('sidebar').classList.contains('expanded'));
-    });
-    observer.observe(document.getElementById('sidebar'), { attributes: true, attributeFilter: ['class'] });
 
     // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
-        const dd = document.getElementById('profileDropdown');
-        const bell = document.getElementById('bellDropdown');
+        var dd = document.getElementById('profileDropdown');
+        var bell = document.getElementById('bellDropdown');
         if (bell) bell.classList.remove('open');
         dd.classList.toggle('open');
     }
     document.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('profileDropdown');
+        var dropdown = document.getElementById('profileDropdown');
         if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
 
     // ===== NOTIFICATION BELL =====
     function toggleBell(event) {
         if (event) event.stopPropagation();
-        const dropdown = document.getElementById('bellDropdown');
-        const userDropdown = document.getElementById('profileDropdown');
+        var dropdown = document.getElementById('bellDropdown');
+        var userDropdown = document.getElementById('profileDropdown');
         if (userDropdown) userDropdown.classList.remove('open');
         dropdown.classList.toggle('open');
         if (dropdown.classList.contains('open')) loadRecentAnnouncements();
     }
 
     function loadRecentAnnouncements() {
-        const list = document.getElementById('bellList');
+        var list = document.getElementById('bellList');
         list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
         fetch('/api/announcements/recent?limit=5')
-            .then(res => res.json())
-            .then(data => {
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
                 if (!data.announcements || data.announcements.length === 0) {
                     list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
                     return;
                 }
-                let html = '';
-                data.announcements.forEach(a => {
-                    const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                    html += `<a href="/announcements" class="bell-item"><div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div><div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div></a>`;
+                var html = '';
+                data.announcements.forEach(function(a) {
+                    var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    var isUnread = !a.is_read;
+                    var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
+                    html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
+                        '<div class="bell-item-title">' + escapeHtmlBell(a.title || 'Untitled') + '</div>' +
+                        '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
+                    '</a>';
                 });
                 list.innerHTML = html;
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('Bell fetch error:', err);
                 list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
             });
     }
 
+    function openAnnouncementFromBell(announcementId) {
+        fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    updateBellBadge();
+                    loadRecentAnnouncements();
+                }
+            })
+            .catch(function(err) { console.error('Mark read error:', err); });
+
+        setTimeout(function() {
+            window.location.href = '/admin/announcements';
+        }, 300);
+    }
+
+    function markAllRead(event) {
+        if (event) event.stopPropagation();
+        fetch('/api/announcements/mark-all-read', { method: 'POST' })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    updateBellBadge();
+                    loadRecentAnnouncements();
+                }
+            })
+            .catch(function(err) { console.error('Mark all read error:', err); });
+    }
+
     function updateBellBadge() {
         fetch('/api/announcements/unread_count')
-            .then(res => res.json())
-            .then(data => {
-                const badge = document.getElementById('bellBadge');
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var badge = document.getElementById('bellBadge');
                 if (!badge) return;
-                const count = data.unread_count || 0;
+                var count = data.unread_count || 0;
                 if (count > 0) {
                     badge.textContent = count > 99 ? '99+' : count;
                     badge.style.display = 'flex';
@@ -782,32 +821,25 @@
                     badge.style.display = 'none';
                 }
             })
-            .catch(err => console.error('Badge fetch error:', err));
+            .catch(function(err) { console.error('Badge fetch error:', err); });
     }
 
     function escapeHtmlBell(text) {
-        const div = document.createElement('div');
+        var div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
     document.addEventListener('click', function(e) {
-        const bellWrap = document.querySelector('.notification-bell-wrap');
-        const dropdown = document.getElementById('bellDropdown');
-        if (bellWrap && dropdown && !bellWrap.contains(e.target)) {
-            dropdown.classList.remove('open');
-        }
+        var bellWrap = document.querySelector('.notification-bell-wrap');
+        var dropdown = document.getElementById('bellDropdown');
+        if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBellBadge();
-        setInterval(updateBellBadge, 30000);
-    });
-
-    // CHARTS
-    const pendingTotal = Number("{{ pending_events | default(0) }}");
-    const approvedTotal = Number("{{ approved_events | default(0) }}");
-    const rejectedTotal = Number("{{ rejected_events | default(0) }}");
+    // ===== CHARTS =====
+    var pendingTotal = Number("{{ pending_events | default(0) }}");
+    var approvedTotal = Number("{{ approved_events | default(0) }}");
+    var rejectedTotal = Number("{{ rejected_events | default(0) }}");
 
     new Chart(document.getElementById('statusChart'), {
         type: 'doughnut',
