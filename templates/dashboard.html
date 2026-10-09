@@ -397,12 +397,46 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        /* ===== SIDEBAR FOOTER (About Us + FAQs + Bell) ===== */
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
             border-top: 1px solid rgba(255,255,255,0.12);
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .sidebar-footer-links {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sidebar-about-link,
+        .sidebar-faqs-link {
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 2px solid #ffffff;
+            padding-bottom: 2px;
+            transition: all 0.25s ease;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+        }
+
+        .sidebar-about-link:hover,
+        .sidebar-faqs-link:hover {
+            opacity: 0.7;
+            transform: translateY(-1px);
+        }
+
+        .sidebar.collapsed .sidebar-about-link,
+        .sidebar.collapsed .sidebar-faqs-link {
+            display: none;
         }
 
         .sidebar-bell {
@@ -591,7 +625,7 @@
             gap: 12px;
         }
 
-        /* ===== MAIN CONTENT: FADE ONLY HERE ===== */
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px 48px;
@@ -1123,12 +1157,18 @@
         </a>
       </nav>
 
+      <!-- ===== SIDEBAR FOOTER: About Us + FAQs + Bell ===== -->
       <div class="sidebar-footer">
+        <div class="sidebar-footer-links">
+            <a href="{{ url_for('about_us') }}" class="sidebar-about-link">About Us</a>
+            <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
+        </div>
         <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
             <i class="fas fa-bell"></i>
             <span class="bell-badge">1</span>
         </div>
       </div>
+
     </aside>
 
     <div class="notif-panel" id="notifPanel">
@@ -1251,7 +1291,6 @@
                 }
             }
 
-            // ===== SIDEBAR COLLAPSE TOGGLE =====
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
 
@@ -1279,7 +1318,6 @@
 
                 e.preventDefault();
 
-                // I-fade lang ang main content, HINDI ang sidebar
                 const mainContent = document.querySelector('.main-content');
                 if (mainContent) {
                     mainContent.classList.add('fade-out');
@@ -1385,7 +1423,9 @@
                 'Logout': 'Logout',
                 'Clearance, Indigency, Residency': 'Clearance, Indigency, Residency',
                 'Community event permits': 'Community event permits',
-                'Check status of applications': 'Check status of applications'
+                'Check status of applications': 'Check status of applications',
+                'About Us': 'About Us',
+                'FAQs': 'FAQs'
             },
             'tl': {
                 'Dashboard': 'Dashboard',
@@ -1401,7 +1441,9 @@
                 'Logout': 'Mag-logout',
                 'Clearance, Indigency, Residency': 'Clearance, Indigency, Residency',
                 'Community event permits': 'Mga permit sa kaganapan',
-                'Check status of applications': 'Tingnan ang status ng aplikasyon'
+                'Check status of applications': 'Tingnan ang status ng aplikasyon',
+                'About Us': 'Tungkol Sa Amin',
+                'FAQs': 'Mga FAQ'
             }
         };
 

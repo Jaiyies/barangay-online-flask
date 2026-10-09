@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQs | Barangay Sto. Niño</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-900: #071f14;
+            --primary-800: #0f3d2a;
+            --primary-700: #145233;
+            --primary-600: #1a6b42;
+            --primary-500: #228b54;
+            --primary-400: #3aa86c;
+            --primary-300: #6bc48e;
+            --primary-200: #a3dbb8;
+            --primary-100: #d4f0df;
+            --primary-50: #eff8f2;
+            --neutral-900: #0d1a12;
+            --neutral-700: #3d5a4a;
+            --neutral-500: #6b8475;
+            --neutral-300: #a8bdb2;
+            --neutral-200: #cbd5e1;
+            --neutral-100: #e3ede7;
+            --neutral-50: #f4f8f5;
+            --accent-600: #c42828;
+            --shadow-lg: 0 12px 32px rgba(15, 61, 42, 0.08);
+            --sidebar-width: 270px;
+            --sidebar-collapsed-width: 88px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(34, 139, 84, 0.2);
+            border-radius: 4px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: url("{{ url_for('static', filename='images/barangay-hall.jpg') }}") center center / cover no-repeat fixed;
+            min-height: 100vh;
+            color: var(--neutral-900);
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg,
+                rgba(7, 31, 20, 0.75) 0%,
+                rgba(15, 61, 42, 0.65) 50%,
+                rgba(20, 82, 51, 0.70) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes loadingBar {
+            from { transform: scaleX(0); transform-origin: left; }
+            to { transform: scaleX(1); transform-origin: left; }
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(165deg, var(--primary-800) 0%, var(--primary-700) 50%, var(--primary-600) 100%);
+            position: fixed;
+            left: 0; top: 0;
+            box-shadow: 8px 0 32px rgba(15, 61, 42, 0.15);
+            padding: 26px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .sidebar::-webkit-scrollbar { display: none; }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 260px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 0 22px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .sidebar-brand .brand-top {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 14px;
+            padding: 4px 0;
+        }
+
+        .sidebar-brand .logo-img {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            padding: 5px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.28), 0 0 0 3px rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand .logo-img:hover { transform: scale(1.05); }
+
+        .sidebar-brand .logo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: 0; top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.18);
+            transform: translateY(-50%) scale(1.08);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .sidebar-brand h4 {
+            color: white;
+            font-weight: 800;
+            font-size: 1.15rem;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-bottom: 3px;
+        }
+
+        .sidebar-brand small {
+            display: block;
+            color: rgba(255,255,255,0.55);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ===== COLLAPSED STATE ===== */
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+            padding: 26px 14px;
+        }
+
+        .sidebar.collapsed .sidebar-brand .brand-top { flex-direction: column; gap: 12px; }
+        .sidebar.collapsed .sidebar-brand .logo-img { width: 50px; height: 50px; padding: 3px; }
+        .sidebar.collapsed .sidebar-toggle {
+            position: relative;
+            right: auto; top: auto;
+            transform: none;
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+        .sidebar.collapsed .sidebar-brand h4,
+        .sidebar.collapsed .sidebar-brand small { display: none; }
+
+        .sidebar.collapsed .sidebar-nav a {
+            justify-content: center;
+            padding: 13px 0;
+            gap: 0;
+        }
+        .sidebar.collapsed .sidebar-nav a span { display: none; }
+        .sidebar.collapsed .sidebar-nav a i { width: auto; font-size: 1.2rem; margin: 0; }
+        .sidebar.collapsed .sidebar-nav a.active::before { left: -14px; }
+        .sidebar.collapsed .sidebar-footer { justify-content: center; }
+        .sidebar.collapsed .sidebar-about-link,
+        .sidebar.collapsed .sidebar-faqs-link { display: none; }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 16px;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar-nav a i { width: 20px; text-align: center; font-size: 1rem; }
+
+        .sidebar-nav a:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a.active {
+            background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.1));
+            color: white;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav a.active::before {
+            content: '';
+            position: absolute;
+            left: -20px; top: 50%;
+            transform: translateY(-50%);
+            width: 4px; height: 24px;
+            background: white;
+            border-radius: 0 4px 4px 0;
+        }
+
+        #sidebarSettingsLink { display: none; align-items: center; }
+        #sidebarSettingsLink.visible { display: flex; animation: fadeInSlide 0.3s ease; }
+
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ===== SIDEBAR FOOTER ===== */
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .sidebar-footer-links {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sidebar-about-link,
+        .sidebar-faqs-link {
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 2px solid #ffffff;
+            padding-bottom: 2px;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar-about-link:hover,
+        .sidebar-faqs-link:hover {
+            opacity: 0.7;
+            transform: translateY(-1px);
+        }
+
+        .sidebar-bell {
+            position: relative;
+            cursor: pointer;
+            width: 44px; height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .sidebar-bell:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: scale(1.08);
+        }
+
+        .sidebar-bell i { font-size: 20px; color: #ffffff; }
+
+        .bell-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            background-color: #ff4d4d;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--primary-800);
+        }
+
+        /* ===== NOTIF PANEL ===== */
+        .notif-panel {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            left: 250px;
+            width: 360px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.30);
+            overflow: hidden;
+            z-index: 99999;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.sidebar-collapsed .notif-panel { left: 68px; }
+        .notif-panel.show { display: block; }
+
+        .notif-header {
+            background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .notif-header i {
+            background: rgba(255,255,255,0.15);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .notif-header h4 { font-size: 1rem; font-weight: 800; }
+
+        .notif-body { max-height: 320px; overflow-y: auto; padding: 6px 0; }
+
+        .notif-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px 22px;
+            border-bottom: 1px solid var(--neutral-100);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .notif-item:hover { background: var(--primary-50); }
+
+        .notif-icon {
+            font-size: 1.3rem;
+            width: 36px; height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-50);
+            border-radius: 10px;
+        }
+
+        .notif-content h5 {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--primary-800);
+            margin-bottom: 4px;
+        }
+
+        .notif-content p {
+            font-size: 0.75rem;
+            color: var(--neutral-500);
+        }
+
+        .notif-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            background: var(--neutral-50);
+            border-top: 1px solid var(--neutral-100);
+            color: var(--primary-700);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .notif-footer:hover { background: var(--primary-50); }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px 48px;
+            min-height: 100vh;
+            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, transform 0.2s ease;
+            max-width: 1600px;
+            position: relative;
+            z-index: 1;
+            animation: fadeInPage 0.3s ease-out;
+        }
+
+        body.sidebar-collapsed .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        .main-content.fade-out {
+            opacity: 0;
+            transform: translateY(-16px);
+        }
+
+        .page-header-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 32px 36px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            z-index: 100;
+        }
+
+        .page-header-card h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--primary-800);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            letter-spacing: -0.03em;
+        }
+
+        .page-header-card h1 i {
+            color: var(--primary-500);
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-50), #ffffff);
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--primary-100);
+        }
+
+        .page-header-card p {
+            color: var(--neutral-500);
+            font-size: 0.95rem;
+            margin-top: 8px;
+            margin-left: 66px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 32px 36px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== FAQ ACCORDION ===== */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .faq-item {
+            background: linear-gradient(165deg, #ffffff 0%, var(--neutral-50) 100%);
+            border: 1.5px solid var(--neutral-100);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary-300);
+            box-shadow: 0 12px 28px rgba(34, 139, 84, 0.12);
+        }
+
+        .faq-item.active {
+            border-color: var(--primary-500);
+            box-shadow: 0 16px 40px rgba(34, 139, 84, 0.18);
+        }
+
+        .faq-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 26px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--primary-800);
+            font-size: 0.98rem;
+            letter-spacing: -0.01em;
+            transition: all 0.2s ease;
+            user-select: none;
+            gap: 16px;
+        }
+
+        .faq-question:hover { background: rgba(34, 139, 84, 0.03); }
+
+        .faq-question .question-text {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+        }
+
+        .faq-question .question-text .q-number {
+            color: var(--primary-500);
+            background: linear-gradient(135deg, var(--primary-50), #ffffff);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            border: 1px solid var(--primary-100);
+            flex-shrink: 0;
+            min-width: 38px;
+            text-align: center;
+        }
+
+        .faq-question .toggle-icon {
+            color: var(--primary-500);
+            font-size: 0.85rem;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .toggle-icon { transform: rotate(180deg); }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.3s ease;
+            padding: 0 26px;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 1200px;
+            padding: 0 26px 22px 26px;
+        }
+
+        .faq-answer-content {
+            color: var(--neutral-700);
+            font-size: 0.9rem;
+            line-height: 1.75;
+            padding-top: 16px;
+            border-top: 1px solid var(--neutral-100);
+            letter-spacing: -0.005em;
+        }
+
+        .faq-answer-content p {
+            margin-bottom: 10px;
+        }
+
+        .faq-answer-content p:last-child { margin-bottom: 0; }
+
+        .faq-answer-content ul {
+            padding-left: 22px;
+            margin: 8px 0 12px;
+        }
+
+        .faq-answer-content ul li {
+            margin-bottom: 6px;
+            color: var(--neutral-700);
+        }
+
+        .faq-answer-content strong {
+            color: var(--primary-800);
+            font-weight: 700;
+        }
+
+        .faq-answer-content .note {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-left: 3px solid #f59e0b;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #78350f;
+            margin-top: 10px;
+        }
+
+        .faq-answer-content .note strong { color: #92400e; }
+
+        .faq-answer-content .contact-info {
+            background: linear-gradient(135deg, var(--primary-50), #f7fbf9);
+            border-left: 3px solid var(--primary-500);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--primary-800);
+        }
+
+        .faq-answer-content .contact-info strong { color: var(--primary-700); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 290px; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar.collapsed { transform: translateX(-100%); width: 290px; }
+            .sidebar.collapsed.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 80px 22px 30px; }
+            body.sidebar-collapsed .main-content { margin-left: 0; }
+            .page-header-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 24px 22px;
+            }
+            .page-header-card p { margin-left: 0; }
+            .notif-panel { left: 20px; right: 20px; width: auto; bottom: 80px; }
+        }
+
+        @media (max-width: 576px) {
+            .main-content { padding: 72px 16px 20px; }
+            .card { padding: 22px; border-radius: 18px; }
+            .page-header-card h1 { font-size: 1.4rem; }
+            .faq-question { padding: 16px 20px; font-size: 0.9rem; }
+            .faq-item.active .faq-answer { padding: 0 20px 18px 20px; }
+            .faq-question .question-text .q-number { padding: 6px 10px; min-width: 32px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-top">
+            <div class="logo-img">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Barangay Logo">
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <h4>Barangay Sto. Niño</h4>
+        <small>Online Services</small>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" data-tooltip="Dashboard"><i class="fas fa-tachometer-alt"></i> <span class="translatable">Dashboard</span></a>
+        <a href="{{ url_for('request_document') }}" data-tooltip="Request Document"><i class="fas fa-file-alt"></i> <span class="translatable">Request Document</span></a>
+        <a href="{{ url_for('apply_permit') }}" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
+        <a href="{{ url_for('my_requests') }}" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
+        <a href="{{ url_for('events') }}" data-tooltip="Events Calendar"><i class="fas fa-calendar-alt"></i> <span class="translatable">Events Calendar</span></a>
+        <a href="{{ url_for('settings') }}" id="sidebarSettingsLink" data-tooltip="Settings" class="{% if request.endpoint == 'settings' %}active{% endif %}">
+            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
+        </a>
+      </nav>
+
+      <!-- ===== SIDEBAR FOOTER: About Us + FAQs + Bell ===== -->
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-links">
+            <a href="{{ url_for('about_us') }}" class="sidebar-about-link">About Us</a>
+            <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
+        </div>
+        <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
+            <i class="fas fa-bell"></i>
+            <span class="bell-badge">1</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- NOTIFICATION PANEL -->
+    <div class="notif-panel" id="notifPanel">
+        <div class="notif-header">
+            <i class="fas fa-bullhorn"></i>
+            <h4>Recent Announcements</h4>
+        </div>
+        <div class="notif-body">
+            <a href="{{ url_for('user_announcements') }}" class="notif-item">
+                <div class="notif-icon">📢</div>
+                <div class="notif-content">
+                    <h5>School Event Announcement</h5>
+                    <p><i class="far fa-clock"></i> Oct 2, 2026</p>
+                </div>
+            </a>
+        </div>
+        <a href="{{ url_for('user_announcements') }}" class="notif-footer">
+            View All Announcements <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+
+        <div class="page-header-card">
+            <div>
+                <h1>
+                    <i class="fas fa-question-circle"></i>
+                    <span class="translatable">Frequently Asked Questions</span>
+                </h1>
+                <p><span class="translatable">Find answers to common questions about our services</span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="faq-list">
+
+                <!-- FAQ 1 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">1</span>
+                            How do I change my password?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p><strong>If you are on the Login page:</strong></p>
+                            <ul>
+                                <li>Click <strong>"Forgot Password?"</strong> below the login fields.</li>
+                                <li>Enter your registered email address and your desired new password.</li>
+                                <li>Make sure all information is correct before confirming the password change.</li>
+                            </ul>
+                            <p><strong>If you are already logged in:</strong></p>
+                            <ul>
+                                <li>Click your <strong>Profile</strong> in the upper-right corner of the screen.</li>
+                                <li>Select the option to <strong>Change Password</strong>.</li>
+                                <li>Enter your registered email address and desired new password.</li>
+                                <li>Make sure all information is correct before confirming.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">2</span>
+                            Can I change my email address?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p><strong>No.</strong> Your email address is permanent once your account has been created and cannot be changed.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">3</span>
+                            Can I delete my account?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p><strong>No.</strong> Account deletion is currently not available.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">4</span>
+                            What should I do if my account has been hacked?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>If you believe that your account has been hacked or accessed without your permission, contact the <strong>Barangay Sto. Niño Help Desk</strong> for assistance.</p>
+                            <div class="contact-info">
+                                <p><strong>Contact Number:</strong> 0992 225 0927</p>
+                                <p><strong>Office Hours:</strong> 8:00 AM – 5:00 PM, Monday to Friday</p>
+                                <p>Excluding holidays and special non-working days.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">5</span>
+                            What is this website for?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>The <strong>Barangay Sto. Niño Online Services</strong> website makes common barangay services easier to access online.</p>
+                            <p><strong>Residents can use the website to:</strong></p>
+                            <ul>
+                                <li>Request Barangay Clearance</li>
+                                <li>Request Certificate of Indigency</li>
+                                <li>Request Proof of Residency</li>
+                                <li>Apply for Community Event Permits</li>
+                                <li>Track the status of their requests</li>
+                            </ul>
+                            <div class="note">
+                                <strong>Note:</strong> The website does not currently include online payments, payroll services, health records, or other barangay services outside its current scope.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 6 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">6</span>
+                            How do I apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <ul>
+                                <li>From your <strong>Dashboard</strong>, go to <strong>Quick Actions</strong>.</li>
+                                <li>Click <strong>"Request Document."</strong></li>
+                                <li>Select the document you want to request.</li>
+                                <li>Fill out all required information.</li>
+                                <li>If requesting Proof of Residency, review the additional requirements provided.</li>
+                                <li>Read and agree to the <strong>Terms and Conditions</strong> by checking the required boxes.</li>
+                                <li>Review all the information you entered and make sure it is correct.</li>
+                                <li>Click <strong>"Submit Request."</strong></li>
+                                <li>Take note of your <strong>Reference Number / Tracking Number</strong>.</li>
+                            </ul>
+                            <div class="note">
+                                <strong>Note:</strong> You can also view your request and reference number on the <strong>My Request</strong> page.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 7 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">7</span>
+                            Can a minor apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>The website is intended for residents of Barangay Sto. Niño who are <strong>18 years old and above</strong>.</p>
+                            <p>For document requests involving minors, please visit the Barangay Sto. Niño Office for assistance.</p>
+                            <div class="contact-info">
+                                <p><strong>Office Hours:</strong> 8:00 AM – 5:00 PM, Monday to Friday</p>
+                                <p>Excluding holidays and special non-working days.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 8 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">8</span>
+                            What is an Area Representative?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>An <strong>Area Representative</strong> is a person who represents or serves as a contact person for residents in a particular area or community within the barangay.</p>
+                            <p>For example, an <strong>HOA President</strong> may serve as an Area Representative for residents in their community.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 9 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">9</span>
+                            How do I get the signature of the Area Representative?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <ul>
+                                <li>Identify and contact your Area Representative.</li>
+                                <li>Prepare a clean piece of paper containing the following:
+                                    <ul>
+                                        <li>Area Representative's printed name</li>
+                                        <li>Signature</li>
+                                        <li>Date of signature</li>
+                                    </ul>
+                                </li>
+                                <li>Take a clear photo of the signed document.</li>
+                                <li>Upload the photo to the <strong>Document Request</strong> page.</li>
+                            </ul>
+                            <div class="note">
+                                <strong>Note:</strong> Please refer to the sample image provided on the website for the correct format.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 10 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">10</span>
+                            Who can be my reference person?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Your reference person:</p>
+                            <ul>
+                                <li><strong>Must not be a relative.</strong></li>
+                                <li>Should preferably be a resident of Barangay Sto. Niño.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 11 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">11</span>
+                            How long must I have lived in Barangay Sto. Niño to request a Proof of Residency?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>To request a Proof of Residency, you must have been a resident of Barangay Sto. Niño for at least <strong>12 months (1 year)</strong> at the time of your request.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 12 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">12</span>
+                            What if I do not have a Precinct Number?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>If you do not have a Precinct Number, please consult a <strong>Barangay staff member</strong> for assistance on how to proceed.</p>
+                            <p>You may visit the Barangay Office during:</p>
+                            <div class="contact-info">
+                                <p><strong>Office Hours:</strong> 8:00 AM – 5:00 PM, Monday to Friday</p>
+                                <p>Excluding holidays and special non-working days.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 13 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">13</span>
+                            Where is the Barangay Sto. Niño Office, and how can I contact them?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p><strong>Address:</strong></p>
+                            <p>6303 Col. E. L. De Leon, Parañaque, Kalakhang Maynila</p>
+                            <p><strong>Contact Information:</strong></p>
+                            <ul>
+                                <li>Mobile: <strong>0992 225 0927</strong></li>
+                                <li>Telephone: <strong>8852-7477</strong></li>
+                            </ul>
+                            <div class="contact-info">
+                                <p><strong>Office Hours:</strong> 8:00 AM – 5:00 PM, Monday to Friday</p>
+                                <p>Excluding holidays and special non-working days.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 14 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">14</span>
+                            How do I claim my Barangay Clearance, Certificate of Indigency, or Proof of Residency?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <ul>
+                                <li>Go to the <strong>My Request</strong> page.</li>
+                                <li>Find the document you requested and check its status.</li>
+                                <li>Once the status is marked <strong>"Approved,"</strong> you may claim the document at the Barangay Office.</li>
+                                <li>Present your <strong>Reference Number</strong> and verify your personal details.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 15 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">15</span>
+                            Where can I find my Reference Number?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <ul>
+                                <li>Go to the <strong>My Request</strong> page.</li>
+                                <li>Find the document you want to check.</li>
+                                <li>Click <strong>"View."</strong></li>
+                            </ul>
+                            <div class="note">
+                                <strong>Note:</strong> Your Reference Number, along with other request details, will be displayed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 16 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">16</span>
+                            How do I apply for an Event Permit?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <ul>
+                                <li>From your <strong>Dashboard</strong>, go to <strong>Quick Actions</strong>.</li>
+                                <li>Click <strong>"Apply for Permit."</strong></li>
+                                <li>Fill out all required information.</li>
+                                <li>If you are applying on behalf of a company or organization, provide a valid ID as proof of identity and supporting documents related to the event.</li>
+                                <li>Read and agree to the <strong>Terms and Conditions</strong> by checking the required boxes.</li>
+                                <li>Review all the information you entered and make sure it is correct.</li>
+                                <li>Click <strong>"Submit Application."</strong></li>
+                            </ul>
+                            <div class="note">
+                                <strong>Note:</strong> Examples of supporting documents include:
+                                <ul>
+                                    <li>Authorization letter</li>
+                                    <li>Company ID</li>
+                                    <li>Event proposal</li>
+                                    <li>Other documents showing your connection to the company or organization</li>
+                                </ul>
+                            </div>
+                            <div class="note">
+                                <strong>Note:</strong> It is recommended to submit an event permit application at least <strong>10 days before the event date</strong> to help avoid scheduling conflicts.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 17 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">17</span>
+                            How can I track the status of my request or application?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Go to the <strong>My Request</strong> page to view your submitted requests and check their current status.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 18 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">18</span>
+                            Where can I check venue availability?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>You can check the availability of barangay venues and courts on the <strong>Events Calendar</strong> page.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 19 -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div class="question-text">
+                            <span class="q-number">19</span>
+                            Where are the available venues and courts located?
+                        </div>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p><strong>Sports Complex:</strong></p>
+                            <p>GX3W+2X Parañaque, Metro Manila</p>
+
+                            <p><strong>Wawa Basketball Court:</strong></p>
+                            <p>GX2W+C5R, Dahlia, Parañaque, Kalakhang Maynila</p>
+
+                            <p><strong>Sampaguita Court:</strong></p>
+                            <p>GX3W+C3G, Manila, Metro Manila</p>
+
+                            <p><strong>Ilaya Court / 2nd Street Court:</strong></p>
+                            <p>GX5W+3RQ, Col. E. L. De Leon, Manila, Kalakhang Maynila</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ===== MOBILE SIDEBAR TOGGLE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.page-header-card');
+            const hamburger = document.createElement('button');
+            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none;';
+            hamburger.id = 'menuToggle';
+            hamburger.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+            header.prepend(hamburger);
+
+            if (window.innerWidth <= 992) hamburger.style.display = 'block';
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 992) {
+                    hamburger.style.display = 'block';
+                } else {
+                    hamburger.style.display = 'none';
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+
+            // ===== SIDEBAR COLLAPSE TOGGLE =====
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed && window.innerWidth > 992) {
+                sidebar.classList.add('collapsed');
+                document.body.classList.add('sidebar-collapsed');
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('collapsed');
+                    document.body.classList.toggle('sidebar-collapsed');
+                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                });
+            }
+        });
+
+        // ===== FAQ ACCORDION =====
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+
+            // Isara lahat ng iba pang FAQ
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // I-toggle yung clinick
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        }
+
+        // ===== SMOOTH PAGE TRANSITION =====
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (this.classList.contains('active') || !href || href === '#') return;
+                e.preventDefault();
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) mainContent.classList.add('fade-out');
+                setTimeout(() => { window.location.href = href; }, 200);
+            });
+        });
+
+        // ===== NOTIFICATION BELL =====
+        function toggleNotifPanel(event) {
+            if (event) event.stopPropagation();
+            const panel = document.getElementById('notifPanel');
+            const bell = document.getElementById('notifBell');
+            if (panel) {
+                panel.classList.toggle('show');
+                if (bell) bell.classList.toggle('active');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('notifPanel');
+            const bell = document.getElementById('notifBell');
+            if (panel && bell && !bell.contains(e.target) && !panel.contains(e.target)) {
+                panel.classList.remove('show');
+                bell.classList.remove('active');
+            }
+        });
+
+        document.getElementById('notifPanel')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>

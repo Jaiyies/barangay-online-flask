@@ -397,12 +397,46 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        /* ===== SIDEBAR FOOTER (About Us + FAQs + Bell) ===== */
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
             border-top: 1px solid rgba(255,255,255,0.12);
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .sidebar-footer-links {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sidebar-about-link,
+        .sidebar-faqs-link {
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 2px solid #ffffff;
+            padding-bottom: 2px;
+            transition: all 0.25s ease;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+        }
+
+        .sidebar-about-link:hover,
+        .sidebar-faqs-link:hover {
+            opacity: 0.7;
+            transform: translateY(-1px);
+        }
+
+        .sidebar.collapsed .sidebar-about-link,
+        .sidebar.collapsed .sidebar-faqs-link {
+            display: none;
         }
 
         .sidebar-bell {
@@ -1766,7 +1800,12 @@
         </a>
       </nav>
 
+      <!-- ===== SIDEBAR FOOTER: About Us + FAQs + Bell ===== -->
       <div class="sidebar-footer">
+        <div class="sidebar-footer-links">
+            <a href="{{ url_for('about_us') }}" class="sidebar-about-link">About Us</a>
+            <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
+        </div>
         <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
             <i class="fas fa-bell"></i>
             <span class="bell-badge">1</span>
@@ -2457,7 +2496,9 @@
                 'Settings': 'Settings',
                 'Logout': 'Logout',
                 'Submit a request for barangay documents': 'Submit a request for barangay documents',
-                'Document Request Form': 'Document Request Form'
+                'Document Request Form': 'Document Request Form',
+                'About Us': 'About Us',
+                'FAQs': 'FAQs'
             },
             'tl': {
                 'Dashboard': 'Dashboard',
@@ -2469,7 +2510,9 @@
                 'Settings': 'Settings',
                 'Logout': 'Mag-logout',
                 'Submit a request for barangay documents': 'Mag-sumite ng request para sa mga dokumento ng barangay',
-                'Document Request Form': 'Form ng Document Request'
+                'Document Request Form': 'Form ng Document Request',
+                'About Us': 'Tungkol Sa Amin',
+                'FAQs': 'Mga FAQ'
             }
         };
 

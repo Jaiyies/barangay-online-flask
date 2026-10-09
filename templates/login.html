@@ -343,6 +343,54 @@
             cursor: not-allowed; 
         }
 
+        /* ===== GOOGLE LOGIN BUTTON ===== */
+        .google-divider {
+            display: flex; 
+            align-items: center; 
+            margin: 22px 0 18px;
+        }
+        .google-divider hr {
+            flex: 1; 
+            border: none; 
+            border-top: 1px solid #dde8e1;
+        }
+        .google-divider span {
+            padding: 0 14px; 
+            color: #6b8475; 
+            font-size: 0.75rem; 
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .btn-google {
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px;
+            width: 100%; 
+            padding: 14px; 
+            border: 1.5px solid #dde8e1; 
+            border-radius: 50px;
+            background: white; 
+            text-decoration: none; 
+            color: #0f3d2a; 
+            font-weight: 700;
+            font-size: 15px; 
+            font-family: inherit;
+            transition: all 0.3s ease; 
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .btn-google:hover {
+            background: #f4f8f5; 
+            border-color: #228b54; 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 139, 84, 0.15);
+        }
+        .btn-google img {
+            width: 20px; 
+            height: 20px;
+        }
+
         /* ===== LINKS ===== */
         .register-link { 
             text-align: center; 
@@ -569,7 +617,7 @@
                     </button>
                 </div>
 
-                <!-- RESIDENT FORM -->
+                <!-- ============ RESIDENT FORM ============ -->
                 <div id="residentForm" class="login-form active-form">
                     <form method="POST" action="{{ url_for('login') }}" id="residentLoginForm">
                         <input type="hidden" name="role" value="resident">
@@ -605,10 +653,23 @@
                             <i class="fas fa-arrow-right-to-bracket"></i> Sign In
                         </button>
                     </form>
+
+                    <!-- ============ GOOGLE LOGIN (RESIDENT ONLY) ============ -->
+                    <div class="google-divider">
+                        <hr>
+                        <span>OR</span>
+                        <hr>
+                    </div>
+
+                    <a href="{{ url_for('login_google') }}" class="btn-google">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                        Continue with Google
+                    </a>
+
                     <div class="register-link">New to the barangay? <a href="{{ url_for('register') }}">Create an account</a></div>
                 </div>
 
-                <!-- ADMIN FORM -->
+                <!-- ============ ADMIN FORM (Walang Google Login) ============ -->
                 <div id="adminForm" class="login-form">
                     <form method="POST" action="{{ url_for('login') }}" id="adminLoginForm">
                         <input type="hidden" name="role" value="admin">
@@ -657,7 +718,7 @@
                     <p>Enter your current password and new password</p>
                 </div>
 
-               <form method="POST" action="{{ url_for('forgot_password') }}" id="resetPasswordForm">
+                <form method="POST" action="{{ url_for('forgot_password') }}" id="resetPasswordForm">
                     <div class="input-group">
                         <label for="resetEmail"><i class="fas fa-envelope"></i> Email Address</label>
                         <input type="email" name="email" id="resetEmail" placeholder="Enter your registered email" required>
@@ -671,7 +732,6 @@
                         <i class="fas fa-paper-plane"></i> Send Reset Code
                     </button>
                 </form>
-                
 
                 <button onclick="showSignInForm()" class="btn-back">
                     <i class="fas fa-arrow-left"></i> Back to Sign In
@@ -784,17 +844,13 @@
 
         // ===== TOGGLE RESET PASSWORD FORM =====
         function showResetForm() {
-            // ITAGO YUNG HEADER
             document.getElementById('loginHeader').style.display = 'none';
-            
             document.getElementById('signInSection').style.display = 'none';
             document.getElementById('resetFormSection').classList.add('active-form');
         }
 
         function showSignInForm() {
-            // IPAKITA ULIT YUNG HEADER
             document.getElementById('loginHeader').style.display = 'block';
-            
             document.getElementById('resetFormSection').classList.remove('active-form');
             document.getElementById('signInSection').style.display = 'block';
         }
