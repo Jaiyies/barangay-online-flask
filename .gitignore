@@ -32,3 +32,5 @@ Thumbs.db
 # ===== UPLOADS =====
 static/uploads/*
 !static/uploads/.gitkeep
+.env
+*.env

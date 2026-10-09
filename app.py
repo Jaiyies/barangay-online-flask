@@ -10,6 +10,10 @@ import glob
 import secrets
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
+from dotenv import load_dotenv
+
+# ============ LOAD ENVIRONMENT VARIABLES ============
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-in-production'
@@ -33,8 +37,8 @@ oauth = OAuth(app)
 
 google = oauth.register(
     name='google',
-    client_id='1024740089887-v0ihlmf28b6els2aqit4h1j1ulbr1hh8.apps.googleusercontent.com',
-    client_secret='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',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={'scope': 'openid email profile'}
 )
@@ -415,6 +419,103 @@ def login():
 
     return render_template('login.html')
 
+
+# ============================================================
+# GOOGLE LOGIN ROUTES
+# ============================================================
+@app.route('/login/google')
+def login_google():
+    """Simulan ang Google OAuth flow"""
+    redirect_uri = url_for('authorize_google', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route('/login/google/authorized')
+def authorize_google():
+    """Callback pagkatapos mag-login sa Google"""
+    try:
+        token = google.authorize_access_token()
+        user_info = token.get('userinfo')
+
+        if not user_info:
+            flash('Hindi makuha ang Google user info. Please try again.', 'danger')
+            return redirect(url_for('login'))
+
+        google_id = user_info['sub']
+        email = user_info['email']
+        name = user_info.get('name', email.split('@')[0])
+
+        # Split name into first and last (best effort)
+        name_parts = name.split(' ', 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
+
+        conn = get_db()
+        cursor = conn.cursor(dictionary=True)
+
+        # Hanapin kung existing user
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            # Existing user — i-link yung google_id kung wala pa
+            if not user.get('google_id'):
+                cursor.execute("UPDATE users SET google_id = %s WHERE id = %s", (google_id, user['id']))
+                conn.commit()
+
+            # Check kung deactivated
+            if not user['is_verified']:
+                conn.close()
+                flash('Your account has been deactivated. Please contact the administrator.', 'danger')
+                return redirect(url_for('login'))
+        else:
+            # AUTO-REGISTER as RESIDENT
+            cursor.execute("""
+                INSERT INTO users (first_name, last_name, email, password, google_id, role, is_verified)
+                VALUES (%s, %s, %s, NULL, %s, 'resident', TRUE)
+            """, (first_name, last_name, email, google_id))
+            conn.commit()
+
+            # Kunin yung bagong create na user
+            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
+
+        conn.close()
+
+        # ===== SET SESSION (SAME SA EXISTING LOGIN) =====
+        session['user_id'] = user['id']
+        session['fullname'] = f"{user['first_name']} {user['last_name']}"
+        session['email'] = user['email']
+        session['role'] = user['role']
+
+        flash(f'Welcome back, {session["fullname"]}!', 'success')
+
+        # Redirect base sa role (Google login = resident lang)
+        if user['role'] == 'resident':
+            return redirect(url_for('dashboard'))
+        else:
+            role = user['role']
+            if role == 'head_admin':
+                return redirect(url_for('head_admin_dashboard'))
+            elif role == 'admin_documents':
+                return redirect(url_for('sec_admin_dashboard'))
+            elif role == 'admin_court_1':
+                return redirect(url_for('court1_dashboard'))
+            elif role == 'admin_court_2':
+                return redirect(url_for('court2_dashboard'))
+            elif role == 'admin_court_3':
+                return redirect(url_for('court3_dashboard'))
+            elif role == 'admin_court_4':
+                return redirect(url_for('court4_dashboard'))
+            else:
+                return redirect(url_for('dashboard'))
+
+    except Exception as e:
+        print(f"❌ Google login error: {e}")
+        import traceback
+        traceback.print_exc()
+        flash('Google login failed. Please try again.', 'danger')
+        return redirect(url_for('login'))
 
 
 # ============================================================
@@ -4957,120 +5058,6 @@ def verify_reset_code():
     flash('Password reset successfully! You can now login with your new password.', 'success')
     return redirect(url_for('login'))
 
-# ===== EXISTING IMPORTS (keep mo lahat ito) =====
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, send_from_directory
-import mysql.connector
-from werkzeug.security import check_password_hash, generate_password_hash
-from functools import wraps
-import os
-import time
-import datetime
-import random
-import glob
-import secrets
-from flask_mail import Mail, Message
-
-# ===== BAGONG DAGDAG PARA SA GOOGLE LOGIN =====
-from authlib.integrations.flask_client import OAuth
-from config import Config  # ⚠️ Idagdag ito para ma-load ang config
-
-# ============================================================
-# GOOGLE LOGIN ROUTES
-# ============================================================
-@app.route('/login/google')
-def login_google():
-    """Simulan ang Google OAuth flow"""
-    redirect_uri = url_for('authorize_google', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-
-@app.route('/login/google/authorized')
-def authorize_google():
-    """Callback pagkatapos mag-login sa Google"""
-    try:
-        token = google.authorize_access_token()
-        user_info = token.get('userinfo')
-        
-        if not user_info:
-            flash('Hindi makuha ang Google user info. Please try again.', 'danger')
-            return redirect(url_for('login'))
-        
-        google_id = user_info['sub']
-        email = user_info['email']
-        name = user_info.get('name', email.split('@')[0])
-        
-        # Split name into first and last (best effort)
-        name_parts = name.split(' ', 1)
-        first_name = name_parts[0]
-        last_name = name_parts[1] if len(name_parts) > 1 else ''
-        
-        conn = get_db()
-        cursor = conn.cursor(dictionary=True)
-        
-        # Hanapin kung existing user
-        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
-        
-        if user:
-            # Existing user — i-link yung google_id kung wala pa
-            if not user.get('google_id'):
-                cursor.execute("UPDATE users SET google_id = %s WHERE id = %s", (google_id, user['id']))
-                conn.commit()
-            
-            # Check kung deactivated
-            if not user['is_verified']:
-                conn.close()
-                flash('Your account has been deactivated. Please contact the administrator.', 'danger')
-                return redirect(url_for('login'))
-        else:
-            # AUTO-REGISTER as RESIDENT
-            cursor.execute("""
-                INSERT INTO users (first_name, last_name, email, password, google_id, role, is_verified)
-                VALUES (%s, %s, %s, NULL, %s, 'resident', TRUE)
-            """, (first_name, last_name, email, google_id))
-            conn.commit()
-            
-            # Kunin yung bagong create na user
-            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-            user = cursor.fetchone()
-        
-        conn.close()
-        
-        # ===== SET SESSION (SAME SA EXISTING LOGIN) =====
-        session['user_id'] = user['id']
-        session['fullname'] = f"{user['first_name']} {user['last_name']}"
-        session['email'] = user['email']
-        session['role'] = user['role']
-        
-        flash(f'Welcome back, {session["fullname"]}!', 'success')
-        
-        # Redirect base sa role (Google login = resident lang)
-        if user['role'] == 'resident':
-            return redirect(url_for('dashboard'))
-        else:
-            # Kung admin pala yung email na ginamit, i-redirect sa tamang dashboard
-            role = user['role']
-            if role == 'head_admin':
-                return redirect(url_for('head_admin_dashboard'))
-            elif role == 'admin_documents':
-                return redirect(url_for('sec_admin_dashboard'))
-            elif role == 'admin_court_1':
-                return redirect(url_for('court1_dashboard'))
-            elif role == 'admin_court_2':
-                return redirect(url_for('court2_dashboard'))
-            elif role == 'admin_court_3':
-                return redirect(url_for('court3_dashboard'))
-            elif role == 'admin_court_4':
-                return redirect(url_for('court4_dashboard'))
-            else:
-                return redirect(url_for('dashboard'))
-    
-    except Exception as e:
-        print(f"❌ Google login error: {e}")
-        import traceback
-        traceback.print_exc()
-        flash('Google login failed. Please try again.', 'danger')
-        return redirect(url_for('login'))
 
 # ============================================================
 # MAIN
