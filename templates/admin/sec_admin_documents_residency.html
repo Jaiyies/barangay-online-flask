@@ -415,16 +415,22 @@
             transform: translateY(0);
         }
         .bell-dropdown-header {
-            padding: 16px 20px;
+            padding: 14px 18px;
             background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
             color: white;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .bell-dropdown-header-left {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .bell-dropdown-header i {
+        .bell-dropdown-header i.fa-bullhorn {
             background: rgba(255,255,255,0.15);
             padding: 6px;
             border-radius: 8px;
@@ -443,6 +449,7 @@
             color: #0d2b1e;
             transition: all 0.15s ease;
             border-bottom: 1px solid #f4f8f5;
+            position: relative;
         }
         .bell-item:last-child { border-bottom: none; }
         .bell-item:hover { background: #f4f8f5; }
@@ -484,6 +491,35 @@
             border-top: 1px solid #eef2f0;
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
+
+        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
+        .bell-item.unread::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        .bell-item.unread {
+            padding-left: 22px;
+        }
+        .bell-item.unread .bell-item-title {
+            font-weight: 700;
+            color: #0d2b1e;
+        }
+        @keyframes pulse-dot {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
+            }
+        }
 
         /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
@@ -846,14 +882,19 @@
             </button>
             <div class="bell-dropdown" id="bellDropdown">
                 <div class="bell-dropdown-header">
-                    <i class="fas fa-bullhorn"></i> Recent Announcements
+                    <div class="bell-dropdown-header-left">
+                        <i class="fas fa-bullhorn"></i> Recent Announcements
+                    </div>
+                    <button onclick="markAllRead(event)" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">
+                        <i class="fas fa-check-double"></i> Mark all
+                    </button>
                 </div>
                 <div class="bell-dropdown-body" id="bellList">
                     <div class="bell-loading">
                         <i class="fas fa-spinner fa-spin"></i> Loading...
                     </div>
                 </div>
-                <a href="/view-announcements" class="bell-dropdown-footer">
+                <a href="/admin/announcements" class="bell-dropdown-footer">
                     View All Announcements <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -907,7 +948,7 @@
             </div>
         </div>
 
-        <!-- TABLE (MAY DOCUMENT COLUMN PA RIN) -->
+        <!-- TABLE -->
         <div class="table-container">
             <table>
                 <thead>
@@ -1111,6 +1152,7 @@
         const body = document.body;
         sidebar.classList.toggle('expanded');
         body.classList.toggle('sidebar-expanded');
+        localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1118,13 +1160,9 @@
             document.getElementById('sidebar').classList.add('expanded');
             document.body.classList.add('sidebar-expanded');
         }
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
     });
-
-    const observer = new MutationObserver(function() {
-        localStorage.setItem('sidebarExpanded', 
-            document.getElementById('sidebar').classList.contains('expanded'));
-    });
-    observer.observe(document.getElementById('sidebar'), { attributes: true, attributeFilter: ['class'] });
 
     // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
@@ -1161,7 +1199,12 @@
                 let html = '';
                 data.announcements.forEach(a => {
                     const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                    html += `<a href="/view-announcements" class="bell-item"><div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div><div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div></a>`;
+                    const isUnread = !a.is_read;
+                    const itemClass = isUnread ? 'bell-item unread' : 'bell-item';
+                    html += `<a href="javascript:void(0)" onclick="openAnnouncementFromBell(${a.id})" class="${itemClass}">
+                                <div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div>
+                                <div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div>
+                             </a>`;
                 });
                 list.innerHTML = html;
             })
@@ -1169,6 +1212,35 @@
                 console.error('Bell fetch error:', err);
                 list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
             });
+    }
+
+    function openAnnouncementFromBell(announcementId) {
+        fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateBellBadge();
+                    loadRecentAnnouncements();
+                }
+            })
+            .catch(err => console.error('Mark read error:', err));
+
+        setTimeout(() => {
+            window.location.href = '/admin/announcements';
+        }, 300);
+    }
+
+    function markAllRead(event) {
+        if (event) event.stopPropagation();
+        fetch('/api/announcements/mark-all-read', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateBellBadge();
+                    loadRecentAnnouncements();
+                }
+            })
+            .catch(err => console.error('Mark all read error:', err));
     }
 
     function updateBellBadge() {
@@ -1198,11 +1270,6 @@
         const bellWrap = document.querySelector('.notification-bell-wrap');
         const dropdown = document.getElementById('bellDropdown');
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBellBadge();
-        setInterval(updateBellBadge, 30000);
     });
 
     // ===== FILTER TABLE =====
@@ -1273,7 +1340,7 @@
         document.getElementById('docModal').classList.remove('active');
     }
 
-    // ===== VIEW DETAILS (Split Approve/Reject sa baba) =====
+    // ===== VIEW DETAILS =====
     function viewDetails(docId) {
         const modal = document.getElementById('detailsModal');
         const body = document.getElementById('detailsBody');
@@ -1295,7 +1362,6 @@
                 
                 body.innerHTML = `
                     <div class="view-grid">
-
                         <div class="view-section-title">Request Information</div>
                         <div class="view-item">
                             <span class="label">Reference Number</span>
@@ -1441,11 +1507,9 @@
                             <span class="value">${safe(doc.admin_remarks)}</span>
                         </div>
                         ` : ''}
-
                     </div>
                 `;
                 
-                // Show Approve/Reject split buttons kung pending pa
                 if (doc.status === 'pending') {
                     actions.style.display = 'grid';
                 } else {
