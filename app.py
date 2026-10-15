@@ -1517,6 +1517,22 @@ def apply_permit_post():
         if cursor.fetchone():
             return jsonify({'success': False, 'error': 'This time slot is already taken by an approved event at this venue.'}), 409
 
+        # ===== CHECK CONFLICT (PENDING - Soft Warning lang, dapat payagan pa rin) =====
+        pending_warning = None
+        cursor.execute("""
+            SELECT id, start_time, end_time FROM event_permits
+            WHERE venue = %s
+              AND event_date = %s
+              AND status = 'pending'
+              AND start_time < %s
+              AND end_time > %s
+            LIMIT 1
+        """, (venue, event_date, end_time, start_time))
+        pending_conflict = cursor.fetchone()
+        if pending_conflict:
+            cs = str(pending_conflict['start_time'])[:5]
+            ce = str(pending_conflict['end_time'])[:5]
+            pending_warning = f'There is a pending permit for this slot ({cs} - {ce}). You may still apply, but it could conflict if approved.'
         # ===== INSERT PERMIT =====
         cursor.execute("""
             INSERT INTO event_permits (
@@ -1662,7 +1678,7 @@ def apply_permit_post():
             send_email(resident['email'], subject, body_html)
 
         return jsonify({
-            'success': True,
+              'success': True,
             'message': 'Permit application submitted successfully',
             'reference_number': ref_num,
             'queuing_number': queue_num,
@@ -1670,7 +1686,8 @@ def apply_permit_post():
             'event_date': event_date,
             'start_time': start_time,
             'end_time': end_time,
-            'venue': venue
+            'venue': venue,
+            'warning': pending_warning  # <-- IDAGDAG ITO
         }), 201
 
     except mysql.connector.Error as e:

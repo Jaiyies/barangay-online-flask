@@ -133,8 +133,8 @@
         }
 
         .sidebar-brand .logo-img {
-            width: 76px;
-            height: 76px;
+            width: 62px;
+            height: 62px;
             border-radius: 50%;
             background: #ffffff;
             display: flex;
@@ -142,7 +142,7 @@
             justify-content: center;
             flex-shrink: 0;
             overflow: hidden;
-            padding: 5px;
+            padding: 0px;
             box-shadow: 
                 0 10px 24px rgba(0,0,0,0.28),
                 0 0 0 3px rgba(255,255,255,0.15);
@@ -157,7 +157,7 @@
         .sidebar-brand .logo-img img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             border-radius: 50%;
         }
 
@@ -233,8 +233,8 @@
         }
 
         .sidebar.collapsed .sidebar-brand .logo-img {
-            width: 50px;
-            height: 50px;
+            width: 42px;
+            height: 42px;
             padding: 3px;
         }
 
@@ -395,7 +395,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* ===== SIDEBAR FOOTER (About Us + FAQs + Bell) ===== */
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
@@ -623,7 +622,6 @@
             gap: 12px;
         }
 
-        /* ===== MAIN CONTENT: FADE ONLY HERE ===== */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px 48px;
@@ -1215,6 +1213,7 @@
         .availability-status.available { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .availability-status.unavailable { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
         .availability-status.checking { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .availability-status.pending-warning { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
 
         .file-input-wrapper input[type="file"] {
             width: 100%; padding: 14px;
@@ -1453,84 +1452,147 @@
         .flash-message.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
         .flash-message.info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
 
+        /* ===== MODAL - CENTERED ===== */
         .modal {
             display: none;
-            position: fixed; z-index: 10000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background: rgba(15, 61, 42, 0.5);
+            position: fixed; 
+            z-index: 10000;
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(15, 61, 42, 0.55);
             backdrop-filter: blur(12px);
             padding: 20px;
+            align-items: center;
+            justify-content: center;
         }
+        
+        .modal.show {
+            display: flex;
+        }
+
         .modal-content {
             background: white;
-            margin: 5% auto;
-            border-radius: 24px;
-            width: 100%; max-width: 560px;
-            max-height: 90vh; overflow-y: auto;
+            margin: 0;
+            border-radius: 20px;
+            width: 100%; 
+            max-width: 580px;
+            max-height: 92vh; 
+            overflow-y: auto;
             box-shadow: 0 32px 80px rgba(0,0,0,0.3);
             animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
         }
+        
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(40px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
+        
         .modal-header {
-            background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+            background: linear-gradient(135deg, #228b54 0%, #0f3d2a 100%);
             color: white;
-            padding: 34px 30px 28px;
-            border-radius: 24px 24px 0 0;
+            padding: 28px 30px 24px;
+            border-radius: 20px 20px 0 0;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
         .modal-header i {
-            font-size: 56px; margin-bottom: 12px;
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: inline-block;
             animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 1;
         }
         @keyframes iconPop {
             0% { transform: scale(0); }
             100% { transform: scale(1); }
         }
-        .modal-header h2 { font-size: 24px; margin-top: 5px; font-weight: 800; }
-        .modal-header p { font-size: 14px; opacity: 0.9; margin-top: 4px; }
+        .modal-header h2 {
+            font-size: 22px;
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+        .modal-header p {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+        }
         .close-modal-btn {
-            position: absolute; right: 16px; top: 16px;
-            font-size: 24px; color: white; cursor: pointer;
+            position: absolute; right: 14px; top: 14px;
+            font-size: 20px; color: white; cursor: pointer;
             background: rgba(255,255,255,0.15);
             border: none;
-            width: 36px; height: 36px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.3s ease;
+            z-index: 2;
         }
         .close-modal-btn:hover {
             background: rgba(255,255,255,0.3);
             transform: rotate(90deg);
         }
 
-        .modal-body { padding: 28px 34px 22px; }
+        .modal-body { 
+            padding: 24px 28px 20px;
+        }
 
         .reference-number-box {
-            background: linear-gradient(135deg, #e3f5e8, #d0ebdd);
-            padding: 18px 24px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 18px 22px;
             border-radius: 14px;
             text-align: center;
-            margin: 12px 0 18px;
-            border: 1px solid var(--primary-200);
-            box-shadow: 
-                0 8px 20px rgba(34, 139, 84, 0.12),
-                0 3px 8px rgba(34, 139, 84, 0.08);
+            margin: 0 0 16px;
+            border: 1.5px solid #a7f3d0;
+            box-shadow: 0 4px 12px rgba(34, 139, 84, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .reference-number-box::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(34, 139, 84, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
         }
         .reference-number-box p {
-            font-size: 11px; color: var(--primary-600);
+            font-size: 10px;
+            color: #059669;
             text-transform: uppercase;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            margin: 0;
+            position: relative;
         }
         .reference-number-box h3 {
-            font-size: 24px; color: var(--primary-700);
-            letter-spacing: 1.5px; font-weight: 800;
-            margin: 4px 0;
+            font-size: 24px; 
+            color: var(--primary-700);
+            letter-spacing: 1.5px; 
+            font-weight: 800;
+            margin: 6px 0;
+            position: relative;
         }
         .reference-number-box .queuing-badge {
             display: inline-block;
@@ -1538,6 +1600,14 @@
             padding: 3px 16px; border-radius: 40px;
             font-size: 12px; font-weight: 700;
             margin-top: 4px;
+            position: relative;
+        }
+        .reference-number-box .save-hint {
+            font-size: 11px; 
+            margin-top: 6px; 
+            color: #059669; 
+            opacity: 0.8;
+            position: relative;
         }
 
         .permit-details-grid {
@@ -1606,7 +1676,7 @@
         }
 
         .modal-footer {
-            padding: 16px 34px 28px;
+            padding: 16px 28px 24px;
             display: flex; gap: 12px; flex-wrap: wrap;
         }
         .modal-btn {
@@ -1669,7 +1739,13 @@
             .permit-details-grid { grid-template-columns: 1fr; }
             .modal-footer { flex-direction: column; }
             .modal-btn { width: 100%; }
-            .modal-content { margin: 10% auto; }
+            .modal-content { 
+                margin: 0;
+                max-height: 85vh;
+            }
+            .modal {
+                padding: 15px;
+            }
             .page-header-card h1 { font-size: 1.4rem; }
             .page-header-card h1 i { font-size: 1.2rem; padding: 10px; }
             
@@ -1731,7 +1807,6 @@
         </a>
       </nav>
 
-      <!-- ===== SIDEBAR FOOTER: About Us + FAQs + Bell ===== -->
       <div class="sidebar-footer">
         <div class="sidebar-footer-links">
             <a href="{{ url_for('about_us') }}" class="sidebar-about-link">About Us</a>
@@ -2010,11 +2085,20 @@
                 <p>Your application has been received</p>
             </div>
             <div class="modal-body">
+                
+                <div id="modalWarningBox" style="display: none; background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fcd34d; border-radius: 14px; padding: 16px 20px; margin-bottom: 16px; align-items: flex-start; gap: 12px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.10);">
+                    <i class="fas fa-exclamation-triangle" style="color: #d97706; font-size: 22px; flex-shrink: 0; margin-top: 2px;"></i>
+                    <div>
+                        <h4 style="margin: 0 0 4px; color: #92400e; font-size: 14px; font-weight: 700;">Pending Conflict Warning</h4>
+                        <p id="modalWarningText" style="margin: 0; color: #78350f; font-size: 13px; line-height: 1.6;"></p>
+                    </div>
+                </div>
+
                 <div class="reference-number-box">
                     <p><i class="fas fa-qrcode"></i> Reference Number</p>
                     <h3 id="refNumberDisplay">BP-20260903-XXXX</h3>
                     <div class="queuing-badge" id="queuingBadge">Queue #001</div>
-                    <p style="font-size: 11px; margin-top: 4px; color: var(--primary-600); opacity: 0.7;">Please save this number for tracking</p>
+                    <p class="save-hint">Please save this number for tracking</p>
                 </div>
 
                 <div class="permit-details-grid" id="permitDetailsGrid">
@@ -2183,7 +2267,6 @@
             });
         }
 
-        // ===== SMOOTH PAGE TRANSITION (main content only) =====
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 const href = this.getAttribute('href');
@@ -2472,7 +2555,7 @@
                         statusDiv.style.display = 'flex';
                         messageSpan.innerHTML = '<i class="fas fa-check-circle"></i> This time slot is available!';
                     } else if (data.status === 'pending_conflict') {
-                        statusDiv.className = 'availability-status visible checking';
+                        statusDiv.className = 'availability-status visible pending-warning';
                         statusDiv.style.display = 'flex';
                         messageSpan.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + (data.message || 'There is a pending permit for this slot.');
                     } else {
@@ -2516,12 +2599,22 @@
             document.getElementById('modalEventDate').textContent = data.event_date ? new Date(data.event_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
             document.getElementById('modalEventTime').textContent = (data.start_time ? data.start_time.substring(0, 5) : 'N/A') + ' - ' + (data.end_time ? data.end_time.substring(0, 5) : 'N/A');
             document.getElementById('modalVenue').textContent = data.venue || 'N/A';
-            document.getElementById('permitModal').style.display = 'block';
+
+            const warningBox = document.getElementById('modalWarningBox');
+            const warningText = document.getElementById('modalWarningText');
+            if (data.warning && warningBox && warningText) {
+                warningText.textContent = data.warning;
+                warningBox.style.display = 'flex';
+            } else if (warningBox) {
+                warningBox.style.display = 'none';
+            }
+
+            document.getElementById('permitModal').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
-            document.getElementById('permitModal').style.display = 'none';
+            document.getElementById('permitModal').classList.remove('show');
             document.body.style.overflow = 'auto';
             window.location.href = "{{ url_for('my_requests') }}";
         }
@@ -2530,6 +2623,15 @@
             const modal = document.getElementById('permitModal');
             if (event.target === modal) closeModal();
         }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('permitModal');
+                if (modal && modal.classList.contains('show')) {
+                    closeModal();
+                }
+            }
+        });
 
         document.getElementById('submitBtn').addEventListener('click', function(e) {
             e.preventDefault();
@@ -2556,7 +2658,7 @@
             }
 
             const statusDiv = document.getElementById('availabilityStatus');
-            if (!statusDiv.classList.contains('available')) {
+            if (statusDiv.classList.contains('unavailable')) {
                 alert('This time slot is not available. Please check the availability first.');
                 return;
             }
@@ -2581,7 +2683,8 @@
                         event_date: data.event_date,
                         start_time: data.start_time,
                         end_time: data.end_time,
-                        venue: data.venue
+                        venue: data.venue,
+                        warning: data.warning
                     });
 
                     form.reset();
