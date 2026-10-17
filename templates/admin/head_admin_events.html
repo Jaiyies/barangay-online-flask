@@ -869,6 +869,7 @@
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
+                    <option value="completed">Completed</option>
                 </select>
                 <select id="venueFilter" onchange="filterTable()">
                     <option value="all">All Venues</option>
@@ -908,7 +909,9 @@
                 </thead>
                 <tbody id="eventTable">
                     {% for event in events %}
-                    <tr data-status="{{ event.status }}" data-venue="{{ event.venue }}">
+                    <tr data-status="{{ event.status }}" 
+                        data-venue="{{ event.venue }}" 
+                        data-event-date="{{ event.event_date.strftime('%Y-%m-%d') if event.event_date else '' }}">
                         <td>{{ loop.index }}</td>
                         <td><strong>{{ event.event_name or 'N/A' }}</strong></td>
                         <td>{{ event.first_name }} {{ event.last_name }}</td>
@@ -1110,12 +1113,38 @@
         const rows = document.querySelectorAll('#eventTable tr');
         let count = 0;
 
+        // Kunin ang today's date (start of day para accurate comparison)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
             const statusText = row.querySelector('.status-badge')?.textContent.toLowerCase() || '';
             const venueText = row.dataset.venue ? row.dataset.venue.toLowerCase() : '';
+            const eventDateStr = row.dataset.eventDate || '';
 
-            const matchStatus = status === 'all' || statusText.includes(status);
+            let matchStatus = false;
+
+            if (status === 'all') {
+                matchStatus = true;
+            } else if (status === 'completed') {
+                // COMPLETED = approved status AT event_date < today
+                if (statusText.includes('approved') && eventDateStr) {
+                    const eventDate = new Date(eventDateStr + 'T00:00:00');
+                    matchStatus = eventDate < today;
+                }
+            } else if (status === 'approved') {
+                // APPROVED tab = approved status AT event_date >= today (upcoming)
+                if (statusText.includes('approved') && eventDateStr) {
+                    const eventDate = new Date(eventDateStr + 'T00:00:00');
+                    matchStatus = eventDate >= today;
+                } else if (statusText.includes('approved') && !eventDateStr) {
+                    matchStatus = true;
+                }
+            } else {
+                matchStatus = statusText.includes(status);
+            }
+
             const matchVenue = venue === 'all' || venueText.includes(venue.toLowerCase());
             const matchSearch = text.includes(search);
 

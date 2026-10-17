@@ -1353,6 +1353,7 @@ def request_document_post():
 @app.route('/submit-document-request', methods=['POST'])
 @role_required('resident')
 def submit_document_request():
+    conn = None
     try:
         data = request.form.to_dict()
 
@@ -1365,10 +1366,10 @@ def submit_document_request():
                 file_data = filename
 
         conn = get_db()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)  # ← IMPORTANT: dictionary=True para sa fetchone()
 
         cursor.execute("DESCRIBE document_requests")
-        col_names = [col[0] for col in cursor.fetchall()]
+        col_names = [col['Field'] for col in cursor.fetchall()]
 
         required_columns = ['user_id', 'document_type', 'reference_number', 'status']
         missing_columns = [col for col in required_columns if col not in col_names]
@@ -1378,11 +1379,12 @@ def submit_document_request():
             conn.close()
             return jsonify({'error': error_msg}), 500
 
+        doc_type = data.get('document_type', 'clearance')
         ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
         queue_num = get_next_queue_number('document_requests')
 
         insert_cols = ['user_id', 'document_type', 'reference_number', 'status']
-        insert_vals = [session['user_id'], data.get('document_type', 'clearance'), ref_num, 'pending']
+        insert_vals = [session['user_id'], doc_type, ref_num, 'pending']
 
         if 'queuing_number' in col_names:
             insert_cols.append('queuing_number')
@@ -1416,6 +1418,63 @@ def submit_document_request():
         cursor.execute(sql, tuple(insert_vals))
         conn.commit()
 
+        # ============================================================
+        # INTERNAL NOTIFICATION + EXTERNAL EMAIL (RESIDENT + ADMINS)
+        # ============================================================
+
+        # ---- Kunin info ng resident (first_name + email) ----
+        cursor.execute("SELECT first_name, email FROM users WHERE id = %s", (session['user_id'],))
+        resident_info = cursor.fetchone()
+
+        if resident_info:
+            # ---- INTERNAL NOTIFICATION — RESIDENT ----
+            create_notification(
+                session['user_id'],
+                '📄 Document Request Submitted',
+                f'Your {doc_type.replace("_", " ").title()} request is now pending. Reference: {ref_num} | Queue: {queue_num}',
+                'document_submitted',
+                link='/my-requests'
+            )
+
+            # ---- EXTERNAL EMAIL — RESIDENT ----
+            subject = f"Document Request Received - {ref_num}"
+            body_html = f"""
+            <html><body style="font-family:Arial,sans-serif;padding:20px;">
+                <h2 style="color:#0f3d2a;">📄 Document Request Received</h2>
+                <p>Hello <strong>{resident_info['first_name']}</strong>,</p>
+                <p>Natanggap na namin ang iyong request para sa <strong>{doc_type.replace('_', ' ').title()}</strong>.</p>
+                <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;">
+                    <tr><td><strong>Reference No:</strong> {ref_num}</td></tr>
+                    <tr><td><strong>Queue No:</strong> {queue_num}</td></tr>
+                    <tr><td><strong>Status:</strong> <span style="color:#d97706;">PENDING</span></td></tr>
+                </table>
+                <p>Maari kang mag-login para i-track ang status.</p>
+                <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:#0f3d2a;color:#fff;padding:12px 30px;text-decoration:none;border-radius:8px;margin-top:15px;">🔓 Login to Track</a>
+            </body></html>
+            """
+            send_email(resident_info['email'], subject, body_html)
+
+            # ---- INTERNAL NOTIFICATION — DOCUMENTS ADMIN + HEAD ADMIN ----
+            admin_users = notify_role(
+                ['admin_documents', 'head_admin'],
+                '🔔 New Document Request',
+                f'{session["fullname"]} requested {doc_type.replace("_", " ").title()}. Reference: {ref_num}',
+                'document_new_request',
+                link='/admin/documents'
+            )
+
+            # ---- EXTERNAL EMAIL — ADMINS ----
+            for admin in admin_users:
+                send_admin_notification_email(
+                    admin['email'],
+                    f'New Document Request - {ref_num}',
+                    f'New {doc_type.replace("_", " ").title()} Request',
+                    f'A resident has submitted a new document request.',
+                    reference_no=ref_num,
+                    applicant_name=session['fullname'],
+                    action_type='new'
+                )
+
         conn.close()
 
         return jsonify({
@@ -1426,10 +1485,13 @@ def submit_document_request():
         })
 
     except Exception as e:
-        try:
-            conn.close()
-        except:
-            pass
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -2034,6 +2096,7 @@ def api_events_by_court(court_role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'approved'
+          AND e.event_date >= CURDATE()
         ORDER BY e.requested_at DESC
     """, (VENUE,))
     events = cursor.fetchall()
@@ -2629,6 +2692,7 @@ def _get_court_events(role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'approved'
+          AND e.event_date >= CURDATE()
         ORDER BY e.requested_at DESC
     """, (VENUE,))
     events = cursor.fetchall()

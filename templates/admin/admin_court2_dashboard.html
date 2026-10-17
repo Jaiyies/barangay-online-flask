@@ -862,7 +862,7 @@
     new Chart(document.getElementById('monthlyChart'), {
         type: 'bar',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [{
                 label: 'Events',
                 data: [
@@ -871,7 +871,13 @@
                     Number("{{ monthly_data[2] | default(0) }}"),
                     Number("{{ monthly_data[3] | default(0) }}"),
                     Number("{{ monthly_data[4] | default(0) }}"),
-                    Number("{{ monthly_data[5] | default(0) }}")
+                    Number("{{ monthly_data[5] | default(0) }}"),
+                    Number("{{ monthly_data[6] | default(0) }}"),
+                    Number("{{ monthly_data[7] | default(0) }}"),
+                    Number("{{ monthly_data[8] | default(0) }}"),
+                    Number("{{ monthly_data[9] | default(0) }}"),
+                    Number("{{ monthly_data[10] | default(0) }}"),
+                    Number("{{ monthly_data[11] | default(0) }}")
                 ],
                 backgroundColor: '#1a5d3a',
                 borderRadius: 6
