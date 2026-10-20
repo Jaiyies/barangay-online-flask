@@ -6,6 +6,8 @@
     <title>About Us | Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- IDAGDAG ITO -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
     <style>
         :root {
             --primary-900: #071f14;
@@ -49,6 +51,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             position: relative;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -653,7 +656,6 @@
             line-height: 1.15;
         }
 
-        /* === HEADER ICON (Reference Style) === */
         .page-header-card h1 i {
             color: var(--primary-500);
             font-size: 1.5rem;
@@ -702,7 +704,6 @@
             margin-bottom: 12px;
         }
 
-        /* ===== SECTION HEADER ===== */
         .section-header {
             display: flex;
             align-items: center;
@@ -712,7 +713,6 @@
             border-bottom: 2px solid var(--primary-100);
         }
 
-        /* === SECTION HEADER ICON — Ginaya sa Header === */
         .section-header .section-icon {
             width: 42px;
             height: 42px;
@@ -735,7 +735,6 @@
             letter-spacing: -0.02em;
         }
 
-        /* ===== MISSION & VISION GRID ===== */
         .mv-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -759,7 +758,6 @@
             border-color: var(--primary-300);
         }
 
-        /* === MV ICON — Ginaya sa Header === */
         .mv-card-icon {
             width: 52px;
             height: 52px;
@@ -794,7 +792,6 @@
             line-height: 1.7;
         }
 
-        /* ===== SERVICES GRID ===== */
         .services-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -820,7 +817,6 @@
                 0 6px 16px rgba(34, 139, 84, 0.12);
         }
 
-        /* === SERVICE ICON — Ginaya sa Header === */
         .service-icon {
             width: 48px;
             height: 48px;
@@ -837,7 +833,6 @@
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* Optional hover — parehong pakiramdam */
         .service-card:hover .service-icon {
             transform: scale(1.08) rotate(-6deg);
             box-shadow: 0 8px 20px rgba(34, 139, 84, 0.18);
@@ -857,7 +852,6 @@
             line-height: 1.6;
         }
 
-        /* ===== CONTACT GRID ===== */
         .contact-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -883,7 +877,6 @@
             border-color: var(--primary-300);
         }
 
-        /* === CONTACT ICON — Ginaya sa Header === */
         .contact-item .contact-icon {
             width: 46px;
             height: 46px;
@@ -917,14 +910,71 @@
         }
 
         /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .split-view { flex-direction: column; height: auto; }
+            .calendar-panel, .details-panel { flex: none; width: 100%; }
+            .calendar-panel { min-height: 550px; }
+        }
+
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 290px; }
-            .sidebar.open { transform: translateX(0); }
-            .sidebar.collapsed { transform: translateX(-100%); width: 290px; }
-            .sidebar.collapsed.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 80px 22px 30px; }
-            body.sidebar-collapsed .main-content { margin-left: 0; }
-            .page-header-card { flex-direction: column; align-items: flex-start; padding: 24px 22px; }
+            /* 1. Maliit na sidebar na naka-pin sa gilid (Default state) */
+            .sidebar { 
+                width: 80px; 
+                padding: 20px 10px; 
+                transform: translateX(0); 
+            }
+            .sidebar .sidebar-brand h4, 
+            .sidebar .sidebar-brand small,
+            .sidebar .sidebar-nav span,
+            .sidebar .sidebar-footer-links {
+                display: none; 
+            }
+            .sidebar .sidebar-brand .brand-top {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .sidebar .sidebar-toggle {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                font-size: 1rem;
+            }
+            .sidebar .sidebar-nav a {
+                justify-content: center;
+                padding: 13px 0;
+                gap: 0;
+            }
+            .sidebar .sidebar-nav a i {
+                width: auto;
+                font-size: 1.2rem;
+                margin: 0;
+            }
+            .sidebar .sidebar-nav a.active::before {
+                left: -10px;
+            }
+            .sidebar .sidebar-footer {
+                justify-content: center;
+            }
+            
+            .main-content { 
+                margin-left: 80px; 
+                padding: 30px 22px; 
+            }
+            body.sidebar-collapsed .main-content { 
+                margin-left: 80px; 
+            }
+            body.sidebar-collapsed .notif-panel { left: 20px; }
+            .main-content.fade-out::after { left: 80px; }
+            
+            .page-header-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 24px 22px;
+            }
             .page-header-card p { margin-left: 0; }
             .card { padding: 28px 26px; }
             .notif-panel {
@@ -933,10 +983,63 @@
                 width: auto;
                 bottom: 80px;
             }
+
+            .sidebar-toggle {
+                display: flex !important; 
+            }
+        }
+
+        /* 2. EXPANDED STATE (Kapag clinick ang burger menu) */
+        @media (max-width: 992px) {
+            .sidebar.expanded-mobile {
+                width: var(--sidebar-width) !important;
+                padding: 26px 20px !important;
+                box-shadow: 12px 0 40px rgba(0,0,0,0.4) !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand h4,
+            .sidebar.expanded-mobile .sidebar-brand small,
+            .sidebar.expanded-mobile .sidebar-nav span,
+            .sidebar.expanded-mobile .sidebar-footer-links {
+                display: block !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand .brand-top {
+                flex-direction: row !important;
+                gap: 0 !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-toggle {
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a {
+                justify-content: flex-start !important;
+                padding: 13px 16px !important;
+                gap: 14px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a i {
+                width: 20px !important;
+                font-size: 1rem !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a.active::before {
+                left: -20px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-footer {
+                justify-content: space-between !important;
+            }
         }
 
         @media (max-width: 576px) {
-            .main-content { padding: 72px 16px 20px; }
+            .main-content { padding: 20px 16px; }
             .page-header-card { padding: 20px; border-radius: 18px; }
             .page-header-card h1 { font-size: 1.4rem; gap: 10px; }
             .card { padding: 22px; border-radius: 18px; }
@@ -945,6 +1048,8 @@
             .section-header h3 { font-size: 1.1rem; }
         }
     </style>
+    
+    <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
 <body>
 
@@ -980,9 +1085,9 @@
             <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
         </div>
         <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
-            <i class="fas fa-bell"></i>
-            <span class="bell-badge">1</span>
-        </div>
+    <i class="fas fa-bell"></i>
+    <span class="bell-badge" id="bellBadge" style="display: none;">0</span>
+</div>
       </div>
     </aside>
 
@@ -1011,9 +1116,9 @@
             <div>
                 <h1>
                     <i class="fas fa-info-circle"></i>
-                    <span>About Us</span>
+                    <span data-translate="about_us">About Us</span>
                 </h1>
-                <p>Get to know your Barangay Sto. Niño Online Services Portal</p>
+                <p data-translate="about_subtitle">Get to know your Barangay Sto. Niño Online Services Portal</p>
             </div>
         </div>
 
@@ -1021,9 +1126,9 @@
 
             <!-- INTRO -->
             <div class="about-intro">
-                <h2 class="about-title">Welcome to Barangay Sto. Niño Online Services Portal</h2>
-                <p>Our goal is to make the process of obtaining documents and submitting permit applications easier, faster, and more reliable for all residents of Barangay Sto. Niño.</p>
-                <p>Through this online portal, you no longer have to wait in long lines at the barangay hall. You can request documents and apply for permits right from the comfort of your home.</p>
+                <h2 class="about-title" data-translate="welcome_title">Welcome to Barangay Sto. Niño Online Services Portal</h2>
+                <p data-translate="welcome_p1">Our goal is to make the process of obtaining documents and submitting permit applications easier, faster, and more reliable for all residents of Barangay Sto. Niño.</p>
+                <p data-translate="welcome_p2">Through this online portal, you no longer have to wait in long lines at the barangay hall. You can request documents and apply for permits right from the comfort of your home.</p>
             </div>
 
             <!-- MISSION & VISION -->
@@ -1032,15 +1137,15 @@
                     <div class="mv-card-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
-                    <h4>Our Mission</h4>
-                    <p>To provide efficient, transparent, and accessible government services to every resident of Barangay Sto. Niño through digital innovation and good governance.</p>
+                    <h4 data-translate="our_mission">Our Mission</h4>
+                    <p data-translate="mission_text">To provide efficient, transparent, and accessible government services to every resident of Barangay Sto. Niño through digital innovation and good governance.</p>
                 </div>
                 <div class="mv-card">
                     <div class="mv-card-icon">
                         <i class="fas fa-eye"></i>
                     </div>
-                    <h4>Our Vision</h4>
-                    <p>A progressive, united, and digitally-empowered barangay where every citizen has easy access to quality public service.</p>
+                    <h4 data-translate="our_vision">Our Vision</h4>
+                    <p data-translate="vision_text">A progressive, united, and digitally-empowered barangay where every citizen has easy access to quality public service.</p>
                 </div>
             </div>
 
@@ -1049,7 +1154,7 @@
                 <div class="section-icon">
                     <i class="fas fa-cogs"></i>
                 </div>
-                <h3>Services Offered</h3>
+                <h3 data-translate="services_offered">Services Offered</h3>
             </div>
 
             <div class="services-grid">
@@ -1057,29 +1162,29 @@
                     <div class="service-icon">
                         <i class="fas fa-file-alt"></i>
                     </div>
-                    <h5>Barangay Clearance</h5>
-                    <p>For employment, business, and other transactions.</p>
+                    <h5 data-translate="service_clearance">Barangay Clearance</h5>
+                    <p data-translate="service_clearance_desc">For employment, business, and other transactions.</p>
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-heart"></i>
                     </div>
-                    <h5>Certificate of Indigency</h5>
-                    <p>For medical and financial assistance.</p>
+                    <h5 data-translate="service_indigency">Certificate of Indigency</h5>
+                    <p data-translate="service_indigency_desc">For medical and financial assistance.</p>
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-home"></i>
                     </div>
-                    <h5>Certificate of Residency</h5>
-                    <p>Proof of residence in the barangay.</p>
+                    <h5 data-translate="service_residency">Certificate of Residency</h5>
+                    <p data-translate="service_residency_desc">Proof of residence in the barangay.</p>
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <h5>Community Event Permits</h5>
-                    <p>For private occasions and activities.</p>
+                    <h5 data-translate="service_event">Community Event Permits</h5>
+                    <p data-translate="service_event_desc">For private occasions and activities.</p>
                 </div>
             </div>
 
@@ -1088,7 +1193,7 @@
                 <div class="section-icon">
                     <i class="fas fa-phone-alt"></i>
                 </div>
-                <h3>Contact Information</h3>
+                <h3 data-translate="contact_info">Contact Information</h3>
             </div>
 
             <div class="contact-grid">
@@ -1097,7 +1202,7 @@
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="contact-text">
-                        <h4>Address</h4>
+                        <h4 data-translate="address">Address</h4>
                         <p>Barangay Hall, Sto. Niño</p>
                     </div>
                 </div>
@@ -1106,7 +1211,7 @@
                         <i class="fas fa-envelope"></i>
                     </div>
                     <div class="contact-text">
-                        <h4>Email</h4>
+                        <h4 data-translate="email">Email</h4>
                         <p>support@barangaystonino.gov.ph</p>
                     </div>
                 </div>
@@ -1115,7 +1220,7 @@
                         <i class="fas fa-phone"></i>
                     </div>
                     <div class="contact-text">
-                        <h4>Phone</h4>
+                        <h4 data-translate="phone">Phone</h4>
                         <p>(02) 123-4567</p>
                     </div>
                 </div>
@@ -1124,7 +1229,7 @@
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="contact-text">
-                        <h4>Office Hours</h4>
+                        <h4 data-translate="office_hours">Office Hours</h4>
                         <p>Mon - Fri: 8:00 AM - 5:00 PM</p>
                     </div>
                 </div>
@@ -1135,6 +1240,26 @@
     </main>
 
     <script>
+
+        
+
+        // ===== BELL BADGE LOADER =====
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/announcements/unread_count')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('bellBadge');
+            if (badge) {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        })
+        .catch(err => console.error('Bell count error:', err));
+});
         document.addEventListener('DOMContentLoaded', function() {
             const settingsLink = document.getElementById('sidebarSettingsLink');
             if (settingsLink) {
@@ -1156,11 +1281,27 @@
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    sidebar.classList.toggle('collapsed');
-                    document.body.classList.toggle('sidebar-collapsed');
-                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.toggle('expanded-mobile');
+                    } else {
+                        sidebar.classList.toggle('collapsed');
+                        document.body.classList.toggle('sidebar-collapsed');
+                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    }
                 });
             }
+
+            document.addEventListener('click', function(e) {
+                const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
+                const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
+
+                if (sidebar && window.innerWidth <= 992) {
+                    if (!isClickInsideSidebar && !isToggleButton) {
+                        sidebar.classList.remove('expanded-mobile');
+                    }
+                }
+            });
         });
 
         document.addEventListener('click', function(e) {
@@ -1176,16 +1317,26 @@
         document.getElementById('notifPanel')?.addEventListener('click', function(e) {
             e.stopPropagation();
         });
+function toggleNotifPanel(event) {
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notifBell');
+    const badge = document.getElementById('bellBadge');
+    
+    if (panel) {
+        const isShowing = panel.classList.toggle('show');
+        if (bell) bell.classList.toggle('active');
 
-        function toggleNotifPanel(event) {
-            if (event) event.stopPropagation();
-            const panel = document.getElementById('notifPanel');
-            const bell = document.getElementById('notifBell');
-            if (panel) {
-                panel.classList.toggle('show');
-                if (bell) bell.classList.toggle('active');
-            }
+        // Kapag binuksan ang panel, itago ang badge at markahan lahat as read sa database
+        if (isShowing && badge) {
+            badge.style.display = 'none';
+            badge.textContent = '0';
+            
+            fetch('/api/announcements/mark-all-read', { method: 'POST' })
+                .catch(err => console.error('Mark all read error:', err));
         }
+    }
+}
     </script>
 </body>
 </html>

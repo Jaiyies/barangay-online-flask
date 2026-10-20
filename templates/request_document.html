@@ -6,6 +6,8 @@
     <title>Request Document | Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- IDAGDAG ITO -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
     <style>
         :root {
             --primary-900: #071f14;
@@ -52,6 +54,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             position: relative;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -397,7 +400,7 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* ===== SIDEBAR FOOTER (About Us + FAQs + Bell) ===== */
+        /* ===== SIDEBAR FOOTER ===== */
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
@@ -625,7 +628,7 @@
             gap: 12px;
         }
 
-        /* ===== MAIN CONTENT: FADE ONLY HERE ===== */
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px 48px;
@@ -662,15 +665,13 @@
             left: var(--sidebar-collapsed-width);
         }
 
+        /* === REVISED PAGE HEADER (KATULAD NG DASHBOARD) === */
         .page-header-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
             border-radius: 24px;
             padding: 32px 36px;
-            box-shadow: 
-                0 16px 48px rgba(0, 0, 0, 0.25),
-                0 8px 20px rgba(0, 0, 0, 0.15),
-                0 2px 6px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 8px 20px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: space-between;
@@ -679,11 +680,18 @@
             flex-wrap: wrap;
             gap: 20px;
             position: relative;
-            overflow: visible;
             z-index: 100;
+            width: 100%;
         }
 
-        .page-header-card h1 {
+        .header-title-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .header-title-section h1 {
             font-size: 1.9rem;
             font-weight: 800;
             color: var(--primary-800);
@@ -692,9 +700,10 @@
             gap: 16px;
             letter-spacing: -0.03em;
             line-height: 1.15;
+            margin: 0;
         }
 
-        .page-header-card h1 i {
+        .header-title-section h1 i {
             color: var(--primary-500);
             font-size: 1.5rem;
             background: linear-gradient(135deg, var(--primary-50), #ffffff);
@@ -702,25 +711,64 @@
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(34, 139, 84, 0.1);
             border: 1px solid var(--primary-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .page-header-card h1 small {
-            font-size: 0.85rem;
-            font-weight: 400;
+        .header-title-section .subtitle {
+            font-size: 0.95rem;
+            font-weight: 500;
             color: var(--neutral-500);
-            display: block;
-            margin-top: 6px;
             letter-spacing: -0.005em;
+            margin-top: 8px;
+            margin-left: 66px;
+        }
+        
+        .header-title-section .subtitle strong {
+            color: var(--primary-700);
+            font-weight: 700;
         }
 
-        .user-badge-container {
+        /* === HEADER CONTROLS === */
+        .header-controls {
             display: flex;
             align-items: center;
             gap: 14px;
             position: relative;
             z-index: 100;
+            margin-left: auto;
         }
 
+        .lang-switcher {
+            position: relative;
+            width: fit-content;
+            flex-shrink: 0;
+        }
+
+        .lang-switcher-btn {
+            background: var(--neutral-50);
+            border: 1.5px solid var(--neutral-100);
+            padding: 9px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--primary-600);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.01em;
+        }
+        .lang-switcher-btn:hover {
+            background: var(--primary-50);
+            border-color: var(--primary-300);
+            transform: translateY(-2px);
+        }
+
+        /* === USER BADGE === */
         .user-badge {
             display: flex;
             align-items: center;
@@ -730,20 +778,15 @@
             border-radius: 60px;
             border: 1.5px solid var(--neutral-100);
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
             user-select: none;
-            box-shadow: 
-                0 6px 16px rgba(15, 61, 42, 0.15),
-                0 2px 6px rgba(15, 61, 42, 0.10),
-                0 1px 2px rgba(15, 61, 42, 0.08);
+            width: fit-content;
+            flex-shrink: 0;
         }
 
         .user-badge:hover {
             border-color: var(--primary-400);
             background: white;
-            box-shadow: 
-                0 12px 28px rgba(34, 139, 84, 0.25),
-                0 6px 12px rgba(34, 139, 84, 0.15);
             transform: translateY(-3px);
         }
 
@@ -759,8 +802,6 @@
             font-weight: 700;
             font-size: 0.95rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(15, 61, 42, 0.25);
-            letter-spacing: -0.02em;
         }
 
         .user-badge .user-info { line-height: 1.25; }
@@ -768,14 +809,11 @@
             font-weight: 700;
             color: var(--primary-800);
             font-size: 0.85rem;
-            letter-spacing: -0.01em;
         }
         .user-badge .user-info .role {
             font-size: 0.68rem;
             color: var(--neutral-500);
-            margin-top: 1px;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
             font-weight: 600;
         }
         .user-badge .chevron {
@@ -784,15 +822,13 @@
             margin-left: 2px;
             transition: transform 0.25s ease;
         }
-        .user-badge:hover .chevron { color: var(--primary-500); }
 
         .user-menu {
             display: none;
             position: absolute;
             top: calc(100% + 12px);
             right: 0;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
+            background: #ffffff;
             border: 1px solid var(--neutral-100);
             border-radius: 18px;
             box-shadow: var(--shadow-xl);
@@ -822,11 +858,23 @@
             font-size: 0.95rem;
             letter-spacing: -0.01em;
         }
-        .user-menu-header .email {
+                .user-menu-header .email {
             font-size: 0.78rem;
             color: var(--neutral-500);
             margin-top: 3px;
-            word-break: break-all;
+            white-space: nowrap; /* Pinipigilan maputol ang email */
+            overflow-x: auto; /* Scrollbar kung humaba */
+            display: block;
+            padding-bottom: 2px;
+        }
+
+        /* Para maganda yung scrollbar kapag lumabas */
+        .user-menu-header .email::-webkit-scrollbar {
+            height: 4px;
+        }
+        .user-menu-header .email::-webkit-scrollbar-thumb {
+            background: rgba(34, 139, 84, 0.3);
+            border-radius: 4px;
         }
 
         .user-menu-item {
@@ -857,34 +905,6 @@
         .user-menu-item.logout-item:hover { background: #fef2f2; }
         .user-menu-item.logout-item i { color: var(--accent-600); }
 
-        .lang-switcher-btn {
-            background: var(--neutral-50);
-            border: 1.5px solid var(--neutral-100);
-            padding: 9px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--primary-600);
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
-            letter-spacing: -0.01em;
-            box-shadow: 
-                0 6px 16px rgba(15, 61, 42, 0.15),
-                0 2px 6px rgba(15, 61, 42, 0.10),
-                0 1px 2px rgba(15, 61, 42, 0.08);
-        }
-        .lang-switcher-btn:hover {
-            background: var(--primary-50);
-            border-color: var(--primary-300);
-            transform: translateY(-3px);
-            box-shadow: 
-                0 12px 24px rgba(34, 139, 84, 0.25),
-                0 4px 10px rgba(34, 139, 84, 0.15);
-        }
         .lang-menu {
             display: none;
             position: absolute;
@@ -1724,27 +1744,84 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 290px; }
-            .sidebar.open { transform: translateX(0); }
-            .sidebar.collapsed { transform: translateX(-100%); width: 290px; }
-            .sidebar.collapsed.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 80px 22px 30px; }
-            body.sidebar-collapsed .main-content { margin-left: 0; }
-            .main-content.fade-out::after { left: 0; }
-            body.sidebar-collapsed .notif-panel { left: 20px; }
-            .notif-panel { left: 20px; right: 20px; width: auto; bottom: 80px; }
-            .card { padding: 24px; }
-            .page-header-card {
+            .sidebar { 
+                width: 80px; 
+                padding: 20px 10px; 
+                transform: translateX(0); 
+            }
+            .sidebar .sidebar-brand h4, 
+            .sidebar .sidebar-brand small,
+            .sidebar .sidebar-nav span,
+            .sidebar .sidebar-footer-links {
+                display: none; 
+            }
+            .sidebar .sidebar-brand .brand-top {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 12px;
+            }
+            .sidebar .sidebar-toggle {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                font-size: 1rem;
+            }
+            .sidebar .sidebar-nav a {
+                justify-content: center;
+                padding: 13px 0;
+                gap: 0;
+            }
+            .sidebar .sidebar-nav a i {
+                width: auto;
+                font-size: 1.2rem;
+                margin: 0;
+            }
+            .sidebar .sidebar-nav a.active::before {
+                left: -10px;
+            }
+            .sidebar .sidebar-footer {
+                justify-content: center;
+            }
+            
+            .main-content { 
+                margin-left: 80px; 
+                padding: 30px 22px; 
+            }
+            body.sidebar-collapsed .main-content { 
+                margin-left: 80px; 
+            }
+            body.sidebar-collapsed .notif-panel { left: 20px; }
+            .main-content.fade-out::after { left: 80px; }
+            
+            /* === FIX PARA MAGING MAGKATABI SA MOBILE === */
+            .page-header-card {
+                flex-direction: column; 
+                align-items: flex-start; 
                 padding: 24px 22px;
             }
-            .user-badge-container {
-                width: 100%;
-                justify-content: space-between;
-                flex-wrap: wrap;
+            .header-title-section .subtitle {
+                margin-left: 0;
             }
+
+            .header-controls {
+                width: 100%;
+                justify-content: space-between; /* Paghihiwalayin sa dulo */
+                flex-wrap: nowrap; /* PIPIGILAN MAG-STACK PABABA */
+                gap: 10px;
+                margin-left: 0;
+            }
+            .user-badge .user-info .name {
+                max-width: 100px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
             .form-row { flex-direction: column; gap: 0; margin-bottom: 0; }
             .form-col { min-width: 100%; margin-bottom: 18px; }
             .form-actions { flex-direction: column; }
@@ -1755,22 +1832,246 @@
             .modal-footer-actions { flex-direction: column; }
             .modal-btn { width: 100%; }
             .modal-box { width: 100%; margin: 0; }
-            .page-header-card h1 { font-size: 1.4rem; }
-            .page-header-card h1 i { font-size: 1.2rem; padding: 10px; }
         }
 
+        /* 2. EXPANDED STATE */
+        @media (max-width: 992px) {
+            .sidebar.expanded-mobile {
+                width: var(--sidebar-width) !important;
+                padding: 26px 20px !important;
+                box-shadow: 12px 0 40px rgba(0,0,0,0.4) !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand h4,
+            .sidebar.expanded-mobile .sidebar-brand small,
+            .sidebar.expanded-mobile .sidebar-nav span,
+            .sidebar.expanded-mobile .sidebar-footer-links {
+                display: block !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand .brand-top {
+                flex-direction: row !important;
+                gap: 0 !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-toggle {
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a {
+                justify-content: flex-start !important;
+                padding: 13px 16px !important;
+                gap: 14px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a i {
+                width: 20px !important;
+                font-size: 1rem !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a.active::before {
+                left: -20px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-footer {
+                justify-content: space-between !important;
+            }
+        }
+
+           /* 3. SOBRANG LIIT NA SCREEN (CP) */
         @media (max-width: 576px) {
-            .main-content { padding: 72px 16px 20px; }
+            .main-content { padding: 20px 16px; }
             .card { padding: 20px; border-radius: 18px; }
             .form-header h2 { font-size: 1.4rem; }
             .form-header .logo-icon { width: 56px; height: 56px; font-size: 22px; }
-            .user-badge .user-info { display: none; }
-            .user-badge { padding: 5px; border-radius: 50%; }
-            .user-badge .chevron { display: none; }
-            .lang-switcher-btn { padding: 7px 12px; font-size: 0.7rem; }
+
+            .header-title-section h1 {
+                font-size: 1.5rem;
+            }
+            .header-title-section h1 i {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            /* Paliitin ang Profile at Language Button */
+            .user-badge {
+                padding: 4px 10px 4px 4px; 
+                gap: 8px;
+            }
+            .user-badge .avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+            .user-badge .user-info .name {
+                font-size: 0.75rem;
+                max-width: 75px;
+            }
+            .user-badge .user-info .role {
+                font-size: 0.55rem;
+            }
+            .user-badge .chevron {
+                display: block;
+                font-size: 0.55rem;
+                margin-left: 4px;
+            }
+            .lang-switcher-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+            .lang-switcher-btn i {
+                font-size: 0.8rem;
+            }
+
+            /* === PARA SA LANGUAGE MENU SA MOBILE === */
+            .lang-menu {
+                position: absolute;
+                top: calc(100% + 8px);
+                right: -45px; /* Itutulak pakanan */
+                left: auto;
+                min-width: 120px;
+                padding: 4px;
+                z-index: 999999;
+            }
+            .lang-menu a {
+                font-size: 0.75rem;
+                padding: 6px 10px;
+            }
+                       /* === PARA SA USER MENU SA MOBILE (AYOS ANG EMAIL) === */
+            .user-menu {
+                min-width: 240px; /* Pinalaki para may espasyo */
+                max-width: 90vw; /* Sinigurong hindi lalabas sa screen */
+                padding: 6px;
+                right: 0;
+            }
+            .user-menu-header {
+                padding: 10px 12px;
+                margin-bottom: 4px;
+            }
+            .user-menu-header .name {
+                font-size: 0.8rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .user-menu-header .email {
+                font-size: 0.65rem;
+                white-space: nowrap; /* PIPIGILAN MAPUTOL ANG EMAIL */
+                overflow-x: auto; /* Maglalagay ng scrollbar kung sobrang haba */
+                display: block;
+                padding-bottom: 2px; /* Konting espasyo para sa scrollbar */
+            }
+            
+            /* Para maganda tignan yung scrollbar kapag lumabas */
+            .user-menu-header .email::-webkit-scrollbar {
+                height: 4px;
+            }
+            .user-menu-header .email::-webkit-scrollbar-thumb {
+                background: rgba(34, 139, 84, 0.3);
+                border-radius: 4px;
+            }
+
+            .user-menu-item {
+                padding: 8px 12px;
+                font-size: 0.78rem;
+                gap: 10px;
+            }
+            /* ========================================= */
             .modal-header-success h2 { font-size: 22px; }
             .reference-box .ref-number { font-size: 20px; }
+            
+            .page-header-card {
+                padding: 20px;
+                border-radius: 20px;
+            }
         }
+                      /* === FIX & REDESIGN PARA SA NOTIF PANEL SA MOBILE === */
+        @media (max-width: 992px) {
+            .notif-panel {
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                bottom: 85px !important; 
+                width: calc(100vw - 40px) !important; 
+                max-width: 320px !important; 
+                border-radius: 20px !important; /* Mas bilugan para mukhang modern */
+                box-shadow: 0 12px 30px rgba(15, 61, 42, 0.25) !important; /* Mas subtle na shadow */
+            }
+            
+            @keyframes notifSlide {
+                from { opacity: 0; transform: translate(-50%, 10px) scale(0.96); }
+                to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            }
+
+            /* --- HEADER REDESIGN --- */
+            .notif-header {
+                padding: 16px 20px !important;
+                background: linear-gradient(135deg, #145233, #0f3d2a) !important; /* Mas solid at eleganteng green */
+                gap: 12px !important;
+            }
+            .notif-header i {
+                background: rgba(255, 255, 255, 0.1) !important;
+                color: #a3dbb8 !important; /* Pastel green para sa icon */
+                font-size: 0.9rem !important;
+                padding: 8px !important;
+                border-radius: 10px !important;
+                border: none !important;
+            }
+            .notif-header h4 {
+                font-size: 0.9rem !important;
+                font-weight: 600 !important; /* Hindi masyadong bold */
+                letter-spacing: 0.02em !important;
+            }
+
+            /* --- ITEM REDESIGN --- */
+            .notif-item {
+                padding: 16px 20px !important;
+                gap: 14px !important;
+            }
+            .notif-icon {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 1rem !important;
+                background: #eff8f2 !important; /* Pastel background */
+                border-radius: 12px !important; /* Malambot na corners */
+            }
+            .notif-content h5 {
+                font-size: 0.85rem !important;
+                font-weight: 600 !important;
+                color: #0f3d2a !important;
+                margin-bottom: 4px !important;
+            }
+            .notif-content p {
+                font-size: 0.7rem !important;
+                color: #6b8475 !important;
+            }
+
+            /* --- FOOTER REDESIGN --- */
+            .notif-footer {
+                padding: 14px !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                background: #fafcfb !important; /* Mas subtle na background */
+                color: #1a6b42 !important;
+                border-top: 1px solid #eff8f2 !important;
+            }
+            .notif-footer i {
+                font-size: 0.75rem !important;
+                transition: transform 0.2s ease !important;
+            }
+            .notif-footer:hover i {
+                transform: translateX(4px) !important; /* Gumagalaw pakanan pag hover */
+            }
+        }
+    </style>
+    </style>
+    <script src="{{ url_for('static', filename='translations.js') }}"></script>
+           
     </style>
 </head>
 <body>
@@ -1800,16 +2101,15 @@
         </a>
       </nav>
 
-      <!-- ===== SIDEBAR FOOTER: About Us + FAQs + Bell ===== -->
       <div class="sidebar-footer">
         <div class="sidebar-footer-links">
             <a href="{{ url_for('about_us') }}" class="sidebar-about-link">About Us</a>
             <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
         </div>
-        <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
-            <i class="fas fa-bell"></i>
-            <span class="bell-badge">1</span>
-        </div>
+       <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
+    <i class="fas fa-bell"></i>
+    <span class="bell-badge" id="bellBadge" style="display: none;">0</span>
+</div>
       </div>
     </aside>
 
@@ -1834,50 +2134,57 @@
 
     <main class="main-content">
 
+        <!-- PAGE HEADER (Exact Dashboard Style) -->
         <div class="page-header-card">
-            <div>
+            
+            <div class="header-title-section">
                 <h1>
                     <i class="fas fa-file-alt"></i>
                     <span class="translatable">Request Document</span>
-                    <small class="translatable">Submit a request for barangay documents</small>
                 </h1>
+                <p class="subtitle" data-translate="doc_subtitle">Submit a request for barangay documents</p>
             </div>
 
-            <div class="user-badge-container">
-                <div class="lang-switcher" style="position: relative;">
+            <div class="header-controls">
+                <!-- Language Dropdown -->
+                <div class="lang-switcher">
                     <button onclick="toggleLangMenu(event)" class="lang-switcher-btn">
                         <i class="fas fa-globe"></i>
                         <span id="currentLangText">English</span>
                         <i class="fas fa-chevron-down" style="font-size: 0.6rem;"></i>
                     </button>
                     <div id="langMenu" class="lang-menu">
-                        <a onclick="setLanguage('en')">🇺🇸 English</a>
-                        <a onclick="setLanguage('tl')">🇵🇭 Tagalog</a>
+                        <a onclick="setGlobalLanguage('en')">🇺🇸 English</a>
+                        <a onclick="setGlobalLanguage('tl')">🇵🇭 Tagalog</a>
                     </div>
                 </div>
 
-                <div class="user-badge" onclick="toggleUserMenu(event)">
-                    <div class="avatar">{{ (session.fullname or 'R')[0]|upper }}</div>
-                    <div class="user-info">
-                        <div class="name">{{ session.fullname or 'Resident' }}</div>
-                        <div class="role">{{ session.role|replace('_', ' ')|title }}</div>
+                <!-- Profile Button -->
+                <div style="position: relative; display: inline-block;">
+                    <div class="user-badge" onclick="toggleUserMenu(event)">
+                        <div class="avatar">{{ (session.fullname or 'R')[0]|upper }}</div>
+                        <div class="user-info">
+                            <div class="name">{{ session.fullname or 'Resident' }}</div>
+                            <div class="role">{{ session.role|replace('_', ' ')|title }}</div>
+                        </div>
+                        <i class="fas fa-chevron-down chevron"></i>
                     </div>
-                    <i class="fas fa-chevron-down chevron"></i>
-                </div>
-
-                <div id="userMenu" class="user-menu">
-                    <div class="user-menu-header">
-                        <div class="name">{{ session.fullname or 'Resident' }}</div>
-                        <div class="email">{{ session.email or 'resident@email.com' }}</div>
+    
+                    <div id="userMenu" class="user-menu">
+                        <div class="user-menu-header">
+                            <div class="name">{{ session.fullname or 'Resident' }}</div>
+                            <div class="email">{{ session.email or 'resident@email.com' }}</div>
+                        </div>
+                        <a href="{{ url_for('settings') }}" class="user-menu-item">
+                            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="user-menu-item logout-item">
+                            <i class="fas fa-sign-out-alt"></i> <span class="translatable">Logout</span>
+                        </a>
                     </div>
-                    <a href="{{ url_for('settings') }}" class="user-menu-item">
-                        <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="user-menu-item logout-item">
-                        <i class="fas fa-sign-out-alt"></i> <span class="translatable">Logout</span>
-                    </a>
                 </div>
             </div>
+
         </div>
 
         <div class="banner">
@@ -1915,7 +2222,7 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="documentType">Select Document Type <span class="required">*</span></label>
+                            <label for="documentType"><span data-translate="select_doc">Select Document Type</span> <span class="required">*</span></label>
                             <div class="custom-select" data-name="document_type" id="documentTypeCustom">
                                 <div class="custom-select-trigger">
                                     <span class="placeholder">-- Select Document Type --</span>
@@ -1932,23 +2239,23 @@
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-user"></i> Personal Information</div>
+                <div class="form-section-title"><i class="fas fa-user"></i> <span data-translate="personal_info">Personal Information</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="surname">Surname <span class="required">*</span></label>
+                            <label for="surname"><span data-translate="surname">Surname</span> <span class="required">*</span></label>
                             <input type="text" name="surname" id="surname" placeholder="Surname" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="givenName">Given Name <span class="required">*</span></label>
+                            <label for="givenName"><span data-translate="given_name">Given Name</span> <span class="required">*</span></label>
                             <input type="text" name="given_name" id="givenName" placeholder="Given Name" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="middleName">Middle Name <span class="optional">(optional)</span></label>
+                            <label for="middleName"><span data-translate="middle_name">Middle Name</span> <span class="optional">(optional)</span></label>
                             <input type="text" name="middle_name" id="middleName" placeholder="Middle Name">
                         </div>
                     </div>
@@ -1957,13 +2264,13 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="address">Address <span class="required">*</span></label>
+                            <label for="address"><span data-translate="address_label">Address</span> <span class="required">*</span></label>
                             <input type="text" name="address" id="address" placeholder="Complete Address" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="contactNo">Phone Number <span class="required">*</span></label>
+                            <label for="contactNo"><span data-translate="phone_label">Phone Number</span> <span class="required">*</span></label>
                             <input type="text" name="contact_no" id="contactNo" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
                         </div>
                     </div>
@@ -1972,7 +2279,7 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="civilStatus">Civil Status <span class="required">*</span></label>
+                            <label for="civilStatus"><span data-translate="civil_status">Civil Status</span> <span class="required">*</span></label>
                             <div class="custom-select" data-name="civil_status" id="civilStatusCustom">
                                 <div class="custom-select-trigger">
                                     <span class="placeholder">Select</span>
@@ -1990,19 +2297,19 @@
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="age">Age <span class="required">*</span></label>
+                            <label for="age"><span data-translate="age">Age</span> <span class="required">*</span></label>
                             <input type="number" name="age" id="age" placeholder="Age" min="0" max="120" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="dob">Date of Birth <span class="required">*</span></label>
+                            <label for="dob"><span data-translate="dob">Date of Birth</span> <span class="required">*</span></label>
                             <input type="date" name="dob" id="dob" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="precinctNo">Precinct No. <span class="required">*</span></label>
+                            <label for="precinctNo"><span data-translate="precinct">Precinct No.</span> <span class="required">*</span></label>
                             <input type="text" name="precinct_no" id="precinctNo" placeholder="Precinct No." required>
                         </div>
                     </div>
@@ -2011,13 +2318,13 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="placeOfBirth">Place of Birth <span class="required">*</span></label>
+                            <label for="placeOfBirth"><span data-translate="pob">Place of Birth</span> <span class="required">*</span></label>
                             <input type="text" name="place_of_birth" id="placeOfBirth" placeholder="Place of Birth" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="lengthOfStay">Length of Stay in Barangay <span class="required">*</span></label>
+                            <label for="lengthOfStay"><span data-translate="length_stay">Length of Stay in Barangay</span> <span class="required">*</span></label>
                             <input type="text" name="length_of_stay" id="lengthOfStay" placeholder="e.g. 5 years" required>
                         </div>
                     </div>
@@ -2026,23 +2333,23 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label>Residency Type <span class="required">*</span></label>
+                            <label><span data-translate="residency">Residency Type</span> <span class="required">*</span></label>
                             <div class="radio-group">
-                                <label><input type="radio" name="residency_type" value="Owner" required> Owner</label>
-                                <label><input type="radio" name="residency_type" value="Renter" required> Renter</label>
-                                <label><input type="radio" name="residency_type" value="Sharer" required> Sharer</label>
+                                <label><input type="radio" name="residency_type" value="Owner" required> <span data-translate="owner">Owner</span></label>
+                                <label><input type="radio" name="residency_type" value="Renter" required> <span data-translate="renter">Renter</span></label>
+                                <label><input type="radio" name="residency_type" value="Sharer" required> <span data-translate="sharer">Sharer</span></label>
                             </div>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="lessorName">Name on the Property Deed <span class="required">*</span></label>
+                            <label for="lessorName"><span data-translate="property_deed">Name on the Property Deed</span> <span class="required">*</span></label>
                             <input type="text" name="lessor_name" id="lessorName" placeholder="Name on Property Deed" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="lessorAddress">Owner's Address <span class="required">*</span></label>
+                            <label for="lessorAddress"><span data-translate="owner_address">Owner's Address</span> <span class="required">*</span></label>
                             <input type="text" name="lessor_address" id="lessorAddress" placeholder="Address of Owner" required>
                         </div>
                     </div>
@@ -2087,17 +2394,17 @@
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-users"></i> Family Information</div>
+                <div class="form-section-title"><i class="fas fa-users"></i> <span data-translate="family_info">Family Information</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="fatherName">Name of Father <span class="required">*</span></label>
+                            <label for="fatherName"><span data-translate="father">Name of Father</span> <span class="required">*</span></label>
                             <input type="text" name="father_name" id="fatherName" placeholder="Father's Name" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="motherName">Name of Mother <span class="required">*</span></label>
+                            <label for="motherName"><span data-translate="mother">Name of Mother</span> <span class="required">*</span></label>
                             <input type="text" name="mother_name" id="motherName" placeholder="Mother's Name" required>
                         </div>
                     </div>
@@ -2106,13 +2413,13 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="spouseName">Name of Spouse <span class="optional">(optional)</span></label>
+                            <label for="spouseName"><span data-translate="spouse">Name of Spouse</span> <span class="optional">(optional)</span></label>
                             <input type="text" name="spouse_name" id="spouseName" placeholder="Spouse's Name">
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="occupation">Occupation <span class="required">*</span></label>
+                            <label for="occupation"><span data-translate="occupation">Occupation</span> <span class="required">*</span></label>
                             <input type="text" name="occupation" id="occupation" placeholder="Occupation" required>
                         </div>
                     </div>
@@ -2121,29 +2428,29 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="emergencyName">In Case of Emergency <span class="required">*</span></label>
+                            <label for="emergencyName"><span data-translate="emergency">In Case of Emergency</span> <span class="required">*</span></label>
                             <input type="text" name="emergency_name" id="emergencyName" placeholder="Emergency Contact Name" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="emergencyNumber">Emergency Contact No. <span class="required">*</span></label>
+                            <label for="emergencyNumber"><span data-translate="emergency_no">Emergency Contact No.</span> <span class="required">*</span></label>
                             <input type="text" name="emergency_number" id="emergencyNumber" placeholder="Emergency Contact No." maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-user-friends"></i> Reference Person <span style="font-weight:400;font-size:0.75rem;color:var(--neutral-500);">(Not Related to You)</span></div>
+                <div class="form-section-title"><i class="fas fa-user-friends"></i> <span data-translate="ref_person">Reference Person</span> <span style="font-weight:400;font-size:0.75rem;color:var(--neutral-500);">(Not Related to You)</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="ref1Name">Reference 1 - Name <span class="required">*</span></label>
+                            <label for="ref1Name"><span data-translate="ref1_name">Reference 1 - Name</span> <span class="required">*</span></label>
                             <input type="text" name="ref1_name" id="ref1Name" placeholder="Reference Name" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="ref1Address">Reference 1 - Address <span class="required">*</span></label>
+                            <label for="ref1Address"><span data-translate="ref1_address">Reference 1 - Address</span> <span class="required">*</span></label>
                             <input type="text" name="ref1_address" id="ref1Address" placeholder="Reference Address" required>
                         </div>
                     </div>
@@ -2152,23 +2459,23 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="ref2Name">Reference 2 - Name <span class="required">*</span></label>
+                            <label for="ref2Name"><span data-translate="ref2_name">Reference 2 - Name</span> <span class="required">*</span></label>
                             <input type="text" name="ref2_name" id="ref2Name" placeholder="Reference Name" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="ref2Address">Reference 2 - Address <span class="required">*</span></label>
+                            <label for="ref2Address"><span data-translate="ref2_address">Reference 2 - Address</span> <span class="required">*</span></label>
                             <input type="text" name="ref2_address" id="ref2Address" placeholder="Reference Address" required>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-bullseye"></i> Purpose & Signature</div>
+                <div class="form-section-title"><i class="fas fa-bullseye"></i> <span data-translate="purpose_sig">Purpose & Signature</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="purpose">Purpose of Securing Document <span class="required">*</span></label>
+                            <label for="purpose"><span data-translate="purpose_doc">Purpose of Securing Document</span> <span class="required">*</span></label>
                             <textarea name="purpose" id="purpose" placeholder="State the purpose of your request..." required></textarea>
                         </div>
                     </div>
@@ -2177,13 +2484,13 @@
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="printedName">Printed Name (Digital Signature) <span class="required">*</span></label>
+                            <label for="printedName"><span data-translate="printed_name">Printed Name (Digital Signature)</span> <span class="required">*</span></label>
                             <input type="text" name="printed_name" id="printedName" placeholder="Type your full name here" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="signatureDate">Date <span class="required">*</span></label>
+                            <label for="signatureDate"><span data-translate="date">Date</span> <span class="required">*</span></label>
                             <input type="date" name="signature_date" id="signatureDate" required>
                         </div>
                     </div>
@@ -2191,7 +2498,7 @@
 
                 <div class="consent-section">
                     <div class="consent-title">
-                        <i class="fas fa-shield-alt"></i> Terms and Conditions
+                        <i class="fas fa-shield-alt"></i> <span data-translate="terms">Terms and Conditions</span>
                     </div>
                     <div class="consent-body">
                         <div class="consent-checkbox">
@@ -2207,10 +2514,10 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn-submit" id="submitBtn">
-                        <i class="fas fa-paper-plane"></i> Submit Request
+                        <i class="fas fa-paper-plane"></i> <span data-translate="submit_req">Submit Request</span>
                     </button>
                     <button type="reset" class="btn-cancel" id="clearBtn">
-                        <i class="fas fa-undo"></i> Clear Form
+                        <i class="fas fa-undo"></i> <span data-translate="clear_form">Clear Form</span>
                     </button>
                 </div>
             </form>
@@ -2281,16 +2588,27 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const settingsLink = document.getElementById('sidebarSettingsLink');
-            if (settingsLink) {
-                const isOnSettingsPage = window.location.pathname.includes('settings');
-                if (isOnSettingsPage) {
-                    settingsLink.classList.add('visible');
+
+          
+        // ===== BELL BADGE LOADER =====
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/announcements/unread_count')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('bellBadge');
+            if (badge) {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
                 }
             }
+        })
+        .catch(err => console.error('Bell count error:', err));
+});
 
-            // ===== SIDEBAR COLLAPSE TOGGLE =====
+        document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
 
@@ -2303,10 +2621,34 @@
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    sidebar.classList.toggle('collapsed');
-                    document.body.classList.toggle('sidebar-collapsed');
-                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.toggle('expanded-mobile');
+                    } else {
+                        sidebar.classList.toggle('collapsed');
+                        document.body.classList.toggle('sidebar-collapsed');
+                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    }
                 });
+            }
+
+            document.addEventListener('click', function(e) {
+                const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
+                const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
+
+                if (sidebar && window.innerWidth <= 992) {
+                    if (!isClickInsideSidebar && !isToggleButton) {
+                        sidebar.classList.remove('expanded-mobile');
+                    }
+                }
+            });
+
+            const settingsLink = document.getElementById('sidebarSettingsLink');
+            if (settingsLink) {
+                const isOnSettingsPage = window.location.pathname.includes('settings');
+                if (isOnSettingsPage) {
+                    settingsLink.classList.add('visible');
+                }
             }
 
             const today = new Date().toISOString().split('T')[0];
@@ -2406,7 +2748,6 @@
 
                 e.preventDefault();
 
-                // I-fade lang ang main content, HINDI ang sidebar
                 const mainContent = document.querySelector('.main-content');
                 if (mainContent) {
                     mainContent.classList.add('fade-out');
@@ -2463,14 +2804,25 @@
         });
 
         function toggleNotifPanel(event) {
-            if (event) event.stopPropagation();
-            const panel = document.getElementById('notifPanel');
-            const bell = document.getElementById('notifBell');
-            if (panel) {
-                panel.classList.toggle('show');
-                if (bell) bell.classList.toggle('active');
-            }
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notifBell');
+    const badge = document.getElementById('bellBadge');
+    
+    if (panel) {
+        const isShowing = panel.classList.toggle('show');
+        if (bell) bell.classList.toggle('active');
+
+        // Kapag binuksan ang panel, itago ang badge at markahan lahat as read sa database
+        if (isShowing && badge) {
+            badge.style.display = 'none';
+            badge.textContent = '0';
+            
+            fetch('/api/announcements/mark-all-read', { method: 'POST' })
+                .catch(err => console.error('Mark all read error:', err));
         }
+    }
+}
 
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');
@@ -2484,69 +2836,6 @@
         document.getElementById('notifPanel')?.addEventListener('click', function(e) {
             e.stopPropagation();
         });
-
-        const translations = {
-            'en': {
-                'Dashboard': 'Dashboard',
-                'Request Document': 'Request Document',
-                'Apply for Permit': 'Apply for Permit',
-                'My Requests': 'My Requests',
-                'Events Calendar': 'Events Calendar',
-                'Announcements': 'Announcements',
-                'Settings': 'Settings',
-                'Logout': 'Logout',
-                'Submit a request for barangay documents': 'Submit a request for barangay documents',
-                'Document Request Form': 'Document Request Form',
-                'About Us': 'About Us',
-                'FAQs': 'FAQs'
-            },
-            'tl': {
-                'Dashboard': 'Dashboard',
-                'Request Document': 'Mag-request ng Dokumento',
-                'Apply for Permit': 'Mag-apply ng Permit',
-                'My Requests': 'Aking mga Request',
-                'Events Calendar': 'Kalendaryo ng mga Kaganapan',
-                'Announcements': 'Mga Anunsyo',
-                'Settings': 'Settings',
-                'Logout': 'Mag-logout',
-                'Submit a request for barangay documents': 'Mag-sumite ng request para sa mga dokumento ng barangay',
-                'Document Request Form': 'Form ng Document Request',
-                'About Us': 'Tungkol Sa Amin',
-                'FAQs': 'Mga FAQ'
-            }
-        };
-
-        function setLanguage(lang) {
-            localStorage.setItem('language', lang);
-            applyTranslation(lang);
-            document.getElementById('currentLangText').textContent = lang === 'tl' ? 'Tagalog' : 'English';
-            document.getElementById('langMenu').classList.remove('show');
-        }
-
-        function applyTranslation(lang) {
-            const dict = translations[lang] || translations['en'];
-
-            document.querySelectorAll('.translatable').forEach(el => {
-                let key = el.getAttribute('data-original-text');
-
-                if (!key) {
-                    key = el.textContent.trim();
-                    el.setAttribute('data-original-text', key);
-                }
-
-                let translated = null;
-                for (const [dictKey, dictValue] of Object.entries(dict)) {
-                    if (dictKey.toLowerCase() === key.toLowerCase()) {
-                        translated = dictValue;
-                        break;
-                    }
-                }
-
-                if (translated) {
-                    el.textContent = translated;
-                }
-            });
-        }
 
         document.addEventListener('DOMContentLoaded', function() {
             const savedLang = localStorage.getItem('language') || 'en';
@@ -2799,6 +3088,7 @@
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
             });
         });
+
     </script>
 </body>
 </html>

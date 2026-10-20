@@ -6,6 +6,8 @@
     <title>My Requests | Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- IDAGDAG ITO -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
     <style>
         :root {
             --primary-900: #071f14;
@@ -52,6 +54,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             position: relative;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -396,7 +399,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* ===== SIDEBAR FOOTER (About Us + FAQs + Bell) ===== */
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
@@ -624,7 +626,7 @@
             gap: 12px;
         }
 
-        /* ===== MAIN CONTENT: FADE ONLY HERE ===== */
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px 48px;
@@ -661,6 +663,7 @@
             left: var(--sidebar-collapsed-width);
         }
 
+        /* === PAGE HEADER (KATULAD NG REQUEST DOCUMENT / APPLY PERMIT) === */
         .page-header-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
@@ -678,11 +681,18 @@
             flex-wrap: wrap;
             gap: 20px;
             position: relative;
-            overflow: visible;
             z-index: 100;
+            width: 100%;
         }
 
-        .page-header-card h1 {
+        .header-title-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .header-title-section h1 {
             font-size: 1.9rem;
             font-weight: 800;
             color: var(--primary-800);
@@ -691,9 +701,10 @@
             gap: 16px;
             letter-spacing: -0.03em;
             line-height: 1.15;
+            margin: 0;
         }
 
-        .page-header-card h1 i {
+        .header-title-section h1 i {
             color: var(--primary-500);
             font-size: 1.5rem;
             background: linear-gradient(135deg, var(--primary-50), #ffffff);
@@ -701,39 +712,64 @@
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(34, 139, 84, 0.1);
             border: 1px solid var(--primary-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .page-header-card h1 small {
-            font-size: 0.85rem;
-            font-weight: 400;
-            color: var(--neutral-500);
-            display: block;
-            margin-top: 6px;
-            letter-spacing: -0.005em;
-        }
-
-        .page-header-card p {
-            color: var(--neutral-500);
+        .header-title-section .subtitle {
             font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--neutral-500);
+            letter-spacing: -0.005em;
             margin-top: 8px;
             margin-left: 66px;
-            font-weight: 400;
-            letter-spacing: -0.01em;
         }
 
-        .page-header-card p strong {
+        .header-title-section .subtitle strong {
             color: var(--primary-700);
             font-weight: 700;
         }
 
-        .user-badge-container {
+        /* === HEADER CONTROLS === */
+        .header-controls {
             display: flex;
             align-items: center;
             gap: 14px;
             position: relative;
             z-index: 100;
+            margin-left: auto;
         }
 
+        .lang-switcher {
+            position: relative;
+            width: fit-content;
+            flex-shrink: 0;
+        }
+
+        .lang-switcher-btn {
+            background: var(--neutral-50);
+            border: 1.5px solid var(--neutral-100);
+            padding: 9px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--primary-600);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.01em;
+        }
+        .lang-switcher-btn:hover {
+            background: var(--primary-50);
+            border-color: var(--primary-300);
+            transform: translateY(-2px);
+        }
+
+        /* === USER BADGE === */
         .user-badge {
             display: flex;
             align-items: center;
@@ -743,20 +779,15 @@
             border-radius: 60px;
             border: 1.5px solid var(--neutral-100);
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
             user-select: none;
-            box-shadow: 
-                0 6px 16px rgba(15, 61, 42, 0.15),
-                0 2px 6px rgba(15, 61, 42, 0.10),
-                0 1px 2px rgba(15, 61, 42, 0.08);
+            width: fit-content;
+            flex-shrink: 0;
         }
 
         .user-badge:hover {
             border-color: var(--primary-400);
             background: white;
-            box-shadow: 
-                0 12px 28px rgba(34, 139, 84, 0.25),
-                0 6px 12px rgba(34, 139, 84, 0.15);
             transform: translateY(-3px);
         }
 
@@ -772,7 +803,6 @@
             font-weight: 700;
             font-size: 0.95rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(15, 61, 42, 0.25);
         }
 
         .user-badge .user-info { line-height: 1.25; }
@@ -784,15 +814,14 @@
         .user-badge .user-info .role {
             font-size: 0.68rem;
             color: var(--neutral-500);
-            margin-top: 1px;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
             font-weight: 600;
         }
         .user-badge .chevron {
             font-size: 0.65rem;
             color: var(--neutral-500);
             margin-left: 2px;
+            transition: transform 0.25s ease;
         }
 
         .user-menu {
@@ -831,13 +860,24 @@
             color: var(--primary-800);
             font-size: 0.95rem;
         }
-        .user-menu-header .email {
+                .user-menu-header .email {
             font-size: 0.78rem;
             color: var(--neutral-500);
             margin-top: 3px;
-            word-break: break-all;
+            white-space: nowrap; /* Pinipigilan maputol */
+            overflow-x: auto; /* Scrollbar kung humaba */
+            display: block;
+            padding-bottom: 2px;
         }
 
+        /* Para maganda yung scrollbar kapag lumabas */
+        .user-menu-header .email::-webkit-scrollbar {
+            height: 4px;
+        }
+        .user-menu-header .email::-webkit-scrollbar-thumb {
+            background: rgba(34, 139, 84, 0.3);
+            border-radius: 4px;
+        }
         .user-menu-item {
             display: flex;
             align-items: center;
@@ -865,34 +905,6 @@
         .user-menu-item.logout-item:hover { background: #fef2f2; }
         .user-menu-item.logout-item i { color: var(--accent-600); }
 
-        .lang-switcher-btn {
-            background: var(--neutral-50);
-            border: 1.5px solid var(--neutral-100);
-            padding: 9px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--primary-600);
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
-            box-shadow: 
-                0 6px 16px rgba(15, 61, 42, 0.15),
-                0 2px 6px rgba(15, 61, 42, 0.10),
-                0 1px 2px rgba(15, 61, 42, 0.08);
-        }
-        .lang-switcher-btn:hover {
-            background: var(--primary-50);
-            border-color: var(--primary-300);
-            transform: translateY(-3px);
-            box-shadow: 
-                0 12px 24px rgba(34, 139, 84, 0.25),
-                0 4px 10px rgba(34, 139, 84, 0.15);
-        }
-        
         .lang-menu {
             display: none;
             position: absolute;
@@ -927,7 +939,6 @@
             transform: translateX(3px);
         }
 
-        /* ===== CARD ===== */
         .card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
@@ -979,7 +990,6 @@
             letter-spacing: 0.02em;
         }
 
-        /* ===== STATS GRID ===== */
         .stats-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
@@ -1041,7 +1051,6 @@
             letter-spacing: 0.06em;
         }
 
-        /* ===== DOCUMENT REQUESTS STATS - COLOR CODED ===== */
         .document-stats .stat-card:first-child {
             border-left-color: #3b82f6;
         }
@@ -1106,7 +1115,6 @@
             color: #c42828;
         }
 
-        /* ===== EVENT PERMITS STATS ===== */
         .stat-card.pending { border-left-color: #f59e0b; }
         .stat-card.pending .stat-number { color: #92400e; }
         .stat-card.approved { border-left-color: #22c55e; }
@@ -1116,7 +1124,6 @@
         .stat-card.events { border-left-color: #8b5cf6; }
         .stat-card.events .stat-number { color: #6d28d9; }
 
-        /* ===== REQUEST CARDS ===== */
         .request-list { display: flex; flex-direction: column; gap: 14px; }
 
         .request-card {
@@ -1275,7 +1282,6 @@
             box-shadow: 0 6px 16px rgba(34, 139, 84, 0.3);
         }
 
-        /* ===== EMPTY STATE ===== */
         .empty-state {
             padding: 50px 20px;
             text-align: center;
@@ -1324,7 +1330,6 @@
             box-shadow: 0 12px 28px rgba(34, 139, 84, 0.35);
         }
 
-        /* ===== MODAL ===== */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 61, 42, 0.5);
@@ -1446,32 +1451,89 @@
         }
 
         /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .split-view { flex-direction: column; height: auto; }
+            .calendar-panel, .details-panel { flex: none; width: 100%; }
+            .calendar-panel { min-height: 550px; }
+        }
+
+        /* --- MOBILE HEADER FIX (KATULAD NG REQUEST DOCUMENT / APPLY PERMIT) --- */
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 290px; }
-            .sidebar.open { transform: translateX(0); }
-            .sidebar.collapsed { transform: translateX(-100%); width: 290px; }
-            .sidebar.collapsed.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 80px 22px 30px; }
-            body.sidebar-collapsed .main-content { margin-left: 0; }
-            .main-content.fade-out::after { left: 0; }
-            body.sidebar-collapsed .notif-panel { left: 20px; }
-            .card { padding: 24px; }
-            .page-header-card {
+            .sidebar { 
+                width: 80px; 
+                padding: 20px 10px; 
+                transform: translateX(0); 
+            }
+            .sidebar .sidebar-brand h4, 
+            .sidebar .sidebar-brand small,
+            .sidebar .sidebar-nav span,
+            .sidebar .sidebar-footer-links {
+                display: none; 
+            }
+            .sidebar .sidebar-brand .brand-top {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 12px;
+            }
+            .sidebar .sidebar-toggle {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                font-size: 1rem;
+            }
+            .sidebar .sidebar-nav a {
+                justify-content: center;
+                padding: 13px 0;
+                gap: 0;
+            }
+            .sidebar .sidebar-nav a i {
+                width: auto;
+                font-size: 1.2rem;
+                margin: 0;
+            }
+            .sidebar .sidebar-nav a.active::before {
+                left: -10px;
+            }
+            .sidebar .sidebar-footer {
+                justify-content: center;
+            }
+            
+            .main-content { 
+                margin-left: 80px; 
+                padding: 30px 22px; 
+            }
+            body.sidebar-collapsed .main-content { 
+                margin-left: 80px; 
+            }
+            body.sidebar-collapsed .notif-panel { left: 20px; }
+            .main-content.fade-out::after { left: 80px; }
+            
+            /* Header – stack title on top, controls side-by-side below */
+            .page-header-card {
+                flex-direction: column; 
+                align-items: flex-start; 
                 padding: 24px 22px;
             }
-            .page-header-card p { margin-left: 0; }
-            .user-badge-container {
+            .header-title-section .subtitle {
+                margin-left: 0;
+            }
+
+            .header-controls {
                 width: 100%;
                 justify-content: space-between;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
+                gap: 10px;
+                margin-left: 0;
             }
-            .request-card { flex-direction: column; align-items: flex-start; }
-            .request-right { width: 100%; justify-content: space-between; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .page-header-card h1 { font-size: 1.4rem; }
-            .page-header-card h1 i { font-size: 1.2rem; padding: 10px; }
+            .user-badge .user-info .name {
+                max-width: 100px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
             
             .notif-panel {
                 left: 20px;
@@ -1479,21 +1541,207 @@
                 width: auto;
                 bottom: 80px;
             }
+
+            .sidebar-toggle {
+                display: flex !important; 
+            }
+
+            .request-card { flex-direction: column; align-items: flex-start; }
+            .request-right { width: 100%; justify-content: space-between; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .page-header-card h1 { font-size: 1.4rem; }
+            .page-header-card h1 i { font-size: 1.2rem; padding: 10px; }
         }
 
+        /* 2. EXPANDED STATE (Kapag clinick ang burger menu) */
+        @media (max-width: 992px) {
+            .sidebar.expanded-mobile {
+                width: var(--sidebar-width) !important;
+                padding: 26px 20px !important;
+                box-shadow: 12px 0 40px rgba(0,0,0,0.4) !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand h4,
+            .sidebar.expanded-mobile .sidebar-brand small,
+            .sidebar.expanded-mobile .sidebar-nav span,
+            .sidebar.expanded-mobile .sidebar-footer-links {
+                display: block !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand .brand-top {
+                flex-direction: row !important;
+                gap: 0 !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-toggle {
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a {
+                justify-content: flex-start !important;
+                padding: 13px 16px !important;
+                gap: 14px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a i {
+                width: 20px !important;
+                font-size: 1rem !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a.active::before {
+                left: -20px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-footer {
+                justify-content: space-between !important;
+            }
+        }
+                /* 3. SOBRANG LIIT NA SCREEN (CP) */
         @media (max-width: 576px) {
-            .main-content { padding: 72px 16px 20px; }
+            .main-content { padding: 20px 16px; }
             .card { padding: 22px; border-radius: 18px; }
             .card-title { font-size: 1rem; margin-bottom: 22px; padding-bottom: 16px; }
             .stats-grid { grid-template-columns: 1fr; }
-            .user-badge .user-info { display: none; }
-            .user-badge { padding: 5px; border-radius: 50%; }
-            .user-badge .chevron { display: none; }
-            .lang-switcher-btn { padding: 7px 12px; font-size: 0.7rem; }
-            .modal-body p { flex-direction: column; gap: 4px; }
-            .modal-body strong { min-width: unset; }
+
+            .header-title-section h1 {
+                font-size: 1.5rem;
+            }
+            .header-title-section h1 i {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .user-badge {
+                padding: 4px 10px 4px 4px; 
+                gap: 8px;
+            }
+            .user-badge .avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+            .user-badge .user-info .name {
+                font-size: 0.75rem;
+                max-width: 75px;
+            }
+            .user-badge .user-info .role {
+                font-size: 0.55rem;
+            }
+            .user-badge .chevron {
+                display: block;
+                font-size: 0.55rem;
+                margin-left: 4px;
+            }
+            .lang-switcher-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+            .lang-switcher-btn i {
+                font-size: 0.8rem;
+            }
+
+            /* === DAGDAG PARA SA LANGUAGE MENU SA MOBILE === */
+            .lang-menu {
+                position: absolute;
+                top: calc(100% + 8px);
+                right: -45px; 
+                left: auto;
+                min-width: 120px;
+                padding: 4px;
+                z-index: 999999;
+            }
+            .lang-menu a {
+                font-size: 0.75rem;
+                padding: 6px 10px;
+            }
+
+            /* === DAGDAG PARA SA USER MENU SA MOBILE (AYOS ANG EMAIL) === */
+            .user-menu {
+                min-width: 240px; 
+                max-width: 85vw; 
+                padding: 6px;
+                right: 0;
+            }
+            .user-menu-header {
+                padding: 10px 12px;
+                margin-bottom: 4px;
+            }
+            .user-menu-header .name {
+                font-size: 0.8rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .user-menu-header .email {
+                font-size: 0.65rem;
+                white-space: nowrap; 
+                overflow-x: auto; 
+                display: block;
+                padding-bottom: 2px;
+            }
+            
+            .user-menu-header .email::-webkit-scrollbar {
+                height: 4px;
+            }
+            .user-menu-header .email::-webkit-scrollbar-thumb {
+                background: rgba(34, 139, 84, 0.3);
+                border-radius: 4px;
+            }
+
+            .user-menu-item {
+                padding: 8px 12px;
+                font-size: 0.78rem;
+                gap: 10px;
+            }
+            /* ========================================= */
+
+            .page-header-card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            /* ================================================== */
+            /* === ITO YUNG BAGONG CODE PARA PALIITIN ANG MODAL === */
+            /* ================================================== */
+            .modal-box {
+                max-width: 90%; /* Para may konting espasyo sa gilid */
+                max-height: 85vh; /* Para hindi umabot sa tuktok */
+                border-radius: 20px; /* Mas maliit na rounded corners */
+            }
+
+            .modal-header {
+                padding: 16px 20px;
+            }
+            .modal-header h3 {
+                font-size: 1rem; /* Pinaliit ang title */
+            }
+            .modal-header h3 i {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+
+            .modal-body { 
+                padding: 20px; 
+            }
+            
+            .modal-body p {
+                font-size: 0.8rem; /* Pinaliit ang text */
+                padding-bottom: 10px;
+                margin-bottom: 12px;
+            }
+            .modal-body strong {
+                font-size: 0.75rem; /* Pinaliit ang labels */
+            }
+            /* ================================================== */
         }
     </style>
+     <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
 <body>
 
@@ -1523,21 +1771,19 @@
         </a>
       </nav>
 
-      <!-- ===== SIDEBAR FOOTER: About Us + FAQs + Bell ===== -->
       <div class="sidebar-footer">
         <div class="sidebar-footer-links">
             <a href="{{ url_for('about_us') }}" class="sidebar-about-link">About Us</a>
             <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
         </div>
         <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
-            <i class="fas fa-bell"></i>
-            <span class="bell-badge">1</span>
-        </div>
+    <i class="fas fa-bell"></i>
+    <span class="bell-badge" id="bellBadge" style="display: none;">0</span>
+</div>
       </div>
 
     </aside>
 
-    <!-- NOTIFICATION PANEL -->
     <div class="notif-panel" id="notifPanel">
         <div class="notif-header">
             <i class="fas fa-bullhorn"></i>
@@ -1557,114 +1803,113 @@
         </a>
     </div>
 
-    <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
         
+        <!-- PAGE HEADER (KATULAD NG REQUEST DOCUMENT / APPLY PERMIT) -->
         <div class="page-header-card">
-            <div>
+            <div class="header-title-section">
                 <h1>
                     <i class="fas fa-list"></i>
                     <span class="translatable">My Requests</span>
-                    <small class="translatable">Track the status of your requests and permits</small>
                 </h1>
+                <p class="subtitle">Track the status of your requests and permits</p>
             </div>
 
-            <div class="user-badge-container">
-                
-                <div class="lang-switcher" style="position: relative;">
+            <div class="header-controls">
+                <!-- Language Dropdown -->
+                <div class="lang-switcher">
                     <button onclick="toggleLangMenu(event)" class="lang-switcher-btn">
-                        <i class="fas fa-globe"></i> 
+                        <i class="fas fa-globe"></i>
                         <span id="currentLangText">English</span>
                         <i class="fas fa-chevron-down" style="font-size: 0.6rem;"></i>
                     </button>
                     <div id="langMenu" class="lang-menu">
-                        <a onclick="setLanguage('en')">🇺🇸 English</a>
-                        <a onclick="setLanguage('tl')">🇵🇭 Tagalog</a>
+                        <a onclick="setGlobalLanguage('en')">🇺🇸 English</a>
+<a onclick="setGlobalLanguage('tl')">🇵🇭 Tagalog</a>
                     </div>
                 </div>
 
-                <div class="user-badge" onclick="toggleUserMenu(event)">
-                    <div class="avatar">{{ (session.fullname or 'R')[0]|upper }}</div>
-                    <div class="user-info">
-                        <div class="name">{{ session.fullname or 'Resident' }}</div>
-                        <div class="role">{{ session.role|replace('_', ' ')|title }}</div>
+                <!-- Profile Button -->
+                <div style="position: relative; display: inline-block;">
+                    <div class="user-badge" onclick="toggleUserMenu(event)">
+                        <div class="avatar">{{ (session.fullname or 'R')[0]|upper }}</div>
+                        <div class="user-info">
+                            <div class="name">{{ session.fullname or 'Resident' }}</div>
+                            <div class="role">{{ session.role|replace('_', ' ')|title }}</div>
+                        </div>
+                        <i class="fas fa-chevron-down chevron"></i>
                     </div>
-                    <i class="fas fa-chevron-down chevron"></i>
-                </div>
 
-                <div id="userMenu" class="user-menu">
-                    <div class="user-menu-header">
-                        <div class="name">{{ session.fullname or 'Resident' }}</div>
-                        <div class="email">{{ session.email or 'resident@email.com' }}</div>
+                    <div id="userMenu" class="user-menu">
+                        <div class="user-menu-header">
+                            <div class="name">{{ session.fullname or 'Resident' }}</div>
+                            <div class="email">{{ session.email or 'resident@email.com' }}</div>
+                        </div>
+                        <a href="{{ url_for('settings') }}" class="user-menu-item" onclick="showSettingsInSidebar()">
+                            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="user-menu-item logout-item">
+                            <i class="fas fa-sign-out-alt"></i> <span class="translatable">Logout</span>
+                        </a>
                     </div>
-                    <a href="{{ url_for('settings') }}" class="user-menu-item" onclick="showSettingsInSidebar()">
-                        <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="user-menu-item logout-item">
-                        <i class="fas fa-sign-out-alt"></i> <span class="translatable">Logout</span>
-                    </a>
                 </div>
-
             </div>
         </div>
 
-        <!-- DOCUMENT REQUESTS STATS CARD -->
         <div class="card">
             <div class="card-title">
                 <i class="fas fa-file-alt" style="color: #3b82f6;"></i>
-                <span class="translatable">Document Requests</span>
+                <span data-translate="doc_requests">Document Requests</span>
             </div>
             <div class="stats-grid document-stats">
                 <div class="stat-card">
                     <div class="stat-number">{{ total_docs or 0 }}</div>
-                    <div class="stat-label translatable">Total Documents</div>
+                    <div class="stat-label"><span data-translate="total_docs">Total Documents</span></div>
                 </div>
                 <div class="stat-card pending">
                     <div class="stat-number">{{ pending_docs or 0 }}</div>
-                    <div class="stat-label translatable">Pending</div>
+                    <div class="stat-label"><span data-translate="pending">Pending</span></div>
                 </div>
                 <div class="stat-card approved">
                     <div class="stat-number">{{ approved_docs or 0 }}</div>
-                    <div class="stat-label translatable">Approved</div>
+                    <div class="stat-label"><span data-translate="approved">Approved</span></div>
                 </div>
                 <div class="stat-card rejected">
                     <div class="stat-number">{{ rejected_docs or 0 }}</div>
-                    <div class="stat-label translatable">Rejected</div>
+                    <div class="stat-label"><span data-translate="rejected">Rejected</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- EVENT PERMITS STATS CARD -->
         <div class="card">
             <div class="card-title">
                 <i class="fas fa-calendar-check" style="color: #8b5cf6;"></i>
-                <span class="translatable">Event Permits</span>
+                <span data-translate="event_permits">Event Permits</span>
             </div>
             <div class="stats-grid">
                 <div class="stat-card events">
                     <div class="stat-number">{{ total_events or 0 }}</div>
-                    <div class="stat-label translatable">Total Permits</div>
+                    <div class="stat-label"><span data-translate="total_permits">Total Permits</span></div>
                 </div>
                 <div class="stat-card pending">
                     <div class="stat-number">{{ pending_events or 0 }}</div>
-                    <div class="stat-label translatable">Pending</div>
+                    <div class="stat-label"><span data-translate="pending">Pending</span></div>
                 </div>
                 <div class="stat-card approved">
                     <div class="stat-number">{{ approved_events or 0 }}</div>
-                    <div class="stat-label translatable">Approved</div>
+                    <div class="stat-label"><span data-translate="approved">Approved</span></div>
                 </div>
                 <div class="stat-card rejected">
                     <div class="stat-number">{{ rejected_events or 0 }}</div>
-                    <div class="stat-label translatable">Rejected</div>
+                    <div class="stat-label"><span data-translate="rejected">Rejected</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- DOCUMENT REQUESTS LIST CARD -->
         <div class="card">
             <div class="card-title">
                 <i class="fas fa-file-alt" style="color: #3b82f6;"></i>
-                <span class="translatable">Document Requests List</span>
+                <span data-translate="doc_requests_list">Document Requests List</span>
                 {% if document_requests %}
                 <span class="badge-count">{{ document_requests|length }}</span>
                 {% endif %}
@@ -1685,11 +1930,11 @@
                         <div class="request-right">
                             <span class="status-badge {{ req.status|lower }}">
                                 {% if req.status == 'pending' %}
-                                    <i class="fas fa-clock"></i> <span class="translatable">Pending</span>
+                                    <i class="fas fa-clock"></i> <span data-translate="pending">Pending</span>
                                 {% elif req.status == 'approved' %}
-                                    <i class="fas fa-check-circle"></i> <span class="translatable">Approved</span>
+                                    <i class="fas fa-check-circle"></i> <span data-translate="approved">Approved</span>
                                 {% elif req.status == 'rejected' %}
-                                    <i class="fas fa-times-circle"></i> <span class="translatable">Rejected</span>
+                                    <i class="fas fa-times-circle"></i> <span data-translate="rejected">Rejected</span>
                                 {% else %}
                                     <i class="fas fa-info-circle"></i> {{ req.status|replace('_', ' ')|title }}
                                 {% endif %}
@@ -1702,7 +1947,7 @@
                                 data-purpose="{{ req.purpose or 'N/A' }}"
                                 data-notes="{{ req.admin_remarks or 'N/A' }}"
                                 onclick="showDocumentModal(this)">
-                                <i class="fas fa-eye"></i> <span class="translatable">View</span>
+                                <i class="fas fa-eye"></i> <span data-translate="view">View</span>
                             </button>
                         </div>
                     </div>
@@ -1718,11 +1963,10 @@
             </div>
         </div>
 
-        <!-- EVENT PERMITS LIST CARD -->
         <div class="card">
             <div class="card-title">
                 <i class="fas fa-calendar-check" style="color: #8b5cf6;"></i>
-                <span class="translatable">Event Permits List</span>
+                <span data-translate="event_permits_list">Event Permits List</span>
                 {% if event_permits %}
                 <span class="badge-count">{{ event_permits|length }}</span>
                 {% endif %}
@@ -1743,11 +1987,11 @@
                         <div class="request-right">
                             <span class="status-badge {{ req.status|lower }}">
                                 {% if req.status == 'pending' %}
-                                    <i class="fas fa-clock"></i> <span class="translatable">Pending</span>
+                                    <i class="fas fa-clock"></i> <span data-translate="pending">Pending</span>
                                 {% elif req.status == 'approved' %}
-                                    <i class="fas fa-check-circle"></i> <span class="translatable">Approved</span>
+                                    <i class="fas fa-check-circle"></i> <span data-translate="approved">Approved</span>
                                 {% elif req.status == 'rejected' %}
-                                    <i class="fas fa-times-circle"></i> <span class="translatable">Rejected</span>
+                                    <i class="fas fa-times-circle"></i> <span data-translate="rejected">Rejected</span>
                                 {% else %}
                                     <i class="fas fa-info-circle"></i> {{ req.status|replace('_', ' ')|title }}
                                 {% endif %}
@@ -1762,7 +2006,7 @@
                                 data-purpose="{{ req.purpose or 'N/A' }}"
                                 data-description="{{ req.event_description or 'N/A' }}"
                                 onclick="showEventModal(this)">
-                                <i class="fas fa-eye"></i> <span class="translatable">View</span>
+                                <i class="fas fa-eye"></i> <span data-translate="view">View</span>
                             </button>
                         </div>
                     </div>
@@ -1780,7 +2024,6 @@
 
     </main>
 
-    <!-- MODAL PARA SA DOCUMENT -->
     <div class="modal-overlay hidden" id="documentModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -1798,7 +2041,6 @@
         </div>
     </div>
 
-    <!-- MODAL PARA SA EVENT PERMIT -->
     <div class="modal-overlay hidden" id="eventModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -1819,40 +2061,26 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===== MOBILE SIDEBAR TOGGLE =====
-            const header = document.querySelector('.page-header-card');
-            const hamburger = document.createElement('button');
-            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
-            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none; padding: 4px 8px;';
-            hamburger.id = 'menuToggle';
-            hamburger.addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('open');
-            });
-            header.prepend(hamburger);
 
-            if (window.innerWidth <= 992) {
-                hamburger.style.display = 'block';
-            }
-            window.addEventListener('resize', function() {
-                if (window.innerWidth <= 992) {
-                    hamburger.style.display = 'block';
+        // ===== BELL BADGE LOADER =====
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/announcements/unread_count')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('bellBadge');
+            if (badge) {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'flex';
                 } else {
-                    hamburger.style.display = 'none';
-                    document.getElementById('sidebar').classList.remove('open');
-                }
-            });
-
-            // ===== SIDEBAR SETTINGS LINK =====
-            const settingsLink = document.getElementById('sidebarSettingsLink');
-            if (settingsLink) {
-                const isOnSettingsPage = window.location.pathname.includes('settings');
-                if (isOnSettingsPage) {
-                    settingsLink.classList.add('visible');
+                    badge.style.display = 'none';
                 }
             }
+        })
+        .catch(err => console.error('Bell count error:', err));
+});
 
-            // ===== SIDEBAR COLLAPSE TOGGLE =====
+        document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
 
@@ -1865,13 +2093,37 @@
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    sidebar.classList.toggle('collapsed');
-                    document.body.classList.toggle('sidebar-collapsed');
-                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.toggle('expanded-mobile');
+                    } else {
+                        sidebar.classList.toggle('collapsed');
+                        document.body.classList.toggle('sidebar-collapsed');
+                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    }
                 });
             }
 
-            // ===== SMOOTH PAGE TRANSITION (FADE MAIN CONTENT LANG, HINDI BODY) =====
+            document.addEventListener('click', function(e) {
+                const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
+                const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
+
+                if (sidebar && window.innerWidth <= 992) {
+                    if (!isClickInsideSidebar && !isToggleButton) {
+                        sidebar.classList.remove('expanded-mobile');
+                    }
+                }
+            });
+
+            const settingsLink = document.getElementById('sidebarSettingsLink');
+            if (settingsLink) {
+                const isOnSettingsPage = window.location.pathname.includes('settings');
+                if (isOnSettingsPage) {
+                    settingsLink.classList.add('visible');
+                }
+            }
+
+            // ===== SMOOTH PAGE TRANSITION =====
             document.querySelectorAll('.sidebar-nav a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
@@ -1887,15 +2139,9 @@
                 });
             });
 
-            // ===== LANGUAGE INIT =====
-            const savedLang = localStorage.getItem('language') || 'en';
-            document.getElementById('currentLangText').textContent = savedLang === 'tl' ? 'Tagalog' : 'English';
-            if (savedLang === 'tl') {
-                applyTranslation('tl');
-            }
+           
         });
 
-        // ===== USER MENU DROPDOWN =====
         function toggleUserMenu(event) {
             if (event) event.stopPropagation();
             const menu = document.getElementById('userMenu');
@@ -1905,7 +2151,6 @@
             menu.classList.toggle('show');
         }
 
-        // ===== CLOSE MENUS PAG CLICK SA LABAS =====
         document.addEventListener('click', function(e) {
             const userMenu = document.getElementById('userMenu');
             const userBadge = document.querySelector('.user-badge');
@@ -1915,7 +2160,6 @@
             }
         });
 
-        // ===== SHOW SETTINGS SA SIDEBAR =====
         function showSettingsInSidebar() {
             const settingsLink = document.getElementById('sidebarSettingsLink');
             if (settingsLink) {
@@ -1923,7 +2167,6 @@
             }
         }
 
-        // ===== LANGUAGE SWITCHER =====
         function toggleLangMenu(event) {
             if (event) event.stopPropagation();
             const menu = document.getElementById('langMenu');
@@ -1940,16 +2183,26 @@
             }
         });
 
-        // ===== NOTIFICATION BELL DROPDOWN =====
-        function toggleNotifPanel(event) {
-            if (event) event.stopPropagation();
-            const panel = document.getElementById('notifPanel');
-            const bell = document.getElementById('notifBell');
-            if (panel) {
-                panel.classList.toggle('show');
-                if (bell) bell.classList.toggle('active');
-            }
+       function toggleNotifPanel(event) {
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notifBell');
+    const badge = document.getElementById('bellBadge');
+    
+    if (panel) {
+        const isShowing = panel.classList.toggle('show');
+        if (bell) bell.classList.toggle('active');
+
+        // Kapag binuksan ang panel, itago ang badge at markahan lahat as read sa database
+        if (isShowing && badge) {
+            badge.style.display = 'none';
+            badge.textContent = '0';
+            
+            fetch('/api/announcements/mark-all-read', { method: 'POST' })
+                .catch(err => console.error('Mark all read error:', err));
         }
+    }
+}
 
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');
@@ -1964,113 +2217,8 @@
             e.stopPropagation();
         });
 
-        // ===== TRANSLATIONS =====
-        const translations = {
-            'en': {
-                'Dashboard': 'Dashboard',
-                'Request Document': 'Request Document',
-                'Apply for Permit': 'Apply for Permit',
-                'My Requests': 'My Requests',
-                'Events Calendar': 'Events Calendar',
-                'Announcements': 'Announcements',
-                'Settings': 'Settings',
-                'Logout': 'Logout',
-                'Track the status of your document requests and event permits': 'Track the status of your document requests and event permits',
-                'Document Requests': 'Document Requests',
-                'Event Permits': 'Event Permits',
-                'Total Documents': 'Total Documents',
-                'Total Permits': 'Total Permits',
-                'Pending': 'Pending',
-                'Approved': 'Approved',
-                'Rejected': 'Rejected',
-                'Document Requests List': 'Document Requests List',
-                'Event Permits List': 'Event Permits List',
-                'View': 'View',
-                'No Document Requests': 'No Document Requests',
-                'No Event Permits': 'No Event Permits',
-                'You haven\'t submitted any document request yet.': 'You haven\'t submitted any document request yet.',
-                'You haven\'t submitted any event permit application yet.': 'You haven\'t submitted any event permit application yet.',
-                'Document Details': 'Document Details',
-                'Event Permit Details': 'Event Permit Details',
-                'Document Type:': 'Document Type:',
-                'Reference No:': 'Reference No:',
-                'Date Requested:': 'Date Requested:',
-                'Status:': 'Status:',
-                'Event Name:': 'Event Name:',
-                'Event Date:': 'Event Date:',
-                'Event Time:': 'Event Time:',
-                'Venue:': 'Venue:',
-                'Purpose:': 'Purpose:',
-                'Notes:': 'Notes:',
-                'Description:': 'Description:',
-                'About Us': 'About Us',
-                'FAQs': 'FAQs'
-            },
-            'tl': {
-                'Dashboard': 'Dashboard',
-                'Request Document': 'Mag-request ng Dokumento',
-                'Apply for Permit': 'Mag-apply ng Permit',
-                'My Requests': 'Aking mga Request',
-                'Events Calendar': 'Kalendaryo ng mga Kaganapan',
-                'Announcements': 'Mga Anunsyo',
-                'Settings': 'Settings',
-                'Logout': 'Mag-logout',
-                'Track the status of your document requests and event permits': 'Tingnan ang status ng iyong mga dokumento at permit',
-                'Document Requests': 'Mga Document Request',
-                'Event Permits': 'Mga Event Permit',
-                'Total Documents': 'Kabuuang Dokumento',
-                'Total Permits': 'Kabuuang Permit',
-                'Pending': 'Kasalukuyang Pinoproseso',
-                'Approved': 'Aprubado',
-                'Rejected': 'Tinanggihan',
-                'Document Requests List': 'Listahan ng mga Document Request',
-                'Event Permits List': 'Listahan ng mga Event Permit',
-                'View': 'Tingnan',
-                'No Document Requests': 'Walang Document Request',
-                'No Event Permits': 'Walang Event Permit',
-                'You haven\'t submitted any document request yet.': 'Wala ka pang naisumiteng document request.',
-                'You haven\'t submitted any event permit application yet.': 'Wala ka pang naisumiteng event permit application.',
-                'Document Details': 'Detalye ng Dokumento',
-                'Event Permit Details': 'Detalye ng Event Permit',
-                'Document Type:': 'Uri ng Dokumento:',
-                'Reference No:': 'Reference No:',
-                'Date Requested:': 'Petsa ng Request:',
-                'Status:': 'Status:',
-                'Event Name:': 'Pangalan ng Kaganapan:',
-                'Event Date:': 'Petsa ng Kaganapan:',
-                'Event Time:': 'Oras ng Kaganapan:',
-                'Venue:': 'Lugar:',
-                'Purpose:': 'Layunin:',
-                'Notes:': 'Mga Tala:',
-                'Description:': 'Paglalarawan:',
-                'About Us': 'Tungkol Sa Amin',
-                'FAQs': 'Mga FAQ'
-            }
-        };
+     
 
-        function setLanguage(lang) {
-            localStorage.setItem('language', lang);
-            applyTranslation(lang);
-            document.getElementById('currentLangText').textContent = lang === 'tl' ? 'Tagalog' : 'English';
-            document.getElementById('langMenu').classList.remove('show');
-        }
-
-        function applyTranslation(lang) {
-            const dict = translations[lang] || translations['en'];
-            
-            document.querySelectorAll('.translatable').forEach(el => {
-                let key = el.getAttribute('data-original-text');
-                if (!key) {
-                    key = el.textContent.trim();
-                    el.setAttribute('data-original-text', key);
-                }
-                if (dict[key]) {
-                    el.textContent = dict[key];
-                }
-            });
-        }
-
-        // ===== FUNCTIONS PARA SA DOCUMENT =====
         function showDocumentModal(btn) {
             document.getElementById('modalDocType').textContent = btn.dataset.type || 'N/A';
             document.getElementById('modalDocRef').textContent = btn.dataset.ref || 'N/A';
@@ -2085,7 +2233,6 @@
             document.getElementById('documentModal').classList.add('hidden');
         }
 
-        // ===== FUNCTIONS PARA SA EVENT =====
         function showEventModal(btn) {
             document.getElementById('modalEventName').textContent = btn.dataset.name || 'N/A';
             document.getElementById('modalEventRef').textContent = btn.dataset.ref || 'N/A';
@@ -2102,7 +2249,6 @@
             document.getElementById('eventModal').classList.add('hidden');
         }
 
-        // ===== CLOSE MODAL PAG CLICK SA LABAS =====
         document.addEventListener('click', function(e) {
             if (e.target.id === 'documentModal') {
                 closeDocumentModal();

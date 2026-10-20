@@ -6,6 +6,8 @@
     <title>FAQs | Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- IDAGDAG ITO -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
     <style>
         :root {
             --primary-900: #071f14;
@@ -47,6 +49,7 @@
             color: var(--neutral-900);
             -webkit-font-smoothing: antialiased;
             position: relative;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -648,13 +651,66 @@
         .faq-answer-content .contact-info strong { color: var(--primary-700); }
 
         /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .split-view { flex-direction: column; height: auto; }
+            .calendar-panel, .details-panel { flex: none; width: 100%; }
+            .calendar-panel { min-height: 550px; }
+        }
+
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 290px; }
-            .sidebar.open { transform: translateX(0); }
-            .sidebar.collapsed { transform: translateX(-100%); width: 290px; }
-            .sidebar.collapsed.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 80px 22px 30px; }
-            body.sidebar-collapsed .main-content { margin-left: 0; }
+            /* 1. Maliit na sidebar na naka-pin sa gilid (Default state) */
+            .sidebar { 
+                width: 80px; 
+                padding: 20px 10px; 
+                transform: translateX(0); 
+            }
+            .sidebar .sidebar-brand h4, 
+            .sidebar .sidebar-brand small,
+            .sidebar .sidebar-nav span,
+            .sidebar .sidebar-footer-links {
+                display: none; 
+            }
+            .sidebar .sidebar-brand .brand-top {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .sidebar .sidebar-toggle {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                font-size: 1rem;
+            }
+            .sidebar .sidebar-nav a {
+                justify-content: center;
+                padding: 13px 0;
+                gap: 0;
+            }
+            .sidebar .sidebar-nav a i {
+                width: auto;
+                font-size: 1.2rem;
+                margin: 0;
+            }
+            .sidebar .sidebar-nav a.active::before {
+                left: -10px;
+            }
+            .sidebar .sidebar-footer {
+                justify-content: center;
+            }
+            
+            .main-content { 
+                margin-left: 80px; 
+                padding: 30px 22px; 
+            }
+            body.sidebar-collapsed .main-content { 
+                margin-left: 80px; 
+            }
+            body.sidebar-collapsed .notif-panel { left: 20px; }
+            .main-content.fade-out::after { left: 80px; }
+            
             .page-header-card {
                 flex-direction: column;
                 align-items: flex-start;
@@ -662,10 +718,63 @@
             }
             .page-header-card p { margin-left: 0; }
             .notif-panel { left: 20px; right: 20px; width: auto; bottom: 80px; }
+
+            .sidebar-toggle {
+                display: flex !important; 
+            }
+        }
+
+        /* 2. EXPANDED STATE (Kapag clinick ang burger menu) */
+        @media (max-width: 992px) {
+            .sidebar.expanded-mobile {
+                width: var(--sidebar-width) !important;
+                padding: 26px 20px !important;
+                box-shadow: 12px 0 40px rgba(0,0,0,0.4) !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand h4,
+            .sidebar.expanded-mobile .sidebar-brand small,
+            .sidebar.expanded-mobile .sidebar-nav span,
+            .sidebar.expanded-mobile .sidebar-footer-links {
+                display: block !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand .brand-top {
+                flex-direction: row !important;
+                gap: 0 !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-toggle {
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a {
+                justify-content: flex-start !important;
+                padding: 13px 16px !important;
+                gap: 14px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a i {
+                width: 20px !important;
+                font-size: 1rem !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a.active::before {
+                left: -20px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-footer {
+                justify-content: space-between !important;
+            }
         }
 
         @media (max-width: 576px) {
-            .main-content { padding: 72px 16px 20px; }
+            .main-content { padding: 20px 16px; }
             .card { padding: 22px; border-radius: 18px; }
             .page-header-card h1 { font-size: 1.4rem; }
             .faq-question { padding: 16px 20px; font-size: 0.9rem; }
@@ -673,6 +782,7 @@
             .faq-question .question-text .q-number { padding: 6px 10px; min-width: 32px; font-size: 0.8rem; }
         }
     </style>
+    <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
 <body>
 
@@ -709,9 +819,9 @@
             <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
         </div>
         <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
-            <i class="fas fa-bell"></i>
-            <span class="bell-badge">1</span>
-        </div>
+    <i class="fas fa-bell"></i>
+    <span class="bell-badge" id="bellBadge" style="display: none;">0</span>
+</div>
       </div>
 
     </aside>
@@ -743,9 +853,9 @@
             <div>
                 <h1>
                     <i class="fas fa-question-circle"></i>
-                    <span class="translatable">Frequently Asked Questions</span>
+                    <span data-translate="faq_title">Frequently Asked Questions</span>
                 </h1>
-                <p><span class="translatable">Find answers to common questions about our services</span></p>
+                <p><span data-translate="faq_subtitle">Find answers to common questions about our services</span></p>
             </div>
         </div>
 
@@ -757,12 +867,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">1</span>
-                            How do I change my password?
+                            <span data-translate="faq_q1">How do I change my password?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a1">
                             <p><strong>If you are on the Login page:</strong></p>
                             <ul>
                                 <li>Click <strong>"Forgot Password?"</strong> below the login fields.</li>
@@ -785,12 +895,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">2</span>
-                            Can I change my email address?
+                            <span data-translate="faq_q2">Can I change my email address?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a2">
                             <p><strong>No.</strong> Your email address is permanent once your account has been created and cannot be changed.</p>
                         </div>
                     </div>
@@ -801,12 +911,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">3</span>
-                            Can I delete my account?
+                            <span data-translate="faq_q3">Can I delete my account?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a3">
                             <p><strong>No.</strong> Account deletion is currently not available.</p>
                         </div>
                     </div>
@@ -817,12 +927,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">4</span>
-                            What should I do if my account has been hacked?
+                            <span data-translate="faq_q4">What should I do if my account has been hacked?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a4">
                             <p>If you believe that your account has been hacked or accessed without your permission, contact the <strong>Barangay Sto. Niño Help Desk</strong> for assistance.</p>
                             <div class="contact-info">
                                 <p><strong>Contact Number:</strong> 0992 225 0927</p>
@@ -838,12 +948,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">5</span>
-                            What is this website for?
+                            <span data-translate="faq_q5">What is this website for?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a5">
                             <p>The <strong>Barangay Sto. Niño Online Services</strong> website makes common barangay services easier to access online.</p>
                             <p><strong>Residents can use the website to:</strong></p>
                             <ul>
@@ -865,12 +975,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">6</span>
-                            How do I apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?
+                            <span data-translate="faq_q6">How do I apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a6">
                             <ul>
                                 <li>From your <strong>Dashboard</strong>, go to <strong>Quick Actions</strong>.</li>
                                 <li>Click <strong>"Request Document."</strong></li>
@@ -894,12 +1004,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">7</span>
-                            Can a minor apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?
+                            <span data-translate="faq_q7">Can a minor apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a7">
                             <p>The website is intended for residents of Barangay Sto. Niño who are <strong>18 years old and above</strong>.</p>
                             <p>For document requests involving minors, please visit the Barangay Sto. Niño Office for assistance.</p>
                             <div class="contact-info">
@@ -915,12 +1025,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">8</span>
-                            What is an Area Representative?
+                            <span data-translate="faq_q8">What is an Area Representative?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a8">
                             <p>An <strong>Area Representative</strong> is a person who represents or serves as a contact person for residents in a particular area or community within the barangay.</p>
                             <p>For example, an <strong>HOA President</strong> may serve as an Area Representative for residents in their community.</p>
                         </div>
@@ -932,12 +1042,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">9</span>
-                            How do I get the signature of the Area Representative?
+                            <span data-translate="faq_q9">How do I get the signature of the Area Representative?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a9">
                             <ul>
                                 <li>Identify and contact your Area Representative.</li>
                                 <li>Prepare a clean piece of paper containing the following:
@@ -962,12 +1072,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">10</span>
-                            Who can be my reference person?
+                            <span data-translate="faq_q10">Who can be my reference person?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a10">
                             <p>Your reference person:</p>
                             <ul>
                                 <li><strong>Must not be a relative.</strong></li>
@@ -982,12 +1092,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">11</span>
-                            How long must I have lived in Barangay Sto. Niño to request a Proof of Residency?
+                            <span data-translate="faq_q11">How long must I have lived in Barangay Sto. Niño to request a Proof of Residency?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a11">
                             <p>To request a Proof of Residency, you must have been a resident of Barangay Sto. Niño for at least <strong>12 months (1 year)</strong> at the time of your request.</p>
                         </div>
                     </div>
@@ -998,12 +1108,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">12</span>
-                            What if I do not have a Precinct Number?
+                            <span data-translate="faq_q12">What if I do not have a Precinct Number?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a12">
                             <p>If you do not have a Precinct Number, please consult a <strong>Barangay staff member</strong> for assistance on how to proceed.</p>
                             <p>You may visit the Barangay Office during:</p>
                             <div class="contact-info">
@@ -1019,12 +1129,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">13</span>
-                            Where is the Barangay Sto. Niño Office, and how can I contact them?
+                            <span data-translate="faq_q13">Where is the Barangay Sto. Niño Office, and how can I contact them?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a13">
                             <p><strong>Address:</strong></p>
                             <p>6303 Col. E. L. De Leon, Parañaque, Kalakhang Maynila</p>
                             <p><strong>Contact Information:</strong></p>
@@ -1045,12 +1155,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">14</span>
-                            How do I claim my Barangay Clearance, Certificate of Indigency, or Proof of Residency?
+                            <span data-translate="faq_q14">How do I claim my Barangay Clearance, Certificate of Indigency, or Proof of Residency?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a14">
                             <ul>
                                 <li>Go to the <strong>My Request</strong> page.</li>
                                 <li>Find the document you requested and check its status.</li>
@@ -1066,12 +1176,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">15</span>
-                            Where can I find my Reference Number?
+                            <span data-translate="faq_q15">Where can I find my Reference Number?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a15">
                             <ul>
                                 <li>Go to the <strong>My Request</strong> page.</li>
                                 <li>Find the document you want to check.</li>
@@ -1089,12 +1199,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">16</span>
-                            How do I apply for an Event Permit?
+                            <span data-translate="faq_q16">How do I apply for an Event Permit?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a16">
                             <ul>
                                 <li>From your <strong>Dashboard</strong>, go to <strong>Quick Actions</strong>.</li>
                                 <li>Click <strong>"Apply for Permit."</strong></li>
@@ -1125,12 +1235,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">17</span>
-                            How can I track the status of my request or application?
+                            <span data-translate="faq_q17">How can I track the status of my request or application?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a17">
                             <p>Go to the <strong>My Request</strong> page to view your submitted requests and check their current status.</p>
                         </div>
                     </div>
@@ -1141,12 +1251,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">18</span>
-                            Where can I check venue availability?
+                            <span data-translate="faq_q18">Where can I check venue availability?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a18">
                             <p>You can check the availability of barangay venues and courts on the <strong>Events Calendar</strong> page.</p>
                         </div>
                     </div>
@@ -1157,12 +1267,12 @@
                     <div class="faq-question" onclick="toggleFaq(this)">
                         <div class="question-text">
                             <span class="q-number">19</span>
-                            Where are the available venues and courts located?
+                            <span data-translate="faq_q19">Where are the available venues and courts located?</span>
                         </div>
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-content">
+                        <div class="faq-answer-content" data-translate="faq_a19">
                             <p><strong>Sports Complex:</strong></p>
                             <p>GX3W+2X Parañaque, Metro Manila</p>
 
@@ -1184,29 +1294,27 @@
     </main>
 
     <script>
+
+        // ===== BELL BADGE LOADER =====
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/announcements/unread_count')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('bellBadge');
+            if (badge) {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        })
+        .catch(err => console.error('Bell count error:', err));
+});
+
         // ===== MOBILE SIDEBAR TOGGLE =====
         document.addEventListener('DOMContentLoaded', function() {
-            const header = document.querySelector('.page-header-card');
-            const hamburger = document.createElement('button');
-            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
-            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none;';
-            hamburger.id = 'menuToggle';
-            hamburger.addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('open');
-            });
-            header.prepend(hamburger);
-
-            if (window.innerWidth <= 992) hamburger.style.display = 'block';
-            window.addEventListener('resize', function() {
-                if (window.innerWidth <= 992) {
-                    hamburger.style.display = 'block';
-                } else {
-                    hamburger.style.display = 'none';
-                    document.getElementById('sidebar').classList.remove('open');
-                }
-            });
-
-            // ===== SIDEBAR COLLAPSE TOGGLE =====
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
 
@@ -1219,11 +1327,30 @@
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    sidebar.classList.toggle('collapsed');
-                    document.body.classList.toggle('sidebar-collapsed');
-                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    
+                    // Kapag mobile view (below 992px), i-toggle ang 'expanded-mobile' class
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.toggle('expanded-mobile');
+                    } else {
+                        // Kapag desktop view, i-toggle ang 'collapsed' class
+                        sidebar.classList.toggle('collapsed');
+                        document.body.classList.toggle('sidebar-collapsed');
+                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    }
                 });
             }
+
+            // Close sidebar pag click sa labas (Mobile)
+            document.addEventListener('click', function(e) {
+                const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
+                const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
+
+                if (sidebar && window.innerWidth <= 992) {
+                    if (!isClickInsideSidebar && !isToggleButton) {
+                        sidebar.classList.remove('expanded-mobile');
+                    }
+                }
+            });
         });
 
         // ===== FAQ ACCORDION =====
@@ -1255,15 +1382,27 @@
         });
 
         // ===== NOTIFICATION BELL =====
-        function toggleNotifPanel(event) {
-            if (event) event.stopPropagation();
-            const panel = document.getElementById('notifPanel');
-            const bell = document.getElementById('notifBell');
-            if (panel) {
-                panel.classList.toggle('show');
-                if (bell) bell.classList.toggle('active');
-            }
+       // ===== NOTIFICATION BELL =====
+function toggleNotifPanel(event) {
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notifBell');
+    const badge = document.getElementById('bellBadge');
+    
+    if (panel) {
+        const isShowing = panel.classList.toggle('show');
+        if (bell) bell.classList.toggle('active');
+
+        // Kapag binuksan ang panel, itago ang badge at markahan lahat as read sa database
+        if (isShowing && badge) {
+            badge.style.display = 'none';
+            badge.textContent = '0';
+            
+            fetch('/api/announcements/mark-all-read', { method: 'POST' })
+                .catch(err => console.error('Mark all read error:', err));
         }
+    }
+}
 
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');

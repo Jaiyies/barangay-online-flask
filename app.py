@@ -839,7 +839,6 @@ def profile():
 
     return render_template('profile.html', user=user)
 
-
 @app.route('/user-update-profile', methods=['POST'])
 @role_required('resident')
 def user_update_profile():
@@ -851,7 +850,7 @@ def user_update_profile():
 
     if not first_name or not last_name or not email:
         flash('Please fill in all required fields.', 'danger')
-        return redirect(url_for('profile'))
+        return redirect(url_for('dashboard')) # <-- Palitan din ito
 
     conn = get_db()
     cursor = conn.cursor()
@@ -865,14 +864,102 @@ def user_update_profile():
         WHERE id = %s
     """, (first_name, last_name, email, contact_number, address, session['user_id']))
     conn.commit()
-    conn.close()
 
     session['fullname'] = f"{first_name} {last_name}"
     session['email'] = email
 
-    flash('Profile updated successfully!', 'success')
-    return redirect(url_for('profile'))
+    # ============================================================
+    # DITO YUNG EMAIL NOTIFICATION
+    # ============================================================
+    subject = "Profile Update Confirmation - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">✅</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Profile Updated Successfully</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your profile details have been successfully updated. Here are your current information:
+                            </p>
+                            <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {first_name} {last_name}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {email}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {contact_number if contact_number else 'N/A'}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {address if address else 'N/A'}</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(email, subject, body_html)
 
+    flash('Profile updated successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('user_settings'))
+
+    # ============================================================
+    # SEND PROFILE UPDATE CONFIRMATION EMAIL
+    # ============================================================
+    subject = "Profile Update Confirmation - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">✅</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Profile Updated Successfully</h1>
+                            <p style="margin:6px 0 0;color:#c9d6f0;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Barangay Sto. Nino</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your profile details have been successfully updated. Here are your current information:
+                            </p>
+                            <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {first_name} {last_name}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {email}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {contact_number if contact_number else 'N/A'}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {address if address else 'N/A'}</td></tr>
+                            </table>
+                            <p style="margin:20px 0 0;color:#94a3b8;font-size:12px;line-height:1.6;">
+                                If you did not make this change, please contact the Barangay Office immediately.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:20px;text-align:center;">
+                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(email, subject, body_html)
+
+    flash('Profile updated successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('profile'))
 
 @app.route('/user-change-password', methods=['POST'])
 @role_required('resident')
@@ -883,35 +970,73 @@ def user_change_password():
 
     if not current_password or not new_password or not confirm_password:
         flash('Please fill in all fields.', 'danger')
-        return redirect(url_for('profile'))
+        return redirect(url_for('user_settings')) # <-- Palitan
 
     if new_password != confirm_password:
         flash('New passwords do not match.', 'danger')
-        return redirect(url_for('profile'))
+        return redirect(url_for('user_settings')) # <-- Palitan
 
     if len(new_password) < 8:
         flash('New password must be at least 8 characters.', 'danger')
-        return redirect(url_for('profile'))
+        return redirect(url_for('user_settings')) # <-- Palitan
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
+    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
 
     if not user or not check_password_hash(user['password'], current_password):
         conn.close()
         flash('Current password is incorrect.', 'danger')
-        return redirect(url_for('profile'))
+        return redirect(url_for('user_settings')) # <-- Palitan
 
     hashed_password = generate_password_hash(new_password)
     cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
     conn.commit()
     conn.close()
 
-    flash('Password changed successfully!', 'success')
-    return redirect(url_for('profile'))
+    # ============================================================
+    # DITO YUNG EMAIL NOTIFICATION PARA SA PASSWORD CHANGE
+    # ============================================================
+    subject = "Password Changed Successfully - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔒</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your password has been successfully changed.
+                            </p>
+                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr>
+                                    <td style="color:#991b1b;font-size:13px;">
+                                        ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately to secure your account.
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(user['email'], subject, body_html)
 
-
+    flash('Password changed successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('user_settings')) # <-- Palitan
 # ============================================================
 # EVENTS CALENDAR (RESIDENT)
 # ============================================================
@@ -4117,9 +4242,15 @@ def mark_announcement_read(announcement_id):
     try:
         user_id = session['user_id']
         conn = get_db()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
 
-        # Insert if not yet read (using INSERT IGNORE para hindi mag-error kung existing)
+        # Check kung existing ang announcement
+        cursor.execute("SELECT id FROM announcements WHERE id = %s", (announcement_id,))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({'error': 'Announcement not found'}), 404
+
+        # I-insert kung hindi pa nababasa (IGNORE kung existing na)
         cursor.execute("""
             INSERT IGNORE INTO announcement_reads (user_id, announcement_id)
             VALUES (%s, %s)
@@ -4132,7 +4263,6 @@ def mark_announcement_read(announcement_id):
     except Exception as e:
         print(f"Error marking as read: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
-
 
 # ============================================================
 # API: MARK ALL ANNOUNCEMENTS AS READ
@@ -4147,12 +4277,11 @@ def mark_all_announcements_read():
         conn = get_db()
         cursor = conn.cursor()
 
-        # Mark all visible announcements as read
+        # Mark LAHAT ng active announcements as read para sa user na ito
         cursor.execute("""
             INSERT IGNORE INTO announcement_reads (user_id, announcement_id)
             SELECT %s, id FROM announcements
             WHERE is_draft = FALSE
-              AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
         """, (user_id,))
         conn.commit()
         conn.close()
@@ -4208,30 +4337,39 @@ def admin_view_announcements():
                          pinned_count=pinned_count)
 
 # ============================================================
-# USER ANNOUNCEMENTS
+# USER ANNOUNCEMENTS (RESIDENT ONLY)
 # ============================================================
 @app.route('/user-announcements')
+@role_required('resident')
 def user_announcements():
     if 'user_id' not in session:
         flash('Please login first.', 'warning')
         return redirect(url_for('login'))
 
+    user_id = session['user_id']
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    # Isang query lang — kukunin lahat ng announcements kasama ang read status
     cursor.execute("""
-    SELECT a.*, u.first_name, u.last_name
-    FROM announcements a
-    LEFT JOIN users u ON a.created_by = u.id
-    WHERE a.is_draft = FALSE
-    ORDER BY a.is_pinned DESC, a.created_at DESC
-        """)
+        SELECT a.*, u.first_name, u.last_name,
+               CASE WHEN ar.id IS NOT NULL THEN 1 ELSE 0 END as is_read
+        FROM announcements a
+        LEFT JOIN users u ON a.created_by = u.id
+        LEFT JOIN announcement_reads ar
+            ON ar.announcement_id = a.id AND ar.user_id = %s
+        WHERE a.is_draft = FALSE
+        ORDER BY a.is_pinned DESC, a.created_at DESC
+    """, (user_id,))
     announcements = cursor.fetchall()
     conn.close()
 
-    return render_template('user_announcements.html', announcements=announcements)
+    # Kunin yung recent 5 mula sa parehong listahan (walang bagong query)
+    notifications = announcements[:5]
 
-
+    return render_template('user_announcements.html',
+                         announcements=announcements,
+                         notifications=notifications)
 # ============================================================
 # API: UNREAD ANNOUNCEMENTS COUNT
 # ============================================================
@@ -4245,29 +4383,25 @@ def api_unread_announcements_count():
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
-        # Count announcements from last 30 days na HINDI pa nabasa ng user
+        # Bilangin ang UNREAD lang — i-COUNT lang yung mga active announcements
+        # na WALANG read record para sa user na ito
         cursor.execute("""
-            SELECT COUNT(*) as count
+            SELECT COUNT(*) as unread_count
             FROM announcements a
+            LEFT JOIN announcement_reads ar
+                ON ar.announcement_id = a.id AND ar.user_id = %s
             WHERE a.is_draft = FALSE
-              AND a.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-              AND NOT EXISTS (
-                  SELECT 1 FROM announcement_reads ar
-                  WHERE ar.announcement_id = a.id
-                    AND ar.user_id = %s
-              )
+              AND ar.id IS NULL
         """, (user_id,))
-
         result = cursor.fetchone()
+        unread = result['unread_count'] if result else 0
         conn.close()
 
-        return jsonify({'unread_count': result['count'] if result else 0})
+        return jsonify({'unread_count': unread})
 
     except Exception as e:
         print(f"Error fetching unread count: {e}")
         return jsonify({'unread_count': 0})
-
-
 # ============================================================
 # API: RECENT ANNOUNCEMENTS (for Bell Dropdown)
 # ============================================================

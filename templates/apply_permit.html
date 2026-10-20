@@ -6,6 +6,8 @@
     <title>Apply for Permit | Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- IDAGDAG ITO -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
     <style>
         :root {
             --primary-900: #071f14;
@@ -52,6 +54,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             position: relative;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -81,6 +84,7 @@
             to { transform: scaleX(1); transform-origin: left; }
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: var(--sidebar-width);
             height: 100vh;
@@ -217,6 +221,7 @@
             text-transform: uppercase;
         }
 
+        /* ===== COLLAPSED STATE ===== */
         .sidebar.collapsed {
             width: var(--sidebar-collapsed-width);
             padding: 26px 14px;
@@ -395,6 +400,7 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        /* ===== SIDEBAR FOOTER ===== */
         .sidebar-footer {
             margin-top: auto;
             padding-top: 24px;
@@ -622,6 +628,7 @@
             gap: 12px;
         }
 
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px 48px;
@@ -659,6 +666,7 @@
             left: var(--sidebar-collapsed-width);
         }
 
+        /* === REVISED PAGE HEADER (KATULAD NG DASHBOARD / REQUEST DOCUMENT) === */
         .page-header-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
@@ -676,11 +684,18 @@
             flex-wrap: wrap;
             gap: 20px;
             position: relative;
-            overflow: visible;
             z-index: 100;
+            width: 100%;
         }
 
-        .page-header-card h1 {
+        .header-title-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .header-title-section h1 {
             font-size: 1.9rem;
             font-weight: 800;
             color: var(--primary-800);
@@ -689,9 +704,10 @@
             gap: 16px;
             letter-spacing: -0.03em;
             line-height: 1.15;
+            margin: 0;
         }
 
-        .page-header-card h1 i {
+        .header-title-section h1 i {
             color: var(--primary-500);
             font-size: 1.5rem;
             background: linear-gradient(135deg, var(--primary-50), #ffffff);
@@ -699,25 +715,64 @@
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(34, 139, 84, 0.1);
             border: 1px solid var(--primary-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .page-header-card h1 small {
-            font-size: 0.85rem;
-            font-weight: 400;
+        .header-title-section .subtitle {
+            font-size: 0.95rem;
+            font-weight: 500;
             color: var(--neutral-500);
-            display: block;
-            margin-top: 6px;
             letter-spacing: -0.005em;
+            margin-top: 8px;
+            margin-left: 66px;
         }
 
-        .user-badge-container {
+        .header-title-section .subtitle strong {
+            color: var(--primary-700);
+            font-weight: 700;
+        }
+
+        /* === HEADER CONTROLS === */
+        .header-controls {
             display: flex;
             align-items: center;
             gap: 14px;
             position: relative;
             z-index: 100;
+            margin-left: auto;
         }
 
+        .lang-switcher {
+            position: relative;
+            width: fit-content;
+            flex-shrink: 0;
+        }
+
+        .lang-switcher-btn {
+            background: var(--neutral-50);
+            border: 1.5px solid var(--neutral-100);
+            padding: 9px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--primary-600);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.01em;
+        }
+        .lang-switcher-btn:hover {
+            background: var(--primary-50);
+            border-color: var(--primary-300);
+            transform: translateY(-2px);
+        }
+
+        /* === USER BADGE === */
         .user-badge {
             display: flex;
             align-items: center;
@@ -727,20 +782,15 @@
             border-radius: 60px;
             border: 1.5px solid var(--neutral-100);
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
             user-select: none;
-            box-shadow: 
-                0 6px 16px rgba(15, 61, 42, 0.15),
-                0 2px 6px rgba(15, 61, 42, 0.10),
-                0 1px 2px rgba(15, 61, 42, 0.08);
+            width: fit-content;
+            flex-shrink: 0;
         }
 
         .user-badge:hover {
             border-color: var(--primary-400);
             background: white;
-            box-shadow: 
-                0 12px 28px rgba(34, 139, 84, 0.25),
-                0 6px 12px rgba(34, 139, 84, 0.15);
             transform: translateY(-3px);
         }
 
@@ -756,8 +806,6 @@
             font-weight: 700;
             font-size: 0.95rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(15, 61, 42, 0.25);
-            letter-spacing: -0.02em;
         }
 
         .user-badge .user-info { line-height: 1.25; }
@@ -765,14 +813,11 @@
             font-weight: 700;
             color: var(--primary-800);
             font-size: 0.85rem;
-            letter-spacing: -0.01em;
         }
         .user-badge .user-info .role {
             font-size: 0.68rem;
             color: var(--neutral-500);
-            margin-top: 1px;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
             font-weight: 600;
         }
         .user-badge .chevron {
@@ -781,15 +826,13 @@
             margin-left: 2px;
             transition: transform 0.25s ease;
         }
-        .user-badge:hover .chevron { color: var(--primary-500); }
 
         .user-menu {
             display: none;
             position: absolute;
             top: calc(100% + 12px);
             right: 0;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
+            background: #ffffff;
             border: 1px solid var(--neutral-100);
             border-radius: 18px;
             box-shadow: var(--shadow-xl);
@@ -819,11 +862,23 @@
             font-size: 0.95rem;
             letter-spacing: -0.01em;
         }
-        .user-menu-header .email {
+                .user-menu-header .email {
             font-size: 0.78rem;
             color: var(--neutral-500);
             margin-top: 3px;
-            word-break: break-all;
+            white-space: nowrap; /* Pinipigilan maputol ang email */
+            overflow-x: auto; /* Scrollbar kung humaba */
+            display: block;
+            padding-bottom: 2px;
+        }
+
+        /* Para maganda yung scrollbar kapag lumabas */
+        .user-menu-header .email::-webkit-scrollbar {
+            height: 4px;
+        }
+        .user-menu-header .email::-webkit-scrollbar-thumb {
+            background: rgba(34, 139, 84, 0.3);
+            border-radius: 4px;
         }
 
         .user-menu-item {
@@ -854,34 +909,6 @@
         .user-menu-item.logout-item:hover { background: #fef2f2; }
         .user-menu-item.logout-item i { color: var(--accent-600); }
 
-        .lang-switcher-btn {
-            background: var(--neutral-50);
-            border: 1.5px solid var(--neutral-100);
-            padding: 9px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--primary-600);
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
-            letter-spacing: -0.01em;
-            box-shadow: 
-                0 6px 16px rgba(15, 61, 42, 0.15),
-                0 2px 6px rgba(15, 61, 42, 0.10),
-                0 1px 2px rgba(15, 61, 42, 0.08);
-        }
-        .lang-switcher-btn:hover {
-            background: var(--primary-50);
-            border-color: var(--primary-300);
-            transform: translateY(-3px);
-            box-shadow: 
-                0 12px 24px rgba(34, 139, 84, 0.25),
-                0 4px 10px rgba(34, 139, 84, 0.15);
-        }
         .lang-menu {
             display: none;
             position: absolute;
@@ -1452,7 +1479,6 @@
         .flash-message.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
         .flash-message.info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
 
-        /* ===== MODAL - CENTERED ===== */
         .modal {
             display: none;
             position: fixed; 
@@ -1710,26 +1736,103 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.10);
         }
 
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .split-view { flex-direction: column; height: auto; }
+            .calendar-panel, .details-panel { flex: none; width: 100%; }
+            .calendar-panel { min-height: 550px; }
+        }
+
+        /* --- MOBILE HEADER FIX (KATULAD NG REQUEST DOCUMENT) --- */
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 290px; }
-            .sidebar.open { transform: translateX(0); }
-            .sidebar.collapsed { transform: translateX(-100%); width: 290px; }
-            .sidebar.collapsed.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 80px 22px 30px; }
-            body.sidebar-collapsed .main-content { margin-left: 0; }
-            body.sidebar-collapsed .notif-panel { left: 20px; }
-            .main-content.fade-out::after { left: 0; }
-            .card { padding: 24px; }
-            .page-header-card {
+            .sidebar { 
+                width: 80px; 
+                padding: 20px 10px; 
+                transform: translateX(0); 
+            }
+            .sidebar .sidebar-brand h4, 
+            .sidebar .sidebar-brand small,
+            .sidebar .sidebar-nav span,
+            .sidebar .sidebar-footer-links {
+                display: none; 
+            }
+            .sidebar .sidebar-brand .brand-top {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 12px;
+            }
+            .sidebar .sidebar-toggle {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                font-size: 1rem;
+            }
+            .sidebar .sidebar-nav a {
+                justify-content: center;
+                padding: 13px 0;
+                gap: 0;
+            }
+            .sidebar .sidebar-nav a i {
+                width: auto;
+                font-size: 1.2rem;
+                margin: 0;
+            }
+            .sidebar .sidebar-nav a.active::before {
+                left: -10px;
+            }
+            .sidebar .sidebar-footer {
+                justify-content: center;
+            }
+            
+            .main-content { 
+                margin-left: 80px; 
+                padding: 30px 22px; 
+            }
+            body.sidebar-collapsed .main-content { 
+                margin-left: 80px; 
+            }
+            body.sidebar-collapsed .notif-panel { left: 20px; }
+            .main-content.fade-out::after { left: 80px; }
+            
+            /* Header – stack title on top, controls side-by-side below */
+            .page-header-card {
+                flex-direction: column; 
+                align-items: flex-start; 
                 padding: 24px 22px;
             }
-            .user-badge-container {
+            .header-title-section .subtitle {
+                margin-left: 0;
+            }
+
+            .header-controls {
                 width: 100%;
                 justify-content: space-between;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
+                gap: 10px;
+                margin-left: 0;
             }
+            .user-badge .user-info .name {
+                max-width: 100px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .notif-panel {
+                left: 20px;
+                right: 20px;
+                width: auto;
+                bottom: 80px;
+            }
+
+            .sidebar-toggle {
+                display: flex !important; 
+            }
+
+            .card { padding: 24px; }
             .form-row { flex-direction: column; gap: 0; margin-bottom: 0; }
             .form-col { min-width: 100%; margin-bottom: 18px; }
             .form-actions { flex-direction: column; }
@@ -1739,33 +1842,165 @@
             .permit-details-grid { grid-template-columns: 1fr; }
             .modal-footer { flex-direction: column; }
             .modal-btn { width: 100%; }
-            .modal-content { 
-                margin: 0;
-                max-height: 85vh;
-            }
-            .modal {
-                padding: 15px;
-            }
-            .page-header-card h1 { font-size: 1.4rem; }
-            .page-header-card h1 i { font-size: 1.2rem; padding: 10px; }
-            
-            .notif-panel {
-                left: 20px;
-                right: 20px;
-                width: auto;
-                bottom: 80px;
-            }
+            .modal-content { margin: 0; max-height: 85vh; }
+            .modal { padding: 15px; }
         }
 
+        /* 2. EXPANDED STATE (Kapag clinick ang burger menu) */
+        @media (max-width: 992px) {
+            .sidebar.expanded-mobile {
+                width: var(--sidebar-width) !important;
+                padding: 26px 20px !important;
+                box-shadow: 12px 0 40px rgba(0,0,0,0.4) !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand h4,
+            .sidebar.expanded-mobile .sidebar-brand small,
+            .sidebar.expanded-mobile .sidebar-nav span,
+            .sidebar.expanded-mobile .sidebar-footer-links {
+                display: block !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-brand .brand-top {
+                flex-direction: row !important;
+                gap: 0 !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-toggle {
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a {
+                justify-content: flex-start !important;
+                padding: 13px 16px !important;
+                gap: 14px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a i {
+                width: 20px !important;
+                font-size: 1rem !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-nav a.active::before {
+                left: -20px !important;
+            }
+
+            .sidebar.expanded-mobile .sidebar-footer {
+                justify-content: space-between !important;
+            }
+        }
+        
+                /* 3. SOBRANG LIIT NA SCREEN (CP) */
         @media (max-width: 576px) {
-            .main-content { padding: 72px 16px 20px; }
+            .main-content { padding: 20px 16px; }
             .card { padding: 20px; border-radius: 18px; }
             .form-header h2 { font-size: 1.4rem; }
             .form-header .logo-icon { width: 56px; height: 56px; font-size: 22px; }
-            .user-badge .user-info { display: none; }
-            .user-badge { padding: 5px; border-radius: 50%; }
-            .user-badge .chevron { display: none; }
-            .lang-switcher-btn { padding: 7px 12px; font-size: 0.7rem; }
+
+            .header-title-section h1 {
+                font-size: 1.5rem;
+            }
+            .header-title-section h1 i {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .user-badge {
+                padding: 4px 10px 4px 4px; 
+                gap: 8px;
+            }
+            .user-badge .avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+            .user-badge .user-info .name {
+                font-size: 0.75rem;
+                max-width: 75px;
+            }
+            .user-badge .user-info .role {
+                font-size: 0.55rem;
+            }
+            .user-badge .chevron {
+                display: block;
+                font-size: 0.55rem;
+                margin-left: 4px;
+            }
+            .lang-switcher-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+            .lang-switcher-btn i {
+                font-size: 0.8rem;
+            }
+
+            /* === DAGDAG PARA SA LANGUAGE MENU SA MOBILE === */
+            .lang-menu {
+                position: absolute;
+                top: calc(100% + 8px);
+                right: -45px; 
+                left: auto;
+                min-width: 120px;
+                padding: 4px;
+                z-index: 999999;
+            }
+            .lang-menu a {
+                font-size: 0.75rem;
+                padding: 6px 10px;
+            }
+
+            /* === DAGDAG PARA SA USER MENU SA MOBILE (AYOS ANG EMAIL) === */
+            .user-menu {
+                min-width: 240px; /* Pinalaki natin para kasya ang email */
+                max-width: 85vw; /* Sinigurong hindi lalabas sa screen */
+                padding: 6px;
+                right: 0;
+            }
+            .user-menu-header {
+                padding: 10px 12px;
+                margin-bottom: 4px;
+            }
+            .user-menu-header .name {
+                font-size: 0.8rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .user-menu-header .email {
+                font-size: 0.65rem;
+                white-space: nowrap; /* PIPIGILAN MAPUTOL ANG EMAIL */
+                overflow-x: auto; /* Maglalagay ng scrollbar kung sobrang haba */
+                display: block;
+                padding-bottom: 2px; /* Konting espasyo para sa scrollbar */
+            }
+            
+            /* Para maganda tignan yung scrollbar kapag lumabas */
+            .user-menu-header .email::-webkit-scrollbar {
+                height: 4px;
+            }
+            .user-menu-header .email::-webkit-scrollbar-thumb {
+                background: rgba(34, 139, 84, 0.3);
+                border-radius: 4px;
+            }
+
+            .user-menu-item {
+                padding: 8px 12px;
+                font-size: 0.78rem;
+                gap: 10px;
+            }
+            /* ========================================= */
+
+            .page-header-card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
             .modal-header h2 { font-size: 20px; }
             .reference-number-box h3 { font-size: 20px; }
         }
@@ -1778,7 +2013,9 @@
             margin-left: auto;
             display: inline-flex; align-items: center; justify-content: center;
         }
+        
     </style>
+    <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
 <body>
 
@@ -1813,8 +2050,9 @@
             <a href="{{ url_for('faqs') }}" class="sidebar-faqs-link">FAQs</a>
         </div>
         <div class="sidebar-bell" onclick="toggleNotifPanel(event)" id="notifBell">
-            <i class="fas fa-bell"></i>
-            <span class="bell-badge">1</span>
+    <i class="fas fa-bell"></i>
+    <span class="bell-badge" id="bellBadge" style="display: none;">0</span>
+</div>
         </div>
       </div>
 
@@ -1841,49 +2079,54 @@
 
     <main class="main-content">
 
+        <!-- PAGE HEADER (KATULAD NG REQUEST DOCUMENT) -->
         <div class="page-header-card">
-            <h1>
-                <i class="fas fa-calendar-check"></i>
-                <span class="translatable">Apply for Permit</span>
-                <small class="translatable">Submit a community event permit application</small>
-            </h1>
+            <div class="header-title-section">
+                <h1>
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="translatable">Apply for Permit</span>
+                </h1>
+                <p class="subtitle" data-translate="permit_subtitle">Submit a community event permit application</p>
+            </div>
 
-            <div class="user-badge-container">
-                
-                <div class="lang-switcher" style="position: relative;">
+            <div class="header-controls">
+                <!-- Language Dropdown -->
+                <div class="lang-switcher">
                     <button onclick="toggleLangMenu(event)" class="lang-switcher-btn">
-                        <i class="fas fa-globe"></i> 
+                        <i class="fas fa-globe"></i>
                         <span id="currentLangText">English</span>
                         <i class="fas fa-chevron-down" style="font-size: 0.6rem;"></i>
                     </button>
                     <div id="langMenu" class="lang-menu">
-                        <a onclick="setLanguage('en')">🇺🇸 English</a>
-                        <a onclick="setLanguage('tl')">🇵🇭 Tagalog</a>
+                      <a onclick="setGlobalLanguage('en')">🇺🇸 English</a>
+<a onclick="setGlobalLanguage('tl')">🇵🇭 Tagalog</a>
                     </div>
                 </div>
 
-                <div class="user-badge" onclick="toggleUserMenu(event)">
-                    <div class="avatar">{{ (session.fullname or 'R')[0]|upper }}</div>
-                    <div class="user-info">
-                        <div class="name">{{ session.fullname or 'Resident' }}</div>
-                        <div class="role">{{ session.role|replace('_', ' ')|title }}</div>
+                <!-- Profile Button -->
+                <div style="position: relative; display: inline-block;">
+                    <div class="user-badge" onclick="toggleUserMenu(event)">
+                        <div class="avatar">{{ (session.fullname or 'R')[0]|upper }}</div>
+                        <div class="user-info">
+                            <div class="name">{{ session.fullname or 'Resident' }}</div>
+                            <div class="role">{{ session.role|replace('_', ' ')|title }}</div>
+                        </div>
+                        <i class="fas fa-chevron-down chevron"></i>
                     </div>
-                    <i class="fas fa-chevron-down chevron"></i>
-                </div>
 
-                <div id="userMenu" class="user-menu">
-                    <div class="user-menu-header">
-                        <div class="name">{{ session.fullname or 'Resident' }}</div>
-                        <div class="email">{{ session.email or 'resident@email.com' }}</div>
+                    <div id="userMenu" class="user-menu">
+                        <div class="user-menu-header">
+                            <div class="name">{{ session.fullname or 'Resident' }}</div>
+                            <div class="email">{{ session.email or 'resident@email.com' }}</div>
+                        </div>
+                        <a href="{{ url_for('settings') }}" class="user-menu-item">
+                            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="user-menu-item logout-item">
+                            <i class="fas fa-sign-out-alt"></i> <span class="translatable">Logout</span>
+                        </a>
                     </div>
-                    <a href="{{ url_for('settings') }}" class="user-menu-item">
-                        <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="user-menu-item logout-item">
-                        <i class="fas fa-sign-out-alt"></i> <span class="translatable">Logout</span>
-                    </a>
                 </div>
-
             </div>
         </div>
 
@@ -1918,42 +2161,42 @@
             </div>
 
             <form id="permitForm" method="POST" action="/apply-permit" enctype="multipart/form-data">
-                <div class="form-section-title"><i class="fas fa-info-circle"></i> Event Information</div>
+                <div class="form-section-title"><i class="fas fa-info-circle"></i> <span data-translate="event_info">Event Information</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="eventName"><i class="fas fa-tag"></i> Event Name <span class="required">*</span></label>
+                            <label for="eventName"><i class="fas fa-tag"></i> <span data-translate="event_name">Event Name</span> <span class="required">*</span></label>
                             <input type="text" name="event_name" id="eventName" placeholder="e.g., Barangay Basketball League" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="eventDescription"><i class="fas fa-align-left"></i> Event Description</label>
+                            <label for="eventDescription"><i class="fas fa-align-left"></i> <span data-translate="event_desc">Event Description</span></label>
                             <textarea name="event_description" id="eventDescription" placeholder="Describe your event briefly..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-calendar-alt"></i> Date & Time</div>
+                <div class="form-section-title"><i class="fas fa-calendar-alt"></i> <span data-translate="date_time">Date & Time</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="eventDate"><i class="fas fa-calendar-day"></i> Event Date <span class="required">*</span></label>
+                            <label for="eventDate"><i class="fas fa-calendar-day"></i> <span data-translate="event_date">Event Date</span> <span class="required">*</span></label>
                             <input type="date" name="event_date" id="eventDate" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="startTime"><i class="fas fa-play"></i> Start Time <span class="required">*</span></label>
+                            <label for="startTime"><i class="fas fa-play"></i> <span data-translate="start_time">Start Time</span> <span class="required">*</span></label>
                             <input type="time" name="start_time" id="startTime" min="08:00" max="22:00" required>
-                            <small style="display:block; color: var(--neutral-500); font-size:0.7rem; margin-top:4px;">Allowed: 8:00 AM – 10:00 PM only</small>
+                            <small style="display:block; color: var(--neutral-500); font-size:0.7rem; margin-top:4px;" data-translate="allowed_hours">Allowed: 8:00 AM – 10:00 PM only</small>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="endTime"><i class="fas fa-stop"></i> End Time <span class="required">*</span></label>
+                            <label for="endTime"><i class="fas fa-stop"></i> <span data-translate="end_time">End Time</span> <span class="required">*</span></label>
                             <input type="time" name="end_time" id="endTime" min="08:00" max="22:00" required>
-                            <small style="display:block; color: var(--neutral-500); font-size:0.7rem; margin-top:4px;">Allowed: 8:00 AM – 10:00 PM only</small>
+                            <small style="display:block; color: var(--neutral-500); font-size:0.7rem; margin-top:4px;" data-translate="allowed_hours">Allowed: 8:00 AM – 10:00 PM only</small>
                         </div>
                     </div>
                 </div>
@@ -1963,11 +2206,11 @@
                     <span id="availabilityMessage">Checking availability...</span>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-map-marker-alt"></i> Venue & Attendees</div>
+                <div class="form-section-title"><i class="fas fa-map-marker-alt"></i> <span data-translate="venue_attendees">Venue & Attendees</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="venue"><i class="fas fa-map-marker-alt"></i> Venue <span class="required">*</span></label>
+                            <label for="venue"><i class="fas fa-map-marker-alt"></i> <span data-translate="venue">Venue</span> <span class="required">*</span></label>
                             <div class="custom-select" data-name="venue" id="venueCustom">
                                 <div class="custom-select-trigger">
                                     <span class="placeholder">Select a venue...</span>
@@ -1985,51 +2228,51 @@
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="estimatedAttendees"><i class="fas fa-users"></i> Estimated Attendees <span class="required">*</span></label>
+                            <label for="estimatedAttendees"><i class="fas fa-users"></i> <span data-translate="attendees">Estimated Attendees</span> <span class="required">*</span></label>
                             <input type="number" name="estimated_attendees" id="estimatedAttendees" placeholder="e.g., 100" min="1" max="300" required>
-                            <small style="display:block; color: var(--neutral-500); font-size:0.7rem; margin-top:4px;">Maximum of 300 attendees</small>
+                            <small style="display:block; color: var(--neutral-500); font-size:0.7rem; margin-top:4px;" data-translate="max_attendees">Maximum of 300 attendees</small>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-bullseye"></i> Purpose</div>
+                <div class="form-section-title"><i class="fas fa-bullseye"></i> <span data-translate="purpose">Purpose</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="purpose"><i class="fas fa-align-left"></i> Purpose of Event <span class="required">*</span></label>
+                            <label for="purpose"><i class="fas fa-align-left"></i> <span data-translate="purpose_event">Purpose of Event</span> <span class="required">*</span></label>
                             <textarea name="purpose" id="purpose" rows="3" placeholder="Describe the purpose of your event..." required></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-address-book"></i> Contact Information</div>
+                <div class="form-section-title"><i class="fas fa-address-book"></i> <span data-translate="contact_info">Contact Information</span></div>
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="contactPerson"><i class="fas fa-user"></i> Contact Person <span class="required">*</span></label>
+                            <label for="contactPerson"><i class="fas fa-user"></i> <span data-translate="contact_person">Contact Person</span> <span class="required">*</span></label>
                             <input type="text" name="contact_person" id="contactPerson" placeholder="e.g., Juan Dela Cruz" required>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="contactPhone"><i class="fas fa-phone"></i> Contact Phone <span class="required">*</span></label>
+                            <label for="contactPhone"><i class="fas fa-phone"></i> <span data-translate="contact_phone">Contact Phone</span> <span class="required">*</span></label>
                             <input type="text" name="contact_phone" id="contactPhone" placeholder="e.g., 09171234567" required>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-section-title"><i class="fas fa-upload"></i> Supporting Document</div>
+                <div class="form-section-title"><i class="fas fa-upload"></i> <span data-translate="supporting_doc">Supporting Document</span></div>
                 <div class="form-group">
                     <div class="file-input-wrapper">
                         <input type="file" name="requirement" id="requirement" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
-                        <small>Accepted formats: JPG, PNG, PDF, DOC, DOCX (Max 5MB)</small>
+                        <small data-translate="accepted_formats">Accepted formats: JPG, PNG, PDF, DOC, DOCX (Max 5MB)</small>
                     </div>
                 </div>
 
                 <div class="terms-section" id="termsSection">
                     <div class="terms-header" onclick="toggleTerms()">
                         <i class="fas fa-file-contract"></i>
-                        <h4>Terms and Conditions</h4>
+                        <h4 data-translate="terms">Terms and Conditions</h4>
                         <i class="fas fa-chevron-down toggle-icon" id="termsToggleIcon"></i>
                     </div>
                     <div class="terms-body" id="termsBody">
@@ -2053,7 +2296,7 @@
                         <input type="checkbox" id="termsCheckbox">
                         <div>
                             <label for="termsCheckbox">
-                                <strong>I have read and agree to the Terms and Conditions</strong> of Barangay Sto. Niño
+                                <strong data-translate="agree_terms">I have read and agree to the Terms and Conditions</strong> of Barangay Sto. Niño
                             </label>
                             <div class="error-msg" id="termsErrorMsg">
                                 <i class="fas fa-exclamation-circle"></i> Please agree to the Terms and Conditions before submitting.
@@ -2064,10 +2307,10 @@
 
                 <div class="form-actions">
                     <button type="button" class="btn-submit" id="submitBtn">
-                        <i class="fas fa-paper-plane"></i> Submit Application
+                        <i class="fas fa-paper-plane"></i> <span data-translate="submit_app">Submit Application</span>
                     </button>
                     <button type="button" class="btn-cancel" id="clearBtn">
-                        <i class="fas fa-undo"></i> Clear Form
+                        <i class="fas fa-undo"></i> <span data-translate="clear_form">Clear Form</span>
                     </button>
                 </div>
 
@@ -2152,36 +2395,29 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const header = document.querySelector('.page-header-card');
-            const hamburger = document.createElement('button');
-            hamburger.innerHTML = '<i class="fas fa-bars"></i>';
-            hamburger.style.cssText = 'background: none; border: none; font-size: 1.5rem; color: var(--primary-800); cursor: pointer; display: none; padding: 4px 8px;';
-            hamburger.id = 'menuToggle';
-            hamburger.addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('open');
-            });
-            header.prepend(hamburger);
+          
 
-            if (window.innerWidth <= 992) {
-                hamburger.style.display = 'block';
-            }
-            window.addEventListener('resize', function() {
-                if (window.innerWidth <= 992) {
-                    hamburger.style.display = 'block';
+// ===== BELL BADGE LOADER =====
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/announcements/unread_count')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('bellBadge');
+            if (badge) {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'flex';
                 } else {
-                    hamburger.style.display = 'none';
-                    document.getElementById('sidebar').classList.remove('open');
+                    badge.style.display = 'none';
                 }
-            });
+            }
+        })
+        .catch(err => console.error('Bell count error:', err));
+});
 
-            const today = new Date();
-            const minDate = new Date(today);
-            minDate.setDate(today.getDate() + 10);
-            document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
 
-            initCustomSelects();
 
+        document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
 
@@ -2194,11 +2430,34 @@
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    sidebar.classList.toggle('collapsed');
-                    document.body.classList.toggle('sidebar-collapsed');
-                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.toggle('expanded-mobile');
+                    } else {
+                        sidebar.classList.toggle('collapsed');
+                        document.body.classList.toggle('sidebar-collapsed');
+                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    }
                 });
             }
+
+            document.addEventListener('click', function(e) {
+                const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
+                const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
+
+                if (sidebar && window.innerWidth <= 992) {
+                    if (!isClickInsideSidebar && !isToggleButton) {
+                        sidebar.classList.remove('expanded-mobile');
+                    }
+                }
+            });
+
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setDate(today.getDate() + 10);
+            document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
+
+            initCustomSelects();
         });
 
         function initCustomSelects() {
@@ -2328,15 +2587,15 @@
             }
         });
 
-        function toggleNotifPanel(event) {
-            if (event) event.stopPropagation();
-            const panel = document.getElementById('notifPanel');
-            const bell = document.getElementById('notifBell');
-            if (panel) {
-                panel.classList.toggle('show');
-                if (bell) bell.classList.toggle('active');
-            }
-        }
+       function toggleNotifPanel(event) {
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notifBell');
+    if (panel) {
+        panel.classList.toggle('show');
+        if (bell) bell.classList.toggle('active');
+    }
+}
 
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');
@@ -2351,64 +2610,6 @@
             e.stopPropagation();
         });
 
-        const translations = {
-            'en': {
-                'Dashboard': 'Dashboard',
-                'Request Document': 'Request Document',
-                'Apply for Permit': 'Apply for Permit',
-                'My Requests': 'My Requests',
-                'Events Calendar': 'Events Calendar',
-                'Announcements': 'Announcements',
-                'Settings': 'Settings',
-                'Logout': 'Logout',
-                'Submit a community event permit application': 'Submit a community event permit application',
-                'Event Permit Application': 'Event Permit Application',
-                'About Us': 'About Us',
-                'FAQs': 'FAQs'
-            },
-            'tl': {
-                'Dashboard': 'Dashboard',
-                'Request Document': 'Mag-request ng Dokumento',
-                'Apply for Permit': 'Mag-apply ng Permit',
-                'My Requests': 'Aking mga Request',
-                'Events Calendar': 'Kalendaryo ng mga Kaganapan',
-                'Announcements': 'Mga Anunsyo',
-                'Settings': 'Settings',
-                'Logout': 'Mag-logout',
-                'Submit a community event permit application': 'Magsumite ng aplikasyon para sa permit ng kaganapan',
-                'Event Permit Application': 'Aplikasyon ng Permit sa Kaganapan',
-                'About Us': 'Tungkol Sa Amin',
-                'FAQs': 'Mga FAQ'
-            }
-        };
-
-        function setLanguage(lang) {
-            localStorage.setItem('language', lang);
-            applyTranslation(lang);
-            document.getElementById('currentLangText').textContent = lang === 'tl' ? 'Tagalog' : 'English';
-            document.getElementById('langMenu').classList.remove('show');
-        }
-
-        function applyTranslation(lang) {
-            const dict = translations[lang] || translations['en'];
-            document.querySelectorAll('.translatable').forEach(el => {
-                const key = el.getAttribute('data-original-text') || el.textContent.trim();
-                if (!el.getAttribute('data-original-text')) {
-                    el.setAttribute('data-original-text', key);
-                }
-                if (dict[key]) {
-                    el.textContent = dict[key];
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedLang = localStorage.getItem('language') || 'en';
-            document.getElementById('currentLangText').textContent = savedLang === 'tl' ? 'Tagalog' : 'English';
-            if (savedLang === 'tl') {
-                applyTranslation('tl');
-            }
-        });
 
         let termsOpen = false;
         function toggleTerms() {
