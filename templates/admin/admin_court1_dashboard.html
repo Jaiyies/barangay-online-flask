@@ -335,32 +335,62 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
-        /* ===== COURT BANNER ===== */
+        /* ===== COURT BANNER (MAY LITRATO) ===== */
         .court-banner {
-            background: linear-gradient(135deg, #1a5d3a 0%, #0d2b1e 100%);
-            color: white; padding: 24px 30px;
-            border-radius: 20px; margin-bottom: 28px;
-            display: flex; align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap; gap: 12px;
+            position: relative;
+            border-radius: 20px;
+            margin-bottom: 28px;
+            overflow: hidden;
+            min-height: 200px;
             box-shadow: 0 8px 24px rgba(26,93,58,0.15);
         }
-        .court-banner-left { display: flex; align-items: center; gap: 18px; }
-        .court-banner-icon {
-            width: 60px; height: 60px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 16px; display: flex;
-            align-items: center; justify-content: center;
-            font-size: 26px; flex-shrink: 0;
+        .court-banner-bg {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url("{{ url_for('static', filename='images/barangay-hall.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
         }
-        .court-banner-text h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-        .court-banner-text p { font-size: 13px; opacity: 0.85; }
+        .court-banner-overlay {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(13,43,30,0.85) 0%, rgba(26,93,58,0.7) 50%, rgba(13,43,30,0.85) 100%);
+            z-index: 1;
+        }
+        .court-banner-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 36px 40px;
+            gap: 8px;
+            min-height: 200px;
+        }
+        .court-banner-text h2 {
+            color: white;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .court-banner-text p {
+            color: rgba(255,255,255,0.95);
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
         .court-badge {
             background: rgba(255,255,255,0.2);
-            padding: 10px 20px; border-radius: 50px;
+            padding: 8px 18px; border-radius: 50px;
             font-size: 12px; font-weight: 700;
             letter-spacing: 0.5px; display: inline-flex;
-            align-items: center; gap: 6px;
+            align-items: center; gap: 6px; color: white;
+            backdrop-filter: blur(4px);
+            width: fit-content;
         }
 
         /* ===== STATS ===== */
@@ -504,7 +534,10 @@
             .big-card { padding: 18px; border-radius: 20px; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
             .stat-number { font-size: 24px; }
-            .court-banner { flex-direction: column; align-items: flex-start; }
+            .court-banner { min-height: 160px; }
+            .court-banner-content { padding: 24px 22px; min-height: 160px; }
+            .court-banner-text h2 { font-size: 24px; }
+            .court-banner-text p { font-size: 14px; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
         }
         @media (max-width: 480px) {
@@ -606,18 +639,17 @@
 <!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
     <div class="big-card">
-        <!-- COURT BANNER -->
+        
+        <!-- COURT BANNER (MAY LITRATO) -->
         <div class="court-banner">
-            <div class="court-banner-left">
-                <div class="court-banner-icon">
-                    <i class="fas fa-building"></i>
-                </div>
+            <div class="court-banner-bg"></div>
+            <div class="court-banner-overlay"></div>
+            <div class="court-banner-content">
                 <div class="court-banner-text">
                     <h2>Sto. Nino Sports Complex</h2>
-                    <p>Court 1 - Event Permit Monitoring</p>
                 </div>
+                <span class="court-badge"><i class="fas fa-map-marker-alt"></i> COURT 1</span>
             </div>
-            <span class="court-badge"><i class="fas fa-map-marker-alt"></i> COURT 1</span>
         </div>
 
         <!-- STATS -->

@@ -1351,7 +1351,7 @@
         actions.style.display = 'none';
         currentDocId = docId;
         
-        fetch(`/admin/document/${docId}/details`)
+        fetch(`/admin/document-details/${docId}`)
             .then(response => response.json())
             .then(doc => {
                 currentDocData = doc;

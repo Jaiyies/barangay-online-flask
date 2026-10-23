@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay Map | Barangay Sto. Niño</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- LEAFLET CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --primary-800: #0f3d2a;
+            --primary-700: #145233;
+            --primary-600: #1a6b42;
+            --primary-500: #228b54;
+            --primary-400: #3aa86c;
+            --neutral-900: #0d1a12;
+            --neutral-500: #6b8475;
+            --neutral-100: #e3ede7;
+            --neutral-50: #f4f8f5;
+            --primary-50: #eff8f2;
+            --primary-100: #d4f0df;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--neutral-50);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== FLOATING HEADER ===== */
+        .map-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 16px 24px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: var(--primary-50);
+            color: var(--primary-700);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            border: 1.5px solid var(--primary-100);
+        }
+
+        .back-btn:hover {
+            background: var(--primary-500);
+            color: white;
+            transform: translateX(-3px);
+            border-color: var(--primary-500);
+            box-shadow: 0 4px 12px rgba(34, 139, 84, 0.3);
+        }
+
+        .header-title h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary-800);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title p {
+            font-size: 0.8rem;
+            color: var(--neutral-500);
+            margin-top: 2px;
+        }
+
+        /* ===== MAP CONTAINER ===== */
+        #map {
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* === MAP LEGEND === */
+        .map-legend {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border-radius: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.5);
+            max-width: 95%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--neutral-700);
+            padding: 4px 10px;
+            background: var(--neutral-50);
+            border-radius: 20px;
+            border: 1px solid var(--neutral-100);
+        }
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* === CUSTOM MAP MARKER ICONS === */
+        .custom-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white;
+            font-size: 16px;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+        .custom-marker:hover { transform: scale(1.2); }
+        .custom-marker.brgy { background: linear-gradient(135deg, #1a6b42, #0f3d2a); }
+        .custom-marker.health { background: linear-gradient(135deg, #22c55e, #15803d); }
+        .custom-marker.evacuation { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .custom-marker.police { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .custom-marker.fire { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .custom-marker.school { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        /* === LEAFLET POPUP STYLING === */
+        .leaflet-popup-content-wrapper {
+            border-radius: 16px !important;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.2) !important;
+            padding: 0 !important;
+        }
+        .leaflet-popup-content {
+            margin: 0 !important;
+            padding: 16px 20px !important;
+            font-family: 'Inter', sans-serif !important;
+            min-width: 200px;
+        }
+        .popup-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--primary-800);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .popup-desc {
+            font-size: 0.82rem;
+            color: var(--neutral-500);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        .popup-status {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .popup-status.open { background: #d1fae5; color: #065f46; }
+        .popup-status.evac { background: #fef3c7; color: #92400e; }
+        .popup-status.school { background: #ede9fe; color: #5b21b6; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .map-header {
+                flex-direction: column;
+                align-items: flex-start;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 16px;
+            }
+            .header-title h1 { font-size: 1.2rem; }
+            .map-legend {
+                bottom: 15px;
+                padding: 8px 12px;
+                border-radius: 20px;
+                gap: 5px;
+            }
+            .legend-item { font-size: 0.6rem; padding: 3px 6px; }
+            .legend-dot { width: 6px; height: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FLOATING HEADER -->
+    <div class="map-header">
+        <div class="header-left">
+            <!-- BACK BUTTON -->
+            <a href="{{ url_for('dashboard') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div class="header-title">
+                <h1><i class="fas fa-map-marked-alt" style="color: var(--primary-500);"></i> Barangay Map</h1>
+                <p>Locate health centers, evacuation sites, and more</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAP -->
+    <div id="map"></div>
+
+    <!-- MAP LEGEND -->
+    <div class="map-legend">
+        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);"></span> Barangay Hall</div>
+        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #22c55e, #15803d);"></span> Health Center</div>
+        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></span> Evacuation</div>
+        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #3b82f6, #1e40af);"></span> Police</div>
+        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #ef4444, #b91c1c);"></span> Fire</div>
+        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);"></span> School</div>
+    </div>
+
+    <!-- LEAFLET JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // ===== INITIALIZE MAP =====
+        // Focus sa Parañaque area
+        const barangayCenter = [14.4998, 120.9948]; 
+        
+        const map = L.map('map', {
+            center: barangayCenter,
+            zoom: 16,
+            zoomControl: false, 
+            scrollWheelZoom: true
+        });
+
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // ===== MAP TILES (OpenStreetMap - libre) =====
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // ===== CUSTOM ICON FUNCTION =====
+        function createMarkerIcon(type, iconClass) {
+            const colors = {
+                brgy: 'brgy', health: 'health', evacuation: 'evacuation',
+                police: 'police', fire: 'fire', school: 'school'
+            };
+            return L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="custom-marker ${colors[type]}"><i class="${iconClass}"></i></div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+                popupAnchor: [0, -20]
+            });
+        }
+
+        // ===== 1. BARANGAY HALL =====
+        L.marker([14.4995, 120.9945], { icon: createMarkerIcon('brgy', 'fas fa-building') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-building"></i> Barangay Sto. Niño Hall</div>
+                <div class="popup-desc">.4955 J.P. Rizal St, Parañaque, Metro Manila</div>
+                <span class="popup-status open">Open Now</span>
+            `);
+
+        // ===== 2. HEALTH CENTER =====
+        L.marker([14.5010189, 120.9953282], { icon: createMarkerIcon('health', 'fas fa-hospital') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-hospital"></i> Brgy. Sto. Niño Health Center</div>
+                <div class="popup-desc">Free check-ups, vaccines, and maternal care.</div>
+                <span class="popup-status open">Open Now</span>
+            `);
+
+        // ===== 3. EVACUATION CENTERS =====
+        L.marker([14.4985, 120.9935], { icon: createMarkerIcon('evacuation', 'fas fa-house-damage') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-house-damage"></i> Sto. Niño Basketball Court</div>
+                <div class="popup-desc">Dahlia, Parañaque. Evacuation Center.</div>
+                <span class="popup-status evac">Standby</span>
+            `);
+
+        L.marker([14.5000, 120.9970], { icon: createMarkerIcon('evacuation', 'fas fa-house-damage') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-house-damage"></i> Sto. Niño Sports Complex</div>
+                <div class="popup-desc">Parañaque, Metro Manila. Evacuation Center.</div>
+                <span class="popup-status evac">Standby</span>
+            `);
+
+        // ===== 4. POLICE STATION =====
+        L.marker([14.5020, 120.9920], { icon: createMarkerIcon('police', 'fas fa-shield-alt') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-shield-alt"></i> Police Community Precinct</div>
+                <div class="popup-desc">Brgy Sto. Niño, Pascor Dr, Parañaque. Hotline: 911</div>
+                <span class="popup-status open">Open 24/7</span>
+            `);
+
+        // ===== 5. FIRE STATIONS =====
+        L.marker([14.4970, 120.9925], { icon: createMarkerIcon('fire', 'fas fa-fire-extinguisher') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-fire-extinguisher"></i> Paranaque-Don Galo Volunteer Fire Dept.</div>
+                <div class="popup-desc">Neighboring Don Galo. Hotline: 911</div>
+                <span class="popup-status open">Open 24/7</span>
+            `);
+
+        L.marker([14.4980, 120.9910], { icon: createMarkerIcon('fire', 'fas fa-fire-extinguisher') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-fire-extinguisher"></i> San Dionisio Olivarez Engine 101</div>
+                <div class="popup-desc">Barangay San Dionisio. Hotline: 911</div>
+                <span class="popup-status open">Open 24/7</span>
+            `);
+
+        L.marker([14.4965, 120.9950], { icon: createMarkerIcon('fire', 'fas fa-fire-extinguisher') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-fire-extinguisher"></i> Central Fire Station</div>
+                <div class="popup-desc">Dr. Arcadio Santos Avenue. Hotline: 911</div>
+                <span class="popup-status open">Open 24/7</span>
+            `);
+
+        // ===== 6. SCHOOLS =====
+        L.marker([14.5005, 120.9960], { icon: createMarkerIcon('school', 'fas fa-school') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-school"></i> Sto. Niño Elementary School</div>
+                <div class="popup-desc">GX3W+9F2, J.P. Rizal St, Santo Niño, Parañaque.</div>
+                <span class="popup-status school">Public Primary</span>
+            `);
+
+        L.marker([14.4990, 120.9965], { icon: createMarkerIcon('school', 'fas fa-school') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-school"></i> Sto. Niño National High School</div>
+                <div class="popup-desc">5064 Col De Leon, Barangay Santo Niño, Parañaque.</div>
+                <span class="popup-status school">Public Secondary</span>
+            `);
+
+        L.marker([14.4995, 120.9975], { icon: createMarkerIcon('school', 'fas fa-school') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-school"></i> Parañaque Science High School</div>
+                <div class="popup-desc">Col. E. de Leon Street, Barangay Sto. Niño, Parañaque.</div>
+                <span class="popup-status school">Public STEM</span>
+            `);
+
+        L.marker([14.5015, 120.9980], { icon: createMarkerIcon('school', 'fas fa-school') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-school"></i> St. Francis Academy</div>
+                <div class="popup-desc">Lot 18, Blk 2 St Francis, Parañaque.</div>
+                <span class="popup-status school">Private Christian</span>
+            `);
+
+        L.marker([14.5030, 120.9990], { icon: createMarkerIcon('school', 'fas fa-school') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-school"></i> Private School (Moonwalk)</div>
+                <div class="popup-desc">235 Aldrin, Moonwalk, Parañaque.</div>
+                <span class="popup-status school">Private (Preschool-Grade 6)</span>
+            `);
+
+        L.marker([14.4975, 120.9930], { icon: createMarkerIcon('school', 'fas fa-university') })
+            .addTo(map)
+            .bindPopup(`
+                <div class="popup-title"><i class="fas fa-university"></i> PUP Parañaque Campus</div>
+                <div class="popup-desc">Polytechnic University of the Philippines.</div>
+                <span class="popup-status school">University</span>
+            `);
+
+    </script>
+</body>
+</html>

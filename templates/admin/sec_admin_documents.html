@@ -1172,88 +1172,100 @@
     }
 
     // ===== VIEW DETAILS =====
-    function viewDetails(docId) {
-        const modal = document.getElementById('detailsModal');
-        const body = document.getElementById('detailsBody');
-        modal.classList.add('active');
-        body.innerHTML = '<p>Loading details...</p>';
-        
-        fetch(`/admin/document/${docId}/details`)
-            .then(response => response.json())
-            .then(doc => {
-                const docTypeMap = {
-                    'clearance': 'Barangay Clearance',
-                    'indigency': 'Certificate of Indigency',
-                    'proof_residency': 'Proof of Residency'
-                };
-                
-                let statusClass = 'status-pending';
-                if (doc.status === 'approved') statusClass = 'status-approved';
-                else if (doc.status === 'rejected') statusClass = 'status-rejected';
-                
-                body.innerHTML = `
-                    <div class="view-grid">
-                        <div class="view-item">
-                            <span class="label">Reference Number</span>
-                            <span class="value">${String(doc.reference_number || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Status</span>
-                            <span class="value"><span class="status-badge ${statusClass}">${String(doc.status || 'PENDING').toUpperCase()}</span></span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Document Type</span>
-                            <span class="value">${String(docTypeMap[doc.document_type] || doc.document_type || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Date Submitted</span>
-                            <span class="value">${String(doc.created_at_formatted || doc.created_at || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Applicant Name</span>
-                            <span class="value">${String(doc.given_name || '')} ${String(doc.surname || '')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Contact Number</span>
-                            <span class="value">${String(doc.contact_no || 'N/A')}</span>
-                        </div>
-                        <div class="view-item full-width">
-                            <span class="label">Address</span>
-                            <span class="value">${String(doc.address || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Civil Status</span>
-                            <span class="value">${String(doc.civil_status || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Age</span>
-                            <span class="value">${String(doc.age || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Date of Birth</span>
-                            <span class="value">${String(doc.dob || 'N/A')}</span>
-                        </div>
-                        <div class="view-item">
-                            <span class="label">Place of Birth</span>
-                            <span class="value">${String(doc.place_of_birth || 'N/A')}</span>
-                        </div>
-                        <div class="view-item full-width">
-                            <span class="label">Purpose</span>
-                            <span class="value">${String(doc.purpose || 'N/A')}</span>
-                        </div>
-                        ${doc.admin_remarks ? `
-                        <div class="view-item full-width">
-                            <span class="label">Admin Remarks</span>
-                            <span class="value">${String(doc.admin_remarks)}</span>
-                        </div>
-                        ` : ''}
+function viewDetails(docId) {
+    const modal = document.getElementById('detailsModal');
+    const body = document.getElementById('detailsBody');
+    modal.classList.add('active');
+    body.innerHTML = '<p>Loading details...</p>';
+    
+    fetch(`/admin/document-details/${docId}`)
+        .then(response => {
+            // Check if server returned valid JSON response
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(doc => {
+            if (doc.error) {
+                body.innerHTML = `<p style="color:red;">${doc.error}</p>`;
+                return;
+            }
+            
+            const docTypeMap = {
+                'clearance': 'Barangay Clearance',
+                'indigency': 'Certificate of Indigency',
+                'proof_residency': 'Proof of Residency'
+            };
+            
+            let statusClass = 'status-pending';
+            if (doc.status === 'approved') statusClass = 'status-approved';
+            else if (doc.status === 'rejected') statusClass = 'status-rejected';
+            
+            body.innerHTML = `
+                <div class="view-grid">
+                    <div class="view-item">
+                        <span class="label">Reference Number</span>
+                        <span class="value">${String(doc.reference_number || 'N/A')}</span>
                     </div>
-                `;
-            })
-            .catch(error => {
-                body.innerHTML = `<p style="color:red;">Error loading details: ${error.message}</p>`;
-            });
-    }
+                    <div class="view-item">
+                        <span class="label">Status</span>
+                        <span class="value"><span class="status-badge ${statusClass}">${String(doc.status || 'PENDING').toUpperCase()}</span></span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Document Type</span>
+                        <span class="value">${String(docTypeMap[doc.document_type] || doc.document_type || 'N/A')}</span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Date Submitted</span>
+                        <span class="value">${String(doc.created_at_formatted || doc.created_at || 'N/A')}</span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Applicant Name</span>
+                        <span class="value">${String(doc.given_name || '')} ${String(doc.surname || '')}</span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Contact Number</span>
+                        <span class="value">${String(doc.contact_no || 'N/A')}</span>
+                    </div>
+                    <div class="view-item full-width">
+                        <span class="label">Address</span>
+                        <span class="value">${String(doc.address || 'N/A')}</span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Civil Status</span>
+                        <span class="value">${String(doc.civil_status || 'N/A')}</span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Age</span>
+                        <span class="value">${String(doc.age || 'N/A')}</span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Date of Birth</span>
+                        <span class="value">${String(doc.dob || 'N/A')}</span>
+                    </div>
+                    <div class="view-item">
+                        <span class="label">Place of Birth</span>
+                        <span class="value">${String(doc.place_of_birth || 'N/A')}</span>
+                    </div>
+                    <div class="view-item full-width">
+                        <span class="label">Purpose</span>
+                        <span class="value">${String(doc.purpose || 'N/A')}</span>
+                    </div>
+                    ${doc.admin_remarks ? `
+                    <div class="view-item full-width">
+                        <span class="label">Admin Remarks</span>
+                        <span class="value">${String(doc.admin_remarks)}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            body.innerHTML = `<p style="color:red;padding:20px;text-align:center;">❌ Failed to load document details.<br><small>${error.message}</small></p>`;
+        });
+}
 
     function closeDetailsModal() {
         document.getElementById('detailsModal').classList.remove('active');

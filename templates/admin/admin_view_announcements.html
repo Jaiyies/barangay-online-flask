@@ -257,37 +257,6 @@
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
 
-        /* ===== STATS ===== */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr);
-            gap: 16px; margin-bottom: 20px;
-        }
-        .stat-card {
-            background: white; border-radius: 20px;
-            padding: 20px 22px; border: 1px solid #eef2f0;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-            transition: all 0.3s ease;
-            position: relative; overflow: hidden;
-        }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
-        .stat-card.total::before { background: #1a5d3a; }
-        .stat-card.pinned::before { background: #f59e0b; }
-        .stat-card-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .stat-info { flex: 1; min-width: 0; }
-        .stat-label {
-            font-size: 11px; font-weight: 700; color: #8a9a8f;
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
-        }
-        .stat-value { font-size: 28px; font-weight: 800; color: #0d2b1e; line-height: 1; }
-        .stat-icon {
-            width: 52px; height: 52px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; flex-shrink: 0;
-        }
-        .stat-card.total .stat-icon { background: #e0f5e8; color: #1a5d3a; }
-        .stat-card.pinned .stat-icon { background: #fef3c7; color: #d97706; }
-
         /* ===== BIG CARD ===== */
         .big-card {
             background: white; border-radius: 28px;
@@ -422,7 +391,6 @@
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
             body.sidebar-expanded .main-with-sidebar { margin-left: 240px; }
             .big-card { padding: 18px; border-radius: 20px; }
-            .stats-grid { grid-template-columns: 1fr; }
             .filter-bar { flex-direction: column; align-items: stretch; }
             .search-box { max-width: 100%; }
             .announcement-card .card-header { flex-direction: column; }
@@ -431,7 +399,6 @@
         @media (max-width: 480px) {
             .big-card { padding: 16px; }
             .navbar-left .page-title { font-size: 13px; }
-            .stat-value { font-size: 22px; }
         }
     </style>
 </head>
@@ -467,36 +434,41 @@
             <li><a href="{{ url_for('admin_management') }}" data-title="Admins"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
             <li><a href="{{ url_for('head_admin_all_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
             <li><a href="{{ url_for('head_admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
-            <li><a href="{{ url_for('announcements') }}" data-title="Manage Announcements"><i class="fas fa-bullhorn"></i> <span>Manage Announcements</span></a></li>
+            <li class="active"><a href="{{ url_for('announcements') }}" data-title="Manage Announcements"><i class="fas fa-bullhorn"></i> <span>Manage Announcements</span></a></li>
             <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_documents' %}
             <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('admin_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
             <li><a href="{{ url_for('admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_1' %}
             <li><a href="{{ url_for('court1_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court1_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court1_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court1_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court1_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_2' %}
             <li><a href="{{ url_for('court2_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court2_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court2_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court2_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court2_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_3' %}
             <li><a href="{{ url_for('court3_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court3_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court3_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court3_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court3_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_4' %}
             <li><a href="{{ url_for('court4_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court4_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court4_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court4_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court4_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% endif %}
     </ul>
@@ -571,32 +543,6 @@
 
 <!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
-
-    <!-- ===== STATS CARDS ===== -->
-    <div class="stats-grid">
-        <div class="stat-card total">
-            <div class="stat-card-inner">
-                <div class="stat-info">
-                    <div class="stat-label">Total Announcements</div>
-                    <div class="stat-value">{{ total_announcements or 0 }}</div>
-                </div>
-                <div class="stat-icon">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-            </div>
-        </div>
-        <div class="stat-card pinned">
-            <div class="stat-card-inner">
-                <div class="stat-info">
-                    <div class="stat-label">Pinned</div>
-                    <div class="stat-value">{{ pinned_count or 0 }}</div>
-                </div>
-                <div class="stat-icon">
-                    <i class="fas fa-thumbtack"></i>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- ===== ANNOUNCEMENTS CARD ===== -->
     <div class="big-card">

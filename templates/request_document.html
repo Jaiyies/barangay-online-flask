@@ -221,7 +221,6 @@
             text-transform: uppercase;
         }
 
-        /* ===== COLLAPSED STATE ===== */
         .sidebar.collapsed {
             width: var(--sidebar-collapsed-width);
             padding: 26px 14px;
@@ -498,6 +497,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
+        /* ===== NOTIF PANEL (PERPEKTO NA, KATULAD NG DASHBOARD) ===== */
         .notif-panel {
             display: none;
             position: fixed;
@@ -506,20 +506,14 @@
             width: 360px;
             background: white;
             border-radius: 18px;
-            box-shadow: 
-                0 24px 60px rgba(0,0,0,0.30),
-                0 0 0 1px rgba(0,0,0,0.05),
-                0 8px 24px rgba(15, 61, 42, 0.15);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.30), 0 0 0 1px rgba(0,0,0,0.05);
             overflow: hidden;
             z-index: 99999;
             animation: notifSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body.sidebar-collapsed .notif-panel {
-            left: 68px;
-        }
-
+        body.sidebar-collapsed .notif-panel { left: 68px; }
         .notif-panel.show { display: block; }
 
         @keyframes notifSlide {
@@ -528,83 +522,96 @@
         }
 
         .notif-header {
+            padding: 16px 20px;
             background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
-            padding: 18px 22px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
             color: white;
-        }
-
-        .notif-header i {
-            background: rgba(255,255,255,0.15);
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 1rem;
-        }
-
-        .notif-header h4 {
-            font-size: 1rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }
-
-        .notif-body {
-            max-height: 320px;
-            overflow-y: auto;
-            padding: 6px 0;
-        }
-
-        .notif-body::-webkit-scrollbar { width: 6px; }
-        .notif-body::-webkit-scrollbar-thumb {
-            background: rgba(34,139,84,0.25);
-            border-radius: 3px;
-        }
-
-        .notif-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 14px 22px;
-            border-bottom: 1px solid var(--neutral-100);
-            transition: background 0.2s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .notif-item:hover { background: var(--primary-50); }
-        .notif-item:last-child { border-bottom: none; }
-
-        .notif-icon {
-            font-size: 1.3rem;
-            flex-shrink: 0;
-            margin-top: 2px;
-            width: 36px;
-            height: 36px;
+            font-weight: 700;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: var(--primary-50);
+            justify-content: space-between; /* ITO ANG NAGPAPUNTA SA KANAN */
+            gap: 10px;
+        }
+
+        .bell-dropdown-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bell-dropdown-header-left i.fa-bullhorn {
+            background: rgba(255,255,255,0.15);
+            padding: 8px;
             border-radius: 10px;
+            font-size: 14px;
         }
-
-        .notif-content h5 {
-            font-size: 0.88rem;
-            font-weight: 700;
+        
+        .mark-all-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .mark-all-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+        
+        .notif-body { max-height: 320px; overflow-y: auto; padding: 8px; }
+        
+        .bell-item {
+            display: block;
+            padding: 12px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--neutral-900);
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f4f8f5;
+            position: relative;
+        }
+        .bell-item:last-child { border-bottom: none; }
+        .bell-item:hover { background: #f4f8f5; }
+        .bell-item-title {
+            font-weight: 600;
+            font-size: 13.5px;
             color: var(--primary-800);
-            letter-spacing: -0.01em;
             margin-bottom: 4px;
-            line-height: 1.3;
+            line-height: 1.4;
         }
-
-        .notif-content p {
-            font-size: 0.75rem;
+        .bell-item-date {
+            font-size: 11.5px;
             color: var(--neutral-500);
             display: flex;
             align-items: center;
             gap: 6px;
         }
+        .bell-item.unread::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+        }
+        .bell-loading, .bell-empty { text-align: center; padding: 30px 20px; color: var(--neutral-500); font-size: 13px; }
+        .bell-empty i { font-size: 36px; color: var(--primary-100); display: block; margin-bottom: 10px; }
 
         .notif-footer {
             display: flex;
@@ -665,13 +672,15 @@
             left: var(--sidebar-collapsed-width);
         }
 
-        /* === REVISED PAGE HEADER (KATULAD NG DASHBOARD) === */
         .page-header-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
             border-radius: 24px;
             padding: 32px 36px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 8px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.25),
+                0 8px 20px rgba(0, 0, 0, 0.15),
+                0 2px 6px rgba(0, 0, 0, 0.10);
             border: 1px solid rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: space-between;
@@ -730,7 +739,6 @@
             font-weight: 700;
         }
 
-        /* === HEADER CONTROLS === */
         .header-controls {
             display: flex;
             align-items: center;
@@ -768,7 +776,6 @@
             transform: translateY(-2px);
         }
 
-        /* === USER BADGE === */
         .user-badge {
             display: flex;
             align-items: center;
@@ -1798,7 +1805,6 @@
             body.sidebar-collapsed .notif-panel { left: 20px; }
             .main-content.fade-out::after { left: 80px; }
             
-            /* === FIX PARA MAGING MAGKATABI SA MOBILE === */
             .page-header-card {
                 flex-direction: column; 
                 align-items: flex-start; 
@@ -1810,8 +1816,8 @@
 
             .header-controls {
                 width: 100%;
-                justify-content: space-between; /* Paghihiwalayin sa dulo */
-                flex-wrap: nowrap; /* PIPIGILAN MAG-STACK PABABA */
+                justify-content: space-between; 
+                flex-wrap: nowrap; 
                 gap: 10px;
                 margin-left: 0;
             }
@@ -1834,7 +1840,6 @@
             .modal-box { width: 100%; margin: 0; }
         }
 
-        /* 2. EXPANDED STATE */
         @media (max-width: 992px) {
             .sidebar.expanded-mobile {
                 width: var(--sidebar-width) !important;
@@ -1883,7 +1888,6 @@
             }
         }
 
-           /* 3. SOBRANG LIIT NA SCREEN (CP) */
         @media (max-width: 576px) {
             .main-content { padding: 20px 16px; }
             .card { padding: 20px; border-radius: 18px; }
@@ -1899,7 +1903,6 @@
                 font-size: 1.2rem;
             }
             
-            /* Paliitin ang Profile at Language Button */
             .user-badge {
                 padding: 4px 10px 4px 4px; 
                 gap: 8px;
@@ -1929,11 +1932,10 @@
                 font-size: 0.8rem;
             }
 
-            /* === PARA SA LANGUAGE MENU SA MOBILE === */
             .lang-menu {
                 position: absolute;
                 top: calc(100% + 8px);
-                right: -45px; /* Itutulak pakanan */
+                right: -45px; 
                 left: auto;
                 min-width: 120px;
                 padding: 4px;
@@ -1943,10 +1945,10 @@
                 font-size: 0.75rem;
                 padding: 6px 10px;
             }
-                       /* === PARA SA USER MENU SA MOBILE (AYOS ANG EMAIL) === */
+
             .user-menu {
-                min-width: 240px; /* Pinalaki para may espasyo */
-                max-width: 90vw; /* Sinigurong hindi lalabas sa screen */
+                min-width: 240px; 
+                max-width: 90vw; 
                 padding: 6px;
                 right: 0;
             }
@@ -1962,13 +1964,12 @@
             }
             .user-menu-header .email {
                 font-size: 0.65rem;
-                white-space: nowrap; /* PIPIGILAN MAPUTOL ANG EMAIL */
-                overflow-x: auto; /* Maglalagay ng scrollbar kung sobrang haba */
+                white-space: nowrap; 
+                overflow-x: auto; 
                 display: block;
-                padding-bottom: 2px; /* Konting espasyo para sa scrollbar */
+                padding-bottom: 2px; 
             }
             
-            /* Para maganda tignan yung scrollbar kapag lumabas */
             .user-menu-header .email::-webkit-scrollbar {
                 height: 4px;
             }
@@ -1982,7 +1983,7 @@
                 font-size: 0.78rem;
                 gap: 10px;
             }
-            /* ========================================= */
+            
             .modal-header-success h2 { font-size: 22px; }
             .reference-box .ref-number { font-size: 20px; }
             
@@ -1991,7 +1992,7 @@
                 border-radius: 20px;
             }
         }
-                      /* === FIX & REDESIGN PARA SA NOTIF PANEL SA MOBILE === */
+        
         @media (max-width: 992px) {
             .notif-panel {
                 left: 50% !important;
@@ -1999,8 +2000,8 @@
                 bottom: 85px !important; 
                 width: calc(100vw - 40px) !important; 
                 max-width: 320px !important; 
-                border-radius: 20px !important; /* Mas bilugan para mukhang modern */
-                box-shadow: 0 12px 30px rgba(15, 61, 42, 0.25) !important; /* Mas subtle na shadow */
+                border-radius: 20px !important; 
+                box-shadow: 0 12px 30px rgba(15, 61, 42, 0.25) !important; 
             }
             
             @keyframes notifSlide {
@@ -2008,15 +2009,14 @@
                 to { opacity: 1; transform: translate(-50%, 0) scale(1); }
             }
 
-            /* --- HEADER REDESIGN --- */
             .notif-header {
                 padding: 16px 20px !important;
-                background: linear-gradient(135deg, #145233, #0f3d2a) !important; /* Mas solid at eleganteng green */
+                background: linear-gradient(135deg, #145233, #0f3d2a) !important; 
                 gap: 12px !important;
             }
             .notif-header i {
                 background: rgba(255, 255, 255, 0.1) !important;
-                color: #a3dbb8 !important; /* Pastel green para sa icon */
+                color: #a3dbb8 !important; 
                 font-size: 0.9rem !important;
                 padding: 8px !important;
                 border-radius: 10px !important;
@@ -2024,11 +2024,10 @@
             }
             .notif-header h4 {
                 font-size: 0.9rem !important;
-                font-weight: 600 !important; /* Hindi masyadong bold */
+                font-weight: 600 !important; 
                 letter-spacing: 0.02em !important;
             }
 
-            /* --- ITEM REDESIGN --- */
             .notif-item {
                 padding: 16px 20px !important;
                 gap: 14px !important;
@@ -2037,8 +2036,8 @@
                 width: 36px !important;
                 height: 36px !important;
                 font-size: 1rem !important;
-                background: #eff8f2 !important; /* Pastel background */
-                border-radius: 12px !important; /* Malambot na corners */
+                background: #eff8f2 !important; 
+                border-radius: 12px !important; 
             }
             .notif-content h5 {
                 font-size: 0.85rem !important;
@@ -2051,12 +2050,11 @@
                 color: #6b8475 !important;
             }
 
-            /* --- FOOTER REDESIGN --- */
             .notif-footer {
                 padding: 14px !important;
                 font-size: 0.8rem !important;
                 font-weight: 600 !important;
-                background: #fafcfb !important; /* Mas subtle na background */
+                background: #fafcfb !important; 
                 color: #1a6b42 !important;
                 border-top: 1px solid #eff8f2 !important;
             }
@@ -2065,14 +2063,11 @@
                 transition: transform 0.2s ease !important;
             }
             .notif-footer:hover i {
-                transform: translateX(4px) !important; /* Gumagalaw pakanan pag hover */
+                transform: translateX(4px) !important; 
             }
         }
     </style>
-    </style>
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
-           
-    </style>
 </head>
 <body>
 
@@ -2113,19 +2108,18 @@
       </div>
     </aside>
 
+    <!-- ===== NOTIF PANEL (PERPEKTO NA) ===== -->
     <div class="notif-panel" id="notifPanel">
         <div class="notif-header">
-            <i class="fas fa-bullhorn"></i>
-            <h4>Recent Announcements</h4>
+            <div class="bell-dropdown-header-left">
+                <i class="fas fa-bullhorn"></i> Recent Announcements
+            </div>
+            <button class="mark-all-btn" id="markAllReadBtn" onclick="markAllAsRead(event)">
+                <i class="fas fa-check-double"></i> Mark all
+            </button>
         </div>
-        <div class="notif-body">
-            <a href="{{ url_for('user_announcements') }}" class="notif-item">
-                <div class="notif-icon">📢</div>
-                <div class="notif-content">
-                    <h5>School Event Announcement</h5>
-                    <p><i class="far fa-clock"></i> Oct 2, 2026</p>
-                </div>
-            </a>
+        <div class="notif-body" id="notifList">
+            <div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
         </div>
         <a href="{{ url_for('user_announcements') }}" class="notif-footer">
             View All Announcements <i class="fas fa-arrow-right"></i>
@@ -2589,24 +2583,23 @@
 
     <script>
 
-          
         // ===== BELL BADGE LOADER =====
-document.addEventListener('DOMContentLoaded', function() {
-    fetch('/api/announcements/unread_count')
-        .then(res => res.json())
-        .then(data => {
-            const badge = document.getElementById('bellBadge');
-            if (badge) {
-                if (data.unread_count > 0) {
-                    badge.textContent = data.unread_count;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
-        })
-        .catch(err => console.error('Bell count error:', err));
-});
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/announcements/unread_count')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('bellBadge');
+                    if (badge) {
+                        if (data.unread_count > 0) {
+                            badge.textContent = data.unread_count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => console.error('Bell count error:', err));
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
@@ -2803,26 +2796,107 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // ===== NOTIFICATION BELL LOGIC (PERPEKTO NA) =====
         function toggleNotifPanel(event) {
-    if (event) event.stopPropagation();
-    const panel = document.getElementById('notifPanel');
-    const bell = document.getElementById('notifBell');
-    const badge = document.getElementById('bellBadge');
-    
-    if (panel) {
-        const isShowing = panel.classList.toggle('show');
-        if (bell) bell.classList.toggle('active');
+            if (event) event.stopPropagation();
+            const panel = document.getElementById('notifPanel');
+            const bell = document.getElementById('notifBell');
+            
+            if (panel) {
+                panel.classList.toggle('show');
+                if (bell) bell.classList.toggle('active');
+                if (panel.classList.contains('show')) {
+                    loadRecentAnnouncements();
+                }
+            }
+        }
 
-        // Kapag binuksan ang panel, itago ang badge at markahan lahat as read sa database
-        if (isShowing && badge) {
-            badge.style.display = 'none';
-            badge.textContent = '0';
+        function markAllAsRead(event) {
+            if (event) event.stopPropagation();
             
             fetch('/api/announcements/mark-all-read', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const badge = document.getElementById('bellBadge');
+                        if (badge) {
+                            badge.style.display = 'none';
+                            badge.textContent = '0';
+                        }
+                        
+                        const btn = document.getElementById('markAllReadBtn');
+                        if (btn) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> All Read';
+                            btn.style.opacity = '0.6';
+                            btn.disabled = true;
+                        }
+
+                        loadRecentAnnouncements();
+                    }
+                })
                 .catch(err => console.error('Mark all read error:', err));
         }
-    }
-}
+
+        // ===== LOAD RECENT ANNOUNCEMENTS =====
+        function loadRecentAnnouncements() {
+            var list = document.getElementById('notifList');
+            list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            
+            fetch('/api/announcements/recent?limit=5')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (!data.announcements || data.announcements.length === 0) {
+                        list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                        return;
+                    }
+                    
+                    var html = '';
+                    data.announcements.forEach(function(a) {
+                        var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        var isUnread = (a.is_read === 0 || a.is_read === false || a.is_read === null || a.is_read === undefined);
+                        var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
+                        
+                        html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
+                            '<div class="bell-item-title">' + (a.title || 'Untitled') + '</div>' +
+                            '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
+                        '</a>';
+                    });
+                    list.innerHTML = html;
+                })
+                .catch(function(err) {
+                    console.error('Bell fetch error:', err);
+                    list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
+                });
+        }
+
+        // Function para pag pinindot yung announcement sa loob ng bell
+        function openAnnouncementFromBell(announcementId) {
+            fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        fetch('/api/announcements/unread_count')
+                            .then(res => res.json())
+                            .then(data => {
+                                const badge = document.getElementById('bellBadge');
+                                if (badge) {
+                                    if (data.unread_count > 0) {
+                                        badge.textContent = data.unread_count;
+                                        badge.style.display = 'flex';
+                                    } else {
+                                        badge.style.display = 'none';
+                                    }
+                                }
+                            });
+                        loadRecentAnnouncements();
+                    }
+                })
+                .catch(function(err) { console.error('Mark read error:', err); });
+
+            setTimeout(function() {
+                window.location.href = "{{ url_for('user_announcements') }}";
+            }, 300);
+        }
 
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');

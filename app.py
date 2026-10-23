@@ -309,29 +309,46 @@ def send_admin_notification_email(recipient_email, subject, title, message,
 # ============================================================
 # QUEUE NUMBER GENERATOR
 # ============================================================
-def get_next_queue_number(table_name):
-    """Kunin ang susunod na queue number base sa existing records ngayong araw."""
+def get_next_queue_number(table_name, venue=None):
+    """Kunin ang susunod na queue number base sa existing records ngayong araw.
+    Kung may venue (event permits), per-court ang counting: C1-Q001, C2-Q001, etc."""
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
     today = datetime.date.today()
 
     if table_name == 'event_permits':
-        cursor.execute("""
-            SELECT COUNT(*) as total FROM event_permits
-            WHERE DATE(requested_at) = %s
-        """, (today,))
+        if venue:
+            # Per-court counting — MAX approach para hindi mag-duplicate
+            cursor.execute("""
+                SELECT COALESCE(MAX(CAST(SUBSTRING(queuing_number, LOCATE('-Q', queuing_number) + 2) AS UNSIGNED)), 0) as max_num
+                FROM event_permits
+                WHERE DATE(requested_at) = %s AND venue = %s
+            """, (today, venue))
+            count = int(cursor.fetchone()['max_num'] or 0) + 1
+
+            court_role = get_court_role_by_venue(venue)
+            court_num = court_role.replace('admin_court_', '') if court_role else '0'
+            conn.close()
+            return f"C{court_num}-Q{count:03d}"
+        else:
+            # Fallback kung walang venue (backward compat)
+            cursor.execute("""
+                SELECT COUNT(*) as total FROM event_permits
+                WHERE DATE(requested_at) = %s
+            """, (today,))
+            count = (cursor.fetchone()['total'] or 0) + 1
+            conn.close()
+            return f"Q-{count:03d}"
     else:
+        # Documents — walang court, ordinary Q-001 pa rin
         cursor.execute("""
             SELECT COUNT(*) as total FROM document_requests
             WHERE DATE(created_at) = %s
         """, (today,))
-
-    result = cursor.fetchone()
-    conn.close()
-
-    count = (result['total'] if result else 0) + 1
-    return f"Q-{count:03d}"
+        count = (cursor.fetchone()['total'] or 0) + 1
+        conn.close()
+        return f"Q-{count:03d}"
 
 
 # ============================================================
@@ -377,15 +394,19 @@ def login():
                     session['lockout_time'] = time.time() + 30
                     lockout_msg = "Too many failed attempts. Please wait 30 seconds before trying again."
                     return render_template('login.html', login_error=True, lockout_message=lockout_msg)
-                else:
-                    return render_template('login.html', login_error=True)
-
-            session['login_attempts'] = 0
-            session['lockout_time'] = 0
+                return render_template('login.html', login_error=True)
 
             if role == 'admin' and user['role'] not in ADMIN_ROLES:
                 flash('You are not authorized as admin.', 'danger')
                 return render_template('login.html')
+
+            if role == 'resident' and user['role'] in ADMIN_ROLES:
+                flash('This is an Admin account. Please select "Admin" in the dropdown to login.', 'danger')
+                return render_template('login.html')
+
+            # Reset attempts after successful authentication.
+            session['login_attempts'] = 0
+            session['lockout_time'] = 0
 
             session['user_id'] = user['id']
             session['fullname'] = f"{user['first_name']} {user['last_name']}"
@@ -1053,6 +1074,9 @@ def events_calendar():
 def events():
     return redirect(url_for('events_calendar'))
 
+@app.route('/barangay-map')
+def barangay_map():
+    return render_template('barangay_map.html')
 
 # ============================================================
 # EVENT CRUD API
@@ -1685,7 +1709,7 @@ def apply_permit_post():
 
     # ===== GENERATE REF & QUEUE =====
     ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-    queue_num = get_next_queue_number('event_permits')
+    queue_num = get_next_queue_number('event_permits', venue)
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
@@ -2347,7 +2371,7 @@ def sec_admin_dashboard():
 # ============================================================
 @app.route('/admin/documents')
 def admin_documents():
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
 
@@ -2368,7 +2392,7 @@ def admin_documents():
 
 @app.route('/admin/documents/clearance')
 def admin_documents_clearance():
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
 
@@ -2390,7 +2414,7 @@ def admin_documents_clearance():
 
 @app.route('/admin/documents/indigency')
 def admin_documents_indigency():
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
 
@@ -2412,7 +2436,7 @@ def admin_documents_indigency():
 
 @app.route('/admin/documents/residency')
 def admin_documents_residency():
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
 
@@ -3050,6 +3074,15 @@ def update_event_status(event_id):
     """, (event_id,))
     event_data = cursor.fetchone()
 
+        # ===== PARA SA RBAC =====
+    if event_data:
+        current_role = session.get('role')
+        if current_role in COURT_CONFIG:
+            if COURT_CONFIG[current_role]['venue'] != event_data['venue']:
+                conn.close()
+                return jsonify({'error': 'Unauthorized. This event belongs to another court.'}), 403
+    # =====================================
+
     cursor.execute("""
         UPDATE event_permits
         SET status = %s, admin_remarks = %s
@@ -3186,9 +3219,9 @@ def admin_activity_logs():
     conn.close()
     return render_template('admin/sec_admin_activity_logs.html', logs=logs)
 
-@app.route('/api/document/<int:doc_id>/update-status', methods=['POST'])
+@app.route('/admin/update-document-status/<int:doc_id>', methods=['POST'])
 def update_document_status(doc_id):
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
         return jsonify({'error': 'Unauthorized'}), 401
 
     data = request.json
@@ -3335,10 +3368,11 @@ def update_document_status(doc_id):
     })
 
 
-@app.route('/admin/document/<int:doc_id>/details')
+@app.route('/admin/document-details/<int:doc_id>')
 def admin_document_details(doc_id):
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
         return jsonify({'error': 'Unauthorized'}), 401
+    
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
@@ -3377,7 +3411,7 @@ def admin_document_details(doc_id):
 # ============================================================
 @app.route('/admin/events')
 def admin_events():
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_court_1', 'admin_court_2', 'admin_court_3', 'admin_court_4']:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
 
@@ -4574,7 +4608,7 @@ def api_permits():
             return jsonify({'error': 'This time slot is already taken by an approved event at this venue.'}), 409
 
         ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-        queue_num = get_next_queue_number('event_permits')
+        queue_num = get_next_queue_number('event_permits', venue)
 
         cursor.execute("""
             INSERT INTO event_permits (
