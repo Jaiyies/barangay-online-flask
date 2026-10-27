@@ -529,7 +529,7 @@
             font-size: 14px;
             display: flex;
             align-items: center;
-            justify-content: space-between; /* ITO ANG NAGPAPUNTA SA KANAN */
+            justify-content: space-between;
             gap: 10px;
         }
 
@@ -869,13 +869,12 @@
             font-size: 0.78rem;
             color: var(--neutral-500);
             margin-top: 3px;
-            white-space: nowrap; /* Pinipigilan maputol ang email */
-            overflow-x: auto; /* Scrollbar kung humaba */
+            white-space: nowrap;
+            overflow-x: auto;
             display: block;
             padding-bottom: 2px;
         }
 
-        /* Para maganda yung scrollbar kapag lumabas */
         .user-menu-header .email::-webkit-scrollbar {
             height: 4px;
         }
@@ -2529,11 +2528,24 @@
                 <h2>Request Submitted!</h2>
                 <p>Your document request has been received</p>
             </div>
+            
             <div class="modal-body">
-                <div class="reference-box">
-                    <div class="ref-label"><i class="fas fa-qrcode"></i> Reference Number</div>
-                    <div class="ref-number" id="modalRefNumber">DOC-20260905-XXXX</div>
-                    <span class="ref-badge" id="modalQueueBadge">Queue #001</span>
+                
+                <!-- BAGONG LAYOUT: MAGKATABI ANG REFERENCE AT QR -->
+                <div class="reference-box" style="display: flex; align-items: center; justify-content: space-between; text-align: left; gap: 15px; padding: 20px 24px;">
+                    
+                    <!-- KALIWA: Reference Number -->
+                    <div>
+                        <div class="ref-label" style="font-size: 10px;"><i class="fas fa-qrcode"></i> Reference Number</div>
+                        <div class="ref-number" id="modalRefNumber" style="font-size: 20px; margin: 2px 0;">DOC-20260905-XXXX</div>
+                        <span class="ref-badge" id="modalQueueBadge" style="font-size: 10px;">Queue #001</span>
+                    </div>
+
+                    <!-- KANAN: QR Code -->
+                    <div style="text-align: center; flex-shrink: 0;">
+                        <img id="successQrImage" src="" alt="QR Code" style="width: 90px; height: 90px; border-radius: 8px; border: 2px solid #228b54; background: white; padding: 3px;">
+                    </div>
+
                 </div>
 
                 <div class="doc-details-grid" id="modalDetailsGrid">
@@ -2558,6 +2570,12 @@
                         <span class="value"><span class="status-badge">Pending Review</span></span>
                     </div>
                 </div>
+
+                <!-- BAGONG TEXT SA ILALIM -->
+                <p style="text-align:center; font-size:11px; color:#64748b; margin-top: 10px; margin-bottom: 15px; font-weight: 500;">
+                    <i class="fas fa-info-circle" style="color: #228b54;"></i> 
+                    Show this QR code to Barangay personnel for faster transaction.
+                </p>
 
                 <div class="waiting-banner-modal">
                     <i class="fas fa-hourglass-half"></i>
@@ -3133,6 +3151,10 @@
                     document.getElementById('modalDate').textContent = dateObj.toLocaleDateString('en-PH', { 
                         year: 'numeric', month: 'long', day: 'numeric' 
                     });
+
+                    if (data.qr_token) {
+                        document.getElementById('successQrImage').src = `/generate-qr/${data.qr_token}`;
+                    }
 
                     showSuccessModal();
 

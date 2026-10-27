@@ -8,6 +8,9 @@ import datetime
 import random
 import glob
 import secrets
+import qrcode
+import io
+import base64
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
@@ -196,7 +199,35 @@ def get_db():
         password='bsit2026@123',
         database='barangay_online_services'
     )
+def generate_qr_token():
+    return secrets.token_urlsafe(32)
 
+def generate_qr_base64(data_text):
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(data_text)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
+
+# ============================================================
+# QR CODE IMAGE ROUTE
+# ============================================================
+@app.route('/generate-qr/<string:token>')
+def generate_qr_image(token):
+    """Gumagawa ng QR code image para sa display."""
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(token) # Dito natin ilalagay yung token na nasa database
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    buffered.seek(0)
+    
+    return send_file(buffered, mimetype='image/png')
 
 # ============================================================
 # NOTIFICATION HELPER FUNCTIONS
@@ -1531,9 +1562,10 @@ def submit_document_request():
         doc_type = data.get('document_type', 'clearance')
         ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
         queue_num = get_next_queue_number('document_requests')
+        qr_token = generate_qr_token()
 
-        insert_cols = ['user_id', 'document_type', 'reference_number', 'status']
-        insert_vals = [session['user_id'], doc_type, ref_num, 'pending']
+        insert_cols = ['user_id', 'document_type', 'reference_number', 'status', 'qr_token']
+        insert_vals = [session['user_id'], doc_type, ref_num, 'pending', qr_token]  
 
         if 'queuing_number' in col_names:
             insert_cols.append('queuing_number')
@@ -1624,13 +1656,14 @@ def submit_document_request():
                     action_type='new'
                 )
 
-        conn.close()
+                conn.close()
 
         return jsonify({
             'success': True,
             'message': 'Document request submitted successfully',
             'reference_number': ref_num,
-            'queuing_number': queue_num if 'queuing_number' in col_names else 'N/A'
+            'queuing_number': queue_num if 'queuing_number' in col_names else 'N/A',
+            'qr_token': qr_token  
         })
 
     except Exception as e:
@@ -2411,6 +2444,84 @@ def admin_documents_clearance():
 
     return render_template('admin/sec_admin_documents_clearance.html', documents=documents)
 
+@app.route('/admin/documents/ready-for-pickup')
+def admin_documents_ready():
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    # Kunin lahat ng approved at ready_for_pickup
+    cursor.execute("""
+        SELECT d.*, u.first_name, u.last_name, u.email, u.contact_number
+        FROM document_requests d
+        JOIN users u ON d.user_id = u.id
+        WHERE d.status IN ('approved', 'ready_for_pickup')
+        ORDER BY d.created_at DESC
+    """)
+    documents = cursor.fetchall()
+    conn.close()
+
+    return render_template('admin/sec_admin_ready_pickup.html', documents=documents)
+
+@app.route('/admin/upload-final-document', methods=['POST'])
+def upload_final_document():
+    if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    doc_id = request.form.get('doc_id')
+    if not doc_id:
+        return jsonify({'error': 'Document ID missing'}), 400
+
+    if 'completed_file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['completed_file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    filename = file.filename
+    file.save(os.path.join(UPLOAD_FOLDER, filename))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("""
+        UPDATE document_requests 
+        SET status = 'ready_for_pickup', 
+            completed_file = %s,
+            completed_at = NOW()
+        WHERE id = %s
+    """, (filename, doc_id))
+    conn.commit()
+    
+    # Kunin user info para sa email
+    cursor.execute("""
+        SELECT u.email, u.first_name, d.document_type, d.reference_number
+        FROM document_requests d
+        JOIN users u ON d.user_id = u.id
+        WHERE d.id = %s
+    """, (doc_id,))
+    user_info = cursor.fetchone()
+    conn.close()
+
+    # Email notification
+    if user_info:
+        subject = f"Your Document is Ready for Pickup! - {user_info['reference_number']}"
+        body_html = f"""
+        <html><body style="font-family:Arial; padding:20px;">
+            <h2 style="color:#0f3d2a;">✅ Ready for Pickup!</h2>
+            <p>Hello <strong>{user_info['first_name']}</strong>,</p>
+            <p>Ang iyong <strong>{user_info['document_type'].replace('_', ' ').title()}</strong> ay ready na for pickup sa Barangay Hall.</p>
+            <p><strong>Reference:</strong> {user_info['reference_number']}</p>
+            <p>Paki-bring ang iyong QR Code o Reference Number para ma-verify.</p>
+        </body></html>
+        """
+        send_email(user_info['email'], subject, body_html)
+
+    return jsonify({'success': True, 'message': 'Document uploaded and user notified.'})
 
 @app.route('/admin/documents/indigency')
 def admin_documents_indigency():
@@ -3405,7 +3516,32 @@ def admin_document_details(doc_id):
 
     return jsonify(document)
 
-
+@app.route('/verify/<string:token>')
+@login_required
+def verify_document(token):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Hanapin yung request base sa qr_token
+    cursor.execute("""
+        SELECT d.*, u.first_name, u.last_name, u.email, u.contact_number
+        FROM document_requests d
+        JOIN users u ON d.user_id = u.id
+        WHERE d.qr_token = %s
+    """, (token,))
+    doc = cursor.fetchone()
+    conn.close()
+    
+    if not doc:
+        flash('Invalid or Expired QR Code.', 'danger')
+        return redirect(url_for('admin_documents'))
+    
+    # Siguraduhin na Admin lang ang pwedeng mag-access nito
+    if session.get('role') not in ['head_admin', 'admin_documents']:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    
+    return render_template('admin/verify_document.html', doc=doc)
 # ============================================================
 # ADMIN EVENT REVIEW
 # ============================================================

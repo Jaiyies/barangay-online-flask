@@ -854,6 +854,7 @@
     <ul class="sidebar-menu">
         <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
         <li><a href="{{ url_for('admin_documents') }}" data-title="All Documents"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
+        <li><a href="{{ url_for('admin_documents_ready') }}" data-title="Ready for Pickup"><i class="fas fa-check-circle"></i> <span>Ready for Pickup</span></a></li>
         <li><a href="{{ url_for('admin_documents_clearance') }}" data-title="Barangay Clearance"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
         <li><a href="{{ url_for('admin_documents_indigency') }}" data-title="Certificate of Indigency"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
         <li class="active"><a href="{{ url_for('admin_documents_residency') }}" data-title="Proof of Residency"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
@@ -1579,7 +1580,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         
-        fetch(`/api/document/${currentDocId}/update-status`, {
+       fetch(`/admin/update-document-status/${currentDocId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'approved', remarks: remarks })
@@ -1650,7 +1651,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         
-        fetch(`/api/document/${currentDocId}/update-status`, {
+        fetch(`/admin/update-document-status/${currentDocId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'rejected', remarks: remarks })
