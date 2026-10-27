@@ -316,6 +316,24 @@
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
         }
+        .filter-bar select {
+            padding: 10px 16px; border: 1.5px solid #eef2f0; border-radius: 12px;
+            font-size: 13px; background: #f8f9fa; outline: none;
+            font-family: inherit; transition: all 0.2s ease;
+        }
+        .filter-bar select:focus {
+            border-color: #1a5d3a; box-shadow: 0 0 0 3px rgba(26,93,58,0.1); background: white;
+        }
+        .filter-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .filter-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .scan-btn {
+            background: #0d2b1e; color: white; padding: 10px 20px;
+            border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(13,43,30,0.3); transition: 0.2s;
+            font-family: inherit; font-size: 13px;
+        }
+        .scan-btn:hover { background: #1a5d3a; transform: translateY(-2px); }
 
         .table-container {
             overflow-x: auto; max-height: 520px; overflow-y: auto;
@@ -339,6 +357,7 @@
             padding: 3px 12px; border-radius: 50px; font-size: 11px; font-weight: 600;
         }
         .status-ready { background: #d1fae5; color: #065f46; }
+        .status-approved { background: #dbeafe; color: #1e40af; }
 
         .btn-action {
             border: none; padding: 6px 14px; border-radius: 30px; cursor: pointer;
@@ -410,6 +429,7 @@
             .modal-box { padding: 20px; border-radius: 20px; }
             .view-grid { grid-template-columns: 1fr; gap: 10px; }
             .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-left, .filter-right { width: 100%; justify-content: space-between; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
         }
         @media (max-width: 480px) {
@@ -518,8 +538,18 @@
     <div class="big-card">
         
         <div class="filter-bar">
-            <div>
+            <div class="filter-left">
+                <select id="statusFilter" onchange="filterTable()">
+                    <option value="all">All</option>
+                    <option value="approved">Approved</option>
+                    <option value="ready_for_pickup">Ready for Pickup</option>
+                </select>
                 <span style="font-size:13px;color:#6b7a72;">Total: <strong id="totalCount">{{ documents|length }}</strong></span>
+            </div>
+            <div class="filter-right">
+                <button class="scan-btn" onclick="startScanner()">
+                    <i class="fas fa-camera"></i> Scan QR Code
+                </button>
             </div>
         </div>
 
@@ -533,12 +563,12 @@
                         <th>Document Type</th>
                         <th>Date Approved</th>
                         <th>Status</th>
-                        <th>Action</th>
+                        <th style="text-align:center;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="docTable">
                     {% for doc in documents %}
-                    <tr>
+                    <tr data-status="{{ doc.status }}">
                         <td>{{ loop.index }}</td>
                         <td><strong>{{ doc.reference_number or 'N/A' }}</strong></td>
                         <td>{{ doc.first_name }} {{ doc.last_name }}</td>
@@ -550,28 +580,17 @@
                         </td>
                         <td>{{ doc.created_at.strftime('%b %d, %Y') if doc.created_at else 'N/A' }}</td>
                         <td>
-                            <span class="status-badge status-ready">
-                                {{ doc.status|upper }}
-                            </span>
+                            {% if doc.status == 'ready_for_pickup' %}
+                                <span class="status-badge status-ready">READY FOR PICKUP</span>
+                            {% else %}
+                                <span class="status-badge status-approved">APPROVED</span>
+                            {% endif %}
                         </td>
                         <td style="text-align:center;">
-                            {% if doc.completed_file %}
-                                <!-- Pag may file na, Print button na -->
-                                <button class="btn-action btn-print" onclick="window.open('/uploads/{{ doc.completed_file }}', '_blank')">
-                                    <i class="fas fa-print"></i> Print
-                                </button>
-                                <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
-                                    <i class="fas fa-eye"></i> View
-                                </button>
-                            {% else %}
-                                <!-- Pag wala pa, Upload button -->
-                                <button class="btn-action btn-upload" onclick="openUploadModal('{{ doc.id }}')">
-                                    <i class="fas fa-upload"></i> Upload Final Doc
-                                </button>
-                                <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
-                                    <i class="fas fa-eye"></i> View
-                                </button>
-                            {% endif %}
+                            <!-- VIEW LANG DITO -->
+                            <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -626,6 +645,17 @@
         </form>
     </div>
 </div>
+
+<!-- ===== SCANNER MODAL ===== -->
+<div id="scannerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; flex-direction: column;">
+    <div style="background: white; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; position: relative;">
+        <h3 style="margin-top: 0; color: #0d2b1e;">Scan Resident's QR</h3>
+        <div id="reader" style="width: 100%; border-radius: 10px; overflow: hidden;"></div>
+        <button onclick="closeScanner()" style="margin-top: 15px; padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancel</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
 
 <script>
     // ===== SIDEBAR TOGGLE =====
@@ -754,6 +784,38 @@
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
+    // ===== TABLE FILTER (Status + Search) =====
+    function filterTable() {
+        const status = document.getElementById('statusFilter').value.toLowerCase();
+        const searchInput = document.getElementById('navSearch');
+        const search = searchInput ? searchInput.value.toLowerCase() : '';
+        const rows = document.querySelectorAll('#docTable tr');
+        let count = 0;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const rowStatus = (row.getAttribute('data-status') || '').toLowerCase();
+            const matchStatus = (status === 'all') || (rowStatus === status);
+            const matchSearch = text.includes(search);
+
+            if (matchStatus && matchSearch) {
+                row.style.display = '';
+                count++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('totalCount').textContent = count;
+    }
+
+    const navSearchEl = document.getElementById('navSearch');
+    if (navSearchEl) {
+        navSearchEl.addEventListener('keyup', function() {
+            filterTable();
+        });
+    }
+
     // ===== VIEW DETAILS =====
     function viewDetails(docId) {
         const modal = document.getElementById('detailsModal');
@@ -780,6 +842,31 @@
                     'proof_residency': 'Proof of Residency'
                 };
                 
+                const isReady = doc.status === 'ready_for_pickup';
+                const badgeClass = isReady ? 'status-ready' : 'status-approved';
+                const badgeText = isReady ? 'READY FOR PICKUP' : 'APPROVED';
+                
+                const hasFile = doc.completed_file && doc.completed_file.trim() !== '';
+                let actionHtml = '';
+
+                if (hasFile) {
+                    actionHtml = `
+                        <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #f0f2f5; text-align: center;">
+                            <button class="btn-action btn-print" style="padding: 12px 30px; font-size: 13px;" onclick="printDocument('/uploads/${doc.completed_file}')">
+                                <i class="fas fa-print"></i> Print Document
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    actionHtml = `
+                        <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #f0f2f5; text-align: center;">
+                            <button class="btn-action btn-upload" style="padding: 12px 30px; font-size: 13px;" onclick="closeDetailsModal(); openUploadModal('${doc.id}')">
+                                <i class="fas fa-upload"></i> Upload Final Document
+                            </button>
+                        </div>
+                    `;
+                }
+                
                 body.innerHTML = `
                     <div class="view-grid">
                         <div class="view-item">
@@ -788,7 +875,7 @@
                         </div>
                         <div class="view-item">
                             <span class="label">Status</span>
-                            <span class="value"><span class="status-badge status-ready">${String(doc.status || 'READY').toUpperCase()}</span></span>
+                            <span class="value"><span class="status-badge ${badgeClass}">${badgeText}</span></span>
                         </div>
                         <div class="view-item">
                             <span class="label">Document Type</span>
@@ -815,6 +902,7 @@
                             <span class="value">${String(doc.purpose || 'N/A')}</span>
                         </div>
                     </div>
+                    ${actionHtml}
                 `;
             })
             .catch(error => {
@@ -825,6 +913,24 @@
 
     function closeDetailsModal() {
         document.getElementById('detailsModal').classList.remove('active');
+    }
+
+    // ===== PRINT FUNCTION (Direct Print, No New Tab) =====
+    function printDocument(fileUrl) {
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+        iframe.src = fileUrl;
+        iframe.onload = function() {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch (e) {
+                console.error('Print error:', e);
+                alert('Hindi ma-print ang file.');
+            }
+            setTimeout(() => document.body.removeChild(iframe), 60000);
+        };
+        document.body.appendChild(iframe);
     }
 
     // ===== UPLOAD LOGIC =====
@@ -879,6 +985,39 @@
             }
         });
     });
+
+    // ===== SCANNER LOGIC =====
+    let html5QrCode;
+
+    function startScanner() {
+        document.getElementById('scannerModal').style.display = 'flex';
+        html5QrCode = new Html5Qrcode("reader");
+        
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scannerModal').style.display = 'none';
+                    window.location.href = `/verify/${decodedText}`;
+                });
+            },
+            (errorMessage) => {}
+        ).catch((err) => {
+            alert("Camera error: " + err);
+            closeScanner();
+        });
+    }
+
+    function closeScanner() {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                document.getElementById('scannerModal').style.display = 'none';
+            }).catch(err => console.log(err));
+        } else {
+            document.getElementById('scannerModal').style.display = 'none';
+        }
+    }
 </script>
 </body>
 </html>

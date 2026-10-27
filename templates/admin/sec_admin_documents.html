@@ -525,12 +525,6 @@
 <!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
     <div class="big-card">
-        
-        <div style="margin-bottom: 20px; display: flex; justify-content: flex-end;">
-            <button onclick="startScanner()" style="background: #0d2b1e; color: white; padding: 12px 24px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(13,43,30,0.3); transition: 0.2s;" onmouseover="this.style.background='#1a5d3a'" onmouseout="this.style.background='#0d2b1e'">
-                <i class="fas fa-camera"></i> Scan QR Code
-            </button>
-        </div>
 
         <div class="filter-bar">
             <div>
@@ -640,17 +634,6 @@
         </div>
     </div>
 </div>
-
-<!-- ===== SCANNER MODAL ===== -->
-<div id="scannerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; flex-direction: column;">
-    <div style="background: white; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; position: relative;">
-        <h3 style="margin-top: 0; color: #0d2b1e;">Scan Resident's QR</h3>
-        <div id="reader" style="width: 100%; border-radius: 10px; overflow: hidden;"></div>
-        <button onclick="closeScanner()" style="margin-top: 15px; padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancel</button>
-    </div>
-</div>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
 
 <script>
     function toggleSidebar() {
@@ -937,39 +920,6 @@
             if (e.target === this) this.classList.remove('active');
         });
     });
-
-    // ===== SCANNER LOGIC =====
-    let html5QrCode;
-
-    function startScanner() {
-        document.getElementById('scannerModal').style.display = 'flex';
-        html5QrCode = new Html5Qrcode("reader");
-        
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText) => {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scannerModal').style.display = 'none';
-                    window.location.href = `/verify/${decodedText}`;
-                });
-            },
-            (errorMessage) => {}
-        ).catch((err) => {
-            alert("Camera error: " + err);
-            closeScanner();
-        });
-    }
-
-    function closeScanner() {
-        if (html5QrCode) {
-            html5QrCode.stop().then(() => {
-                document.getElementById('scannerModal').style.display = 'none';
-            }).catch(err => console.log(err));
-        } else {
-            document.getElementById('scannerModal').style.display = 'none';
-        }
-    }
 </script>
 </body>
 </html>

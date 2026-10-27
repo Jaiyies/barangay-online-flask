@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, send_from_directory
+from flask import Flask, abort, render_template, request, redirect, url_for, session, flash, jsonify, send_file, send_from_directory
 import mysql.connector
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 import os
+import subprocess
 import time
 import datetime
 import random
@@ -11,26 +12,28 @@ import secrets
 import qrcode
 import io
 import base64
+import uuid
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, send_from_directory, abort
 
 # ============ LOAD ENVIRONMENT VARIABLES ============
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-in-production'
+app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key-if-env-fails')
 
 # ============================================================
 # EMAIL CONFIGURATION - BARANGAY STO. NINO
 # ============================================================
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'barangay.stonino.paranaque@gmail.com'
-app.config['MAIL_PASSWORD'] = 'zcnv ovct phnh ppoo'
-app.config['MAIL_DEFAULT_SENDER'] = ('Barangay Sto. Nino', 'barangay.stonino.paranaque@gmail.com')
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = ('Barangay Sto. Nino', os.getenv('MAIL_USERNAME'))
 
 
 mail = Mail(app)
@@ -174,9 +177,34 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+def allowed_file(filename):
+    """Check kung allowed ang file extension."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_file(file):
+    """I-save ang file na may random na pangalan para hindi ma-hack."""
+    if file and file.filename:
+        if not allowed_file(file.filename):
+            return None 
+        
+    
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        new_filename = f"{uuid.uuid4().hex}.{ext}"
+        
+        filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+        file.save(filepath)
+        return new_filename
+    return None
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 
 @app.route('/uploads/<filename>')
+@login_required
 def uploaded_file(filename):
+    if '..' in filename or filename.startswith('/'):
+        abort(404)
     return send_from_directory('uploads', filename)
 
 
@@ -193,12 +221,13 @@ def index():
 # ============================================================
 def get_db():
     return mysql.connector.connect(
-        host='127.0.0.1',
-        port=3306,
-        user='root',
-        password='bsit2026@123',
-        database='barangay_online_services'
+        host=os.getenv('DB_HOST', '127.0.0.1'),
+        port=int(os.getenv('DB_PORT', 3306)),
+        user=os.getenv('DB_USER', 'root'),
+        password=os.getenv('DB_PASSWORD', ''),
+        database=os.getenv('DB_NAME', 'barangay_online_services')
     )
+
 def generate_qr_token():
     return secrets.token_urlsafe(32)
 
@@ -211,6 +240,19 @@ def generate_qr_base64(data_text):
     buffered = io.BytesIO()
     img.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode()
+
+def is_maintenance_mode():
+    """Check kung naka-ON ang maintenance mode sa database."""
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT maintenance_mode FROM system_config WHERE id = 1")
+        config = cursor.fetchone()
+        return config['maintenance_mode'] if config else False
+    except:
+        return False
+    finally:
+        conn.close()
 
 # ============================================================
 # QR CODE IMAGE ROUTE
@@ -381,6 +423,24 @@ def get_next_queue_number(table_name, venue=None):
         conn.close()
         return f"Q-{count:03d}"
 
+# ============================================================
+# MAINTENANCE MODE CHECKER
+# ============================================================
+@app.before_request
+def check_maintenance():
+    
+    allowed_endpoints = ['login', 'static', 'login_google', 'authorize_google']
+    
+    if request.endpoint in allowed_endpoints:
+        return
+        
+    if session.get('role') in ADMIN_ROLES:
+        return
+        
+    if is_maintenance_mode():
+        session.clear() 
+        flash('The system is currently under maintenance. Please try again later.', 'warning')
+        return redirect(url_for('login'))
 
 # ============================================================
 # LOGIN ROUTE
@@ -1412,11 +1472,7 @@ def request_document_post():
 
     file_data = None
     if 'fileInput' in request.files:
-        file = request.files['fileInput']
-        if file and file.filename:
-            filename = file.filename
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            file_data = filename
+        file_data = save_uploaded_file(request.files['fileInput'])
 
     ref_num = f"DOC-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
     queue_num = get_next_queue_number('document_requests')
@@ -1539,11 +1595,9 @@ def submit_document_request():
 
         file_data = None
         if 'fileInput' in request.files:
-            file = request.files['fileInput']
-            if file and file.filename:
-                filename = file.filename
-                file.save(os.path.join(UPLOAD_FOLDER, filename))
-                file_data = filename
+            uploaded_file = request.files['fileInput']
+            if uploaded_file and uploaded_file.filename:
+                file_data = save_uploaded_file(uploaded_file)
 
         conn = get_db()
         cursor = conn.cursor(dictionary=True)  # ← IMPORTANT: dictionary=True para sa fetchone()
@@ -1734,11 +1788,7 @@ def apply_permit_post():
     # ===== FILE UPLOAD =====
     file_data = None
     if 'requirement' in request.files:
-        file = request.files['requirement']
-        if file and file.filename:
-            filename = file.filename
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            file_data = filename
+        file_data = save_uploaded_file(request.files['requirement'])
 
     # ===== GENERATE REF & QUEUE =====
     ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
@@ -2482,8 +2532,9 @@ def upload_final_document():
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
-    filename = file.filename
-    file.save(os.path.join(UPLOAD_FOLDER, filename))
+    filename = save_uploaded_file(file)
+    if not filename:
+        return jsonify({'error': 'Invalid file type'}), 400
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
@@ -5098,6 +5149,7 @@ def toggle_maintenance():
 # ============================================================
 # DATABASE BACKUP API
 # ============================================================
+
 @app.route('/api/backup-database', methods=['POST'])
 def backup_database():
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -5111,8 +5163,25 @@ def backup_database():
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"{backup_dir}/barangay_backup_{timestamp}.sql"
 
-        cmd = f"mysqldump -u root -pbsit2026@123 barangay_online_services > {filename}"
-        os.system(cmd)
+        db_user = os.getenv('DB_USER', 'root')
+        db_pass = os.getenv('DB_PASSWORD', '')
+        db_name = os.getenv('DB_NAME', 'barangay_online_services')
+
+        mysqldump_path = r"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe"
+
+        with open(filename, 'w') as f:
+            result = subprocess.run(
+                [mysqldump_path, f'-u{db_user}', f'-p{db_pass}', db_name],
+                stdout=f,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+
+        if result.returncode != 0:
+            return jsonify({
+                'error': 'Backup failed. Please check your DB credentials in .env',
+                'details': result.stderr
+            }), 500
 
         return jsonify({
             'success': True,
