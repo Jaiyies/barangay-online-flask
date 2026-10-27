@@ -867,7 +867,25 @@
             body.sidebar-collapsed .main-content { margin-left: 80px; }
             body.sidebar-collapsed .notif-panel { left: 20px; }
             
-            .notif-panel { left: 20px; right: 20px; width: auto; bottom: 80px; }
+                      /* === AYUSIN ANG NOTIF PANEL SA MOBILE (DIKIT SA SIDEBAR) === */
+            .notif-panel { 
+                left: 90px !important; /* Dikit sa sidebar (80px width + 10px space) */
+                right: 10px !important; 
+                width: auto !important; 
+                bottom: 80px !important; 
+                border-radius: 16px !important;
+                transform: none !important; 
+                animation: notifSlideMobile 0.3s ease-out !important;
+            }
+            
+            .sidebar.expanded-mobile ~ .notif-panel {
+                left: 10px !important;
+            }
+
+            @keyframes notifSlideMobile {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
             .sidebar-toggle { display: flex !important; }
 
             /* Header layout para magkatabi ang lang at profile */
@@ -1172,10 +1190,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebar.classList.add('collapsed');
                 document.body.classList.add('sidebar-collapsed');
             }
-
-            if (sidebarToggle) {
+                        if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
+                    
+                    // ISARA ANG NOTIF PANEL PAG CLINICK ANG BURGER
+                    const notifPanel = document.getElementById('notifPanel');
+                    const notifBell = document.getElementById('notifBell');
+                    if (notifPanel) notifPanel.classList.remove('show');
+                    if (notifBell) notifBell.classList.remove('active');
+
                     if (window.innerWidth <= 992) {
                         sidebar.classList.toggle('expanded-mobile');
                     } else {
@@ -1210,7 +1234,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => { window.location.href = href; }, 200);
             });
         });
-
         document.addEventListener('click', function(e) {
             const userMenu = document.getElementById('userMenu');
             const userBadge = document.querySelector('.user-badge');
@@ -1221,12 +1244,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (userMenu && userBadge && !userBadge.contains(e.target) && !userMenu.contains(e.target)) userMenu.classList.remove('show');
             if (langMenu && langSwitcher && !langSwitcher.contains(e.target)) langMenu.classList.remove('show');
-            if (notifPanel && notifBell && !notifBell.contains(e.target) && !notifPanel.contains(e.target)) {
+            
+            // Close Notif Panel (Pag clinick sa labas)
+            if (notifPanel && notifBell && !notifPanel.contains(e.target)) {
                 notifPanel.classList.remove('show');
                 notifBell.classList.remove('active');
             }
         });
-
         document.getElementById('userMenu')?.addEventListener('click', function(e) { e.stopPropagation(); });
         document.getElementById('langMenu')?.addEventListener('click', function(e) { e.stopPropagation(); });
         document.getElementById('notifPanel')?.addEventListener('click', function(e) { e.stopPropagation(); });

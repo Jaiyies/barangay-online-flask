@@ -1045,11 +1045,16 @@
                 sidebar.classList.add('collapsed');
                 document.body.classList.add('sidebar-collapsed');
             }
-
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
+                    // ISARA ANG NOTIF PANEL PAG CLINICK ANG BURGER
+                    const notifPanel = document.getElementById('notifPanel');
+                    const notifBell = document.getElementById('notifBell');
+                    if (notifPanel) notifPanel.classList.remove('show');
+                    if (notifBell) notifBell.classList.remove('active');
+
                     if (window.innerWidth <= 992) {
                         sidebar.classList.toggle('expanded-mobile');
                     } else {
@@ -1059,7 +1064,6 @@
                     }
                 });
             }
-
             document.addEventListener('click', function(e) {
                 const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
                 const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
@@ -1098,7 +1102,6 @@
             if (langMenu) langMenu.classList.remove('show');
             if (menu) menu.classList.toggle('show');
         }
-
         document.addEventListener('click', function(e) {
             const userMenu = document.getElementById('userMenu');
             const userBadge = document.querySelector('.user-badge');
@@ -1153,16 +1156,23 @@
                 }
             }
         }
-
+        // ===== CLICK ANYWHERE TO CLOSE NOTIF PANEL =====
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');
             const bell = document.getElementById('notifBell');
-            if (panel && bell && !bell.contains(e.target) && !panel.contains(e.target)) {
-                panel.classList.remove('show');
-                bell.classList.remove('active');
+            
+            if (panel && bell) {
+                if (!panel.contains(e.target)) {
+                    panel.classList.remove('show');
+                    bell.classList.remove('active');
+                }
             }
         });
-        document.getElementById('notifPanel')?.addEventListener('click', function(e) { e.stopPropagation(); });
+
+        // Iwasan ang pagsasara kapag clinick ang loob ng panel
+        document.getElementById('notifPanel')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
 
         // ===== MARK ALL AS READ (para sa footer click) =====
         function markAllAsRead(fromOpen = false) {

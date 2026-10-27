@@ -992,6 +992,94 @@
             .emergency-icon { width: 40px; height: 40px; font-size: 16px; }
             .emergency-info h4 { font-size: 0.85rem; }
             .emergency-info p { font-size: 0.72rem; }
+
+                    /* === FINAL OVERRIDE PARA SA MOBILE EMERGENCY MODAL === */
+        @media (max-width: 576px) {
+            .emergency-modal-overlay {
+                padding: 10px !important; 
+            }
+            .emergency-modal-box {
+                border-radius: 16px !important; 
+                max-height: 90vh !important; 
+                width: 85% !important;
+                max-width: 320px !important;
+            }
+            .emergency-header {
+                padding: 14px 16px !important; 
+                gap: 10px !important;
+            }
+            .emergency-header i.fa-phone-volume {
+                font-size: 18px !important; 
+                padding: 8px !important;
+                border-radius: 10px !important;
+            }
+            .emergency-header h3 {
+                font-size: 1rem !important; 
+            }
+            .emergency-header p {
+                font-size: 0.7rem !important; 
+            }
+            .emergency-close-btn {
+                top: 10px !important;
+                right: 10px !important;
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 16px !important;
+            }
+            .emergency-body {
+                padding: 12px 14px !important; 
+            }
+            .emergency-item {
+                padding: 10px 12px !important; 
+                gap: 10px !important;
+                margin-bottom: 8px !important;
+                border-radius: 10px !important;
+            }
+            .emergency-icon {
+                width: 36px !important; 
+                height: 36px !important;
+                font-size: 14px !important;
+                border-radius: 10px !important;
+            }
+            .emergency-info h4 {
+                font-size: 0.85rem !important; 
+                margin-bottom: 2px !important;
+            }
+            .emergency-info p {
+                font-size: 0.72rem !important; 
+            }
+        }
+
+        /* === AYUSIN ANG NOTIF PANEL (RECENT ANNOUNCEMENTS) SA MOBILE === */
+        @media (max-width: 992px) {
+            .notif-panel { 
+                left: 90px !important; 
+                right: 10px !important; 
+                width: auto !important; 
+                bottom: 80px !important; 
+                border-radius: 16px !important;
+            }
+            .sidebar.expanded-mobile ~ .notif-panel {
+                left: 10px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .notif-panel {
+                left: 90px !important; 
+                right: 10px !important;
+                width: auto !important; 
+                bottom: 75px !important;
+                border-radius: 14px !important;
+            }
+            .notif-header {
+                padding: 12px 14px !important; 
+                font-size: 12px !important;
+            }
+            .notif-body {
+                max-height: 200px !important; 
+            }
+        }
         }
     </style>
      <script src="{{ url_for('static', filename='translations.js') }}"></script>
@@ -1058,7 +1146,6 @@
     <div class="emergency-fab" onclick="openEmergencyModal()" title="Emergency Contacts">
         <i class="fas fa-phone-volume"></i>
     </div>
-
     <!-- ===== EMERGENCY MODAL ===== -->
     <div class="emergency-modal-overlay" id="emergencyModal">
         <div class="emergency-modal-box">
@@ -1066,54 +1153,59 @@
                 <i class="fas fa-phone-volume"></i>
                 <div class="emergency-header-text">
                     <h3>Emergency Contacts</h3>
-                    <p>Tap any contact to call</p>
+                    <p>Tap any contact to open Facebook page</p>
                 </div>
                 <button class="emergency-close-btn" onclick="closeEmergencyModal()">&times;</button>
             </div>
             <div class="emergency-body">
                 
                 <!-- Barangay -->
-                <a href="tel:09171234567" class="emergency-item brgy">
+                <!-- PALITAN MO ITO NG TOTOONG FB LINK NG BARANGAY -->
+                <a href="https://www.facebook.com/Stoninoparanaque?__tn__=%3C" target="_blank" rel="noopener noreferrer" class="emergency-item brgy">
                     <div class="emergency-icon brgy"><i class="fas fa-building"></i></div>
                     <div class="emergency-info">
                         <h4>Barangay Sto. Niño Hall</h4>
-                        <p>0917-123-4567</p>
+                        <p>0992-225-0927</p>
                     </div>
                 </a>
 
                 <!-- PNP -->
-                <a href="tel:911" class="emergency-item police">
+                <!-- PALITAN MO ITO NG TOTOONG FB LINK NG PNP -->
+                <a href="https://www.facebook.com/bagongparanaquepnp" target="_blank" rel="noopener noreferrer" class="emergency-item police">
                     <div class="emergency-icon police"><i class="fas fa-shield-alt"></i></div>
                     <div class="emergency-info">
                         <h4>PNP Station</h4>
-                        <p>911 / (02) 8-123-4567</p>
+                        <p>0998-598-7926</p>
                     </div>
                 </a>
 
                 <!-- BFP -->
-                <a href="tel:911" class="emergency-item fire">
+                <!-- PALITAN MO ITO NG TOTOONG FB LINK NG BFP -->
+                <a href="https://www.facebook.com/bfpparanaque?__cft__[0]=AZgjds6UIX-cPJ8bM_LBOCW4NsCHGADx6ckoZP5YFSWoonNL5eZ1HnI_s8amiwYWlXuC07O5Q0BSM7VEGjCddKJUZlrQy5MVadHtisyCW7LGXGaHA5wAOSv3Sw9H_QLTBIlhvxLmW3XI7NYtzpP2YMMRs5U7Oe4p&__tn__=%2Cd-UC%2CP-R" class="emergency-item fire">
                     <div class="emergency-icon fire"><i class="fas fa-fire-extinguisher"></i></div>
                     <div class="emergency-info">
                         <h4>Bureau of Fire Protection</h4>
-                        <p>911 / (02) 8-426-0219</p>
+                        <p>911 / 8826-9131</p>
                     </div>
                 </a>
 
                 <!-- Hospital -->
-                <a href="tel:09171234567" class="emergency-item health">
+                <!-- PALITAN MO ITO NG TOTOONG FB LINK NG HEALTH CENTER -->
+                <a href="https://www.facebook.com/stoninohealthcenter" rel="noopener noreferrer" class="emergency-item health">
                     <div class="emergency-icon health"><i class="fas fa-hospital"></i></div>
                     <div class="emergency-info">
                         <h4>Barangay Health Center</h4>
-                        <p>0917-123-4567</p>
+                        <p>0968-343-9762</p>
                     </div>
                 </a>
 
                 <!-- MDRRMO -->
-                <a href="tel:09171234567" class="emergency-item disaster">
+                <!-- PALITAN MO ITO NG TOTOONG FB LINK NG MDRRMO -->
+                <a href="https://www.facebook.com/pquecdrrmo" target="_blank" rel="noopener noreferrer" class="emergency-item disaster">
                     <div class="emergency-icon disaster"><i class="fas fa-exclamation-triangle"></i></div>
                     <div class="emergency-info">
                         <h4>MDRRMO (Disaster Response)</h4>
-                        <p>0917-123-4567</p>
+                        <p>0920-983-3252</p>
                     </div>
                 </a>
 
@@ -1248,10 +1340,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.classList.add('sidebar-collapsed');
             }
 
-            if (sidebarToggle) {
+                        if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
+                    // ISARA ANG NOTIF PANEL PAG CLINICK ANG BURGER
+                    const notifPanel = document.getElementById('notifPanel');
+                    const notifBell = document.getElementById('notifBell');
+                    if (notifPanel) notifPanel.classList.remove('show');
+                    if (notifBell) notifBell.classList.remove('active');
+
                     if (window.innerWidth <= 992) {
                         sidebar.classList.toggle('expanded-mobile');
                     } else {
@@ -1281,18 +1379,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 350);
             }
         }
+        
+                document.addEventListener('click', function(e) {
+            const userMenu = document.getElementById('userMenu');
+            const userBadge = document.querySelector('.user-badge');
+            const langMenu = document.getElementById('langMenu');
+            const langSwitcher = document.querySelector('.lang-switcher');
+            const notifPanel = document.getElementById('notifPanel');
+            const notifBell = document.getElementById('notifBell');
 
-        document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
-            const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
-            const isActionCard = e.target.closest('.action-card');
-
-            if (sidebar && window.innerWidth <= 992) {
-                if (!isClickInsideSidebar && !isToggleButton && !isActionCard) {
-                    sidebar.classList.remove('expanded-mobile');
-                }
+            // Close User Menu & Lang Menu
+            if (userMenu && userBadge && !userBadge.contains(e.target) && !userMenu.contains(e.target)) userMenu.classList.remove('show');
+            if (langMenu && langSwitcher && !langSwitcher.contains(e.target)) langMenu.classList.remove('show');
+            
+            // Close Notif Panel (Pag clinick sa labas)
+            if (notifPanel && notifBell && !notifPanel.contains(e.target)) {
+                notifPanel.classList.remove('show');
+                notifBell.classList.remove('active');
             }
         });
 
@@ -1305,22 +1408,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (mainContent) mainContent.classList.add('fade-out');
                 setTimeout(() => { window.location.href = href; }, 200);
             });
-        });
-
-        document.addEventListener('click', function(e) {
-            const userMenu = document.getElementById('userMenu');
-            const userBadge = document.querySelector('.user-badge');
-            const langMenu = document.getElementById('langMenu');
-            const langSwitcher = document.querySelector('.lang-switcher');
-            const notifPanel = document.getElementById('notifPanel');
-            const notifBell = document.getElementById('notifBell');
-
-            if (userMenu && userBadge && !userBadge.contains(e.target) && !userMenu.contains(e.target)) userMenu.classList.remove('show');
-            if (langMenu && langSwitcher && !langSwitcher.contains(e.target)) langMenu.classList.remove('show');
-            if (notifPanel && notifBell && !notifBell.contains(e.target) && !notifPanel.contains(e.target)) {
-                notifPanel.classList.remove('show');
-                notifBell.classList.remove('active');
-            }
         });
 
         document.getElementById('userMenu')?.addEventListener('click', function(e) { e.stopPropagation(); });

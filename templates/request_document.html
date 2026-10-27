@@ -1991,80 +1991,48 @@
                 border-radius: 20px;
             }
         }
-        
+                /* === AYUSIN ANG NOTIF PANEL SA MOBILE (DIKIT SA SIDEBAR) === */
         @media (max-width: 992px) {
-            .notif-panel {
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                bottom: 85px !important; 
-                width: calc(100vw - 40px) !important; 
-                max-width: 320px !important; 
-                border-radius: 20px !important; 
-                box-shadow: 0 12px 30px rgba(15, 61, 42, 0.25) !important; 
+            .notif-panel { 
+                left: 90px !important; /* Dikit sa sidebar (80px width + 10px space) */
+                right: 10px !important; 
+                width: auto !important; 
+                bottom: 80px !important; 
+                border-radius: 16px !important;
+                transform: none !important; /* Tanggalin ang center transform */
+                animation: notifSlideMobile 0.3s ease-out !important;
             }
             
-            @keyframes notifSlide {
-                from { opacity: 0; transform: translate(-50%, 10px) scale(0.96); }
-                to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            /* Kapag naka-expand yung sidebar sa mobile, itago muna o ilipat */
+            .sidebar.expanded-mobile ~ .notif-panel {
+                left: 10px !important;
+            }
+
+            @keyframes notifSlideMobile {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+
+        @media (max-width: 576px) {
+            .notif-panel {
+                left: 90px !important; 
+                right: 10px !important;
+                width: auto !important; 
+                bottom: 75px !important;
+                border-radius: 14px !important;
             }
 
             .notif-header {
-                padding: 16px 20px !important;
-                background: linear-gradient(135deg, #145233, #0f3d2a) !important; 
-                gap: 12px !important;
-            }
-            .notif-header i {
-                background: rgba(255, 255, 255, 0.1) !important;
-                color: #a3dbb8 !important; 
-                font-size: 0.9rem !important;
-                padding: 8px !important;
-                border-radius: 10px !important;
-                border: none !important;
-            }
-            .notif-header h4 {
-                font-size: 0.9rem !important;
-                font-weight: 600 !important; 
-                letter-spacing: 0.02em !important;
+                padding: 12px 14px !important; 
+                font-size: 12px !important;
             }
 
-            .notif-item {
-                padding: 16px 20px !important;
-                gap: 14px !important;
-            }
-            .notif-icon {
-                width: 36px !important;
-                height: 36px !important;
-                font-size: 1rem !important;
-                background: #eff8f2 !important; 
-                border-radius: 12px !important; 
-            }
-            .notif-content h5 {
-                font-size: 0.85rem !important;
-                font-weight: 600 !important;
-                color: #0f3d2a !important;
-                margin-bottom: 4px !important;
-            }
-            .notif-content p {
-                font-size: 0.7rem !important;
-                color: #6b8475 !important;
-            }
-
-            .notif-footer {
-                padding: 14px !important;
-                font-size: 0.8rem !important;
-                font-weight: 600 !important;
-                background: #fafcfb !important; 
-                color: #1a6b42 !important;
-                border-top: 1px solid #eff8f2 !important;
-            }
-            .notif-footer i {
-                font-size: 0.75rem !important;
-                transition: transform 0.2s ease !important;
-            }
-            .notif-footer:hover i {
-                transform: translateX(4px) !important; 
+            .notif-body {
+                max-height: 200px !important; 
             }
         }
+        
     </style>
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
@@ -2633,6 +2601,12 @@
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
+                    // ISARA ANG NOTIF PANEL PAG CLINICK ANG BURGER
+                    const notifPanel = document.getElementById('notifPanel');
+                    const notifBell = document.getElementById('notifBell');
+                    if (notifPanel) notifPanel.classList.remove('show');
+                    if (notifBell) notifBell.classList.remove('active');
+
                     if (window.innerWidth <= 992) {
                         sidebar.classList.toggle('expanded-mobile');
                     } else {
@@ -2642,7 +2616,6 @@
                     }
                 });
             }
-
             document.addEventListener('click', function(e) {
                 const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
                 const isToggleButton = sidebarToggle && sidebarToggle.contains(e.target);
@@ -2916,7 +2889,7 @@
             }, 300);
         }
 
-        document.addEventListener('click', function(e) {
+       document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');
             const bell = document.getElementById('notifBell');
             if (panel && bell && !bell.contains(e.target) && !panel.contains(e.target)) {

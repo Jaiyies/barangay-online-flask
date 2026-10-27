@@ -6,7 +6,6 @@
     <title>FAQs | Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <!-- IDAGDAG ITO -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
     <style>
         :root {
@@ -351,7 +350,7 @@
             border: 2px solid var(--primary-800);
         }
 
-        /* ===== NOTIF PANEL ===== */
+        /* ===== NOTIF PANEL (KATULAD NG SA ABOUT US) ===== */
         .notif-panel {
             display: none;
             position: fixed;
@@ -360,66 +359,118 @@
             width: 360px;
             background: white;
             border-radius: 18px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.30);
+            box-shadow: 
+                0 24px 60px rgba(0,0,0,0.30),
+                0 0 0 1px rgba(0,0,0,0.05),
+                0 8px 24px rgba(15, 61, 42, 0.15);
             overflow: hidden;
             z-index: 99999;
+            animation: notifSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body.sidebar-collapsed .notif-panel { left: 68px; }
+        body.sidebar-collapsed .notif-panel {
+            left: 68px;
+        }
+
         .notif-panel.show { display: block; }
 
+        @keyframes notifSlide {
+            from { opacity: 0; transform: translateY(10px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         .notif-header {
+            padding: 16px 20px;
             background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
-            padding: 18px 22px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
             color: white;
-        }
-
-        .notif-header i {
-            background: rgba(255,255,255,0.15);
-            padding: 10px;
-            border-radius: 12px;
-        }
-
-        .notif-header h4 { font-size: 1rem; font-weight: 800; }
-
-        .notif-body { max-height: 320px; overflow-y: auto; padding: 6px 0; }
-
-        .notif-item {
-            display: flex;
-            gap: 12px;
-            padding: 14px 22px;
-            border-bottom: 1px solid var(--neutral-100);
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .notif-item:hover { background: var(--primary-50); }
-
-        .notif-icon {
-            font-size: 1.3rem;
-            width: 36px; height: 36px;
+            font-weight: 700;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: var(--primary-50);
-            border-radius: 10px;
+            justify-content: space-between;
+            gap: 10px;
         }
 
-        .notif-content h5 {
-            font-size: 0.88rem;
-            font-weight: 700;
+        .bell-dropdown-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bell-dropdown-header-left i.fa-bullhorn {
+            background: rgba(255,255,255,0.15);
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .mark-all-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .mark-all-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+        
+        .notif-body { max-height: 320px; overflow-y: auto; padding: 8px; }
+        
+        .bell-item {
+            display: block;
+            padding: 12px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--neutral-900);
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f4f8f5;
+            position: relative;
+        }
+        .bell-item:last-child { border-bottom: none; }
+        .bell-item:hover { background: #f4f8f5; }
+        .bell-item-title {
+            font-weight: 600;
+            font-size: 13.5px;
             color: var(--primary-800);
             margin-bottom: 4px;
+            line-height: 1.4;
         }
-
-        .notif-content p {
-            font-size: 0.75rem;
+        .bell-item-date {
+            font-size: 11.5px;
             color: var(--neutral-500);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .bell-item.unread::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+        }
+        .bell-loading, .bell-empty { text-align: center; padding: 30px 20px; color: var(--neutral-500); font-size: 13px; }
+        .bell-empty i { font-size: 36px; color: var(--primary-100); display: block; margin-bottom: 10px; }
 
         .notif-footer {
             display: flex;
@@ -717,7 +768,27 @@
                 padding: 24px 22px;
             }
             .page-header-card p { margin-left: 0; }
-            .notif-panel { left: 20px; right: 20px; width: auto; bottom: 80px; }
+
+            /* === AYUSIN ANG NOTIF PANEL SA MOBILE (DIKIT SA SIDEBAR) === */
+            .notif-panel { 
+                left: 90px !important; /* Dikit sa sidebar (80px width + 10px space) */
+                right: 10px !important; 
+                width: auto !important; 
+                max-width: 320px !important; /* Compact width */
+                bottom: 80px !important; 
+                border-radius: 16px !important;
+                transform: none !important; /* Tanggalin ang center transform */
+                animation: notifSlideMobile 0.3s ease-out !important;
+            }
+            
+            .sidebar.expanded-mobile ~ .notif-panel {
+                left: 10px !important;
+            }
+
+            @keyframes notifSlideMobile {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
 
             .sidebar-toggle {
                 display: flex !important; 
@@ -780,6 +851,23 @@
             .faq-question { padding: 16px 20px; font-size: 0.9rem; }
             .faq-item.active .faq-answer { padding: 0 20px 18px 20px; }
             .faq-question .question-text .q-number { padding: 6px 10px; min-width: 32px; font-size: 0.8rem; }
+            
+            /* Notif Panel Mobile Adjustments */
+            .notif-panel {
+                left: 90px !important; 
+                right: 10px !important;
+                width: auto !important; 
+                max-width: 320px !important;
+                bottom: 75px !important;
+                border-radius: 14px !important;
+            }
+            .notif-header {
+                padding: 12px 14px !important; 
+                font-size: 12px !important;
+            }
+            .notif-body {
+                max-height: 200px !important; 
+            }
         }
     </style>
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
@@ -823,23 +911,20 @@
     <span class="bell-badge" id="bellBadge" style="display: none;">0</span>
 </div>
       </div>
-
     </aside>
 
     <!-- NOTIFICATION PANEL -->
     <div class="notif-panel" id="notifPanel">
         <div class="notif-header">
-            <i class="fas fa-bullhorn"></i>
-            <h4>Recent Announcements</h4>
+            <div class="bell-dropdown-header-left">
+                <i class="fas fa-bullhorn"></i> Recent Announcements
+            </div>
+            <button class="mark-all-btn" id="markAllReadBtn" onclick="markAllAsRead(event)">
+                <i class="fas fa-check-double"></i> Mark all
+            </button>
         </div>
-        <div class="notif-body">
-            <a href="{{ url_for('user_announcements') }}" class="notif-item">
-                <div class="notif-icon">📢</div>
-                <div class="notif-content">
-                    <h5>School Event Announcement</h5>
-                    <p><i class="far fa-clock"></i> Oct 2, 2026</p>
-                </div>
-            </a>
+        <div class="notif-body" id="notifList">
+            <div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
         </div>
         <a href="{{ url_for('user_announcements') }}" class="notif-footer">
             View All Announcements <i class="fas fa-arrow-right"></i>
@@ -1328,6 +1413,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
+                    // ISARA ANG NOTIF PANEL PAG CLINICK ANG BURGER
+                    const notifPanel = document.getElementById('notifPanel');
+                    const notifBell = document.getElementById('notifBell');
+                    if (notifPanel) notifPanel.classList.remove('show');
+                    if (notifBell) notifBell.classList.remove('active');
+
                     // Kapag mobile view (below 992px), i-toggle ang 'expanded-mobile' class
                     if (window.innerWidth <= 992) {
                         sidebar.classList.toggle('expanded-mobile');
@@ -1381,38 +1472,121 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // ===== NOTIFICATION BELL =====
-       // ===== NOTIFICATION BELL =====
-function toggleNotifPanel(event) {
-    if (event) event.stopPropagation();
-    const panel = document.getElementById('notifPanel');
-    const bell = document.getElementById('notifBell');
-    const badge = document.getElementById('bellBadge');
-    
-    if (panel) {
-        const isShowing = panel.classList.toggle('show');
-        if (bell) bell.classList.toggle('active');
+        // ===== NOTIFICATION BELL LOGIC (KATULAD NG DASHBOARD) =====
+        function toggleNotifPanel(event) {
+            if (event) event.stopPropagation();
+            const panel = document.getElementById('notifPanel');
+            const bell = document.getElementById('notifBell');
+            
+            if (panel) {
+                panel.classList.toggle('show');
+                if (bell) bell.classList.toggle('active');
+                if (panel.classList.contains('show')) {
+                    loadRecentAnnouncements();
+                }
+            }
+        }
 
-        // Kapag binuksan ang panel, itago ang badge at markahan lahat as read sa database
-        if (isShowing && badge) {
-            badge.style.display = 'none';
-            badge.textContent = '0';
+        function markAllAsRead(event) {
+            if (event) event.stopPropagation();
             
             fetch('/api/announcements/mark-all-read', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const badge = document.getElementById('bellBadge');
+                        if (badge) {
+                            badge.style.display = 'none';
+                            badge.textContent = '0';
+                        }
+                        
+                        const btn = document.getElementById('markAllReadBtn');
+                        if (btn) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> All Read';
+                            btn.style.opacity = '0.6';
+                            btn.disabled = true;
+                        }
+
+                        loadRecentAnnouncements();
+                    }
+                })
                 .catch(err => console.error('Mark all read error:', err));
         }
-    }
-}
 
+        function loadRecentAnnouncements() {
+            var list = document.getElementById('notifList');
+            if (!list) return;
+            list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            
+            fetch('/api/announcements/recent?limit=5')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (!data.announcements || data.announcements.length === 0) {
+                        list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                        return;
+                    }
+                    
+                    var html = '';
+                    data.announcements.forEach(function(a) {
+                        var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        var isUnread = (a.is_read === 0 || a.is_read === false || a.is_read === null || a.is_read === undefined);
+                        var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
+                        
+                        html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
+                            '<div class="bell-item-title">' + (a.title || 'Untitled') + '</div>' +
+                            '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
+                        '</a>';
+                    });
+                    list.innerHTML = html;
+                })
+                .catch(function(err) {
+                    console.error('Bell fetch error:', err);
+                    list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
+                });
+        }
+
+        function openAnnouncementFromBell(announcementId) {
+            fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        fetch('/api/announcements/unread_count')
+                            .then(res => res.json())
+                            .then(data => {
+                                const badge = document.getElementById('bellBadge');
+                                if (badge) {
+                                    if (data.unread_count > 0) {
+                                        badge.textContent = data.unread_count;
+                                        badge.style.display = 'flex';
+                                    } else {
+                                        badge.style.display = 'none';
+                                    }
+                                }
+                            });
+                        loadRecentAnnouncements();
+                    }
+                })
+                .catch(function(err) { console.error('Mark read error:', err); });
+
+            setTimeout(function() {
+                window.location.href = "{{ url_for('user_announcements') }}";
+            }, 300);
+        }
+
+        // ===== CLICK ANYWHERE TO CLOSE NOTIF PANEL =====
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('notifPanel');
             const bell = document.getElementById('notifBell');
-            if (panel && bell && !bell.contains(e.target) && !panel.contains(e.target)) {
-                panel.classList.remove('show');
-                bell.classList.remove('active');
+            
+            if (panel && bell) {
+                if (!panel.contains(e.target)) {
+                    panel.classList.remove('show');
+                    bell.classList.remove('active');
+                }
             }
         });
 
+        // Iwasan ang pagsasara kapag clinick ang loob ng panel
         document.getElementById('notifPanel')?.addEventListener('click', function(e) {
             e.stopPropagation();
         });

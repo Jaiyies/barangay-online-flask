@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,7 @@
             --primary-500: #228b54;
             --primary-400: #3aa86c;
             --neutral-900: #0d1a12;
+            --neutral-700: #3d5a4a;
             --neutral-500: #6b8475;
             --neutral-100: #e3ede7;
             --neutral-50: #f4f8f5;
@@ -132,14 +133,32 @@
             font-size: 0.7rem;
             font-weight: 600;
             color: var(--neutral-700);
-            padding: 4px 10px;
+            padding: 6px 12px;
             background: var(--neutral-50);
             border-radius: 20px;
             border: 1px solid var(--neutral-100);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
         }
+        
+        /* Hover at Active state para sa Legend */
+        .legend-item:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .legend-item.active {
+            background: var(--primary-800);
+            color: white;
+            border-color: var(--primary-800);
+        }
+        .legend-item.active .legend-dot { border: 1px solid white; }
+
         .legend-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
         }
 
@@ -165,44 +184,223 @@
         .custom-marker.fire { background: linear-gradient(135deg, #ef4444, #b91c1c); }
         .custom-marker.school { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
-        /* === LEAFLET POPUP STYLING === */
-        .leaflet-popup-content-wrapper {
-            border-radius: 16px !important;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.2) !important;
-            padding: 0 !important;
+        /* ===== INFORMATION SIDE PANEL ===== */
+        #info-panel {
+            position: absolute;
+            top: 110px;
+            left: 20px;
+            width: 320px;
+            background: white;
+            z-index: 1001;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            display: none; 
+            animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding: 24px;
         }
-        .leaflet-popup-content {
-            margin: 0 !important;
-            padding: 16px 20px !important;
-            font-family: 'Inter', sans-serif !important;
-            min-width: 200px;
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
-        .popup-title {
-            font-size: 1rem;
+
+        .close-panel-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--neutral-50);
+            border: 1px solid var(--neutral-100);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--neutral-500);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .close-panel-btn:hover {
+            background: #ffe4e4;
+            color: #dc3545;
+            border-color: #ffc9c9;
+            transform: scale(1.1);
+        }
+
+        #panel-title {
+            font-size: 1.3rem;
             font-weight: 800;
             color: var(--primary-800);
             margin-bottom: 6px;
+            line-height: 1.2;
+            padding-right: 30px;
+        }
+
+        .panel-location {
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.4;
+        }
+        .panel-location i {
+            color: var(--primary-400);
+            margin-top: 3px;
+        }
+
+        .panel-desc {
+            font-size: 0.9rem;
+            color: var(--neutral-700);
+            margin-bottom: 20px;
+            line-height: 1.5;
+            padding-top: 16px;
+            border-top: 1px dashed var(--neutral-100);
+        }
+
+        .panel-status {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-open { background: #d1fae5; color: #065f46; }
+        .status-evac { background: #fef3c7; color: #92400e; }
+        .status-school { background: #ede9fe; color: #5b21b6; }
+        .status-fire { background: #fee2e2; color: #991b1b; }
+        .status-police { background: #dbeafe; color: #1e40af; }
+
+        .panel-actions {
+            margin-top: 20px; 
+            border-top: 1px dashed var(--neutral-100);
+            padding-top: 20px;
+        }
+
+        .dir-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px; 
+            border-radius: 12px; 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            transition: all 0.2s ease;
+            background: var(--primary-50); 
+            color: var(--primary-800); 
+            border: 1.5px solid var(--primary-100); 
+        }
+
+        .dir-btn:hover { 
+            background: var(--primary-500);
+            color: white;
+            border-color: var(--primary-500);
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(34, 139, 84, 0.3);
+        }
+
+        /* ===== LIST PANEL (Bagong Dagdag para sa mga Listahan) ===== */
+        #list-panel {
+            position: absolute;
+            bottom: 90px; /* Itaas ng legend */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            max-height: 40vh;
+            background: white;
+            z-index: 1002;
+            border-radius: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+            display: none; 
+            flex-direction: column;
+            animation: slideUp 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        .list-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--neutral-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--neutral-50);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .list-header h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--primary-800);
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .popup-desc {
-            font-size: 0.82rem;
+
+        .close-list-btn {
+            background: none;
+            border: none;
             color: var(--neutral-500);
-            line-height: 1.5;
-            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.2s;
         }
-        .popup-status {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
+        .close-list-btn:hover { color: #dc3545; }
+
+        .list-body {
+            padding: 10px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--neutral-50);
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item:hover { background: var(--primary-50); }
+
+        .list-item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .list-item-info h4 {
+            font-size: 0.9rem;
+            color: var(--primary-800);
             font-weight: 700;
-            text-transform: uppercase;
+            margin-bottom: 2px;
         }
-        .popup-status.open { background: #d1fae5; color: #065f46; }
-        .popup-status.evac { background: #fef3c7; color: #92400e; }
-        .popup-status.school { background: #ede9fe; color: #5b21b6; }
+        .list-item-info p {
+            font-size: 0.75rem;
+            color: var(--neutral-500);
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -221,8 +419,29 @@
                 border-radius: 20px;
                 gap: 5px;
             }
-            .legend-item { font-size: 0.6rem; padding: 3px 6px; }
-            .legend-dot { width: 6px; height: 6px; }
+            .legend-item { font-size: 0.6rem; padding: 4px 8px; }
+            .legend-dot { width: 8px; height: 8px; }
+
+            #info-panel {
+                top: auto;
+                bottom: 80px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+                max-width: none;
+                animation: slideUpMobile 0.3s ease-out;
+            }
+
+            @keyframes slideUpMobile {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            #list-panel {
+                bottom: 70px;
+                width: 95%;
+                max-height: 50vh;
+            }
         }
     </style>
 </head>
@@ -231,7 +450,6 @@
     <!-- FLOATING HEADER -->
     <div class="map-header">
         <div class="header-left">
-            <!-- BACK BUTTON -->
             <a href="{{ url_for('dashboard') }}" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
@@ -242,17 +460,63 @@
         </div>
     </div>
 
+    <!-- INFORMATION SIDE PANEL -->
+    <div id="info-panel">
+        <button class="close-panel-btn" onclick="closePanel()"><i class="fas fa-times"></i></button>
+        <h2 id="panel-title">Location Name</h2>
+        
+        <div class="panel-location">
+            <i class="fas fa-map-marker-alt"></i>
+            <span id="panel-location-text">Address here.</span>
+        </div>
+
+        <div class="panel-desc" id="panel-desc">
+            Description here.
+        </div>
+
+        <span id="panel-status-badge" class="panel-status"></span>
+
+        <div class="panel-actions">
+            <a href="#" id="btn-directions" target="_blank" class="dir-btn">
+                <i class="fas fa-directions"></i> Get Directions
+            </a>
+        </div>
+    </div>
+
+    <!-- LIST PANEL (Hidden by default) -->
+    <div id="list-panel">
+        <div class="list-header">
+            <h3 id="list-title"><i class="fas fa-list"></i> List</h3>
+            <button class="close-list-btn" onclick="closeListPanel()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="list-body" id="list-body">
+            <!-- Items will be injected here via JS -->
+        </div>
+    </div>
+
     <!-- MAP -->
     <div id="map"></div>
 
-    <!-- MAP LEGEND -->
+    <!-- MAP LEGEND (Clickable) -->
     <div class="map-legend">
-        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);"></span> Barangay Hall</div>
-        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #22c55e, #15803d);"></span> Health Center</div>
-        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></span> Evacuation</div>
-        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #3b82f6, #1e40af);"></span> Police</div>
-        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #ef4444, #b91c1c);"></span> Fire</div>
-        <div class="legend-item"><span class="legend-dot" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);"></span> School</div>
+        <div class="legend-item" onclick="showList('brgy', 'Barangay Halls')">
+            <span class="legend-dot" style="background: #0f3d2a;"></span> Barangay Hall
+        </div>
+        <div class="legend-item" onclick="showList('health', 'Health Centers')">
+            <span class="legend-dot" style="background: #15803d;"></span> Health Center
+        </div>
+        <div class="legend-item" onclick="showList('evacuation', 'Evacuation Centers')">
+            <span class="legend-dot" style="background: #d97706;"></span> Evacuation
+        </div>
+        <div class="legend-item" onclick="showList('police', 'Police Stations')">
+            <span class="legend-dot" style="background: #1e40af;"></span> Police
+        </div>
+        <div class="legend-item" onclick="showList('fire', 'Fire Stations')">
+            <span class="legend-dot" style="background: #b91c1c;"></span> Fire
+        </div>
+        <div class="legend-item" onclick="showList('school', 'Schools')">
+            <span class="legend-dot" style="background: #7c3aed;"></span> School
+        </div>
     </div>
 
     <!-- LEAFLET JS -->
@@ -260,7 +524,6 @@
     
     <script>
         // ===== INITIALIZE MAP =====
-        // Focus sa Parañaque area
         const barangayCenter = [14.4998, 120.9948]; 
         
         const map = L.map('map', {
@@ -272,7 +535,7 @@
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // ===== MAP TILES (OpenStreetMap - libre) =====
+        // ===== MAP TILES =====
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 19
@@ -293,123 +556,184 @@
             });
         }
 
-        // ===== 1. BARANGAY HALL =====
-        L.marker([14.4995, 120.9945], { icon: createMarkerIcon('brgy', 'fas fa-building') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-building"></i> Barangay Sto. Niño Hall</div>
-                <div class="popup-desc">.4955 J.P. Rizal St, Parañaque, Metro Manila</div>
-                <span class="popup-status open">Open Now</span>
-            `);
+        // ===== DATA STORAGE PARA SA MGA LOCATIONS =====
+        // Dito natin i-save lahat ng locations para madaling i-filter
+        let allLocations = [];
 
-        // ===== 2. HEALTH CENTER =====
-        L.marker([14.5010189, 120.9953282], { icon: createMarkerIcon('health', 'fas fa-hospital') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-hospital"></i> Brgy. Sto. Niño Health Center</div>
-                <div class="popup-desc">Free check-ups, vaccines, and maternal care.</div>
-                <span class="popup-status open">Open Now</span>
-            `);
+        // ===== FUNCTION PARA SA INFO PANEL =====
+        function showInfoPanel(title, location, desc, statusText, statusClass) {
+            const panel = document.getElementById('info-panel');
+            
+            document.getElementById('panel-title').innerText = title;
+            document.getElementById('panel-location-text').innerText = location;
+            document.getElementById('panel-desc').innerText = desc;
+            
+            const badge = document.getElementById('panel-status-badge');
+            badge.innerText = statusText;
+            badge.className = `panel-status ${statusClass}`;
 
-        // ===== 3. EVACUATION CENTERS =====
-        L.marker([14.4985, 120.9935], { icon: createMarkerIcon('evacuation', 'fas fa-house-damage') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-house-damage"></i> Sto. Niño Basketball Court</div>
-                <div class="popup-desc">Dahlia, Parañaque. Evacuation Center.</div>
-                <span class="popup-status evac">Standby</span>
-            `);
+            panel.style.display = 'block';
+        }
 
-        L.marker([14.5000, 120.9970], { icon: createMarkerIcon('evacuation', 'fas fa-house-damage') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-house-damage"></i> Sto. Niño Sports Complex</div>
-                <div class="popup-desc">Parañaque, Metro Manila. Evacuation Center.</div>
-                <span class="popup-status evac">Standby</span>
-            `);
+        function closePanel() {
+            document.getElementById('info-panel').style.display = 'none';
+        }
 
-        // ===== 4. POLICE STATION =====
-        L.marker([14.5020, 120.9920], { icon: createMarkerIcon('police', 'fas fa-shield-alt') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-shield-alt"></i> Police Community Precinct</div>
-                <div class="popup-desc">Brgy Sto. Niño, Pascor Dr, Parañaque. Hotline: 911</div>
-                <span class="popup-status open">Open 24/7</span>
-            `);
+        // ===== HELPER PARA MAG-ZOOM AT MAGPALIT NG PANEL =====
+        function handleMarkerClick(lat, lng, title, location, desc, statusText, statusClass) {
+            map.flyTo([lat, lng], 18, { animate: true, duration: 1.2 });
+            showInfoPanel(title, location, desc, statusText, statusClass);
+            document.getElementById('btn-directions').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+        }
 
-        // ===== 5. FIRE STATIONS =====
-        L.marker([14.4970, 120.9925], { icon: createMarkerIcon('fire', 'fas fa-fire-extinguisher') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-fire-extinguisher"></i> Paranaque-Don Galo Volunteer Fire Dept.</div>
-                <div class="popup-desc">Neighboring Don Galo. Hotline: 911</div>
-                <span class="popup-status open">Open 24/7</span>
-            `);
+        // ===== FUNCTION PARA MAG-ADD NG LOCATION SA MAPA AT SA DATA =====
+        function addLocation(type, iconClass, lat, lng, title, location, desc, statusText, statusClass) {
+            // Gumawa ng marker
+            const marker = L.marker([lat, lng], { icon: createMarkerIcon(type, iconClass) }).addTo(map);
+            
+            // Click event ng marker
+            marker.on('click', function() {
+                handleMarkerClick(lat, lng, title, location, desc, statusText, statusClass);
+            });
 
-        L.marker([14.4980, 120.9910], { icon: createMarkerIcon('fire', 'fas fa-fire-extinguisher') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-fire-extinguisher"></i> San Dionisio Olivarez Engine 101</div>
-                <div class="popup-desc">Barangay San Dionisio. Hotline: 911</div>
-                <span class="popup-status open">Open 24/7</span>
-            `);
+            // I-save sa array para magamit sa listahan
+            allLocations.push({
+                type: type,
+                title: title,
+                location: location,
+                desc: desc,
+                statusText: statusText,
+                statusClass: statusClass,
+                lat: lat,
+                lng: lng,
+                iconClass: iconClass,
+                marker: marker
+            });
+        }
 
-        L.marker([14.4965, 120.9950], { icon: createMarkerIcon('fire', 'fas fa-fire-extinguisher') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-fire-extinguisher"></i> Central Fire Station</div>
-                <div class="popup-desc">Dr. Arcadio Santos Avenue. Hotline: 911</div>
-                <span class="popup-status open">Open 24/7</span>
-            `);
+        // ===== MGA LOCATIONS =====
+        // 1. Barangay Hall
+        addLocation('brgy', 'fas fa-building', 14.4995, 120.9945, 
+            'Barangay Sto. Niño Hall', '4955 J.P. Rizal St, Parañaque, Metro Manila', 
+            'Main office for barangay concerns, certificates, and permits.', 'Open 8AM - 5PM', 'status-open');
 
-        // ===== 6. SCHOOLS =====
-        L.marker([14.5005, 120.9960], { icon: createMarkerIcon('school', 'fas fa-school') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-school"></i> Sto. Niño Elementary School</div>
-                <div class="popup-desc">GX3W+9F2, J.P. Rizal St, Santo Niño, Parañaque.</div>
-                <span class="popup-status school">Public Primary</span>
-            `);
+        // 2. Health Centers
+        addLocation('health', 'fas fa-hospital', 14.5010189, 120.9953282, 
+            'Brgy. Sto. Niño Health Center', 'Pascor Dr, Parañaque, Metro Manila', 
+            'Free check-ups, vaccines, and maternal care.', 'Open 8AM - 5PM', 'status-open');
+        
+        // (Kung may iba pang health center, pwede mo idagdag dito)
 
-        L.marker([14.4990, 120.9965], { icon: createMarkerIcon('school', 'fas fa-school') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-school"></i> Sto. Niño National High School</div>
-                <div class="popup-desc">5064 Col De Leon, Barangay Santo Niño, Parañaque.</div>
-                <span class="popup-status school">Public Secondary</span>
-            `);
+        // 3. Evacuation Centers
+        addLocation('evacuation', 'fas fa-house-damage', 14.4985, 120.9935, 
+            'Sto. Niño Basketball Court', 'Dahlia, Parañaque, Metro Manila', 
+            'Designated evacuation center for emergencies and disasters.', 'Standby', 'status-evac');
+        addLocation('evacuation', 'fas fa-house-damage', 14.5000, 120.9970, 
+            'Sto. Niño Sports Complex', 'Parañaque, Metro Manila', 
+            'Open space for evacuation during calamities.', 'Standby', 'status-evac');
 
-        L.marker([14.4995, 120.9975], { icon: createMarkerIcon('school', 'fas fa-school') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-school"></i> Parañaque Science High School</div>
-                <div class="popup-desc">Col. E. de Leon Street, Barangay Sto. Niño, Parañaque.</div>
-                <span class="popup-status school">Public STEM</span>
-            `);
+        // 4. Police Station
+        addLocation('police', 'fas fa-shield-alt', 14.5020, 120.9920, 
+            'Police Community Precinct', 'Brgy Sto. Niño, Pascor Dr, Parañaque', 
+            'Police assistance and emergency response. Hotline: 911', 'Open 24/7', 'status-police');
 
-        L.marker([14.5015, 120.9980], { icon: createMarkerIcon('school', 'fas fa-school') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-school"></i> St. Francis Academy</div>
-                <div class="popup-desc">Lot 18, Blk 2 St Francis, Parañaque.</div>
-                <span class="popup-status school">Private Christian</span>
-            `);
+        // 5. Fire Stations
+        addLocation('fire', 'fas fa-fire-extinguisher', 14.4970, 120.9925, 
+            'Paranaque-Don Galo Volunteer Fire Dept.', 'Don Galo, Parañaque, Metro Manila', 
+            'Fire emergency response. Hotline: 911', 'Open 24/7', 'status-fire');
+        addLocation('fire', 'fas fa-fire-extinguisher', 14.4980, 120.9910, 
+            'San Dionisio Olivarez Engine 101', 'Barangay San Dionisio, Parañaque', 
+            'Fire emergency response. Hotline: 911', 'Open 24/7', 'status-fire');
+        addLocation('fire', 'fas fa-fire-extinguisher', 14.4965, 120.9950, 
+            'Central Fire Station', 'Dr. Arcadio Santos Avenue, Parañaque', 
+            'Main fire station for the city. Hotline: 911', 'Open 24/7', 'status-fire');
 
-        L.marker([14.5030, 120.9990], { icon: createMarkerIcon('school', 'fas fa-school') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-school"></i> Private School (Moonwalk)</div>
-                <div class="popup-desc">235 Aldrin, Moonwalk, Parañaque.</div>
-                <span class="popup-status school">Private (Preschool-Grade 6)</span>
-            `);
+        // 6. Schools
+        addLocation('school', 'fas fa-school', 14.5005, 120.9960, 
+            'Sto. Niño Elementary School', 'J.P. Rizal St, Santo Niño, Parañaque', 
+            'Public primary education institution.', 'Public School', 'status-school');
+        addLocation('school', 'fas fa-school', 14.4990, 120.9965, 
+            'Sto. Niño National High School', 'Col De Leon, Barangay Santo Niño, Parañaque', 
+            'Public secondary education institution.', 'Public School', 'status-school');
+        addLocation('school', 'fas fa-school', 14.4995, 120.9975, 
+            'Parañaque Science High School', 'Col. E. de Leon Street, Barangay Sto. Niño', 
+            'Specialized public STEM high school.', 'Public School', 'status-school');
+        addLocation('school', 'fas fa-school', 14.5015, 120.9980, 
+            'St. Francis Academy', 'St Francis, Parañaque, Metro Manila', 
+            'Private Christian educational institution.', 'Private School', 'status-school');
+        addLocation('school', 'fas fa-school', 14.5030, 120.9990, 
+            'Private School (Moonwalk)', '235 Aldrin, Moonwalk, Parañaque', 
+            'Private school offering Preschool to Grade 6.', 'Private School', 'status-school');
+        addLocation('school', 'fas fa-university', 14.4975, 120.9930, 
+            'PUP Parañaque Campus', 'Parañaque, Metro Manila', 
+            'Polytechnic University of the Philippines campus.', 'University', 'status-school');
 
-        L.marker([14.4975, 120.9930], { icon: createMarkerIcon('school', 'fas fa-university') })
-            .addTo(map)
-            .bindPopup(`
-                <div class="popup-title"><i class="fas fa-university"></i> PUP Parañaque Campus</div>
-                <div class="popup-desc">Polytechnic University of the Philippines.</div>
-                <span class="popup-status school">University</span>
-            `);
+
+        // ===== LOGIC PARA SA LIST PANEL =====
+        function showList(type, titleText) {
+            const listPanel = document.getElementById('list-panel');
+            const listTitle = document.getElementById('list-title');
+            const listBody = document.getElementById('list-body');
+            
+            // I-set ang title
+            listTitle.innerHTML = `<i class="fas fa-list"></i> ${titleText}`;
+            
+            // I-filter yung locations base sa type
+            const filteredLocations = allLocations.filter(loc => loc.type === type);
+            
+            // I-clear ang laman
+            listBody.innerHTML = '';
+
+            if(filteredLocations.length === 0) {
+                listBody.innerHTML = '<div style="text-align:center; padding: 20px; color: #6b8475;">Walang mahanap na lokasyon.</div>';
+            } else {
+                // I-loop at gawin ang list items
+                filteredLocations.forEach(loc => {
+                    // Determine background color for the icon
+                    let bgColor = '';
+                    if(loc.type === 'brgy') bgColor = '#0f3d2a';
+                    else if(loc.type === 'health') bgColor = '#15803d';
+                    else if(loc.type === 'evacuation') bgColor = '#d97706';
+                    else if(loc.type === 'police') bgColor = '#1e40af';
+                    else if(loc.type === 'fire') bgColor = '#b91c1c';
+                    else if(loc.type === 'school') bgColor = '#7c3aed';
+
+                    const itemHTML = `
+                        <div class="list-item" onclick="clickListLocation(${loc.lat}, ${loc.lng}, '${loc.title}', '${loc.location}', '${loc.desc}', '${loc.statusText}', '${loc.statusClass}')">
+                            <div class="list-item-icon" style="background: ${bgColor};">
+                                <i class="${loc.iconClass}"></i>
+                            </div>
+                            <div class="list-item-info">
+                                <h4>${loc.title}</h4>
+                                <p>${loc.location}</p>
+                            </div>
+                        </div>
+                    `;
+                    listBody.innerHTML += itemHTML;
+                });
+            }
+
+            // Ipakita ang panel
+            listPanel.style.display = 'flex';
+
+            // I-highlight yung clinick na legend
+            document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function closeListPanel() {
+            document.getElementById('list-panel').style.display = 'none';
+            document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+        }
+
+        // Function pag clinick yung item sa loob ng listahan
+        function clickListLocation(lat, lng, title, location, desc, statusText, statusClass) {
+            // Isara muna yung list panel
+            closeListPanel();
+            
+            // Tapos i-trigger yung zoom at info panel
+            handleMarkerClick(lat, lng, title, location, desc, statusText, statusClass);
+        }
 
     </script>
 </body>
