@@ -3897,17 +3897,39 @@ def update_user_role(user_id):
 
     new_role = request.form.get('role')
 
-    if new_role not in ALL_ROLES:
+    if new_role not in ADMIN_ROLES:
         flash('Invalid role selected.', 'danger')
         return redirect(url_for('user_management'))
 
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET role = %s WHERE id = %s", (new_role, user_id))
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT id, role FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        flash('User not found.', 'danger')
+        return redirect(url_for('user_management'))
+
+    if user['role'] not in ADMIN_ROLES:
+        conn.close()
+        flash('Resident accounts cannot be promoted.', 'danger')
+        return redirect(url_for('user_management'))
+
+    if user['role'] == 'head_admin':
+        conn.close()
+        flash('Cannot change Head Admin role.', 'danger')
+        return redirect(url_for('user_management'))
+
+    cursor.execute(
+        "UPDATE users SET role = %s WHERE id = %s",
+        (new_role, user_id)
+    )
     conn.commit()
     conn.close()
 
-    flash(f'User role updated to {new_role.replace("_", " ").title()} successfully!', 'success')
+    flash('Admin role updated successfully!', 'success')
     return redirect(url_for('user_management'))
 
 
@@ -4170,22 +4192,38 @@ def api_update_user_role(user_id):
     if user_id == session['user_id']:
         return jsonify({'error': 'You cannot change your own role'}), 400
 
-    data = request.json
+    data = request.get_json(silent=True) or {}
     new_role = data.get('role')
 
     if new_role not in ADMIN_ROLES:
         return jsonify({'error': 'Invalid role'}), 400
 
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET role = %s WHERE id = %s", (new_role, user_id))
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT id, role FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({'error': 'User not found'}), 404
+
+    if user['role'] not in ADMIN_ROLES:
+        conn.close()
+        return jsonify({'error': 'Resident accounts cannot be promoted.'}), 403
+
+    if user['role'] == 'head_admin':
+        conn.close()
+        return jsonify({'error': 'Cannot change Head Admin role.'}), 403
+
+    cursor.execute(
+        "UPDATE users SET role = %s WHERE id = %s",
+        (new_role, user_id)
+    )
     conn.commit()
     conn.close()
 
-    return jsonify({
-        'success': True,
-        'message': f'Role updated to {new_role}'
-    })
+    return jsonify({'success': True, 'message': 'Admin role updated successfully'})
 
 
 # ============================================================
@@ -4201,22 +4239,27 @@ def api_promote_admin(user_id):
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, role FROM users WHERE id = %s", (user_id,))
+
+    cursor.execute(
+        "SELECT id, role FROM users WHERE id = %s",
+        (user_id,)
+    )
     user = cursor.fetchone()
 
     if not user:
         conn.close()
         return jsonify({'error': 'User not found'}), 404
 
+    if user['role'] == 'resident':
+        conn.close()
+        return jsonify({'error': 'Resident accounts cannot be promoted to Admin.'}), 403
+
     if user['role'] in ADMIN_ROLES:
         conn.close()
         return jsonify({'error': 'User is already an admin'}), 400
 
-    cursor.execute("UPDATE users SET role = 'admin_documents' WHERE id = %s", (user_id,))
-    conn.commit()
     conn.close()
-
-    return jsonify({'message': 'User promoted to Admin successfully'})
+    return jsonify({'error': 'Invalid account role'}), 400
 
 
 @app.route('/api/user/<int:user_id>/demote', methods=['POST'])
@@ -4229,7 +4272,11 @@ def api_demote_admin(user_id):
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, role FROM users WHERE id = %s", (user_id,))
+
+    cursor.execute(
+        "SELECT id, role FROM users WHERE id = %s",
+        (user_id,)
+    )
     user = cursor.fetchone()
 
     if not user:
@@ -4238,18 +4285,14 @@ def api_demote_admin(user_id):
 
     if user['role'] == 'head_admin':
         conn.close()
-        return jsonify({'error': 'Cannot demote head_admin'}), 400
+        return jsonify({'error': 'Cannot demote Head Admin'}), 403
 
-    if user['role'] not in ADMIN_ROLES:
+    if user['role'] in ADMIN_ROLES:
         conn.close()
-        return jsonify({'error': 'User is not an admin'}), 400
+        return jsonify({'error': 'Admin accounts cannot be demoted to Resident.'}), 403
 
-    cursor.execute("UPDATE users SET role = 'resident' WHERE id = %s", (user_id,))
-    conn.commit()
     conn.close()
-
-    return jsonify({'message': 'Admin demoted to Resident successfully'})
-
+    return jsonify({'error': 'User is not an admin'}), 400
 
 # ============================================================
 # ANNOUNCEMENTS
