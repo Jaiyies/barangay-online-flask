@@ -332,7 +332,7 @@
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
 
-        /* ===== STATS CARDS ===== */
+        /* ===== STATS CARDS (PROFESSIONAL CLEAN) ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -341,29 +341,19 @@
         }
         .stat-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 20px 22px;
             border: 1px solid #eef2f0;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
         }
         .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+            border-color: #d4f0df;
         }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 4px; height: 100%;
-        }
-        .stat-card.total::before { background: #1a5d3a; }
-        .stat-card.pending::before { background: #f59e0b; }
-        .stat-card.approved::before { background: #22c55e; }
-        .stat-card.rejected::before { background: #dc3545; }
-
         .stat-card-inner {
             display: flex;
             align-items: center;
@@ -373,7 +363,7 @@
         .stat-info { flex: 1; min-width: 0; }
         .stat-label {
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
             color: #8a9a8f;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -395,10 +385,11 @@
             font-size: 22px;
             flex-shrink: 0;
         }
-        .stat-card.total .stat-icon { background: #e0f5e8; color: #1a5d3a; }
-        .stat-card.pending .stat-icon { background: #fef3c7; color: #d97706; }
-        .stat-card.approved .stat-icon { background: #d1fae5; color: #059669; }
-        .stat-card.rejected .stat-icon { background: #fee2e2; color: #dc3545; }
+        /* Neutral icon backgrounds, colored icons */
+        .stat-card.total .stat-icon { background: #f0f4f8; color: #1a5d3a; }
+        .stat-card.pending .stat-icon { background: #f0f4f8; color: #d97706; }
+        .stat-card.approved .stat-icon { background: #f0f4f8; color: #059669; }
+        .stat-card.rejected .stat-icon { background: #f0f4f8; color: #dc3545; }
 
         /* ===== BIG CARD ===== */
         .big-card {
@@ -1113,7 +1104,6 @@
         const rows = document.querySelectorAll('#eventTable tr');
         let count = 0;
 
-        // Kunin ang today's date (start of day para accurate comparison)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -1128,13 +1118,11 @@
             if (status === 'all') {
                 matchStatus = true;
             } else if (status === 'completed') {
-                // COMPLETED = approved status AT event_date < today
                 if (statusText.includes('approved') && eventDateStr) {
                     const eventDate = new Date(eventDateStr + 'T00:00:00');
                     matchStatus = eventDate < today;
                 }
             } else if (status === 'approved') {
-                // APPROVED tab = approved status AT event_date >= today (upcoming)
                 if (statusText.includes('approved') && eventDateStr) {
                     const eventDate = new Date(eventDateStr + 'T00:00:00');
                     matchStatus = eventDate >= today;

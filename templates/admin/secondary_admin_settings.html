@@ -10,20 +10,221 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* NAVBAR */
-        .navbar {
-            position: fixed; top: 0; left: 280px; right: 0; height: 68px;
-            background: white; border-bottom: 1px solid #eef2f0;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 30px; z-index: 99;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        /* ===== SIDEBAR (SAME SA COURT DASHBOARD) ===== */
+        .sidebar-custom {
+            position: fixed; left: 0; top: 0;
+            width: 85px; height: 100%;
+            background: linear-gradient(180deg, #0d2b1e 0%, #1a5d3a 100%);
+            color: white; padding: 24px 10px;
+            z-index: 200; overflow-x: visible; overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.08);
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .navbar-left { display: flex; align-items: center; gap: 16px; }
-        .navbar-left .page-title { font-size: 17px; font-weight: 700; color: #0d2b1e; }
-        .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
-        .navbar-right { display: flex; align-items: center; gap: 16px; }
+        .sidebar-custom.expanded { width: 280px; padding: 24px 18px; overflow-x: hidden; }
+        .sidebar-custom::-webkit-scrollbar { width: 5px; }
+        .sidebar-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 
-        /* PROFILE DROPDOWN */
+        .sidebar-header {
+            text-align: center; padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px;
+            display: flex; flex-direction: column; align-items: center;
+            position: relative;
+        }
+        .sidebar-header .logo-img {
+            width: 48px; height: 48px; border-radius: 50%;
+            object-fit: cover; border: 3px solid rgba(255,255,255,0.2);
+            background: white; padding: 3px; flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar-custom.expanded .sidebar-header .logo-img { width: 64px; height: 64px; margin-bottom: 12px; }
+        .sidebar-header h2 {
+            font-size: 17px; font-weight: 700; margin-bottom: 2px;
+            white-space: nowrap; opacity: 0; height: 0; overflow: hidden;
+            transition: opacity 0.25s ease 0.05s;
+        }
+        .sidebar-custom.expanded .sidebar-header h2 { opacity: 1; height: auto; }
+        .sidebar-header small {
+            font-size: 11px; opacity: 0; white-space: nowrap;
+            letter-spacing: 0.5px; transition: opacity 0.25s ease 0.05s;
+            height: 0; overflow: hidden;
+        }
+        .sidebar-custom.expanded .sidebar-header small { opacity: 0.6; height: auto; }
+
+        .sidebar-burger {
+            margin-top: 16px; width: 52px; height: 52px;
+            border-radius: 14px; background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9); font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.25s ease;
+            flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .sidebar-burger:hover {
+            background: rgba(107,196,142,0.2);
+            border-color: rgba(107,196,142,0.4);
+            color: #6bc48e; transform: translateY(-2px);
+        }
+        .sidebar-custom.expanded .sidebar-burger {
+            position: absolute; top: 0; right: 0;
+            margin-top: 0; width: 40px; height: 40px;
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        .sidebar-menu {
+            list-style: none; display: flex; flex-direction: column;
+            gap: 10px; width: 100%; padding: 0; margin: 0;
+        }
+        .sidebar-menu li { margin: 0; width: 100%; display: flex; justify-content: center; }
+        .sidebar-menu a {
+            display: flex; align-items: center; justify-content: center;
+            width: 52px; height: 52px; padding: 0;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            border-radius: 14px; transition: all 0.25s ease; font-size: 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden; position: relative;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white; transform: translateY(-2px);
+        }
+        .sidebar-menu .active a {
+            background: rgba(107,196,142,0.2);
+            border-color: rgba(107,196,142,0.35);
+            color: #6bc48e;
+        }
+        .sidebar-menu i {
+            width: 24px; min-width: 24px; font-size: 18px;
+            text-align: center; color: inherit;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sidebar-menu .active a i,
+        .sidebar-menu a:hover i { color: #6bc48e; }
+        .sidebar-menu span {
+            display: none; opacity: 0; max-width: 0; overflow: hidden;
+            transition: opacity 0.25s ease 0.05s, max-width 0.3s ease;
+        }
+        .sidebar-custom.expanded .sidebar-menu li { justify-content: flex-start; }
+        .sidebar-custom.expanded .sidebar-menu a {
+            justify-content: flex-start; width: 100%; height: auto;
+            padding: 14px 16px; gap: 14px; font-size: 13.5px;
+            font-weight: 500; border-radius: 14px;
+        }
+        .sidebar-custom.expanded .sidebar-menu span { display: inline-block; opacity: 1; max-width: 200px; }
+        .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
+        .sidebar-custom.expanded .sidebar-menu .active a { transform: translateX(4px); }
+
+        .sidebar-custom:not(.expanded) .sidebar-menu a { position: relative; }
+        .sidebar-custom:not(.expanded) .sidebar-menu a::after {
+            content: attr(data-title);
+            position: absolute; left: 110%; top: 50%;
+            transform: translateY(-50%) translateX(-10px);
+            background: #0d2b1e; color: white;
+            padding: 8px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; white-space: nowrap;
+            opacity: 0; visibility: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 999; pointer-events: none;
+        }
+        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after {
+            opacity: 1; visibility: visible;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        /* ===== NAVBAR (SAME SA COURT DASHBOARD) ===== */
+        .navbar {
+            position: fixed; top: 12px; left: 97px; right: 12px;
+            height: 64px; background: white; border-radius: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 99;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #eef2f0; gap: 16px;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body.sidebar-expanded .navbar { left: 292px; }
+        .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+        .navbar-left .page-title {
+            font-size: 17px; font-weight: 700; color: #0d2b1e;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
+        .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+
+        /* ===== NOTIFICATION BELL ===== */
+        .notification-bell-wrap { position: relative; margin-right: 12px; }
+        .bell-btn {
+            position: relative; background: #f4f8f5; border: 1px solid #eef2f0;
+            width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+            color: #1a5d3a; font-size: 16px; display: flex;
+            align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .bell-btn:hover { background: #eef8f2; border-color: #d4f0df; transform: translateY(-2px); }
+        .bell-badge {
+            position: absolute; top: -2px; right: -2px;
+            background: #dc3545; color: white; font-size: 10px; font-weight: 700;
+            min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+        .bell-dropdown {
+            position: absolute; top: calc(100% + 12px); right: 0;
+            background: white; border-radius: 16px; border: 1px solid #eef2f0;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+            min-width: 340px; max-width: 380px;
+            opacity: 0; visibility: hidden; transform: translateY(-10px);
+            transition: all 0.2s ease; z-index: 1001; overflow: hidden;
+        }
+        .bell-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+        .bell-dropdown-header {
+            padding: 14px 18px; background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white; font-weight: 700; font-size: 13.5px;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        }
+        .bell-dropdown-header-left { display: flex; align-items: center; gap: 10px; }
+        .bell-dropdown-header i.fa-bullhorn {
+            background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
+        }
+        .mark-all-btn {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+            color: white; font-size: 11px; font-weight: 600;
+            padding: 6px 12px; border-radius: 20px; cursor: pointer;
+            font-family: inherit; white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .mark-all-btn:hover { background: rgba(255,255,255,0.28); }
+        .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
+        .bell-item {
+            display: block; padding: 12px 14px; border-radius: 10px;
+            text-decoration: none; color: #0d2b1e;
+            transition: all 0.15s ease; border-bottom: 1px solid #f4f8f5;
+            position: relative;
+        }
+        .bell-item:last-child { border-bottom: none; }
+        .bell-item:hover { background: #f4f8f5; }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread::before {
+            content: ''; position: absolute;
+            left: 8px; top: 50%; transform: translateY(-50%);
+            width: 8px; height: 8px; background: #dc3545;
+            border-radius: 50%;
+        }
+        .bell-item-title { font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; font-weight: 600; }
+        .bell-item.unread .bell-item-title { font-weight: 700; }
+        .bell-item-date { font-size: 11px; color: #8a9a8f; display: flex; align-items: center; gap: 5px; }
+        .bell-loading, .bell-empty { text-align: center; padding: 30px 20px; color: #8a9a8f; font-size: 13px; }
+        .bell-empty i { font-size: 36px; color: #d4f0df; display: block; margin-bottom: 10px; }
+        .bell-dropdown-footer {
+            display: block; text-align: center; padding: 14px;
+            background: #f8fafc; color: #1a5d3a; text-decoration: none;
+            font-weight: 700; font-size: 13px; border-top: 1px solid #eef2f0;
+        }
+        .bell-dropdown-footer:hover { background: #eef8f2; }
+
+        /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
         .profile-trigger {
             display: flex; align-items: center; gap: 10px;
@@ -35,8 +236,8 @@
         .profile-avatar {
             width: 36px; height: 36px; border-radius: 50%;
             background: linear-gradient(135deg, #1a5d3a, #0d2b1e);
-            color: white; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 14px;
+            color: white; display: flex; align-items: center;
+            justify-content: center; font-weight: 700; font-size: 14px;
         }
         .profile-info { display: flex; flex-direction: column; line-height: 1.2; }
         .profile-info .name { font-size: 13px; font-weight: 600; color: #0d2b1e; }
@@ -46,8 +247,8 @@
 
         .profile-menu {
             position: absolute; top: calc(100% + 8px); right: 0;
-            background: white; border-radius: 14px;
-            border: 1px solid #eef2f0; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            background: white; border-radius: 14px; border: 1px solid #eef2f0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             min-width: 220px; padding: 8px;
             opacity: 0; visibility: hidden; transform: translateY(-10px);
             transition: all 0.2s ease; z-index: 1000;
@@ -70,52 +271,25 @@
         .profile-menu .logout-link:hover { background: #fff5f5; color: #b91c1c; }
         .profile-menu .logout-link i { color: #dc3545; }
 
-        /* SIDEBAR */
-        .sidebar-custom {
-            position: fixed; left: 0; top: 0; width: 280px; height: 100%;
-            background: linear-gradient(180deg, #0d2b1e 0%, #1a5d3a 100%);
-            color: white; padding: 30px 20px; z-index: 100;
-            overflow-y: auto; box-shadow: 2px 0 20px rgba(0,0,0,0.08);
-        }
-        .sidebar-header {
-            text-align: center; padding-bottom: 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;
-        }
-        .sidebar-header .logo-img {
-            width: 70px; height: 70px; border-radius: 50%; object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.2); margin-bottom: 12px;
-            background: white; padding: 4px;
-        }
-        .sidebar-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
-        .sidebar-header small { font-size: 11px; opacity: 0.6; letter-spacing: 0.5px; }
-
-        .sidebar-menu { list-style: none; }
-        .sidebar-menu li { margin-bottom: 4px; }
-        .sidebar-menu a {
-            display: flex; align-items: center; gap: 14px; padding: 11px 18px;
-            color: rgba(255,255,255,0.65); text-decoration: none; border-radius: 10px;
-            transition: all 0.3s ease; font-size: 14px; font-weight: 500;
-        }
-        .sidebar-menu a:hover { background: rgba(255,255,255,0.08); color: white; transform: translateX(8px); }
-        .sidebar-menu .active a { background: rgba(255,255,255,0.12); color: white; }
-        .sidebar-menu i { width: 22px; font-size: 15px; }
-
-        /* MAIN */
+        /* ===== MAIN CONTENT ===== */
         .main-with-sidebar {
-            margin-left: 280px; padding: 92px 30px 25px;
+            margin-left: 85px; padding: 100px 30px 25px;
             min-height: 100vh; animation: fadeInUp 0.4s ease;
+            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .big-card {
-            background: white; border-radius: 20px; padding: 28px 30px;
-            border: 1px solid #eef2f0; box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            background: white; border-radius: 28px;
+            padding: 32px 34px; border: 1px solid #eef2f0;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
-        /* PAGE HEADER */
+        /* ===== PAGE HEADER ===== */
         .page-header {
             margin-bottom: 28px; padding-bottom: 20px;
             border-bottom: 1px solid #eef2f0;
@@ -132,9 +306,9 @@
         }
         .page-header p { font-size: 14px; color: #8a9a8f; margin-left: 56px; }
 
-        /* SETTINGS GRID */
+        /* ===== SETTINGS GRID ===== */
         .settings-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
         }
         .settings-card {
             background: #f8fafc; border-radius: 16px; padding: 24px;
@@ -169,7 +343,7 @@
         }
         .settings-btn:hover { background: #0d2b1e; transform: translateY(-2px); }
 
-        /* MODAL */
+        /* ===== MODAL ===== */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.55);
@@ -217,9 +391,7 @@
             outline: none; border-color: #1a5d3a; background: white;
         }
 
-        .modal-actions {
-            display: flex; gap: 10px; margin-top: 20px;
-        }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
         .modal-actions button {
             flex: 1; padding: 12px; border: none; border-radius: 10px;
             font-size: 13px; font-weight: 600; cursor: pointer;
@@ -230,7 +402,7 @@
         .btn-cancel { background: #f4f8f5; color: #0d2b1e; }
         .btn-cancel:hover { background: #eef2f0; }
 
-        /* ACCOUNT INFO ROWS */
+        /* ===== ACCOUNT INFO ROWS ===== */
         .info-row {
             display: flex; justify-content: space-between;
             padding: 12px 0; border-bottom: 1px solid #f4f8f5;
@@ -240,7 +412,7 @@
         .info-row .label { color: #8a9a8f; font-weight: 500; }
         .info-row .value { color: #0d2b1e; font-weight: 600; text-align: right; }
 
-        /* ACTIVITY LOG */
+        /* ===== ACTIVITY LOG ===== */
         .activity-list { display: flex; flex-direction: column; gap: 12px; }
         .activity-item {
             display: flex; align-items: flex-start; gap: 14px;
@@ -253,92 +425,109 @@
             font-size: 14px; flex-shrink: 0;
         }
         .activity-icon.login { background: #e0f5e8; color: #1a5d3a; }
-        .activity-icon.profile { background: #e8f4fd; color: #2980b9; }
-        .activity-icon.password { background: #fef3c7; color: #92400e; }
-        .activity-info .title {
-            font-weight: 600; color: #0d2b1e;
-            font-size: 13px; margin-bottom: 2px;
-        }
+        .activity-icon.logout { background: #fef3c7; color: #92400e; }
+        .activity-icon.default { background: #f0f2f5; color: #5a6e7a; }
+        .activity-info .title { font-weight: 600; color: #0d2b1e; font-size: 13px; margin-bottom: 2px; }
         .activity-info .desc { color: #8a9a8f; font-size: 12px; }
-        .activity-time { color: #8a9a8f; font-size: 11px; margin-left: auto; }
+        .activity-time { color: #8a9a8f; font-size: 11px; margin-left: auto; white-space: nowrap; }
+        .activity-loading, .activity-empty { text-align: center; padding: 40px 20px; color: #8a9a8f; font-size: 13px; }
+        .activity-empty i { font-size: 36px; color: #cde0d8; display: block; margin-bottom: 10px; }
 
         .footer {
-            text-align: center; padding: 18px; margin-top: 28px;
+            text-align: center; padding: 20px; margin-top: 28px;
             color: #8a9a8f; font-size: 11px;
             border-top: 1px solid #eef2f0;
         }
 
-        @media (max-width: 1024px) {
-            .settings-grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
-            .sidebar-header h2, .sidebar-menu span { display: none; }
-            .sidebar-header .logo-img { width: 45px; height: 45px; }
-            .sidebar-menu a { justify-content: center; padding: 10px; }
-            .navbar { left: 70px; padding: 0 16px; height: 60px; }
+            .sidebar-custom.expanded { width: 240px; }
+            .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
+            body.sidebar-expanded .navbar { left: 252px; }
+            .navbar-left .page-title { font-size: 15px; }
             .profile-info { display: none; }
+            .profile-trigger { padding: 4px; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
+            body.sidebar-expanded .main-with-sidebar { margin-left: 240px; }
+            .big-card { padding: 18px; border-radius: 20px; }
             .settings-grid { grid-template-columns: 1fr; }
+            .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
+        }
+        @media (max-width: 480px) {
+            .big-card { padding: 16px; }
+            .navbar-left .page-title { font-size: 13px; }
         }
     </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar-custom">
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar-custom" id="sidebar">
     <div class="sidebar-header">
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img" 
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img"
              onerror="this.style.display='none'; this.parentElement.querySelector('.logo-fallback').style.display='flex'">
-        <div class="logo-fallback" style="display: none; width: 70px; height: 70px; background: rgba(255,255,255,0.12); border-radius: 50%; margin: 0 auto 12px; align-items: center; justify-content: center; font-size: 28px;">
+        <div class="logo-fallback" style="display: none; width: 48px; height: 48px; background: rgba(255,255,255,0.12); border-radius: 50%; align-items: center; justify-content: center; font-size: 20px;">
             <i class="fas fa-landmark"></i>
         </div>
-        <h2>Barangay Sto. Nino</h2>
+        <h2>Barangay Sto. Niño</h2>
         <small>
             {% if session.role == 'admin_documents' %}
                 Documents Admin
             {% elif session.role == 'admin_court_1' %}
-                Sto. Nino Sports Complex Court 1
+                Court 1 Admin
             {% elif session.role == 'admin_court_2' %}
-                Sto. Nino Basketball Court 2
+                Court 2 Admin
             {% elif session.role == 'admin_court_3' %}
-                Sampaguita Covered Court 3
+                Court 3 Admin
             {% elif session.role == 'admin_court_4' %}
-                2nd Street Covered Court 4
+                Court 4 Admin
             {% else %}
                 Admin
             {% endif %}
         </small>
+
+        <button class="sidebar-burger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
     </div>
     <ul class="sidebar-menu">
         {% if session.role == 'admin_documents' %}
-        <li><a href="{{ url_for('sec_admin_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('admin_documents') }}"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
-        <li><a href="{{ url_for('admin_documents_clearance') }}"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
-        <li><a href="{{ url_for('admin_documents_indigency') }}"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
-        <li><a href="{{ url_for('admin_documents_residency') }}"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
-        <li><a href="{{ url_for('admin_activity_logs') }}"><i class="fas fa-history"></i> <span>Activity Logs</span></a></li>
+        <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('admin_documents') }}" data-title="All Documents"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
+        <li><a href="{{ url_for('admin_documents_clearance') }}" data-title="Barangay Clearance"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
+        <li><a href="{{ url_for('admin_documents_indigency') }}" data-title="Certificate of Indigency"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
+        <li><a href="{{ url_for('admin_documents_residency') }}" data-title="Proof of Residency"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
+        <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_1' %}
-        <li><a href="{{ url_for('court1_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('court1_pending') }}"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
-        <li><a href="{{ url_for('court1_calendar') }}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court1_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('court1_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+        <li><a href="{{ url_for('court1_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+        <li><a href="{{ url_for('court1_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court1_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_2' %}
-        <li><a href="{{ url_for('court2_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('court2_pending') }}"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
-        <li><a href="{{ url_for('court2_calendar') }}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court2_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('court2_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+        <li><a href="{{ url_for('court2_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+        <li><a href="{{ url_for('court2_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court2_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_3' %}
-        <li><a href="{{ url_for('court3_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('court3_pending') }}"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
-        <li><a href="{{ url_for('court3_calendar') }}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court3_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('court3_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+        <li><a href="{{ url_for('court3_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+        <li><a href="{{ url_for('court3_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court3_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_4' %}
-        <li><a href="{{ url_for('court4_dashboard') }}"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('court4_pending') }}"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
-        <li><a href="{{ url_for('court4_calendar') }}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court4_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('court4_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+        <li><a href="{{ url_for('court4_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+        <li><a href="{{ url_for('court4_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+        <li><a href="{{ url_for('court4_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% endif %}
     </ul>
 </div>
 
-<!-- NAVBAR -->
+<!-- ===== NAVBAR ===== -->
 <nav class="navbar">
     <div class="navbar-left">
         <div class="page-title">
@@ -346,6 +535,34 @@
         </div>
     </div>
     <div class="navbar-right">
+
+        <!-- NOTIFICATION BELL -->
+        <div class="notification-bell-wrap">
+            <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
+                <i class="fas fa-bell"></i>
+                <span class="bell-badge" id="bellBadge" style="display:none;">0</span>
+            </button>
+            <div class="bell-dropdown" id="bellDropdown">
+                <div class="bell-dropdown-header">
+                    <div class="bell-dropdown-header-left">
+                        <i class="fas fa-bullhorn"></i> Recent Announcements
+                    </div>
+                    <button class="mark-all-btn" onclick="markAllRead(event)">
+                        <i class="fas fa-check-double"></i> Mark all
+                    </button>
+                </div>
+                <div class="bell-dropdown-body" id="bellList">
+                    <div class="bell-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+                <a href="/admin/announcements" class="bell-dropdown-footer">
+                    View All Announcements <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- PROFILE DROPDOWN -->
         <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-trigger" onclick="toggleProfile()">
                 <div class="profile-avatar">
@@ -353,7 +570,14 @@
                 </div>
                 <div class="profile-info">
                     <span class="name">{{ session.fullname or 'Admin' }}</span>
-                    <span class="role">{{ session.role|replace('_', ' ')|title }}</span>
+                    <span class="role">
+                        {% if session.role == 'admin_documents' %}Documents Admin
+                        {% elif session.role == 'admin_court_1' %}Court 1 Admin
+                        {% elif session.role == 'admin_court_2' %}Court 2 Admin
+                        {% elif session.role == 'admin_court_3' %}Court 3 Admin
+                        {% elif session.role == 'admin_court_4' %}Court 4 Admin
+                        {% else %}Admin{% endif %}
+                    </span>
                 </div>
                 <i class="fas fa-chevron-down chevron"></i>
             </div>
@@ -374,7 +598,7 @@
     </div>
 </nav>
 
-<!-- MAIN CONTENT -->
+<!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
     <div class="big-card">
 
@@ -415,8 +639,8 @@
             <div class="settings-card">
                 <div class="settings-icon"><i class="fas fa-history"></i></div>
                 <h3>Activity Log</h3>
-                <p>View your recent actions (login, profile updates).</p>
-                <button class="settings-btn" onclick="openModal('activityModal')">
+                <p>View your recent actions (login, logout, updates).</p>
+                <button class="settings-btn" onclick="openActivityModal()">
                     <i class="fas fa-list"></i> View Logs
                 </button>
             </div>
@@ -426,7 +650,14 @@
     </div>
 
     <div class="footer">
-        <p>© 2025 Barangay Sto. Niño, Parañaque City | {{ session.role|replace('_', ' ')|title }}</p>
+        <p>© 2025 Barangay Sto. Niño, Parañaque City |
+            {% if session.role == 'admin_documents' %}Documents Admin
+            {% elif session.role == 'admin_court_1' %}Court 1 Admin
+            {% elif session.role == 'admin_court_2' %}Court 2 Admin
+            {% elif session.role == 'admin_court_3' %}Court 3 Admin
+            {% elif session.role == 'admin_court_4' %}Court 4 Admin
+            {% else %}Admin{% endif %}
+        </p>
     </div>
 </div>
 
@@ -503,7 +734,14 @@
         </div>
         <div class="info-row">
             <span class="label">Role</span>
-            <span class="value">{{ user.role|replace('_', ' ')|title }}</span>
+            <span class="value">
+                {% if session.role == 'admin_documents' %}Documents Admin
+                {% elif session.role == 'admin_court_1' %}Court 1 Admin
+                {% elif session.role == 'admin_court_2' %}Court 2 Admin
+                {% elif session.role == 'admin_court_3' %}Court 3 Admin
+                {% elif session.role == 'admin_court_4' %}Court 4 Admin
+                {% else %}Admin{% endif %}
+            </span>
         </div>
         <div class="info-row">
             <span class="label">Status</span>
@@ -523,36 +761,142 @@
             <h3><i class="fas fa-history"></i> Activity Log</h3>
             <button class="modal-close" onclick="closeModal('activityModal')"><i class="fas fa-times"></i></button>
         </div>
-        <div class="activity-list">
-            <div class="activity-item">
-                <div class="activity-icon login"><i class="fas fa-sign-in-alt"></i></div>
-                <div class="activity-info">
-                    <div class="title">Logged in successfully</div>
-                    <div class="desc">You logged in to your account</div>
-                </div>
-                <div class="activity-time">Just now</div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon profile"><i class="fas fa-user-edit"></i></div>
-                <div class="activity-info">
-                    <div class="title">Profile updated</div>
-                    <div class="desc">You updated your personal information</div>
-                </div>
-                <div class="activity-time">2 days ago</div>
+        <div class="activity-list" id="activityList">
+            <div class="activity-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // ===== SIDEBAR TOGGLE =====
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const body = document.body;
+        sidebar.classList.toggle('expanded');
+        body.classList.toggle('sidebar-expanded');
+        localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('sidebarExpanded') === 'true') {
+            document.getElementById('sidebar').classList.add('expanded');
+            document.body.classList.add('sidebar-expanded');
+        }
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
+    });
+
+    // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
-        document.getElementById('profileDropdown').classList.toggle('open');
+        const dd = document.getElementById('profileDropdown');
+        const bell = document.getElementById('bellDropdown');
+        if (bell) bell.classList.remove('open');
+        dd.classList.toggle('open');
     }
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('profileDropdown');
         if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
 
+    // ===== NOTIFICATION BELL =====
+    function toggleBell(event) {
+        if (event) event.stopPropagation();
+        const dropdown = document.getElementById('bellDropdown');
+        const userDropdown = document.getElementById('profileDropdown');
+        if (userDropdown) userDropdown.classList.remove('open');
+        dropdown.classList.toggle('open');
+        if (dropdown.classList.contains('open')) loadRecentAnnouncements();
+    }
+
+    function loadRecentAnnouncements() {
+        const list = document.getElementById('bellList');
+        list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        fetch('/api/announcements/recent?limit=5')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.announcements || data.announcements.length === 0) {
+                    list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                    return;
+                }
+                let html = '';
+                data.announcements.forEach(a => {
+                    const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    const isUnread = !a.is_read;
+                    const itemClass = isUnread ? 'bell-item unread' : 'bell-item';
+                    html += `<a href="javascript:void(0)" onclick="openAnnouncementFromBell(${a.id})" class="${itemClass}">
+                                <div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div>
+                                <div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div>
+                             </a>`;
+                });
+                list.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Bell fetch error:', err);
+                list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
+            });
+    }
+
+    function openAnnouncementFromBell(announcementId) {
+        fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateBellBadge();
+                    loadRecentAnnouncements();
+                }
+            })
+            .catch(err => console.error('Mark read error:', err));
+
+        setTimeout(() => {
+            window.location.href = '/admin/announcements';
+        }, 300);
+    }
+
+    function markAllRead(event) {
+        if (event) event.stopPropagation();
+        fetch('/api/announcements/mark-all-read', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateBellBadge();
+                    loadRecentAnnouncements();
+                }
+            })
+            .catch(err => console.error('Mark all read error:', err));
+    }
+
+    function updateBellBadge() {
+        fetch('/api/announcements/unread_count')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('bellBadge');
+                if (!badge) return;
+                const count = data.unread_count || 0;
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(err => console.error('Badge fetch error:', err));
+    }
+
+    function escapeHtmlBell(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.addEventListener('click', function(e) {
+        const bellWrap = document.querySelector('.notification-bell-wrap');
+        const dropdown = document.getElementById('bellDropdown');
+        if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    // ===== MODALS =====
     function openModal(id) {
         document.getElementById(id).classList.add('active');
     }
@@ -565,6 +909,76 @@
             if (e.target === this) this.classList.remove('active');
         });
     });
+
+    // ===== ACTIVITY LOG (DYNAMIC) =====
+    function openActivityModal() {
+        openModal('activityModal');
+        loadActivityLogs();
+    }
+
+    function loadActivityLogs() {
+        const list = document.getElementById('activityList');
+        list.innerHTML = '<div class="activity-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+
+        fetch('/api/admin/my-activity-logs?limit=10')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.logs || data.logs.length === 0) {
+                    list.innerHTML = `
+                        <div class="activity-empty">
+                            <i class="fas fa-history"></i>
+                            <div>No activity logs yet</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.logs.forEach(log => {
+                    let iconClass = 'default';
+                    let icon = 'info-circle';
+                    let title = 'Activity';
+
+                    if (log.action === 'login') {
+                        iconClass = 'login';
+                        icon = 'sign-in-alt';
+                        title = 'Logged in';
+                    } else if (log.action === 'logout') {
+                        iconClass = 'logout';
+                        icon = 'sign-out-alt';
+                        title = 'Logged out';
+                    } else {
+                        title = log.action.charAt(0).toUpperCase() + log.action.slice(1);
+                    }
+
+                    const timeStr = log.created_at ? new Date(log.created_at).toLocaleString('en-PH', {
+                        month: 'short', day: 'numeric', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    }) : 'N/A';
+
+                    html += `
+                        <div class="activity-item">
+                            <div class="activity-icon ${iconClass}"><i class="fas fa-${icon}"></i></div>
+                            <div class="activity-info">
+                                <div class="title">${title}</div>
+                                <div class="desc">${log.details || 'No details'}</div>
+                            </div>
+                            <div class="activity-time">${timeStr}</div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Activity log error:', err);
+                list.innerHTML = `
+                    <div class="activity-empty">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Failed to load logs</div>
+                    </div>
+                `;
+            });
+    }
 </script>
 </body>
 </html>

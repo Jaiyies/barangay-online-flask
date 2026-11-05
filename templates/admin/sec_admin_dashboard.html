@@ -825,17 +825,17 @@
             </div>
             <div class="stat-card">
                 <div class="stat-info">
-                    <h4>Approved</h4>
-                    <div class="stat-number">{{ approved_documents|default(0, true) }}</div>
+                    <h4>Processing</h4>
+                    <div class="stat-number">{{ processing_documents|default(0, true) }}</div>
                 </div>
-                <div class="stat-icon"><i class="fas fa-check-circle" style="color:#22c55e;"></i></div>
+                <div class="stat-icon"><i class="fas fa-spinner" style="color:#3b82f6;"></i></div>
             </div>
             <div class="stat-card">
                 <div class="stat-info">
-                    <h4>Rejected</h4>
-                    <div class="stat-number">{{ rejected_documents|default(0, true) }}</div>
+                    <h4>Ready for Pickup</h4>
+                    <div class="stat-number">{{ ready_documents|default(0, true) }}</div>
                 </div>
-                <div class="stat-icon"><i class="fas fa-times-circle" style="color:#dc3545;"></i></div>
+                <div class="stat-icon"><i class="fas fa-check-circle" style="color:#22c55e;"></i></div>
             </div>
         </div>
 
@@ -847,8 +847,8 @@
                 </div>
                 <div class="status-legend">
                     <div class="legend-item"><div class="legend-color" style="background: #ffb74d;"></div> Pending</div>
-                    <div class="legend-item"><div class="legend-color" style="background: #66bb6a;"></div> Approved</div>
-                    <div class="legend-item"><div class="legend-color" style="background: #ef5350;"></div> Rejected</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #3b82f6;"></div> Processing</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #66bb6a;"></div> Ready</div>
                 </div>
             </div>
             <div class="chart-box">
@@ -1040,16 +1040,15 @@
     });
 
     const pendingTotal = Number("{{ pending_documents | default(0) }}");
-    const approvedTotal = Number("{{ approved_documents | default(0) }}");
-    const rejectedTotal = Number("{{ rejected_documents | default(0) }}");
-
+    const processingTotal = Number("{{ processing_documents | default(0) }}");
+    const readyTotal = Number("{{ ready_documents | default(0) }}");
     new Chart(document.getElementById('statusChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Pending', 'Approved', 'Rejected'],
+            labels: ['Pending', 'Processing', 'Ready for Pickup'],
             datasets: [{
-                data: [pendingTotal, approvedTotal, rejectedTotal],
-                backgroundColor: ['#ffb74d', '#66bb6a', '#ef5350'],
+                data: [pendingTotal, processingTotal, readyTotal],
+                backgroundColor: ['#ffb74d', '#3b82f6', '#66bb6a'],
                 borderWidth: 0
             }]
         },

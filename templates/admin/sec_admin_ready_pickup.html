@@ -357,6 +357,7 @@
             padding: 3px 12px; border-radius: 50px; font-size: 11px; font-weight: 600;
         }
         .status-ready { background: #d1fae5; color: #065f46; }
+        .status-processing { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
         .status-approved { background: #dbeafe; color: #1e40af; }
 
         .btn-action {
@@ -411,6 +412,27 @@
         .view-item .value { font-size: 14px; font-weight: 500; color: #0d2b1e; }
         .view-item.full-width { grid-column: 1 / -1; }
 
+        /* ===== TOAST ANIMATION ===== */
+        .toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .custom-toast {
+            background: #ffffff; border-left: 6px solid #10b981; border-radius: 12px;
+            padding: 16px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 14px; min-width: 300px;
+            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .custom-toast.show { transform: translateX(0); }
+        .custom-toast.error { border-left-color: #dc3545; }
+        .custom-toast-icon {
+            width: 36px; height: 36px; border-radius: 50%; background: #d1fae5; color: #059669;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+        }
+        .custom-toast.error .custom-toast-icon { background: #fee2e2; color: #dc3545; }
+        .custom-toast-content h4 { margin: 0 0 4px; font-size: 14px; color: #0d2b1e; }
+        .custom-toast-content p { margin: 0; font-size: 12px; color: #64748b; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) { .navbar-search { max-width: 300px; } }
         @media (max-width: 768px) {
@@ -440,6 +462,9 @@
     </style>
 </head>
 <body>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- ===== SIDEBAR ===== -->
 <div class="sidebar-custom" id="sidebar">
@@ -541,7 +566,7 @@
             <div class="filter-left">
                 <select id="statusFilter" onchange="filterTable()">
                     <option value="all">All</option>
-                    <option value="approved">Approved</option>
+                    <option value="processing">Processing</option>
                     <option value="ready_for_pickup">Ready for Pickup</option>
                 </select>
                 <span style="font-size:13px;color:#6b7a72;">Total: <strong id="totalCount">{{ documents|length }}</strong></span>
@@ -561,7 +586,7 @@
                         <th>Reference</th>
                         <th>Applicant</th>
                         <th>Document Type</th>
-                        <th>Date Approved</th>
+                        <th>Date Submitted</th>
                         <th>Status</th>
                         <th style="text-align:center;">Action</th>
                     </tr>
@@ -583,7 +608,7 @@
                             {% if doc.status == 'ready_for_pickup' %}
                                 <span class="status-badge status-ready">READY FOR PICKUP</span>
                             {% else %}
-                                <span class="status-badge status-approved">APPROVED</span>
+                                <span class="status-badge status-processing">PROCESSING</span>
                             {% endif %}
                         </td>
                         <td style="text-align:center;">
@@ -600,7 +625,7 @@
             <div class="empty-state" style="text-align: center; padding: 50px 20px; color: #8a9a8f;">
                 <i class="fas fa-check-circle" style="font-size: 48px; color: #cde0d8; margin-bottom: 12px; display: block;"></i>
                 <h4>No Documents Ready for Pickup</h4>
-                <p>Wala pang na-approve na document.</p>
+                <p>Wala pang document na ready for pickup.</p>
             </div>
             {% endif %}
         </div>
@@ -843,8 +868,9 @@
                 };
                 
                 const isReady = doc.status === 'ready_for_pickup';
-                const badgeClass = isReady ? 'status-ready' : 'status-approved';
-                const badgeText = isReady ? 'READY FOR PICKUP' : 'APPROVED';
+                const badgeClass = isReady ? 'status-ready' : 'status-processing';
+                const badgeStyle = isReady ? '' : 'background: #fffbeb; color: #d97706; border: 1px solid #fcd34d;';
+                const badgeText = isReady ? 'READY FOR PICKUP' : 'PROCESSING';
                 
                 const hasFile = doc.completed_file && doc.completed_file.trim() !== '';
                 let actionHtml = '';
@@ -875,7 +901,7 @@
                         </div>
                         <div class="view-item">
                             <span class="label">Status</span>
-                            <span class="value"><span class="status-badge ${badgeClass}">${badgeText}</span></span>
+                            <span class="value"><span class="status-badge ${badgeClass}" style="${badgeStyle}">${badgeText}</span></span>
                         </div>
                         <div class="view-item">
                             <span class="label">Document Type</span>
@@ -926,7 +952,7 @@
                 iframe.contentWindow.print();
             } catch (e) {
                 console.error('Print error:', e);
-                alert('Hindi ma-print ang file.');
+                showToast('Error!', 'Hindi ma-print ang file.', 'error');
             }
             setTimeout(() => document.body.removeChild(iframe), 60000);
         };
@@ -961,21 +987,51 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert('Document uploaded successfully!');
-                window.location.reload();
+                showToast('Success!', 'Document uploaded successfully!', 'success');
+                setTimeout(() => window.location.reload(), 2000);
             } else {
-                alert('Error: ' + (data.error || 'Unknown error'));
+                showToast('Error!', data.error || 'Unknown error', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
         })
         .catch(err => {
             console.error('Error:', err);
-            alert('Network error. Check console.');
-        })
-        .finally(() => {
+            showToast('Network Error!', 'Check your internet or server.', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         });
     });
+
+    // ===== CUSTOM TOAST NOTIFICATION =====
+    function showToast(title, message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `custom-toast ${type === 'error' ? 'error' : ''}`;
+        
+        const icon = type === 'error' ? 'fa-times-circle' : 'fa-check-circle';
+        
+        toast.innerHTML = `
+            <div class="custom-toast-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="custom-toast-content">
+                <h4>${title}</h4>
+                <p>${message}</p>
+            </div>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Remove toast after 3.5 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3500);
+    }
 
     // ===== CLOSE MODAL ON OUTSIDE CLICK =====
     document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -1004,7 +1060,7 @@
             },
             (errorMessage) => {}
         ).catch((err) => {
-            alert("Camera error: " + err);
+            showToast('Camera Error!', err, 'error');
             closeScanner();
         });
     }

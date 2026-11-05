@@ -1218,12 +1218,19 @@
         blockAction = null;
     }
 
+    // FIXED: response was out of scope
     function confirmBlockAction() {
         if (!blockUserId || !blockAction) return;
         fetch(`/api/user/${blockUserId}/toggle-block`, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
                 if (response.ok) {
+                    return response.json().then(data => ({ ok: true, data }));
+                } else {
+                    return response.json().then(data => ({ ok: false, data }));
+                }
+            })
+            .then(({ ok, data }) => {
+                if (ok) {
                     closeConfirmBlock();
                     const message = blockAction === 'block' ? 'User blocked successfully' : 'User unblocked successfully';
                     showToast(message, 'success');
@@ -1252,9 +1259,9 @@
     function confirmDelete() {
         if (!deleteUserId) return;
         fetch(`/api/user/${deleteUserId}/delete`, { method: 'DELETE' })
-            .then(response => response.json())
-            .then(data => {
-                if (response.ok) {
+            .then(response => response.json().then(data => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok) {
                     closeConfirmDelete();
                     showToast('User deleted successfully', 'success');
                     setTimeout(() => location.reload(), 1000);

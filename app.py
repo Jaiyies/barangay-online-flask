@@ -496,9 +496,6 @@ def login():
                 return render_template('login.html')
 
             # Reset attempts after successful authentication.
-            session['login_attempts'] = 0
-            session['lockout_time'] = 0
-
             session['user_id'] = user['id']
             session['fullname'] = f"{user['first_name']} {user['last_name']}"
             session['email'] = user['email']
@@ -506,6 +503,19 @@ def login():
 
             flash(f'Welcome back, {session["fullname"]}!', 'success')
 
+            # ===== LOG LOGIN ACTION (ALL USERS) =====
+            try:
+                log_conn = get_db()
+                log_cursor = log_conn.cursor()
+                log_cursor.execute("""
+                    INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+                    VALUES (%s, %s, %s, %s)
+                """, (user['id'], 'login', None, f'{user["role"]} logged in from {request.remote_addr}'))
+                log_conn.commit()
+                log_conn.close()
+            except Exception as e:
+                print(f"Login log error: {e}")
+            # ===== END LOG LOGIN =====
             if user['role'] == 'head_admin':
                 return redirect(url_for('head_admin_dashboard'))
             elif user['role'] == 'admin_documents':
@@ -876,18 +886,23 @@ def dashboard():
     cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
 
+    # ===== DOCUMENT STATS (walang approved, may processing + ready) =====
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE user_id = %s", (session['user_id'],))
     total_docs = cursor.fetchone()['total']
 
     cursor.execute("SELECT COUNT(*) as pending FROM document_requests WHERE user_id = %s AND status = 'pending'", (session['user_id'],))
     pending_docs = cursor.fetchone()['pending']
 
-    cursor.execute("SELECT COUNT(*) as approved FROM document_requests WHERE user_id = %s AND status = 'approved'", (session['user_id'],))
-    approved_docs = cursor.fetchone()['approved']
+    cursor.execute("SELECT COUNT(*) as processing FROM document_requests WHERE user_id = %s AND status = 'processing'", (session['user_id'],))
+    processing_docs = cursor.fetchone()['processing']
+
+    cursor.execute("SELECT COUNT(*) as ready FROM document_requests WHERE user_id = %s AND status = 'ready_for_pickup'", (session['user_id'],))
+    ready_docs = cursor.fetchone()['ready']
 
     cursor.execute("SELECT COUNT(*) as rejected FROM document_requests WHERE user_id = %s AND status = 'rejected'", (session['user_id'],))
     rejected_docs = cursor.fetchone()['rejected']
 
+    # ===== EVENT STATS (approved intact) =====
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE user_id = %s", (session['user_id'],))
     total_events = cursor.fetchone()['total']
 
@@ -900,6 +915,7 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) as rejected FROM event_permits WHERE user_id = %s AND status = 'rejected'", (session['user_id'],))
     rejected_events = cursor.fetchone()['rejected']
 
+    # ===== ANNOUNCEMENTS + RECENT LISTS =====
     cursor.execute("""
         SELECT * FROM announcements
         WHERE is_draft = FALSE
@@ -907,6 +923,7 @@ def dashboard():
         LIMIT 5
     """)
     announcements = cursor.fetchall()
+
     cursor.execute("SELECT * FROM document_requests WHERE user_id = %s ORDER BY created_at DESC LIMIT 5", (session['user_id'],))
     recent_docs = cursor.fetchall()
 
@@ -926,7 +943,8 @@ def dashboard():
                          user=user,
                          total_docs=total_docs,
                          pending_docs=pending_docs,
-                         approved_docs=approved_docs,
+                         processing_docs=processing_docs,
+                         ready_docs=ready_docs,
                          rejected_docs=rejected_docs,
                          total_events=total_events,
                          pending_events=pending_events,
@@ -1021,6 +1039,8 @@ def user_update_profile():
 
     flash('Profile updated successfully! A confirmation email has been sent.', 'success')
     return redirect(url_for('user_settings'))
+
+
 
     # ============================================================
     # SEND PROFILE UPDATE CONFIRMATION EMAIL
@@ -1357,24 +1377,30 @@ def my_requests():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    # ===== LISTS =====
     cursor.execute("SELECT * FROM document_requests WHERE user_id = %s ORDER BY created_at DESC", (session['user_id'],))
     document_requests = cursor.fetchall()
 
     cursor.execute("SELECT * FROM event_permits WHERE user_id = %s ORDER BY requested_at DESC", (session['user_id'],))
     event_permits = cursor.fetchall()
 
+    # ===== DOCUMENT STATS (walang approved, may processing + ready) =====
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE user_id = %s", (session['user_id'],))
     total_docs = cursor.fetchone()['total']
 
     cursor.execute("SELECT COUNT(*) as pending FROM document_requests WHERE user_id = %s AND status = 'pending'", (session['user_id'],))
     pending_docs = cursor.fetchone()['pending']
 
-    cursor.execute("SELECT COUNT(*) as approved FROM document_requests WHERE user_id = %s AND status = 'approved'", (session['user_id'],))
-    approved_docs = cursor.fetchone()['approved']
+    cursor.execute("SELECT COUNT(*) as processing FROM document_requests WHERE user_id = %s AND status = 'processing'", (session['user_id'],))
+    processing_docs = cursor.fetchone()['processing']
+
+    cursor.execute("SELECT COUNT(*) as ready FROM document_requests WHERE user_id = %s AND status = 'ready_for_pickup'", (session['user_id'],))
+    ready_docs = cursor.fetchone()['ready']
 
     cursor.execute("SELECT COUNT(*) as rejected FROM document_requests WHERE user_id = %s AND status = 'rejected'", (session['user_id'],))
     rejected_docs = cursor.fetchone()['rejected']
 
+    # ===== EVENT STATS (approved intact) =====
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE user_id = %s", (session['user_id'],))
     total_events = cursor.fetchone()['total']
 
@@ -1394,7 +1420,8 @@ def my_requests():
                          event_permits=event_permits,
                          total_docs=total_docs,
                          pending_docs=pending_docs,
-                         approved_docs=approved_docs,
+                         processing_docs=processing_docs,
+                         ready_docs=ready_docs,
                          rejected_docs=rejected_docs,
                          total_events=total_events,
                          pending_events=pending_events,
@@ -2092,6 +2119,7 @@ def head_admin_dashboard():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    # ===== USER STATS =====
     cursor.execute("SELECT COUNT(*) as total FROM users")
     total_users = cursor.fetchone()['total']
 
@@ -2101,36 +2129,36 @@ def head_admin_dashboard():
     cursor.execute("SELECT COUNT(*) as total FROM users WHERE role IN ('head_admin', 'admin_court_1', 'admin_court_2', 'admin_court_3', 'admin_court_4', 'admin_documents')")
     total_admins = cursor.fetchone()['total']
 
+    # ===== DOCUMENT STATS (NEW STATUS SYSTEM) =====
     cursor.execute("SELECT COUNT(*) as total FROM document_requests")
     total_requests = cursor.fetchone()['total']
 
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'pending'")
+    docs_pending = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'processing'")
+    docs_processing = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'ready_for_pickup'")
+    docs_ready = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'rejected'")
+    docs_rejected = cursor.fetchone()['total']
+
+    # ===== EVENT STATS (APPROVED PA RIN) =====
     cursor.execute("SELECT COUNT(*) as total FROM event_permits")
     total_events = cursor.fetchone()['total']
 
-    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'pending'")
-    pending_docs = cursor.fetchone()['total']
-
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'pending'")
-    pending_events = cursor.fetchone()['total']
-
-    pending_total = pending_docs + pending_events
-
-    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'approved'")
-    approved_docs = cursor.fetchone()['total']
+    events_pending = cursor.fetchone()['total']
 
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'approved'")
-    approved_events = cursor.fetchone()['total']
-
-    approved_total = approved_docs + approved_events
-
-    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'rejected'")
-    rejected_docs = cursor.fetchone()['total']
+    events_approved = cursor.fetchone()['total']
 
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'rejected'")
-    rejected_events = cursor.fetchone()['total']
+    events_rejected = cursor.fetchone()['total']
 
-    rejected_total = rejected_docs + rejected_events
-
+    # ===== PENDING LIST (docs + events) =====
     cursor.execute("""
         SELECT d.*, u.first_name, u.last_name, u.email
         FROM document_requests d
@@ -2151,25 +2179,21 @@ def head_admin_dashboard():
     """)
     pending_events_list = cursor.fetchall()
 
-    # ===== MONTHLY DATA (Documents + Events) para sa chart =====
+    # ===== MONTHLY DATA =====
     monthly_docs_data = []
     monthly_events_data = []
     current_year = datetime.date.today().year
 
-    for month in range(1, 13):  # Jan to Dec
-        # Documents count
+    for month in range(1, 13):
         cursor.execute("""
             SELECT COUNT(*) as total FROM document_requests
-            WHERE MONTH(created_at) = %s
-            AND YEAR(created_at) = %s
+            WHERE MONTH(created_at) = %s AND YEAR(created_at) = %s
         """, (month, current_year))
         monthly_docs_data.append(cursor.fetchone()['total'])
 
-        # Events count
         cursor.execute("""
             SELECT COUNT(*) as total FROM event_permits
-            WHERE MONTH(requested_at) = %s
-            AND YEAR(requested_at) = %s
+            WHERE MONTH(requested_at) = %s AND YEAR(requested_at) = %s
         """, (month, current_year))
         monthly_events_data.append(cursor.fetchone()['total'])
 
@@ -2181,13 +2205,19 @@ def head_admin_dashboard():
                          total_admins=total_admins,
                          total_requests=total_requests,
                          total_events=total_events,
-                         pending_docs=pending_docs,
-                         pending_events=pending_events,
-                         pending_total=pending_total,
-                         approved_total=approved_total,
-                         rejected_total=rejected_total,
+                         # Documents stats (4 segments)
+                         docs_pending=docs_pending,
+                         docs_processing=docs_processing,
+                         docs_ready=docs_ready,
+                         docs_rejected=docs_rejected,
+                         # Events stats (3 segments)
+                         events_pending=events_pending,
+                         events_approved=events_approved,
+                         events_rejected=events_rejected,
+                         # Lists
                          pending_documents=pending_documents,
                          pending_events_list=pending_events_list,
+                         # Monthly
                          monthly_docs_data=monthly_docs_data,
                          monthly_events_data=monthly_events_data)
 
@@ -2211,9 +2241,32 @@ def head_admin_all_documents():
         ORDER BY d.created_at DESC
     """)
     documents = cursor.fetchall()
+
+    # ===== STATS COUNTS =====
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests")
+    total_documents = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'pending'")
+    pending_count = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'processing'")
+    processing_count = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'ready_for_pickup'")
+    ready_count = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'rejected'")
+    rejected_count = cursor.fetchone()['total']
+
     conn.close()
 
-    return render_template('admin/head_admin_all_documents.html', documents=documents)
+    return render_template('admin/head_admin_all_documents.html',
+                         documents=documents,
+                         total_documents=total_documents,
+                         pending_count=pending_count,
+                         processing_count=processing_count,
+                         ready_count=ready_count,
+                         rejected_count=rejected_count)
 
 
 # ============================================================
@@ -2407,18 +2460,27 @@ def sec_admin_dashboard():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    # 1. Total Documents
     cursor.execute("SELECT COUNT(*) as total FROM document_requests")
     total_documents = cursor.fetchone()['total']
 
+    # 2. Pending
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'pending'")
     pending_documents = cursor.fetchone()['total']
 
-    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'approved'")
-    approved_documents = cursor.fetchone()['total']
+    # 3. Processing
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'processing'")
+    processing_documents = cursor.fetchone()['total']
 
+    # 4. Ready for Pickup (ITO YUNG KULANG KANINA)
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'ready_for_pickup'")
+    ready_documents = cursor.fetchone()['total']
+
+    # 5. Rejected
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'rejected'")
     rejected_documents = cursor.fetchone()['total']
 
+    # Weekly Data
     weekly_data = []
     for i in range(6, -1, -1):
         date = datetime.date.today() - datetime.timedelta(days=i)
@@ -2428,6 +2490,7 @@ def sec_admin_dashboard():
         """, (date,))
         weekly_data.append(cursor.fetchone()['total'])
 
+    # Recent Pending
     cursor.execute("""
         SELECT d.*, u.first_name, u.last_name
         FROM document_requests d
@@ -2440,14 +2503,15 @@ def sec_admin_dashboard():
 
     conn.close()
 
+    # ===== ITO YUNG PINAKA-IMPORTANTE =====
     return render_template('admin/sec_admin_dashboard.html',
                          total_documents=total_documents,
                          pending_documents=pending_documents,
-                         approved_documents=approved_documents,
+                         processing_documents=processing_documents,
+                         ready_documents=ready_documents,       # <-- Ito ang gagamitin sa HTML
                          rejected_documents=rejected_documents,
                          weekly_data=weekly_data,
                          recent_pending=recent_pending)
-
 
 # ============================================================
 # ADMIN DOCUMENT REVIEW (ALL)
@@ -2508,7 +2572,7 @@ def admin_documents_ready():
         SELECT d.*, u.first_name, u.last_name, u.email, u.contact_number
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
-        WHERE d.status IN ('approved', 'ready_for_pickup')
+        WHERE d.status IN ('processing', 'ready_for_pickup')
         ORDER BY d.created_at DESC
     """)
     documents = cursor.fetchall()
@@ -2559,6 +2623,7 @@ def upload_final_document():
     conn.close()
 
     # Email notification
+       # Email notification
     if user_info:
         subject = f"Your Document is Ready for Pickup! - {user_info['reference_number']}"
         body_html = f"""
@@ -2571,6 +2636,22 @@ def upload_final_document():
         </body></html>
         """
         send_email(user_info['email'], subject, body_html)
+
+        # ===== IDINAGDAG: INTERNAL NOTIFICATION =====
+        conn2 = get_db()
+        cursor2 = conn2.cursor(dictionary=True)
+        cursor2.execute("SELECT user_id FROM document_requests WHERE id = %s", (doc_id,))
+        doc_owner = cursor2.fetchone()
+        conn2.close()
+
+        if doc_owner:
+            create_notification(
+                doc_owner['user_id'],
+                '✅ Ready for Pickup',
+                f'Your {user_info["document_type"].replace("_", " ").title()} is now ready for pickup. Reference: {user_info["reference_number"]}',
+                'document_ready',
+                link='/my-requests'
+            )
 
     return jsonify({'success': True, 'message': 'Document uploaded and user notified.'})
 
@@ -3390,8 +3471,10 @@ def update_document_status(doc_id):
     status = data.get('status')
     remarks = data.get('remarks', '').strip()
 
-    if status not in ['approved', 'rejected']:
+    if status not in ['processing', 'rejected']:
         return jsonify({'error': 'Invalid status'}), 400
+
+    final_status = status
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
@@ -3400,13 +3483,13 @@ def update_document_status(doc_id):
         UPDATE document_requests
         SET status = %s, admin_remarks = %s
         WHERE id = %s
-    """, (status, remarks, doc_id))
+    """, (final_status, remarks, doc_id))
     conn.commit()
 
     cursor.execute("""
         INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
         VALUES (%s, %s, %s, %s)
-    """, (session['user_id'], status, doc_id, f'Document {status} - Remarks: {remarks}'))
+    """, (session['user_id'], final_status, doc_id, f'Document {final_status} - Remarks: {remarks}'))
     conn.commit()
 
     cursor.execute("""
@@ -3422,12 +3505,22 @@ def update_document_status(doc_id):
     # SEND EMAIL NOTIFICATION TO RESIDENT
     # ============================================
     if user_data:
-        status_text = "APPROVED ✅" if status == 'approved' else "REJECTED ❌"
-        color = "#059669" if status == 'approved' else "#dc2626"
-        bg_color = "#ecfdf5" if status == 'approved' else "#fef2f2"
-        icon = "✅" if status == 'approved' else "❌"
-
-        subject = f"Document Request {status.upper()} - Barangay Sto. Nino"
+        # Setup ng variables base sa status
+        if final_status == 'processing':
+            status_text = "PROCESSING ⏳"
+            color = "#d97706"
+            bg_color = "#fffbeb"
+            icon = "⏳"
+            main_message = "Your request is currently being processed. Please wait for the final document to be ready for pickup."
+            subject = f"Document Request is Now Processing - Barangay Sto. Nino"
+        elif final_status == 'rejected':
+            status_text = "REJECTED ❌"
+            color = "#dc2626"
+            bg_color = "#fef2f2"
+            icon = "❌"
+            main_message = "Your request has been rejected."
+            subject = f"Document Request REJECTED - Barangay Sto. Nino"
+            
         body_html = f"""
         <!DOCTYPE html>
         <html>
@@ -3443,7 +3536,7 @@ def update_document_status(doc_id):
                                         {icon}
                                     </div>
                                     <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">
-                                        Document {status.upper()}
+                                        Document {status_text}
                                     </h1>
                                     <p style="margin: 8px 0 0; color: #d1fae5; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500;">
                                         Barangay Sto. Nino
@@ -3456,7 +3549,7 @@ def update_document_status(doc_id):
                                         Hello, {user_data['first_name']}!
                                     </h2>
                                     <p style="margin: 0 0 25px; color: #64748b; font-size: 15px; line-height: 1.7;">
-                                        Your request for <strong>{user_data['document_type'].replace('_', ' ').title()}</strong> has been processed.
+                                        {main_message}
                                     </p>
                                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: {bg_color}; border-radius: 10px; border-left: 4px solid {color}; margin: 25px 0;">
                                         <tr>
@@ -3514,27 +3607,69 @@ def update_document_status(doc_id):
         conn2.close()
 
         if doc_info:
-            status_emoji = '✅' if status == 'approved' else '❌'
+            if final_status == 'processing':
+                status_emoji = '⏳'
+            elif final_status == 'rejected':
+                status_emoji = '❌'
+            else:
+                status_emoji = '✅'
+                
             create_notification(
                 doc_info['user_id'],
-                f'{status_emoji} Document {status.title()}',
-                f'Your {doc_info["document_type"].replace("_", " ").title()} request has been {status}. {("Remarks: " + remarks) if remarks else ""}',
-                f'document_{status}',
+                f'{status_emoji} Document {final_status.title()}',
+                f'Your {doc_info["document_type"].replace("_", " ").title()} request is now {final_status}. {("Remarks: " + remarks) if remarks else ""}',
+                f'document_{final_status}',
                 link='/my-requests'
             )
 
     return jsonify({
         'success': True,
-        'message': f'Document {status} successfully',
+        'message': f'Document {final_status} successfully',
         'user_data': user_data
     })
+
+
+@app.route('/api/admin/my-activity-logs')
+def api_my_activity_logs():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized', 'logs': []}), 401
+
+    if session.get('role') not in ADMIN_ROLES:
+        return jsonify({'error': 'Unauthorized', 'logs': []}), 401
+
+    try:
+        limit = int(request.args.get('limit', 10))
+        if limit > 50:
+            limit = 50
+
+        conn = get_db()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT action, details, created_at
+            FROM admin_activity_logs
+            WHERE admin_id = %s
+            ORDER BY created_at DESC
+            LIMIT %s
+        """, (session['user_id'], limit))
+        logs = cursor.fetchall()
+        conn.close()
+
+        for log in logs:
+            if log.get('created_at'):
+                log['created_at'] = log['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+
+        return jsonify({'success': True, 'logs': logs})
+
+    except Exception as e:
+        print(f"Activity logs error: {e}")
+        return jsonify({'error': str(e), 'logs': []}), 500
 
 
 @app.route('/admin/document-details/<int:doc_id>')
 def admin_document_details(doc_id):
     if 'user_id' not in session or session.get('role') not in ['head_admin', 'admin_documents']:
         return jsonify({'error': 'Unauthorized'}), 401
-    
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
@@ -5288,9 +5423,22 @@ def check_session():
 # ============================================================
 @app.route('/logout')
 def logout():
+    if 'user_id' in session:
+        try:
+            log_conn = get_db()
+            log_cursor = log_conn.cursor()
+            log_cursor.execute("""
+                INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+                VALUES (%s, %s, %s, %s)
+            """, (session['user_id'], 'logout', None, f'{session.get("role", "user")} logged out from {request.remote_addr}'))
+            log_conn.commit()
+            print(f"✅ LOGOUT LOGGED: user_id={session['user_id']}, role={session.get('role')}")
+            log_conn.close()
+        except Exception as e:
+            print(f"❌ Logout log error: {e}")
+
     session.clear()
     return redirect(url_for('login'))
-
 
 # ============================================================
 # FORGOT PASSWORD ROUTE

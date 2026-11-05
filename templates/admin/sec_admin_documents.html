@@ -347,7 +347,8 @@
             padding: 3px 12px; border-radius: 50px; font-size: 11px; font-weight: 600;
         }
         .status-pending { background: #fef3c7; color: #92400e; }
-        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-processing { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+        .status-ready { background: #d1fae5; color: #065f46; }  /* <-- GREEN PARA SA READY FOR PICKUP */
         .status-rejected { background: #fee2e2; color: #991b1b; }
 
         .btn-action {
@@ -401,6 +402,27 @@
         .view-item .value { font-size: 14px; font-weight: 500; color: #0d2b1e; }
         .view-item.full-width { grid-column: 1 / -1; }
 
+        /* ===== TOAST ANIMATION ===== */
+        .toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .custom-toast {
+            background: #ffffff; border-left: 6px solid #10b981; border-radius: 12px;
+            padding: 16px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 14px; min-width: 300px;
+            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .custom-toast.show { transform: translateX(0); }
+        .custom-toast.error { border-left-color: #dc3545; }
+        .custom-toast-icon {
+            width: 36px; height: 36px; border-radius: 50%; background: #d1fae5; color: #059669;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+        }
+        .custom-toast.error .custom-toast-icon { background: #fee2e2; color: #dc3545; }
+        .custom-toast-content h4 { margin: 0 0 4px; font-size: 14px; color: #0d2b1e; }
+        .custom-toast-content p { margin: 0; font-size: 12px; color: #64748b; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) { .navbar-search { max-width: 300px; } }
         @media (max-width: 768px) {
@@ -429,6 +451,9 @@
     </style>
 </head>
 <body>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- ===== SIDEBAR ===== -->
 <div class="sidebar-custom" id="sidebar">
@@ -531,7 +556,8 @@
                 <select id="statusFilter" onchange="filterTable()">
                     <option value="all">All Status</option>
                     <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
+                    <option value="processing">Processing</option>
+                    <option value="ready_for_pickup">Ready for Pickup</option>
                     <option value="rejected">Rejected</option>
                 </select>
             </div>
@@ -570,7 +596,8 @@
                         <td>
                             <span class="status-badge 
                                 {% if doc.status == 'pending' %}status-pending
-                                {% elif doc.status == 'approved' %}status-approved
+                                {% elif doc.status == 'processing' %}status-processing
+                                {% elif doc.status == 'ready_for_pickup' %}status-ready
                                 {% else %}status-rejected{% endif %}">
                                 {{ doc.status|upper }}
                             </span>
@@ -843,7 +870,8 @@
                 };
                 
                 let statusClass = 'status-pending';
-                if (doc.status === 'approved') statusClass = 'status-approved';
+                if (doc.status === 'processing') statusClass = 'status-processing';
+                else if (doc.status === 'ready_for_pickup') statusClass = 'status-ready';
                 else if (doc.status === 'rejected') statusClass = 'status-rejected';
                 
                 body.innerHTML = `
@@ -913,6 +941,54 @@
 
     function closeDetailsModal() {
         document.getElementById('detailsModal').classList.remove('active');
+    }
+
+    // ===== CUSTOM TOAST NOTIFICATION =====
+    function showToast(title, message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `custom-toast ${type === 'error' ? 'error' : ''}`;
+        
+        const icon = type === 'error' ? 'fa-times-circle' : 'fa-check-circle';
+        
+        toast.innerHTML = `
+            <div class="custom-toast-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="custom-toast-content">
+                <h4>${title}</h4>
+                <p>${message}</p>
+            </div>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Remove toast after 3.5 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3500);
+    }
+
+    // ===== PRINT FUNCTION =====
+    function printDocument(fileUrl) {
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+        iframe.src = fileUrl;
+        iframe.onload = function() {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch (e) {
+                console.error('Print error:', e);
+                showToast('Print Error!', 'Hindi ma-print ang file.', 'error');
+            }
+            setTimeout(() => document.body.removeChild(iframe), 60000);
+        };
+        document.body.appendChild(iframe);
     }
 
     document.querySelectorAll('.modal-overlay').forEach(modal => {

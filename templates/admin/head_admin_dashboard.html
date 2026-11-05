@@ -176,7 +176,7 @@
         body.sidebar-expanded .navbar { left: 292px; }
         .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
 
-        /* ===== SEARCH BAR (LEFT ALIGNED + GREEN GLOW) ===== */
+        /* ===== SEARCH BAR ===== */
         .navbar-search {
             display: flex; align-items: center;
             background: #f4f8f5; border-radius: 50px;
@@ -256,7 +256,7 @@
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
 
-        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
+        /* ===== RED DOT ===== */
         .bell-item.unread::before {
             content: "";
             position: absolute;
@@ -269,20 +269,11 @@
             background: #dc3545;
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
-        .bell-item.unread {
-            padding-left: 22px;
-        }
-        .bell-item.unread .bell-item-title {
-            font-weight: 700;
-            color: #0d2b1e;
-        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
         @keyframes pulse-dot {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
         }
 
         /* ===== PROFILE DROPDOWN ===== */
@@ -433,7 +424,7 @@
         .charts-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px; margin-bottom: 28px;
+            gap: 20px; margin-bottom: 20px;
         }
         .chart-box {
             background: #f8fafc; border-radius: 20px;
@@ -448,11 +439,13 @@
         .chart-box h3 i { color: #1a5d3a; }
         .chart-container-pie {
             display: flex; justify-content: center;
-            align-items: center; height: 230px;
+            align-items: center; height: 180px;
         }
-        #statusChart { max-width: 230px; max-height: 210px; }
+        #docStatusChart, #eventStatusChart {
+            max-width: 230px; max-height: 170px;
+        }
         .status-legend {
-            display: flex; gap: 20px;
+            display: flex; gap: 16px;
             justify-content: center; margin-top: 14px;
             flex-wrap: wrap;
         }
@@ -461,7 +454,24 @@
             font-size: 12px; color: #5a6e7a; font-weight: 500;
         }
         .legend-color { width: 10px; height: 10px; border-radius: 3px; }
-        .chart-container { height: 230px; }
+
+        /* ===== MONTHLY BAR CHART ===== */
+        .chart-box-full {
+            background: #f8fafc; border-radius: 20px;
+            padding: 24px 26px 26px;
+            border: 1px solid #eef2f0;
+            margin-bottom: 28px;
+        }
+        .chart-box-full h3 {
+            color: #0d2b1e; margin-bottom: 18px;
+            font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .chart-box-full h3 i { color: #1a5d3a; }
+        .chart-container-bar {
+            height: 280px;
+            position: relative;
+        }
 
         /* ===== TABLE ===== */
         .table-section {
@@ -526,6 +536,13 @@
             display: inline-block;
         }
         .status-pending { background: #fff4e0; color: #b76e00; }
+        .status-processing {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1.5px dashed #f59e0b;
+        }
+        .status-ready { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
 
         .btn-view {
             background: #0d2b1e; color: white; border: none;
@@ -735,12 +752,24 @@
             </div>
         </div>
 
-        <!-- CHARTS -->
+        <!-- TWO PIE CHARTS -->
         <div class="charts-row">
             <div class="chart-box">
-                <h3><i class="fas fa-chart-pie"></i> Request Status</h3>
+                <h3><i class="fas fa-file-alt"></i> Document Status</h3>
                 <div class="chart-container-pie">
-                    <canvas id="statusChart"></canvas>
+                    <canvas id="docStatusChart"></canvas>
+                </div>
+                <div class="status-legend">
+                    <div class="legend-item"><div class="legend-color" style="background: #ffb74d;"></div> Pending</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #fb923c;"></div> Processing</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #66bb6a;"></div> Ready</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #ef5350;"></div> Rejected</div>
+                </div>
+            </div>
+            <div class="chart-box">
+                <h3><i class="fas fa-calendar-alt"></i> Event Status</h3>
+                <div class="chart-container-pie">
+                    <canvas id="eventStatusChart"></canvas>
                 </div>
                 <div class="status-legend">
                     <div class="legend-item"><div class="legend-color" style="background: #ffb74d;"></div> Pending</div>
@@ -748,11 +777,13 @@
                     <div class="legend-item"><div class="legend-color" style="background: #ef5350;"></div> Rejected</div>
                 </div>
             </div>
-            <div class="chart-box">
-                <h3><i class="fas fa-chart-bar"></i> Monthly Overview</h3>
-                <div class="chart-container">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
+        </div>
+
+        <!-- MONTHLY OVERVIEW BAR CHART (FULL WIDTH) -->
+        <div class="chart-box-full">
+            <h3><i class="fas fa-chart-bar"></i> Monthly Overview</h3>
+            <div class="chart-container-bar">
+                <canvas id="monthlyChart"></canvas>
             </div>
         </div>
 
@@ -793,7 +824,7 @@
                                 <td>{{ doc.first_name }} {{ doc.last_name }}</td>
                                 <td>{{ doc.created_at.strftime('%b %d, %Y') if doc.created_at else 'N/A' }}</td>
                                 <td><span class="status-badge status-pending">Pending</span></td>
-                                <td><a href="{{ url_for('admin_documents') }}" class="btn-view"><i class="fas fa-eye"></i> Review</a></td>
+                                <td><a href="{{ url_for('head_admin_all_documents') }}" class="btn-view"><i class="fas fa-eye"></i> Review</a></td>
                             </tr>
                             {% endfor %}
                             {% for event in pending_events_list %}
@@ -804,7 +835,7 @@
                                 <td>{{ event.first_name }} {{ event.last_name }}</td>
                                 <td>{{ event.requested_at.strftime('%b %d, %Y') if event.requested_at else 'N/A' }}</td>
                                 <td><span class="status-badge status-pending">Pending</span></td>
-                                <td><a href="{{ url_for('admin_events') }}" class="btn-view"><i class="fas fa-eye"></i> Review</a></td>
+                                <td><a href="{{ url_for('head_admin_events') }}" class="btn-view"><i class="fas fa-eye"></i> Review</a></td>
                             </tr>
                             {% endfor %}
                         {% else %}
@@ -963,17 +994,41 @@
         setInterval(updateBellBadge, 30000);
     });
 
-    // ===== CHARTS =====
-    const pendingTotal = Number("{{ pending_total | default(0) }}");
-    const approvedTotal = Number("{{ approved_total | default(0) }}");
-    const rejectedTotal = Number("{{ rejected_total | default(0) }}");
+    // ===== DOCUMENT STATUS CHART (PIE) =====
+    const docsPending = Number("{{ docs_pending | default(0) }}");
+    const docsProcessing = Number("{{ docs_processing | default(0) }}");
+    const docsReady = Number("{{ docs_ready | default(0) }}");
+    const docsRejected = Number("{{ docs_rejected | default(0) }}");
 
-    new Chart(document.getElementById('statusChart'), {
+    new Chart(document.getElementById('docStatusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Processing', 'Ready for Pickup', 'Rejected'],
+            datasets: [{
+                data: [docsPending, docsProcessing, docsReady, docsRejected],
+                backgroundColor: ['#ffb74d', '#fb923c', '#66bb6a', '#ef5350'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            cutout: '65%'
+        }
+    });
+
+    // ===== EVENT STATUS CHART (PIE) =====
+    const eventsPending = Number("{{ events_pending | default(0) }}");
+    const eventsApproved = Number("{{ events_approved | default(0) }}");
+    const eventsRejected = Number("{{ events_rejected | default(0) }}");
+
+    new Chart(document.getElementById('eventStatusChart'), {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Approved', 'Rejected'],
             datasets: [{
-                data: [pendingTotal, approvedTotal, rejectedTotal],
+                data: [eventsPending, eventsApproved, eventsRejected],
                 backgroundColor: ['#ffb74d', '#66bb6a', '#ef5350'],
                 borderWidth: 0
             }]
@@ -986,6 +1041,7 @@
         }
     });
 
+    // ===== MONTHLY OVERVIEW CHART (BAR) =====
     new Chart(document.getElementById('monthlyChart'), {
         type: 'bar',
         data: {
@@ -1033,7 +1089,7 @@
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true,

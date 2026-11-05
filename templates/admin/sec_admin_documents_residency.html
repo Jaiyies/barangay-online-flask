@@ -638,7 +638,8 @@
             font-size: 11px; font-weight: 600;
         }
         .status-pending { background: #fef3c7; color: #92400e; }
-        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-processing { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+        .status-ready { background: #d1fae5; color: #065f46; }
         .status-rejected { background: #fee2e2; color: #991b1b; }
 
         .btn-action {
@@ -794,15 +795,26 @@
             box-shadow: 0 0 0 3px rgba(26,107,66,0.1);
         }
 
-        /* ===== TOAST ===== */
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
+        .custom-toast {
+            background: #ffffff; border-left: 6px solid #10b981; border-radius: 12px;
+            padding: 16px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 14px; min-width: 300px;
+            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .custom-toast.show { transform: translateX(0); }
+        .custom-toast.error { border-left-color: #dc3545; }
+        .custom-toast-icon {
+            width: 36px; height: 36px; border-radius: 50%; background: #d1fae5; color: #059669;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+        }
+        .custom-toast.error .custom-toast-icon { background: #fee2e2; color: #dc3545; }
+        .custom-toast-content h4 { margin: 0 0 4px; font-size: 14px; color: #0d2b1e; }
+        .custom-toast-content p { margin: 0; font-size: 12px; color: #64748b; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
@@ -835,6 +847,9 @@
     </style>
 </head>
 <body>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- ===== SIDEBAR (CARD STYLE) ===== -->
 <div class="sidebar-custom" id="sidebar">
@@ -940,7 +955,8 @@
                 <select id="statusFilter" onchange="filterTable()">
                     <option value="all">All Status</option>
                     <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
+                    <option value="processing">Processing</option>
+                    <option value="ready_for_pickup">Ready for Pickup</option>
                     <option value="rejected">Rejected</option>
                 </select>
             </div>
@@ -973,7 +989,8 @@
                         <td>
                             <span class="status-badge 
                                 {% if doc.status == 'pending' %}status-pending
-                                {% elif doc.status == 'approved' %}status-approved
+                                {% elif doc.status == 'processing' %}status-processing
+                                {% elif doc.status == 'ready_for_pickup' %}status-ready
                                 {% else %}status-rejected{% endif %}">
                                 {{ doc.status|upper }}
                             </span>
@@ -1358,7 +1375,8 @@
                 currentDocData = doc;
                 
                 let statusClass = 'status-pending';
-                if (doc.status === 'approved') statusClass = 'status-approved';
+                if (doc.status === 'processing') statusClass = 'status-processing';
+                else if (doc.status === 'ready_for_pickup') statusClass = 'status-ready';
                 else if (doc.status === 'rejected') statusClass = 'status-rejected';
                 
                 body.innerHTML = `
@@ -1580,25 +1598,25 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         
-       fetch(`/admin/update-document-status/${currentDocId}`, {
+        fetch(`/admin/update-document-status/${currentDocId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'approved', remarks: remarks })
+            body: JSON.stringify({ status: 'processing', remarks: remarks })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 closeApproveModal();
-                showToast('Document approved! Email notification sent to the applicant.', 'success');
-                setTimeout(() => location.reload(), 1500);
+                showToast('Success!', 'Document is now PROCESSING. Email notification sent to the applicant.', 'success');
+                setTimeout(() => location.reload(), 2000);
             } else {
-                showToast(data.error || 'Error approving document', 'error');
+                showToast('Error!', data.error || 'Error approving document', 'error');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-check"></i> Yes, Approve';
             }
         })
         .catch(error => {
-            showToast('Error approving document', 'error');
+            showToast('Error!', 'Error approving document', 'error');
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-check"></i> Yes, Approve';
         });
@@ -1622,7 +1640,7 @@
         const remarks = document.getElementById('rejectRemarks').value.trim();
         
         if (!remarks) {
-            showToast('Please enter a reason for rejection.', 'error');
+            showToast('Error!', 'Please enter a reason for rejection.', 'error');
             document.getElementById('rejectRemarks').focus();
             return;
         }
@@ -1643,7 +1661,7 @@
         const remarks = document.getElementById('rejectRemarks').value.trim();
         
         if (!remarks) {
-            showToast('Please enter a reason for rejection.', 'error');
+            showToast('Error!', 'Please enter a reason for rejection.', 'error');
             return;
         }
         
@@ -1660,57 +1678,49 @@
         .then(data => {
             if (data.success) {
                 closeRejectModal();
-                showToast('Document rejected. Reason sent to applicant via email.', 'success');
-                setTimeout(() => location.reload(), 1500);
+                showToast('Success!', 'Document rejected. Reason sent to applicant via email.', 'success');
+                setTimeout(() => location.reload(), 2000);
             } else {
-                showToast(data.error || 'Error rejecting document', 'error');
+                showToast('Error!', data.error || 'Error rejecting document', 'error');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-times"></i> Yes, Reject';
             }
         })
         .catch(error => {
-            showToast('Error rejecting document', 'error');
+            showToast('Error!', 'Error rejecting document', 'error');
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-times"></i> Yes, Reject';
         });
     }
 
-    // ===== TOAST NOTIFICATION =====
-    function showToast(message, type = 'success') {
-        const existingToast = document.getElementById('customToast');
-        if (existingToast) existingToast.remove();
-        
+    // ===== CUSTOM TOAST NOTIFICATION =====
+    function showToast(title, message, type = 'success') {
+        const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
-        toast.id = 'customToast';
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: ${type === 'success' ? '#22c55e' : '#dc3545'};
-            color: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideInRight 0.3s ease;
-            max-width: 400px;
-        `;
+        toast.className = `custom-toast ${type === 'error' ? 'error' : ''}`;
+        
+        const icon = type === 'error' ? 'fa-times-circle' : 'fa-check-circle';
+        
         toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-            <span>${message}</span>
+            <div class="custom-toast-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="custom-toast-content">
+                <h4>${title}</h4>
+                <p>${message}</p>
+            </div>
         `;
         
-        document.body.appendChild(toast);
+        container.appendChild(toast);
         
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Remove toast after 3.5 seconds
         setTimeout(() => {
-            toast.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3500);
     }
 
     // ===== CLOSE MODAL ON OUTSIDE CLICK =====

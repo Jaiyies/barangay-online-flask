@@ -2,7 +2,7 @@
 
 {% block content %}
 <style>
-    /* ===== CORE STYLES (Inayos para hindi mag-conflict sa base) ===== */
+    /* ===== CORE STYLES ===== */
     @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
     @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -221,27 +221,37 @@
     }
     body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
 
-    /* ===== STATS CARDS ===== */
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
-    .stat-card {
-        background: white; border-radius: 20px; padding: 20px 22px;
-        border: 1px solid #eef2f0; box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
+    /* ===== STATS CARDS (PROFESSIONAL CLEAN) ===== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
     }
-    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
-    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
-    .stat-card.total::before { background: #1a5d3a; }
-    .stat-card.month::before { background: #3b82f6; }
-    .stat-card.week::before { background: #f59e0b; }
-
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px 22px;
+        border: 1px solid #eef2f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+        border-color: #d4f0df;
+    }
     .stat-card-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .stat-info { flex: 1; min-width: 0; }
-    .stat-label { font-size: 11px; font-weight: 700; color: #8a9a8f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .stat-label { font-size: 11px; font-weight: 600; color: #8a9a8f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .stat-value { font-size: 28px; font-weight: 800; color: #0d2b1e; line-height: 1; }
     .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-    .stat-card.total .stat-icon { background: #e0f5e8; color: #1a5d3a; }
-    .stat-card.month .stat-icon { background: #dbeafe; color: #2563eb; }
-    .stat-card.week .stat-icon { background: #fef3c7; color: #d97706; }
+    /* Neutral icon backgrounds, colored icons */
+    .stat-card.total .stat-icon { background: #f0f4f8; color: #1a5d3a; }
+    .stat-card.month .stat-icon { background: #f0f4f8; color: #2563eb; }
+    .stat-card.week .stat-icon { background: #f0f4f8; color: #d97706; }
 
     /* ===== BIG CARD ===== */
     .big-card { background: white; border-radius: 28px; padding: 32px 34px; border: 1px solid #eef2f0; box-shadow: 0 4px 24px rgba(0,0,0,0.05); }
@@ -269,22 +279,59 @@
     .count-label { font-size: 13px; color: #6b7a72; padding: 9px 16px; background: #f8fafc; border-radius: 8px; border: 1.5px solid #d4f0df; white-space: nowrap; font-weight: 500; }
     .count-label strong { color: #1a5d3a; font-weight: 700; }
 
-    /* ===== ANNOUNCEMENT CARD ===== */
-    .announcement-card { background: #f8fafc; border-radius: 14px; padding: 20px 24px; border: 1px solid #eef2f0; margin-bottom: 16px; transition: all 0.25s ease; position: relative; }
-    .announcement-card:hover { border-color: #1a5d3a; background: white; box-shadow: 0 8px 30px rgba(0,0,0,0.06); transform: translateY(-2px); }
-    .announcement-card.pinned { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #f59e0b; box-shadow: 0 4px 16px rgba(245,158,11,0.15); }
-    .announcement-card.pinned::before { content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: #f59e0b; border-radius: 14px 0 0 14px; }
-    .announcement-card.draft { background: #f8fafc; border-style: dashed; opacity: 0.85; }
+    /* ===== ANNOUNCEMENT CARD (PROFESSIONAL CLEAN) ===== */
+    .announcement-card {
+        background: white;
+        border-radius: 14px;
+        padding: 20px 24px;
+        border: 1px solid #eef2f0;
+        margin-bottom: 16px;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .announcement-card:hover {
+        border-color: #d4f0df;
+        background: #fafcfb;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    }
+    .announcement-card.pinned {
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+    .announcement-card.pinned::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0;
+        width: 3px; height: 100%;
+        background: #f59e0b;
+        border-radius: 14px 0 0 14px;
+    }
+    .announcement-card.draft {
+        background: #fafafa;
+        border-style: dashed;
+        border-color: #e5e7eb;
+    }
+
     .announcement-card .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-    .announcement-card .card-header h3 { font-size: 17px; font-weight: 700; color: #0d2b1e; flex: 1; display: flex; align-items: center; gap: 8px; }
+    .announcement-card .card-header h3 { font-size: 17px; font-weight: 700; color: #0d2b1e; flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .announcement-card .card-header .meta { font-size: 12px; color: #8a9a8f; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .announcement-card .card-header .meta i { color: #1a5d3a; margin-right: 4px; }
+    .announcement-card .card-header .meta i { color: #8a9a8f; margin-right: 4px; }
     .announcement-card .card-content p { font-size: 14px; color: #4a5a52; line-height: 1.7; }
-    .announcement-card .card-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0f2f5; flex-wrap: wrap; }
-    .announcement-card .card-actions .btn-sm { padding: 6px 14px; border: none; border-radius: 30px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 6px; }
-    .announcement-card .card-actions .btn-sm:hover { transform: translateY(-2px); }
-    .announcement-card .card-actions .btn-edit { background: #e8eaed; color: #1a1a2e; }
-    .announcement-card .card-actions .btn-edit:hover { background: #d5d8dd; }
+
+    .announcement-card .card-actions {
+        display: flex; gap: 8px; margin-top: 16px;
+        padding-top: 14px; border-top: 1px solid #f0f2f5;
+        flex-wrap: wrap;
+    }
+    .announcement-card .card-actions .btn-sm {
+        padding: 6px 14px; border: none; border-radius: 30px;
+        cursor: pointer; font-size: 11px; font-weight: 600;
+        transition: all 0.2s ease;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .announcement-card .card-actions .btn-sm:hover { transform: translateY(-1px); }
+    .announcement-card .card-actions .btn-edit { background: #f0f2f5; color: #4a5a52; }
+    .announcement-card .card-actions .btn-edit:hover { background: #e2e6ea; }
     .announcement-card .card-actions .btn-pin { background: #fef3c7; color: #92400e; }
     .announcement-card .card-actions .btn-pin:hover { background: #fde68a; }
     .announcement-card .card-actions .btn-pin.active { background: #f59e0b; color: white; }
@@ -295,7 +342,7 @@
     .announcement-card .card-actions .btn-delete { background: #fee2e2; color: #991b1b; }
     .announcement-card .card-actions .btn-delete:hover { background: #fecaca; }
 
-    /* ===== BADGES & EMPTY STATE ===== */
+    /* ===== BADGES ===== */
     .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
     .badge-pinned { background: #f59e0b; color: white; }
     .badge-draft { background: #e5e7eb; color: #4b5563; border: 1px dashed #9ca3af; }
