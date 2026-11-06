@@ -10,7 +10,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* ===== SIDEBAR (SAME SA COURT DASHBOARD) ===== */
+        /* ===== SIDEBAR ===== */
         .sidebar-custom {
             position: fixed; left: 0; top: 0;
             width: 85px; height: 100%;
@@ -116,7 +116,7 @@
         .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
         .sidebar-custom.expanded .sidebar-menu .active a { transform: translateX(4px); }
 
-        .sidebar-custom:not(.expanded) .sidebar-menu a { position: relative; }
+        /* Tooltip for collapsed sidebar */
         .sidebar-custom:not(.expanded) .sidebar-menu a::after {
             content: attr(data-title);
             position: absolute; left: 110%; top: 50%;
@@ -124,17 +124,15 @@
             background: #0d2b1e; color: white;
             padding: 8px 14px; border-radius: 8px;
             font-size: 12px; font-weight: 600; white-space: nowrap;
-            opacity: 0; visibility: hidden;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 999; pointer-events: none;
+            opacity: 0; visibility: hidden; transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999;
+            pointer-events: none;
         }
         .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after {
-            opacity: 1; visibility: visible;
-            transform: translateY(-50%) translateX(0);
+            opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0);
         }
 
-        /* ===== NAVBAR (SAME SA COURT DASHBOARD) ===== */
+        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed; top: 12px; left: 97px; right: 12px;
             height: 64px; background: white; border-radius: 16px;
@@ -146,11 +144,27 @@
         }
         body.sidebar-expanded .navbar { left: 292px; }
         .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
-        .navbar-left .page-title {
-            font-size: 17px; font-weight: 700; color: #0d2b1e;
-            white-space: nowrap; flex-shrink: 0;
+
+        .navbar-search {
+            display: flex; align-items: center;
+            background: #f4f8f5; border-radius: 50px;
+            padding: 10px 22px; gap: 12px;
+            border: 1.5px solid #d4f0df;
+            box-shadow: 0 0 0 3px rgba(107,196,142,0.08);
+            transition: all 0.25s ease;
+            width: 100%; max-width: 480px;
         }
-        .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
+        .navbar-search:focus-within {
+            border-color: #1a5d3a; background: white;
+            box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
+        }
+        .navbar-search i { color: #8a9a8f; font-size: 14px; }
+        .navbar-search input {
+            border: none; background: transparent; outline: none;
+            font-size: 13px; font-family: inherit; color: #0d2b1e; width: 100%;
+        }
+        .navbar-search input::placeholder { color: #a8bdb2; }
+
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
         /* ===== NOTIFICATION BELL ===== */
@@ -211,6 +225,11 @@
             left: 8px; top: 50%; transform: translateY(-50%);
             width: 8px; height: 8px; background: #dc3545;
             border-radius: 50%;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
         }
         .bell-item-title { font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; font-weight: 600; }
         .bell-item.unread .bell-item-title { font-weight: 700; }
@@ -289,7 +308,6 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
-        /* ===== PAGE HEADER ===== */
         .page-header {
             margin-bottom: 28px; padding-bottom: 20px;
             border-bottom: 1px solid #eef2f0;
@@ -306,7 +324,6 @@
         }
         .page-header p { font-size: 14px; color: #8a9a8f; margin-left: 56px; }
 
-        /* ===== SETTINGS GRID ===== */
         .settings-grid {
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
         }
@@ -343,7 +360,6 @@
         }
         .settings-btn:hover { background: #0d2b1e; transform: translateY(-2px); }
 
-        /* ===== MODAL ===== */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.55);
@@ -402,7 +418,6 @@
         .btn-cancel { background: #f4f8f5; color: #0d2b1e; }
         .btn-cancel:hover { background: #eef2f0; }
 
-        /* ===== ACCOUNT INFO ROWS ===== */
         .info-row {
             display: flex; justify-content: space-between;
             padding: 12px 0; border-bottom: 1px solid #f4f8f5;
@@ -412,7 +427,6 @@
         .info-row .label { color: #8a9a8f; font-weight: 500; }
         .info-row .value { color: #0d2b1e; font-weight: 600; text-align: right; }
 
-        /* ===== ACTIVITY LOG ===== */
         .activity-list { display: flex; flex-direction: column; gap: 12px; }
         .activity-item {
             display: flex; align-items: flex-start; gap: 14px;
@@ -439,13 +453,12 @@
             border-top: 1px solid #eef2f0;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
             .sidebar-custom.expanded { width: 240px; }
             .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
             body.sidebar-expanded .navbar { left: 252px; }
-            .navbar-left .page-title { font-size: 15px; }
+            .navbar-search { display: none; }
             .profile-info { display: none; }
             .profile-trigger { padding: 4px; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
@@ -456,7 +469,6 @@
         }
         @media (max-width: 480px) {
             .big-card { padding: 16px; }
-            .navbar-left .page-title { font-size: 13px; }
         }
     </style>
 </head>
@@ -472,33 +484,25 @@
         </div>
         <h2>Barangay Sto. Niño</h2>
         <small>
-            {% if session.role == 'admin_documents' %}
-                Documents Admin
-            {% elif session.role == 'admin_court_1' %}
-                Court 1 Admin
-            {% elif session.role == 'admin_court_2' %}
-                Court 2 Admin
-            {% elif session.role == 'admin_court_3' %}
-                Court 3 Admin
-            {% elif session.role == 'admin_court_4' %}
-                Court 4 Admin
-            {% else %}
-                Admin
-            {% endif %}
+            {% if session.role == 'admin_documents' %} Documents Admin
+            {% elif session.role == 'admin_court_1' %} Court 1 Admin
+            {% elif session.role == 'admin_court_2' %} Court 2 Admin
+            {% elif session.role == 'admin_court_3' %} Court 3 Admin
+            {% elif session.role == 'admin_court_4' %} Court 4 Admin
+            {% else %} Admin {% endif %}
         </small>
-
         <button class="sidebar-burger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
             <i class="fas fa-bars"></i>
         </button>
     </div>
     <ul class="sidebar-menu">
         {% if session.role == 'admin_documents' %}
+        <!-- 5 MENU ITEMS PARA SA DOCUMENTS ADMIN -->
         <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
         <li><a href="{{ url_for('admin_documents') }}" data-title="All Documents"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
         <li><a href="{{ url_for('admin_documents_clearance') }}" data-title="Barangay Clearance"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
         <li><a href="{{ url_for('admin_documents_indigency') }}" data-title="Certificate of Indigency"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
         <li><a href="{{ url_for('admin_documents_residency') }}" data-title="Proof of Residency"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
-        <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_1' %}
         <li><a href="{{ url_for('court1_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
         <li><a href="{{ url_for('court1_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
@@ -530,8 +534,9 @@
 <!-- ===== NAVBAR ===== -->
 <nav class="navbar">
     <div class="navbar-left">
-        <div class="page-title">
-            <i class="fas fa-cog"></i> Settings
+        <div class="navbar-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search settings..." id="navSearch">
         </div>
     </div>
     <div class="navbar-right">
@@ -910,7 +915,7 @@
         });
     });
 
-    // ===== ACTIVITY LOG (DYNAMIC) =====
+    // ===== ACTIVITY LOG =====
     function openActivityModal() {
         openModal('activityModal');
         loadActivityLogs();
@@ -979,6 +984,16 @@
                 `;
             });
     }
+
+    // ===== NAV SEARCH =====
+    document.getElementById('navSearch').addEventListener('keyup', function(e) {
+        const search = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.settings-card');
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(search) ? '' : 'none';
+        });
+    });
 </script>
 </body>
 </html>

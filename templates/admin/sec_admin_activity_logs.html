@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Logs · Head Admin</title>
+    <title>Activity Logs · Barangay Sto. Niño</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -67,7 +67,6 @@
             background: rgba(107,196,142,0.2);
             border-color: rgba(107,196,142,0.4);
             color: #6bc48e; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(107,196,142,0.15);
         }
         .sidebar-custom.expanded .sidebar-burger {
             position: absolute; top: 0; right: 0;
@@ -118,9 +117,7 @@
         }
         .sidebar-custom.expanded .sidebar-menu span { display: inline-block; opacity: 1; max-width: 200px; }
         .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
-        .sidebar-custom.expanded .sidebar-menu .active a { transform: translateX(4px); }
 
-        .sidebar-custom:not(.expanded) .sidebar-menu a { position: relative; }
         .sidebar-custom:not(.expanded) .sidebar-menu a::after {
             content: attr(data-title);
             position: absolute; left: 110%; top: 50%;
@@ -128,14 +125,12 @@
             background: #0d2b1e; color: white;
             padding: 8px 14px; border-radius: 8px;
             font-size: 12px; font-weight: 600; white-space: nowrap;
-            opacity: 0; visibility: hidden;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 999; pointer-events: none;
+            opacity: 0; visibility: hidden; transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999;
+            pointer-events: none;
         }
         .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after {
-            opacity: 1; visibility: visible;
-            transform: translateY(-50%) translateX(0);
+            opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0);
         }
 
         /* ===== NAVBAR ===== */
@@ -149,26 +144,20 @@
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         body.sidebar-expanded .navbar { left: 292px; }
-        .navbar-left { display: flex; align-items: center; gap: 24px; flex: 1; min-width: 0; }
-        .navbar-left .page-title {
-            font-size: 17px; font-weight: 700; color: #0d2b1e;
-            white-space: nowrap; flex-shrink: 0;
-        }
-        .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
+        .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
 
         .navbar-search {
             display: flex; align-items: center;
             background: #f4f8f5; border-radius: 50px;
             padding: 10px 22px; gap: 12px;
-            border: 1.5px solid #eef2f0;
-            transition: all 0.2s ease;
+            border: 1.5px solid #d4f0df;
+            box-shadow: 0 0 0 3px rgba(107,196,142,0.08);
+            transition: all 0.25s ease;
             width: 100%; max-width: 480px;
-            margin: 0 auto;
         }
         .navbar-search:focus-within {
-            border-color: #1a5d3a;
-            box-shadow: 0 0 0 3px rgba(26,93,58,0.08);
-            background: white;
+            border-color: #1a5d3a; background: white;
+            box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
         }
         .navbar-search i { color: #8a9a8f; font-size: 14px; }
         .navbar-search input {
@@ -176,6 +165,7 @@
             font-size: 13px; font-family: inherit; color: #0d2b1e; width: 100%;
         }
         .navbar-search input::placeholder { color: #a8bdb2; }
+
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
         /* ===== NOTIFICATION BELL ===== */
@@ -193,7 +183,7 @@
             background: #dc3545; color: white; font-size: 10px; font-weight: 700;
             min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid white; box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+            border: 2px solid white;
         }
         .bell-dropdown {
             position: absolute; top: calc(100% + 12px); right: 0;
@@ -213,6 +203,14 @@
         .bell-dropdown-header i.fa-bullhorn {
             background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
         }
+        .mark-all-btn {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+            color: white; font-size: 11px; font-weight: 600;
+            padding: 6px 12px; border-radius: 20px; cursor: pointer;
+            font-family: inherit; white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .mark-all-btn:hover { background: rgba(255,255,255,0.28); }
         .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
         .bell-item {
             display: block; padding: 12px 14px; border-radius: 10px;
@@ -222,7 +220,20 @@
         }
         .bell-item:last-child { border-bottom: none; }
         .bell-item:hover { background: #f4f8f5; }
-        .bell-item-title { font-weight: 600; font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread::before {
+            content: ''; position: absolute;
+            left: 8px; top: 50%; transform: translateY(-50%);
+            width: 8px; height: 8px; background: #dc3545;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+        }
+        .bell-item-title { font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; font-weight: 600; }
+        .bell-item.unread .bell-item-title { font-weight: 700; }
         .bell-item-date { font-size: 11px; color: #8a9a8f; display: flex; align-items: center; gap: 5px; }
         .bell-loading, .bell-empty { text-align: center; padding: 30px 20px; color: #8a9a8f; font-size: 13px; }
         .bell-empty i { font-size: 36px; color: #d4f0df; display: block; margin-bottom: 10px; }
@@ -232,20 +243,6 @@
             font-weight: 700; font-size: 13px; border-top: 1px solid #eef2f0;
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
-        .bell-item.unread::before {
-            content: "";
-            position: absolute; left: 6px; top: 50%;
-            transform: translateY(-50%);
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #dc3545;
-            animation: pulse-dot 1.5s ease-in-out infinite;
-        }
-        .bell-item.unread { padding-left: 22px; }
-        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
-        @keyframes pulse-dot {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
-        }
 
         /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
@@ -308,6 +305,21 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
+        .page-header {
+            margin-bottom: 28px; padding-bottom: 20px;
+            border-bottom: 1px solid #eef2f0;
+        }
+        .page-header h1 {
+            font-size: 24px; font-weight: 700; color: #0d2b1e;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .page-header h1 i {
+            width: 44px; height: 44px; background: #eaf4ee;
+            color: #1a5d3a; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+
         /* ===== TABLE ===== */
         .table-container {
             overflow-x: auto; max-height: 650px;
@@ -331,7 +343,6 @@
         }
         tbody tr:hover { background: #f9fafb; }
 
-        /* ===== ADMIN / RESIDENT BADGES ===== */
         .admin-badge {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 4px 12px; border-radius: 50px;
@@ -343,7 +354,6 @@
         .admin-badge.resident { background: #e0e7ff; color: #3730a3; }
         .admin-badge.deleted-admin { background: #f0f2f5; color: #8a9a8f; }
 
-        /* ===== ACTION BADGES ===== */
         .action-badge {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 5px 14px; border-radius: 50px;
@@ -378,7 +388,6 @@
             .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
             body.sidebar-expanded .navbar { left: 252px; }
             .navbar-left { gap: 12px; }
-            .navbar-left .page-title { font-size: 15px; }
             .navbar-search { display: none; }
             .profile-info { display: none; }
             .profile-trigger { padding: 4px; }
@@ -389,7 +398,6 @@
         }
         @media (max-width: 480px) {
             .big-card { padding: 16px; }
-            .navbar-left .page-title { font-size: 13px; }
             table { font-size: 11px; }
             th, td { padding: 8px 6px; }
         }
@@ -406,29 +414,72 @@
             <i class="fas fa-landmark"></i>
         </div>
         <h2>Barangay Sto. Niño</h2>
-        <small>Head Admin Panel</small>
+        <small>
+            {% if session.role == 'admin_documents' %} Documents Admin
+            {% elif session.role == 'admin_court_1' %} Court 1 Admin
+            {% elif session.role == 'admin_court_2' %} Court 2 Admin
+            {% elif session.role == 'admin_court_3' %} Court 3 Admin
+            {% elif session.role == 'admin_court_4' %} Court 4 Admin
+            {% else %} Head Admin {% endif %}
+        </small>
 
         <button class="sidebar-burger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
             <i class="fas fa-bars"></i>
         </button>
     </div>
     <ul class="sidebar-menu">
-        <li><a href="{{ url_for('head_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-        <li><a href="{{ url_for('user_management') }}" data-title="Users"><i class="fas fa-users"></i> <span>Users</span></a></li>
-        <li><a href="{{ url_for('admin_management') }}" data-title="Admins"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
-        <li><a href="{{ url_for('head_admin_all_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
-        <li><a href="{{ url_for('head_admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
-        <li><a href="{{ url_for('announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
-        <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% if session.role == 'head_admin' %}
+            <li><a href="{{ url_for('head_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('user_management') }}" data-title="Users"><i class="fas fa-users"></i> <span>Users</span></a></li>
+            <li><a href="{{ url_for('admin_management') }}" data-title="Admins"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
+            <li><a href="{{ url_for('head_admin_all_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
+            <li><a href="{{ url_for('head_admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
+            <li><a href="{{ url_for('announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+
+        {% elif session.role == 'admin_documents' %}
+            <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('admin_documents') }}" data-title="All Documents"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
+            <li><a href="{{ url_for('admin_documents_ready') }}" data-title="Ready for Pickup"><i class="fas fa-box-open"></i> <span>Ready for Pickup</span></a></li>
+            <li><a href="{{ url_for('admin_documents_clearance') }}" data-title="Barangay Clearance"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
+            <li><a href="{{ url_for('admin_documents_indigency') }}" data-title="Certificate of Indigency"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
+            <li><a href="{{ url_for('admin_documents_residency') }}" data-title="Proof of Residency"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+
+        {% elif session.role == 'admin_court_1' %}
+            <li><a href="{{ url_for('court1_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court1_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court1_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court1_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+
+        {% elif session.role == 'admin_court_2' %}
+            <li><a href="{{ url_for('court2_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court2_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court2_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court2_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+
+        {% elif session.role == 'admin_court_3' %}
+            <li><a href="{{ url_for('court3_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court3_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court3_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court3_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+
+        {% elif session.role == 'admin_court_4' %}
+            <li><a href="{{ url_for('court4_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('court4_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
+            <li><a href="{{ url_for('court4_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
+            <li><a href="{{ url_for('court4_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
+            <li class="active"><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+        {% endif %}
     </ul>
 </div>
 
 <!-- NAVBAR -->
 <nav class="navbar">
     <div class="navbar-left">
-        <div class="page-title">
-            <i class="fas fa-list-alt"></i> Activity Logs
-        </div>
         <div class="navbar-search">
             <i class="fas fa-search"></i>
             <input type="text" placeholder="Search logs..." id="navSearch">
@@ -447,7 +498,7 @@
                     <div class="bell-dropdown-header-left">
                         <i class="fas fa-bullhorn"></i> Recent Announcements
                     </div>
-                    <button onclick="markAllRead(event)" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">
+                    <button class="mark-all-btn" onclick="markAllRead(event)">
                         <i class="fas fa-check-double"></i> Mark all
                     </button>
                 </div>
@@ -469,17 +520,24 @@
                     {{ session.fullname[0]|upper if session.fullname else 'A' }}
                 </div>
                 <div class="profile-info">
-                    <span class="name">{{ session.fullname or 'Head Admin' }}</span>
-                    <span class="role">Head Admin</span>
+                    <span class="name">{{ session.fullname or 'Admin' }}</span>
+                    <span class="role">
+                        {% if session.role == 'admin_documents' %}Documents Admin
+                        {% elif session.role == 'admin_court_1' %}Court 1 Admin
+                        {% elif session.role == 'admin_court_2' %}Court 2 Admin
+                        {% elif session.role == 'admin_court_3' %}Court 3 Admin
+                        {% elif session.role == 'admin_court_4' %}Court 4 Admin
+                        {% else %}Head Admin{% endif %}
+                    </span>
                 </div>
                 <i class="fas fa-chevron-down chevron"></i>
             </div>
             <div class="profile-menu">
                 <div class="profile-menu-header">
-                    <div class="menu-name">{{ session.fullname or 'Head Admin' }}</div>
+                    <div class="menu-name">{{ session.fullname or 'Admin' }}</div>
                     <div class="menu-email">{{ session.email or 'admin@barangay.gov.ph' }}</div>
                 </div>
-                <a href="{{ url_for('settings') }}">
+                <a href="{{ url_for('secondary_admin_settings') }}">
                     <i class="fas fa-user-cog"></i> Profile Settings
                 </a>
                 <div class="divider"></div>
@@ -495,6 +553,10 @@
 <div class="main-with-sidebar">
 
     <div class="big-card">
+
+        <div class="page-header">
+            <h1><i class="fas fa-list-alt"></i> Activity Logs</h1>
+        </div>
 
         <!-- TABLE -->
         <div class="table-container">
@@ -521,40 +583,26 @@
                                     {% elif log.role == 'admin_documents' %}doc-admin{% endif %}">
                                     <i class="fas fa-user"></i>
                                     {{ log.first_name }} {{ log.last_name }}
-                                    {% if log.role == 'resident' %}<small style="opacity:0.7;font-weight:600;">(Resident)</small>{% endif %}
                                 </span>
                             {% else %}
                                 <span class="admin-badge deleted-admin">
-                                    <i class="fas fa-user-slash"></i>
-                                    Deleted User
+                                    <i class="fas fa-user-slash"></i> Deleted User
                                 </span>
                             {% endif %}
                         </td>
                         <td>
                             {% if log.action == 'approved' %}
-                                <span class="action-badge action-approved">
-                                    <i class="fas fa-check-circle"></i> Approved
-                                </span>
+                                <span class="action-badge action-approved"><i class="fas fa-check-circle"></i> Approved</span>
                             {% elif log.action == 'rejected' %}
-                                <span class="action-badge action-rejected">
-                                    <i class="fas fa-times-circle"></i> Rejected
-                                </span>
+                                <span class="action-badge action-rejected"><i class="fas fa-times-circle"></i> Rejected</span>
                             {% elif log.action == 'viewed' %}
-                                <span class="action-badge action-viewed">
-                                    <i class="fas fa-eye"></i> Viewed
-                                </span>
+                                <span class="action-badge action-viewed"><i class="fas fa-eye"></i> Viewed</span>
                             {% elif log.action == 'login' %}
-                                <span class="action-badge action-login">
-                                    <i class="fas fa-sign-in-alt"></i> Login
-                                </span>
+                                <span class="action-badge action-login"><i class="fas fa-sign-in-alt"></i> Login</span>
                             {% elif log.action == 'logout' %}
-                                <span class="action-badge action-logout">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </span>
+                                <span class="action-badge action-logout"><i class="fas fa-sign-out-alt"></i> Logout</span>
                             {% else %}
-                                <span class="action-badge action-default">
-                                    <i class="fas fa-info-circle"></i> {{ log.action|capitalize }}
-                                </span>
+                                <span class="action-badge action-default"><i class="fas fa-info-circle"></i> {{ log.action|capitalize }}</span>
                             {% endif %}
                         </td>
                         <td>
@@ -580,7 +628,14 @@
         </div>
 
         <div class="footer">
-            <p>© 2025 Barangay Sto. Niño, Parañaque City | Head Admin Panel</p>
+            <p>© 2025 Barangay Sto. Niño, Parañaque City |
+                {% if session.role == 'admin_documents' %}Documents Admin
+                {% elif session.role == 'admin_court_1' %}Court 1 Admin
+                {% elif session.role == 'admin_court_2' %}Court 2 Admin
+                {% elif session.role == 'admin_court_3' %}Court 3 Admin
+                {% elif session.role == 'admin_court_4' %}Court 4 Admin
+                {% else %}Head Admin{% endif %}
+            </p>
         </div>
     </div>
 </div>
