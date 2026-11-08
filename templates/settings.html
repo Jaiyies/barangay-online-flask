@@ -1913,7 +1913,7 @@
                     </button>
                 </div>
             {% else %}
-                <form method="POST" action="{{ url_for('user_change_password') }}">
+                                 <form id="changePasswordForm" method="POST" action="{{ url_for('user_change_password') }}">
                     <div class="modal-body">
                         {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}
@@ -1928,6 +1928,12 @@
                             {% endif %}
                         {% endwith %}
 
+                        <!-- EMAIL FIELD -->
+                        <div class="form-group">
+                            <label data-translate="email_address">Email Address</label>
+                            <input type="email" name="email" id="email_password" value="{{ user.email if user else '' }}" required placeholder="Enter your registered email">
+                        </div>
+
                         <div class="form-group">
                             <label data-translate="current_password">Current Password</label>
                             <div class="password-input-wrapper">
@@ -1940,16 +1946,43 @@
                         <div class="form-group">
                             <label data-translate="new_password">New Password</label>
                             <div class="password-input-wrapper">
-                                <input type="password" name="new_password" id="new_password" required minlength="8" placeholder="Minimum 8 characters">
+                                <input type="password" name="new_password" id="new_password" required placeholder="Minimum 8 characters">
                                 <button type="button" class="toggle-password" onclick="togglePasswordVisibility('new_password', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
+
+                            <!-- PASSWORD STRENGTH METER -->
+                            <div id="password-strength-container" style="display: none; margin-top: 10px;">
+                                <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                                    <div id="password-strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease; background: #dc3545;"></div>
+                                </div>
+                                <div id="password-strength-text" style="font-size: 0.75rem; font-weight: 700; margin-bottom: 10px;"></div>
+                                
+                                <div style="background: #f4f8f5; border: 1px solid #e3ede7; border-radius: 10px; padding: 12px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-length">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 8 characters
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-uppercase">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 uppercase letter
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-lowercase">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 lowercase letter
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-number">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 number
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-special">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 special character (!@#$%^&*)
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="form-group">
                             <label data-translate="confirm_new_password">Confirm New Password</label>
                             <div class="password-input-wrapper">
-                                <input type="password" name="confirm_password" id="confirm_password" required minlength="8" placeholder="Re-enter new password">
+                                <input type="password" name="confirm_password" id="confirm_password" required placeholder="Re-enter new password">
                                 <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirm_password', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -1967,6 +2000,72 @@
         </div>
     </div>
 
+    <!-- OTP VERIFICATION MODAL (NASA LABAS NA NG FORM) -->
+    <div class="modal-overlay" id="otpModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);">
+                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-key"></i> Change Password</h2>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 30px;">
+                <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42; width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px;">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;">Change Password</h3>
+                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;">Enter the code sent to your email</p>
+
+                <div style="background: #eff8f2; border: 1px solid #d4f0df; border-radius: 12px; padding: 15px; text-align: left; font-size: 0.85rem; color: #145233; margin-bottom: 20px; display: flex; gap: 10px; align-items: flex-start;">
+                    <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
+                    <span>A 6-digit reset code has been sent to your email. Check your inbox (and spam folder).</span>
+                </div>
+
+                <div style="text-align: left; margin-bottom: 20px;">
+                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;">6-Digit Code</label>
+                    <input type="text" id="otpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
+                    <div style="font-size: 0.75rem; color: #6b8475; margin-top: 8px; text-align: center;">
+                        <i class="fas fa-envelope" style="color: #a3dbb8;"></i> Check your email inbox (and spam folder).
+                    </div>
+                </div>
+
+                <!-- Error message container -->
+                <div id="otpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
+                    <i class="fas fa-times-circle"></i> Invalid code. Please try again.
+                </div>
+
+                <button type="button" class="btn-primary" id="verifyOtpBtn" onclick="verifyOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
+                    <i class="fas fa-check-circle"></i> Verify Code
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- OTP VERIFICATION MODAL PARA SA UPDATE PROFILE -->
+    <div class="modal-overlay" id="profileOtpModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);">
+                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-user-shield"></i> Verify Profile Update</h2>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 30px;">
+                <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42; width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px;">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;">Verify Update</h3>
+                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;">Enter the code sent to your email</p>
+
+                <div style="text-align: left; margin-bottom: 20px;">
+                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;">6-Digit Code</label>
+                    <input type="text" id="profileOtpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
+                </div>
+
+                <div id="profileOtpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
+                    <i class="fas fa-times-circle"></i> Invalid code. Please try again.
+                </div>
+
+                <button type="button" class="btn-primary" id="verifyProfileOtpBtn" onclick="verifyProfileOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
+                    <i class="fas fa-check-circle"></i> Verify & Save
+                </button>
+            </div>
+        </div>
+    </div>
     <script>
 
         // ===== BELL BADGE LOADER =====
@@ -2263,6 +2362,308 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('notifPanel')?.addEventListener('click', function(e) {
             e.stopPropagation();
         });
+        // ===== PASSWORD VALIDATION AT EMAIL CHECK (MAY STRENGTH METER AT OTP) =====
+        let generatedOTP = ""; 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordForm = document.getElementById('changePasswordForm');
+            const newPasswordInput = document.getElementById('new_password');
+            
+            // Strength Meter Elements
+            const strengthContainer = document.getElementById('password-strength-container');
+            const strengthBar = document.getElementById('password-strength-bar');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            // Requirements
+            const reqLength = document.getElementById('req-length');
+            const reqUppercase = document.getElementById('req-uppercase');
+            const reqLowercase = document.getElementById('req-lowercase');
+            const reqNumber = document.getElementById('req-number');
+            const reqSpecial = document.getElementById('req-special');
+
+            // LIVE CHECKER
+            if (newPasswordInput) {
+                newPasswordInput.addEventListener('input', function() {
+                    const val = this.value;
+                    if (val.length === 0) {
+                        strengthContainer.style.display = 'none';
+                        return;
+                    }
+                    strengthContainer.style.display = 'block';
+
+                    const hasLength = val.length >= 8;
+                    const hasUpper = /[A-Z]/.test(val);
+                    const hasLower = /[a-z]/.test(val);
+                    const hasNumber = /[0-9]/.test(val);
+                    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+
+                    function updateReqUI(element, isValid) {
+                        const icon = element.querySelector('i');
+                        if (isValid) {
+                            element.style.color = '#10b981';
+                            icon.className = 'fas fa-check-circle';
+                            icon.style.color = '#10b981';
+                            icon.style.fontSize = '12px';
+                        } else {
+                            element.style.color = '#64748b';
+                            icon.className = 'fas fa-circle';
+                            icon.style.color = '#dc3545';
+                            icon.style.fontSize = '8px';
+                        }
+                    }
+
+                    updateReqUI(reqLength, hasLength);
+                    updateReqUI(reqUppercase, hasUpper);
+                    updateReqUI(reqLowercase, hasLower);
+                    updateReqUI(reqNumber, hasNumber);
+                    updateReqUI(reqSpecial, hasSpecial);
+
+                    let score = 0;
+                    if (hasLength) score++;
+                    if (hasUpper) score++;
+                    if (hasLower) score++;
+                    if (hasNumber) score++;
+                    if (hasSpecial) score++;
+
+                    const percentage = (score / 5) * 100;
+                    strengthBar.style.width = percentage + '%';
+
+                    if (score <= 2) {
+                        strengthBar.style.background = '#dc3545';
+                        strengthText.style.color = '#dc3545';
+                        strengthText.textContent = 'Weak Password';
+                    } else if (score === 3 || score === 4) {
+                        strengthBar.style.background = '#3b82f6';
+                        strengthText.style.color = '#3b82f6';
+                        strengthText.textContent = 'Good Password';
+                    } else if (score === 5) {
+                        strengthBar.style.background = '#10b981';
+                        strengthText.style.color = '#10b981';
+                        strengthText.textContent = 'Strong Password';
+                    }
+                });
+            }
+
+                        // SUBMIT VALIDATION & OTP TRIGGER (NAKA-CONNECT NA SA FLASK)
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); 
+
+                    const newPassword = document.getElementById('new_password').value;
+                    const confirmPassword = document.getElementById('confirm_password').value;
+                    const emailField = document.getElementById('email_password').value;
+
+                    // Check kung may email
+                    if (!emailField || emailField.trim() === '') {
+                        document.getElementById('email_password').style.borderColor = '#dc3545';
+                        document.getElementById('email_password').focus();
+                        return;
+                    }
+                    
+                    // Check kung pasado sa requirements
+                    if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+                        document.getElementById('new_password').style.borderColor = '#dc3545';
+                        document.getElementById('new_password').focus();
+                        return;
+                    }
+
+                    // Check kung tugma ang password
+                    if (newPassword !== confirmPassword) {
+                        document.getElementById('confirm_password').style.borderColor = '#dc3545';
+                        document.getElementById('confirm_password').focus();
+                        return;
+                    }
+
+                    // Ipakita ang loading state sa button
+                    const submitBtn = passwordForm.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
+                    submitBtn.disabled = true;
+
+                    // MAGPADALA NG REQUEST SA FLASK PARA SA TOTOONG EMAIL OTP
+                    fetch('/api/settings/send-otp', {  // <--- ITO ANG TAMA
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: emailField })
+                    })
+
+                    .then(res => res.json())
+                    .then(data => {
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+
+                        if (data.success) {
+                            // Ilagay ang email sa OTP modal
+                            const otpEmailText = document.querySelector('#otpModal .modal-body p');
+                            if(otpEmailText) otpEmailText.innerHTML = `Enter the code sent to <br><strong>${emailField}</strong>`;
+
+                            // Isara ang password modal, buksan ang OTP modal
+                            closeModal('passwordModal');
+                            openModal('otpModal');
+                            document.getElementById('otpInput').value = ''; // Clear input
+                            setTimeout(() => document.getElementById('otpInput').focus(), 300);
+                        } else {
+                            alert('Failed to send OTP: ' + data.error);
+                        }
+                    })
+                    .catch(err => {
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        console.error(err);
+                        alert('Network error. Check console.');
+                    });
+                });
+            }
+        });
+        // ===== OTP VERIFICATION FUNCTION =====
+        function verifyOTP() {
+            const inputOtp = document.getElementById('otpInput').value;
+            const errorMsg = document.getElementById('otpError');
+            const submitBtn = document.getElementById('verifyOtpBtn');
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            submitBtn.disabled = true;
+
+            // I-VERIFY SA BACKEND (Python)
+            // PALITAN ANG URL AT TANGGALIN ANG EMAIL SA BODY
+            fetch('/api/settings/verify-otp', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ otp: inputOtp }) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    errorMsg.style.display = 'none';
+                    const form = document.getElementById('changePasswordForm');
+                    form.submit(); // Tuloy sa pagpalit ng password
+                } else {
+                    errorMsg.style.display = 'block';
+                    document.getElementById('otpInput').style.borderColor = '#dc3545';
+                    document.getElementById('otpInput').value = ''; 
+                    document.getElementById('otpInput').focus();
+                    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Code';
+                    submitBtn.disabled = false;
+                    if (navigator.vibrate) navigator.vibrate(200);
+                }
+            })
+            .catch(err => {
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Code';
+                submitBtn.disabled = false;
+                console.error(err);
+            });
+        }
+        // Allow "Enter" key to verify OTP
+        document.getElementById('otpInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyOTP();
+            }
+        });
+
+                // ===== UPDATE PROFILE OTP LOGIC =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hanapin yung form sa loob ng profileModal
+            const profileForm = document.querySelector('#profileModal form');
+
+            if (profileForm) {
+                // Palitan ang action attribute para hindi mag-submit agad
+                profileForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Pigilan ang normal submit
+
+                    // Kunin ang email value
+                    const emailInput = profileForm.querySelector('input[name="email"]');
+                    const emailField = emailInput ? emailInput.value : '';
+
+                    if (!emailField) {
+                        emailInput.style.borderColor = '#dc3545';
+                        return;
+                    }
+
+                    // Ipakita ang loading state sa Save Changes button
+                    const submitBtn = profileForm.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
+                    submitBtn.disabled = true;
+
+                    // Magpadala ng OTP request sa Flask
+                    fetch('/api/profile/send-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: emailField })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+
+                        if (data.success) {
+                            // Ilagay ang email sa OTP modal
+                            const otpText = document.querySelector('#profileOtpModal .modal-body p');
+                            if(otpText) otpText.innerHTML = `Enter the code sent to <br><strong>${emailField}</strong>`;
+
+                            // Isara ang profileModal, buksan ang profileOtpModal
+                            closeModal('profileModal');
+                            openModal('profileOtpModal');
+                            document.getElementById('profileOtpInput').value = '';
+                            setTimeout(() => document.getElementById('profileOtpInput').focus(), 300);
+                        } else {
+                            alert('Failed to send OTP: ' + data.error);
+                        }
+                    })
+                    .catch(err => {
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        console.error(err);
+                        alert('Network error. Check console.');
+                    });
+                });
+            }
+        });
+
+        // ===== PROFILE OTP VERIFY FUNCTION =====
+        function verifyProfileOTP() {
+            const inputOtp = document.getElementById('profileOtpInput').value;
+            const errorMsg = document.getElementById('profileOtpError');
+            const submitBtn = document.getElementById('verifyProfileOtpBtn');
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            submitBtn.disabled = true;
+
+            fetch('/api/profile/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ otp: inputOtp })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    errorMsg.style.display = 'none';
+                    // Kapag tama ang OTP, i-submit na yung form para ma-save
+                    const form = document.querySelector('#profileModal form');
+                    form.submit(); // Gagamitin nito ang normal form submit
+                } else {
+                    errorMsg.style.display = 'block';
+                    document.getElementById('profileOtpInput').style.borderColor = '#dc3545';
+                    document.getElementById('profileOtpInput').value = ''; 
+                    document.getElementById('profileOtpInput').focus();
+                    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Save';
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Save';
+                submitBtn.disabled = false;
+                console.error(err);
+            });
+        }
+
+        // Allow "Enter" key to verify Profile OTP
+        document.getElementById('profileOtpInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyProfileOTP();
+            }
+        });
+
     </script>
 </body>
 </html>

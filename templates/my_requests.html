@@ -1133,6 +1133,17 @@
             border: 1px solid var(--neutral-100);
         }
 
+                /* 👇 IDAGDAG ITO 👇 */
+        .status-badge.cancelled {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .status-badge.cancelled i {
+            color: #dc2626;
+        }
+
+
         .status-badge i { font-size: 0.65rem; color: var(--neutral-500); }
 
         .btn-view {
@@ -1160,6 +1171,31 @@
             box-shadow: 0 6px 16px rgba(34, 139, 84, 0.3);
         }
 
+         .btn-cancel {
+            padding: 9px 18px;
+            border: 1.5px solid #fecaca;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fef2f2;
+            color: #dc2626;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .btn-cancel:hover {
+            background: #dc2626;
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+        }
+        
         .empty-state {
             padding: 50px 20px;
             text-align: center;
@@ -1821,10 +1857,20 @@
                                     <i class="fas fa-check-circle"></i> Ready for Pickup
                                 {% elif req.status == 'rejected' %}
                                     <i class="fas fa-times-circle"></i> <span data-translate="rejected">Rejected</span>
+                                {% elif req.status == 'cancelled' %}  
+                                     <i class="fas fa-ban"></i> Cancelled
                                 {% else %}
                                     <i class="fas fa-info-circle"></i> {{ req.status|replace('_', ' ')|title }}
                                 {% endif %}
                             </span>
+
+                            <!-- 👇 IDAGDAG ITO 👇 -->
+                            {% if req.status == 'pending' %}
+                            <button type="button" class="btn-cancel" data-request-id="{{ req.id }}" onclick="cancelRequest('doc', this.dataset.requestId, this)">
+                                <i class="fas fa-times-circle"></i> Cancel
+                            </button>
+                            {% endif %}
+
                             <button class="btn-view"
                                 data-type="{{ req.document_type|replace('_', ' ')|title }}"
                                 data-ref="{{ req.reference_number or 'N/A' }}"
@@ -1879,10 +1925,21 @@
                                     <i class="fas fa-check-circle"></i> <span data-translate="approved">Approved</span>
                                 {% elif req.status == 'rejected' %}
                                     <i class="fas fa-times-circle"></i> <span data-translate="rejected">Rejected</span>
+                                {% elif req.status == 'cancelled' %}
+                                    <i class="fas fa-ban"></i> <span data-translate="cancelled">Cancelled</span>
                                 {% else %}
                                     <i class="fas fa-info-circle"></i> {{ req.status|replace('_', ' ')|title }}
                                 {% endif %}
                             </span>
+
+                            <!-- 👇 IDAGDAG ITO 👇 -->
+                            {% if req.status == 'pending' %}
+                            <button class="btn-cancel" data-request-id="{{ req.id }}" onclick="cancelRequest('event', this.dataset.requestId, this)">
+                                <i class="fas fa-times-circle"></i> Cancel
+                            </button>
+                            {% endif %}
+                            <!-- 👆 HANGGANG DITO 👆 -->
+
                             <button class="btn-view"
                                 data-name="{{ req.event_name }}"
                                 data-ref="{{ req.reference_number or 'N/A' }}"
@@ -1945,6 +2002,45 @@
                 <p><strong class="translatable">Purpose:</strong> <span id="modalEventPurpose"></span></p>
                 <p><strong class="translatable">Description:</strong> <span id="modalEventDescription"></span></p>
                 <p><strong class="translatable">Status:</strong> <span id="modalEventStatus"></span></p>
+            </div>
+        </div>
+    </div>
+    <!-- ===== CANCEL CONFIRMATION MODAL ===== -->
+    <div class="modal-overlay hidden" id="cancelModal" style="z-index: 10001;">
+        <div class="modal-box" style="max-width: 440px; text-align: center; overflow: visible;">
+            
+            <!-- Header -->
+            <div class="modal-header" style="justify-content: center; padding: 24px; background: linear-gradient(135deg, var(--primary-600), var(--primary-800));">
+                <h3 style="justify-content: center; font-size: 1.25rem;">
+                    <i class="fas fa-exclamation-triangle" style="background: rgba(255,255,255,0.2);"></i> 
+                    Cancel Request?
+                </h3>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body" style="padding: 32px 28px;">
+                <div style="margin-bottom: 28px;">
+                    <p style="font-size: 1rem; color: var(--neutral-700); line-height: 1.6; margin-bottom: 16px; border: none; padding: 0; display: block;">
+                        Are you sure you want to cancel this request?
+                    </p>
+                    <p style="font-size: 0.85rem; color: #dc2626; font-weight: 700; margin: 0; border: none; padding: 12px; display: block; background: #fef2f2; border-radius: 10px; border: 1px solid #fecaca;">
+                        <i class="fas fa-info-circle" style="margin-right: 6px;"></i>
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display: flex; gap: 14px; justify-content: center;">
+                    <button class="btn" onclick="closeCancelModal()" 
+                        style="flex: 1; background: #f3f4f6; color: #4b5563; border: 1.5px solid #e5e7eb; padding: 12px 20px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;">
+                        No, Keep it
+                    </button>
+                    
+                    <button class="btn" onclick="confirmCancelRequest()" id="confirmCancelBtn" 
+                        style="flex: 1; background: #dc2626; color: white; padding: 12px 20px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(220,38,38,0.3); transition: all 0.2s;">
+                        <i class="fas fa-times-circle"></i> Yes, Cancel
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2222,8 +2318,117 @@
                 closeDocumentModal();
             } else if (e.target.id === 'eventModal') {
                 closeEventModal();
+                  } else if (e.target.id === 'cancelModal') {  // 👈 ITO YUNG STEP 3
+                closeCancelModal();
+                
             }
         });
+
+                function closeEventModal() {
+            document.getElementById('eventModal').classList.add('hidden');
+        }
+        // ===== CANCEL REQUEST LOGIC (CUSTOM MODAL) =====
+        let currentCancelType = null;
+        let currentCancelId = null;
+        let currentCancelBtn = null;
+
+        function cancelRequest(type, id, btnElement) {
+            // I-save ang info para magamit mamaya
+            currentCancelType = type;
+            currentCancelId = id;
+            currentCancelBtn = btnElement;
+
+            // Ipakita ang custom modal
+            document.getElementById('cancelModal').classList.remove('hidden');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelModal').classList.add('hidden');
+            currentCancelType = null;
+            currentCancelId = null;
+            currentCancelBtn = null;
+        }
+
+        function confirmCancelRequest() {
+            if (!currentCancelType || !currentCancelId || !currentCancelBtn) return;
+
+            const btnElement = currentCancelBtn;
+            const originalText = btnElement.innerHTML;
+            
+            // I-disable ang button sa modal at palitan ng loading
+            const confirmBtn = document.getElementById('confirmCancelBtn');
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+            confirmBtn.disabled = true;
+
+            // I-disable din ang button sa card
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+            btnElement.disabled = true;
+
+            // Tamang URL base sa app.py
+            let url = '';
+            if (currentCancelType === 'doc') {
+                url = `/cancel-document/${currentCancelId}`;
+            } else if (currentCancelType === 'event') {
+                url = `/cancel-permit/${currentCancelId}`;
+            }
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                        .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 1. Isara ang confirmation modal
+                    closeCancelModal();
+
+                    // 2. Hanapin ang pinakamalapit na card (yung buong row)
+                    const requestCard = btnElement.closest('.request-card');
+
+                    // 3. Hanapin ang status badge sa loob ng card na 'yon
+                    const statusBadge = requestCard.querySelector('.status-badge');
+
+                    // 4. Palitan ang itsura ng Status Badge
+                    if (statusBadge) {
+                        statusBadge.className = 'status-badge cancelled'; // Palitan ng class
+                        statusBadge.innerHTML = '<i class="fas fa-ban"></i> Cancelled'; // Palitan ang text
+                    }
+
+                    // 5. Itago ang Cancel button
+                    btnElement.style.display = 'none';
+
+                    // 6. (OPTIONAL) Kung gusto mong mawala agad-agad yung buong card na may animation:
+                    // requestCard.style.transition = 'all 0.3s ease';
+                    // requestCard.style.opacity = '0';
+                    // setTimeout(() => { requestCard.remove(); }, 300);
+
+                } else {
+                    alert('Error: ' + (data.error || data.message || 'Hindi ma-cancel ang request.'));
+                    
+                    // Ibalik sa normal kapag nag-fail
+                    btnElement.innerHTML = originalText;
+                    btnElement.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fas fa-times-circle"></i> Yes, Cancel';
+                    confirmBtn.disabled = false;
+                    closeCancelModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('May problema sa network. Pakisubukan muli.');
+                
+                // Ibalik sa normal kapag nag-fail
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-times-circle"></i> Yes, Cancel';
+                confirmBtn.disabled = false;
+                closeCancelModal();
+            });
+
+
+        }
     </script>
 </body>
 </html>

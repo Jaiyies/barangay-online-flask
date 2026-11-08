@@ -2156,18 +2156,7 @@
             </div>
         </div>
 
-        <div id="flashMessages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-message {{ category }}">
-                            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
+        
 
         <div class="card">
            <div class="form-header">
@@ -2236,8 +2225,8 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="form-row">
+                 
+                                <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
                             <label for="civilStatus"><span data-translate="civil_status">Civil Status</span> <span class="required">*</span></label>
@@ -2268,15 +2257,15 @@
                             <input type="date" name="dob" id="dob" required>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
                             <label for="precinctNo"><span data-translate="precinct">Precinct No.</span> <span class="required">*</span></label>
                             <input type="text" name="precinct_no" id="precinctNo" placeholder="Precinct No." required>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
                             <label for="placeOfBirth"><span data-translate="pob">Place of Birth</span> <span class="required">*</span></label>
@@ -2287,6 +2276,15 @@
                         <div class="form-group">
                             <label for="lengthOfStay"><span data-translate="length_stay">Length of Stay in Barangay</span> <span class="required">*</span></label>
                             <input type="text" name="length_of_stay" id="lengthOfStay" placeholder="e.g. 5 years" required>
+                        </div>
+                    </div>
+                </div>
+
+                                <div class="form-row">
+                    <div class="form-col" style="max-width: 32%;">
+                        <div class="form-group">
+                            <label for="occupation"><span data-translate="occupation">Occupation</span> <span class="required">*</span></label>
+                            <input type="text" name="occupation" id="occupation" placeholder="Occupation" required>
                         </div>
                     </div>
                 </div>
@@ -2356,51 +2354,38 @@
                 </div>
 
                 <div class="form-section-title"><i class="fas fa-users"></i> <span data-translate="family_info">Family Information</span></div>
-                <div class="form-row">
-                    <div class="form-col">
+                                 <!-- BAGONG LAYOUT PARA SA FAMILY INFO & EMERGENCY -->
+                <div class="form-row" style="align-items: flex-start;">
+                    
+                    <!-- KALIWANG SIDE: Father, Mother, Spouse -->
+                    <div class="form-col" style="display: flex; flex-direction: column; gap: 18px; flex: 1;">
                         <div class="form-group">
                             <label for="fatherName"><span data-translate="father">Name of Father</span> <span class="required">*</span></label>
                             <input type="text" name="father_name" id="fatherName" placeholder="Father's Name" required>
                         </div>
-                    </div>
-                    <div class="form-col">
                         <div class="form-group">
                             <label for="motherName"><span data-translate="mother">Name of Mother</span> <span class="required">*</span></label>
                             <input type="text" name="mother_name" id="motherName" placeholder="Mother's Name" required>
                         </div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-col">
                         <div class="form-group">
                             <label for="spouseName"><span data-translate="spouse">Name of Spouse</span> <span class="optional">(optional)</span></label>
                             <input type="text" name="spouse_name" id="spouseName" placeholder="Spouse's Name">
                         </div>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="occupation"><span data-translate="occupation">Occupation</span> <span class="required">*</span></label>
-                            <input type="text" name="occupation" id="occupation" placeholder="Occupation" required>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-col">
+                    <!-- KANANG SIDE: Emergency Name, Emergency No. -->
+                    <div class="form-col" style="display: flex; flex-direction: column; gap: 18px; flex: 1;">
                         <div class="form-group">
                             <label for="emergencyName"><span data-translate="emergency">In Case of Emergency</span> <span class="required">*</span></label>
                             <input type="text" name="emergency_name" id="emergencyName" placeholder="Emergency Contact Name" required>
                         </div>
-                    </div>
-                    <div class="form-col">
                         <div class="form-group">
                             <label for="emergencyNumber"><span data-translate="emergency_no">Emergency Contact No.</span> <span class="required">*</span></label>
                             <input type="text" name="emergency_number" id="emergencyNumber" placeholder="Emergency Contact No." maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
                         </div>
                     </div>
-                </div>
 
+                </div>
                 <div class="form-section-title"><i class="fas fa-user-friends"></i> <span data-translate="ref_person">Reference Person</span> <span style="font-weight:400;font-size:0.75rem;color:var(--neutral-500);">(Not Related to You)</span></div>
                 <div class="form-row">
                     <div class="form-col">

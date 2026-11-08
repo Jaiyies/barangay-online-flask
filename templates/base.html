@@ -250,6 +250,28 @@
 </head>
 <body>
 
+    <body>
+
+    {% if session.get('user_id') %}
+    <script>
+        (function() {
+            // 1. I-replace ang current history entry (para walang babalikan)
+            window.history.replaceState(null, null, window.location.href);
+            
+            // 2. I-trap yung back button
+            window.addEventListener('popstate', function(event) {
+                window.history.pushState(null, null, window.location.href);
+            });
+            
+            // 3. Extra lock para sa mga page na naka-load na
+            window.addEventListener('load', function() {
+                window.history.pushState(null, null, window.location.href);
+            });
+        })();
+    </script>
+    {% endif %}
+
+
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar-custom">
         <a href="{{ url_for('index') }}" class="logo">

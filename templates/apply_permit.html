@@ -2026,7 +2026,357 @@
             margin-left: auto;
             display: inline-flex; align-items: center; justify-content: center;
         }
+                /* ===== CUSTOM MATERIALIZE GREEN THEME ===== */
+        .datepicker-modal {
+            max-width: 325px !important;
+            min-width: 300px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+            z-index: 9999999 !important; /* Para lumabas sa lahat */
+        }
+        .datepicker-container {
+            background-color: #ffffff !important;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .datepicker-date-display {
+            background-color: var(--primary-600) !important; /* GREEN THEME */
+            padding: 20px !important;
+        }
+        .datepicker-date-display .date-text {
+            font-size: 32px !important;
+            font-weight: 400 !important;
+            color: white !important;
+        }
+        .datepicker-date-display .year-text {
+            color: rgba(255,255,255,0.8) !important;
+            font-size: 14px !important;
+            margin-bottom: 5px !important;
+        }
+        .datepicker-cancel, .datepicker-clear, .datepicker-today, .datepicker-done {
+            color: var(--primary-600) !important;
+        }
+        .datepicker-table td.is-selected {
+            background-color: var(--primary-600) !important;
+        }
+        .datepicker-table td.is-today {
+            color: var(--primary-600) !important;
+        }
+        .datepicker-table td.is-today.is-selected {
+            color: white !important;
+        }
+        .datepicker-day-button {
+            color: #333 !important;
+        }
+        .datepicker-day-button:hover {
+            background-color: var(--primary-50) !important;
+        }
+
+                /* ===== CUSTOM CALENDAR MODAL DESIGN ===== */
+        .custom-date-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 999999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .custom-date-modal.show { display: flex; }
+
+        .custom-date-content {
+            background: #fff;
+            width: 320px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+            font-family: 'Inter', sans-serif;
+            animation: slideUpCal 0.3s ease-out;
+        }
+
+        @keyframes slideUpCal {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .cal-header {
+            background: var(--primary-600); /* GREEN THEME */
+            color: white;
+            padding: 20px 24px;
+            position: relative;
+        }
+        .cal-header .cal-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .cal-header .cal-selected-date {
+            font-size: 32px;
+            font-weight: 400;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .cal-header .cal-edit-icon {
+            position: absolute;
+            right: 24px;
+            bottom: 24px;
+            font-size: 20px;
+            color: white;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .cal-body {
+            padding: 20px;
+        }
+
+        .cal-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        .cal-nav i { cursor: pointer; color: #888; padding: 5px; }
+        .cal-nav i:hover { color: var(--primary-600); }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+        }
+        .cal-grid .cal-dow {
+            font-size: 12px;
+            color: #888;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .cal-grid .cal-day {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 13.5px;
+            cursor: pointer;
+            color: #333;
+            transition: 0.2s;
+            margin: 0 auto;
+        }
+        .cal-grid .cal-day:hover:not(.disabled):not(.empty) { background: #f0f0f0; }
+        .cal-grid .cal-day.selected { background: var(--primary-600); color: white; font-weight: 600; }
+        .cal-grid .cal-day.disabled { color: #ccc; cursor: not-allowed; text-decoration: line-through; }
+        .cal-grid .cal-day.empty { cursor: default; }
+
+        .cal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 20px 20px;
+            gap: 15px;
+        }
+        .cal-footer button {
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px 16px;
+            color: var(--primary-600); /* GREEN */
+            border-radius: 8px;
+        }
+        .cal-footer button:hover { background: var(--primary-50); }
+              /* ===== CUSTOM GREEN SELECT DROPDOWNS ===== */
+        .custom-cal-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 8px 30px 8px 12px !important;
+            border-radius: 8px !important;
+            border: 1.5px solid var(--neutral-200) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 600 !important;
+            color: var(--primary-800) !important;
+            cursor: pointer;
+            outline: none;
+            background-color: white !important;
+            transition: all 0.2s ease;
+            /* Custom arrow icon (green) */
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231a6b42%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 10px;
+        }
+
+        .custom-cal-select:hover {
+            border-color: var(--primary-400) !important;
+            box-shadow: 0 0 0 3px rgba(34, 139, 84, 0.1);
+        }
+
+        .custom-cal-select:focus {
+            border-color: var(--primary-600) !important;
+            box-shadow: 0 0 0 3px rgba(34, 139, 84, 0.2);
+        }
+
+        /* Para sa loob ng listahan */
+        .custom-cal-select option {
+            padding: 10px;
+            font-weight: 500;
+            background: white;
+            color: var(--primary-800);
+        }
         
+        /* Try natin i-override yung asul sa Windows Chrome */
+        .custom-cal-select option:checked,
+        .custom-cal-select option:hover,
+        .custom-cal-select option:focus {
+            background: var(--primary-50) !important;
+            color: var(--primary-800) !important;
+        }
+
+                /* ===== CUSTOM DROPDOWN FOR CALENDAR ===== */
+        .cal-dropdown {
+            position: relative;
+            flex: 1;
+            user-select: none;
+        }
+        .cal-dropdown-trigger {
+            width: 100%;
+            padding: 8px 28px 8px 12px;
+            border-radius: 8px;
+            border: 1.5px solid var(--neutral-200);
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--primary-800);
+            font-size: 13px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .cal-dropdown-trigger::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 10px;
+            font-size: 12px;
+            color: var(--primary-600);
+            transition: transform 0.3s ease;
+        }
+        .cal-dropdown.open .cal-dropdown-trigger::after {
+            transform: rotate(180deg);
+        }
+        .cal-dropdown.open .cal-dropdown-trigger {
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(34, 139, 84, 0.15);
+        }
+        .cal-dropdown-options {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--neutral-200);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            max-height: 180px; /* Limitahan para may scroll */
+            overflow-y: auto;
+            z-index: 9999999;
+            display: none;
+            padding: 4px;
+        }
+        .cal-dropdown.open .cal-dropdown-options {
+            display: block;
+            animation: slideDown 0.2s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cal-dropdown-option {
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--primary-800);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .cal-dropdown-option:hover {
+            background: var(--primary-50);
+            color: var(--primary-700);
+        }
+        .cal-dropdown-option.selected {
+            background: var(--primary-600);
+            color: white;
+            font-weight: 600;
+        }
+        /* Scrollbar design */
+        .cal-dropdown-options::-webkit-scrollbar { width: 6px; }
+        .cal-dropdown-options::-webkit-scrollbar-track { background: transparent; }
+        .cal-dropdown-options::-webkit-scrollbar-thumb {
+            background: rgba(34, 139, 84, 0.3);
+            border-radius: 3px;
+        }
+
+                       /* ===== TIME INPUT GREEN THEME ===== */
+        input[type="time"] {
+            color: var(--primary-800) !important;
+            font-weight: 600 !important;
+            background-color: var(--neutral-50) !important;
+        }
+
+        /* Palitan ang kulay ng clock icon sa kanan para maging berde */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(30%) sepia(80%) saturate(500%) hue-rotate(100deg) brightness(90%) contrast(90%);
+            cursor: pointer;
+        }
+
+        /* Kapag clinick, maging berde ang border at background */
+        input[type="time"]:focus {
+            border-color: var(--primary-500) !important;
+            background-color: white !important;
+            box-shadow: 0 0 0 4px rgba(34, 139, 84, 0.1) !important;
+            outline: none !important;
+        }
+        
+        /* Para sa mga pipol na gumagamit ng Safari/Mac */
+        input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+            color: var(--primary-800) !important;
+        }
+
+                /* ===== TIME INPUT GREEN THEME ===== */
+        input[type="time"] {
+            color: var(--primary-800) !important;
+            font-weight: 600 !important;
+            background-color: var(--neutral-50) !important;
+        }
+
+        /* Palitan ang kulay ng clock icon sa kanan para maging berde */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(30%) sepia(80%) saturate(500%) hue-rotate(100deg) brightness(90%) contrast(90%);
+            cursor: pointer;
+        }
+
+        /* Kapag clinick, maging berde ang border at background */
+        input[type="time"]:focus {
+            border-color: var(--primary-500) !important;
+            background-color: white !important;
+            box-shadow: 0 0 0 4px rgba(34, 139, 84, 0.1) !important;
+            outline: none !important;
+        }
+
     </style>
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
@@ -2149,18 +2499,7 @@
             </div>
         </div>
 
-        <div id="flashMessages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-message {{ category }}">
-                            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
+      
 
         <div class="card">
             <div class="form-header">
@@ -2193,10 +2532,13 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label for="eventDate"><i class="fas fa-calendar-day"></i> <span data-translate="event_date">Event Date</span> <span class="required">*</span></label>
-                            <input type="date" name="event_date" id="eventDate" required>
+                            <!-- Ito yung nakikita ng user (Month DD, YYYY) -->
+<input type="text" id="eventDateDisplay" placeholder="Select a date..." readonly required style="cursor: pointer;">
+<!-- Ito yung tunay na value na ipapadala sa backend (YYYY-MM-DD) -->
+<input type="hidden" name="event_date" id="eventDate" required>
                         </div>
                     </div>
-                    <div class="form-col">
+                                                           <div class="form-col">
                         <div class="form-group">
                             <label for="startTime"><i class="fas fa-play"></i> <span data-translate="start_time">Start Time</span> <span class="required">*</span></label>
                             <input type="time" name="start_time" id="startTime" min="08:00" max="22:00" required>
@@ -2474,15 +2816,200 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('notifPanel')?.addEventListener('click', function(e) {
             e.stopPropagation();
         });
-
             const today = new Date();
             const minDate = new Date(today);
             minDate.setDate(today.getDate() + 10);
             document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
 
             initCustomSelects();
+            // === CUSTOM CALENDAR INITIALIZATION ===
+            initCustomCalendar();
         });
 
+                // ===== CUSTOM CALENDAR LOGIC =====
+        function initCustomCalendar() {
+            const dateInput = document.getElementById('eventDateDisplay');
+            const hiddenInput = document.getElementById('eventDate');
+
+            const modal = document.getElementById('customDateModal');
+            const grid = document.getElementById('calGrid');
+            const selectedDateTxt = document.getElementById('calSelectedDateText');
+            const prevBtn = document.getElementById('calPrevBtn');
+            const nextBtn = document.getElementById('calNextBtn');
+            const cancelBtn = document.getElementById('calCancelBtn');
+            const okBtn = document.getElementById('calOkBtn');
+
+            // Custom Dropdown Elements
+            const monthDropdown = document.getElementById('monthDropdown');
+            const monthTrigger = document.getElementById('monthTrigger');
+            const monthOptions = document.getElementById('monthOptions');
+            const yearDropdown = document.getElementById('yearDropdown');
+            const yearTrigger = document.getElementById('yearTrigger');
+            const yearOptions = document.getElementById('yearOptions');
+
+            let currentDate = new Date();
+            let selectedDate = null;
+            
+            // === 10 DAYS RULE LOGIC ===
+            let today = new Date();
+            let minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 10); 
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            // Populate Month Options
+            monthNames.forEach((m, index) => {
+                let div = document.createElement('div');
+                div.className = 'cal-dropdown-option';
+                div.textContent = m;
+                div.dataset.value = index;
+                div.addEventListener('click', () => {
+                    currentDate.setMonth(index);
+                    closeDropdowns();
+                    renderCalendar();
+                });
+                monthOptions.appendChild(div);
+            });
+
+            // Populate Year Options (Current year + 5)
+            let currentYear = today.getFullYear();
+            for(let y = currentYear; y <= currentYear + 5; y++) {
+                let div = document.createElement('div');
+                div.className = 'cal-dropdown-option';
+                div.textContent = y;
+                div.dataset.value = y;
+                div.addEventListener('click', () => {
+                    currentDate.setFullYear(y);
+                    closeDropdowns();
+                    renderCalendar();
+                });
+                yearOptions.appendChild(div);
+            }
+
+            // Toggle Dropdowns
+            monthTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                monthDropdown.classList.toggle('open');
+                yearDropdown.classList.remove('open');
+            });
+            yearTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                yearDropdown.classList.toggle('open');
+                monthDropdown.classList.remove('open');
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!monthDropdown.contains(e.target)) monthDropdown.classList.remove('open');
+                if (!yearDropdown.contains(e.target)) yearDropdown.classList.remove('open');
+            });
+
+            function closeDropdowns() {
+                monthDropdown.classList.remove('open');
+                yearDropdown.classList.remove('open');
+            }
+
+            dateInput.addEventListener('click', () => {
+                modal.classList.add('show');
+                renderCalendar();
+            });
+
+            function closeModal() { modal.classList.remove('show'); }
+            cancelBtn.addEventListener('click', closeModal);
+            
+            prevBtn.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+            nextBtn.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+                       okBtn.addEventListener('click', () => {
+                if(selectedDate) {
+                    // I-format para sa BACKEND (YYYY-MM-DD)
+                    let yyyy = selectedDate.getFullYear();
+                    let mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                    let dd = String(selectedDate.getDate()).padStart(2, '0');
+                    document.getElementById('eventDate').value = `${yyyy}-${mm}-${dd}`;
+
+                    // I-format para sa USER (Month DD, YYYY)
+                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                    document.getElementById('eventDateDisplay').value = `${months[selectedDate.getMonth()]} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
+                }
+                closeModal();
+                
+                setTimeout(() => {
+                    document.getElementById('eventDate').dispatchEvent(new Event('change', { bubbles: true }));
+                }, 100);
+            });
+            function renderCalendar() {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                
+                // Update Triggers Text
+                monthTrigger.textContent = monthNames[month];
+                yearTrigger.textContent = year;
+
+                // Highlight Selected in Dropdown
+                Array.from(monthOptions.children).forEach(opt => {
+                    opt.classList.toggle('selected', parseInt(opt.dataset.value) === month);
+                });
+                Array.from(yearOptions.children).forEach(opt => {
+                    opt.classList.toggle('selected', parseInt(opt.dataset.value) === year);
+                });
+
+                let html = `<div class="cal-dow">S</div><div class="cal-dow">M</div><div class="cal-dow">T</div><div class="cal-dow">W</div><div class="cal-dow">T</div><div class="cal-dow">F</div><div class="cal-dow">S</div>`;
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                for (let i = 0; i < firstDay; i++) {
+                    html += `<div class="cal-day empty"></div>`;
+                }
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    let thisDate = new Date(year, month, d);
+                    
+                    let isDisabled = thisDate < minDate; 
+                    
+                    let isSelected = selectedDate && 
+                                     thisDate.getFullYear() === selectedDate.getFullYear() &&
+                                     thisDate.getMonth() === selectedDate.getMonth() &&
+                                     thisDate.getDate() === selectedDate.getDate();
+                    
+                    let classes = "cal-day";
+                    if(isDisabled) classes += " disabled";
+                    if(isSelected) classes += " selected";
+
+                    html += `<div class="${classes}" data-date="${year}-${month}-${d}">${d}</div>`;
+                }
+
+                grid.innerHTML = html;
+
+                if(selectedDate) {
+                    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    selectedDateTxt.textContent = `${days[selectedDate.getDay()]}, ${months[selectedDate.getMonth()]} ${selectedDate.getDate()}`;
+                } else {
+                    selectedDateTxt.textContent = "Select Date";
+                }
+
+                document.querySelectorAll('.cal-day:not(.empty):not(.disabled)').forEach(dayEl => {
+                    dayEl.addEventListener('click', function() {
+                        document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+                        this.classList.add('selected');
+                        
+                        const dateStr = this.getAttribute('data-date');
+                        const [y, m, d] = dateStr.split('-').map(Number);
+                        selectedDate = new Date(y, m, d);
+                        
+                        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        selectedDateTxt.textContent = `${days[selectedDate.getDay()]}, ${months[selectedDate.getMonth()]} ${selectedDate.getDate()}`;
+                    });
+                });
+            }
+        }
         function initCustomSelects() {
             document.querySelectorAll('.custom-select').forEach(select => {
                 const trigger = select.querySelector('.custom-select-trigger');
@@ -2516,11 +3043,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         options.forEach(o => o.classList.remove('selected'));
                         this.classList.add('selected');
-
                         select.classList.remove('open');
                         trigger.style.borderColor = '#228b54';
 
-                        if (select.getAttribute('data-name') === 'venue') {
+                                              if (select.getAttribute('data-name') === 'venue') {
                             checkAvailability();
                         }
                     });
@@ -3018,8 +3544,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
             });
         });
-
-        document.getElementById('clearBtn').addEventListener('click', function(e) {
+               document.getElementById('clearBtn').addEventListener('click', function(e) {
             e.preventDefault();
             if (confirm('Are you sure you want to clear all fields?')) {
                 const form = document.querySelector('form');
@@ -3032,6 +3557,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('estimatedAttendees').classList.remove('error');
                 document.getElementById('startTime').classList.remove('error');
                 document.getElementById('endTime').classList.remove('error');
+                
+                document.getElementById('eventDateDisplay').value = '';
+                document.getElementById('eventDate').value = '';
+
                 resetCustomSelects();
                 if (termsOpen) toggleTerms();
 
@@ -3041,7 +3570,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
             }
         });
-
+        
         setTimeout(function() {
             document.querySelectorAll('.flash-message').forEach(function(msg) {
                 msg.style.transition = 'opacity 0.5s ease';
@@ -3049,6 +3578,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() { msg.remove(); }, 500);
             });
         }, 5000);
+
+               
+
     </script>
+        <!-- CUSTOM CALENDAR MODAL -->
+    <div class="custom-date-modal" id="customDateModal">
+        <div class="custom-date-content">
+                        <div class="cal-header">
+                <span class="cal-label">Select Date</span>
+                <h2 class="cal-selected-date" id="calSelectedDateText">Select Date</h2>
+            </div>
+            <div class="cal-body">
+                                          <div class="cal-nav" style="justify-content: space-between; width: 100%; gap: 10px;">
+                    <div style="display: flex; gap: 5px; flex: 1;">
+                        <!-- Custom Month Dropdown -->
+                        <div class="cal-dropdown" id="monthDropdown">
+                            <div class="cal-dropdown-trigger" id="monthTrigger">November</div>
+                            <div class="cal-dropdown-options" id="monthOptions"></div>
+                        </div>
+                        <!-- Custom Year Dropdown -->
+                        <div class="cal-dropdown" id="yearDropdown">
+                            <div class="cal-dropdown-trigger" id="yearTrigger">2026</div>
+                            <div class="cal-dropdown-options" id="yearOptions"></div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <i class="fas fa-chevron-left" id="calPrevBtn" style="padding: 5px; cursor: pointer; color: var(--primary-600);"></i>
+                        <i class="fas fa-chevron-right" id="calNextBtn" style="padding: 5px; cursor: pointer; color: var(--primary-600);"></i>
+                    </div>
+                </div>
+                <div class="cal-grid" id="calGrid">
+                    <!-- Days generated by JS -->
+                </div>
+            </div>
+            <div class="cal-footer">
+                <button type="button" id="calCancelBtn">CANCEL</button>
+                <button type="button" id="calOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

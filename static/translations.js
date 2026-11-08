@@ -14,6 +14,12 @@ const globalTranslations = {
         'about_us': 'About Us',
         'faqs': 'FAQs',
         
+        // Dashboard Quick Actions
+        'track_requests': 'Track Requests',
+        'track_requests_desc': 'Check status of applications',
+        'barangay_map': 'Barangay Map',
+        'barangay_map_desc': 'Locate health centers, evacuation sites',
+
         // About Us Page
         'about_subtitle': 'Get to know your Barangay Sto. Niño Online Services Portal',
         'welcome_title': 'Welcome to Barangay Sto. Niño Online Services Portal',
@@ -37,6 +43,7 @@ const globalTranslations = {
         'email': 'Email',
         'phone': 'Phone',
         'office_hours': 'Office Hours',
+        'office_hours_value': 'Mon - Fri: 8:00 AM - 5:00 PM', // DAGDAG PARA SA ORAS
         
         // FAQs Page
         'faq_title': 'Frequently Asked Questions',
@@ -53,6 +60,32 @@ const globalTranslations = {
         'faq_a5': 'The Barangay Sto. Niño Online Services website makes common barangay services easier to access online. Residents can use the website to: Request Barangay Clearance, Certificate of Indigency, Proof of Residency, Apply for Community Event Permits, Track the status of their requests.',
         'faq_q6': 'How do I apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?',
         'faq_a6': 'From your Dashboard, go to Quick Actions. Click "Request Document." Select the document you want to request. Fill out all required information. Read and agree to the Terms and Conditions. Click "Submit Request." Take note of your Reference Number.',
+        'faq_q7': 'Can a minor apply for a Barangay Clearance, Certificate of Indigency, or Proof of Residency?',
+        'faq_a7': 'Yes, but a parent or legal guardian must accompany the minor and sign the document request form on their behalf.',
+        'faq_q8': 'What is an Area Representative?',
+        'faq_a8': 'An Area Representative is a designated official who verifies the residency and identity of applicants within a specific zone or area in the barangay.',
+        'faq_q9': 'How do I get the signature of the Area Representative?',
+        'faq_a9': 'You can visit the Barangay Hall to locate your area representative, or upload a scanned copy of their signature if you already have it. The request will not be processed without this signature.',
+        'faq_q10': 'Who can be my reference person?',
+        'faq_a10': 'Any adult resident of Barangay Sto. Niño who can vouch for your identity and residency, such as a neighbor, employer, or barangay official.',
+        'faq_q11': 'How long must I have lived in Barangay Sto. Niño to request a Proof of Residency?',
+        'faq_a11': 'You must be a bonafide resident of the barangay. There is no strict minimum number of years, but you must be able to prove your current address.',
+        'faq_q12': 'What if I do not have a Precinct Number?',
+        'faq_a12': 'You can leave it blank or write "N/A" if you are not yet a registered voter in the barangay.',
+        'faq_q13': 'Where is the Barangay Sto. Niño Office, and how can I contact them?',
+        'faq_a13': 'The office is located at the Barangay Hall. You can contact them via phone at 0992 225 0927 or email them at barangay.stonino@email.com.',
+        'faq_q14': 'How do I claim my Barangay Clearance, Certificate of Indigency, or Proof of Residency?',
+        'faq_a14': 'Once your request is approved, you will receive a notification. Bring a valid ID and your Reference Number to the Barangay Hall to claim your document.',
+        'faq_q15': 'Where can I find my Reference Number?',
+        'faq_a15': 'Your Reference Number is displayed immediately after you submit a request, and it is also visible in the "My Requests" page.',
+        'faq_q16': 'How do I apply for an Event Permit?',
+        'faq_a16': 'Go to "Apply for Permit" on the sidebar. Fill out the event details, upload the required documents, and submit it at least 10 days before the event.',
+        'faq_q17': 'How can I track the status of my request or application?',
+        'faq_a17': 'Go to the "My Requests" page on the sidebar to see if your request is Pending, Approved, or Rejected.',
+        'faq_q18': 'Where can I check venue availability?',
+        'faq_a18': 'You can check the "Events Calendar" on the sidebar to see if the date and venue you want are already booked by another event.',
+        'faq_q19': 'Where are the available venues and courts located?',
+        'faq_a19': 'Common venues include the Barangay Covered Court, Multi-Purpose Hall, and nearby basketball courts. Please visit the Barangay Hall for specific reservations.',
         
         // Request Document Page
         'doc_title': 'Document Request Form',
@@ -200,7 +233,10 @@ const globalTranslations = {
         'view_all_announcements': 'View All Announcements',
         'pinned': 'Pinned',
         'no_announcements': 'No Announcements Yet',
-        'no_announcements_desc': "Wala pang announcement na na-post."
+        'no_announcements_desc': "Wala pang announcement na na-post.",
+
+        // ===== DAGDAG PARA SA ROLE (RESIDENT) =====
+        'resident': 'Resident'
     },
     'tl': {
         // Sidebar & Navigation
@@ -215,6 +251,12 @@ const globalTranslations = {
         'about_us': 'Tungkol Sa Amin',
         'faqs': 'Mga FAQ',
         
+        // Dashboard Quick Actions
+        'track_requests': 'I-track ang mga Request',
+        'track_requests_desc': 'Tingnan ang status ng mga aplikasyon',
+        'barangay_map': 'Mapa ng Barangay',
+        'barangay_map_desc': 'Hanapin ang mga health center at evacuation site',
+
         // About Us Page
         'about_subtitle': 'Kilalanin ang Barangay Sto. Niño Online Services Portal',
         'welcome_title': 'Maligayang Pagdating sa Barangay Sto. Niño Online Services Portal',
@@ -238,6 +280,7 @@ const globalTranslations = {
         'email': 'Email',
         'phone': 'Telepono',
         'office_hours': 'Oras ng Opisina',
+        'office_hours_value': 'Lunes - Biyernes: 8:00 AM - 5:00 PM', // DAGDAG PARA SA ORAS (TAGALOG)
         
         // FAQs Page
         'faq_title': 'Mga Madalas Itanong',
@@ -254,7 +297,33 @@ const globalTranslations = {
         'faq_a5': 'Ginagawang mas madaling ma-access online ng Barangay Sto. Niño Online Services website ang mga karaniwang serbisyo ng barangay. Maaaring gamitin ng mga residente ang website upang: Mag-request ng Barangay Clearance, Certificate of Indigency, Proof of Residency, Mag-apply ng Community Event Permits, Tingnan ang status ng kanilang mga request.',
         'faq_q6': 'Paano ako mag-a-apply para sa Barangay Clearance, Certificate of Indigency, o Proof of Residency?',
         'faq_a6': 'Mula sa iyong Dashboard, pumunta sa Quick Actions. I-click ang "Request Document." Piliin ang dokumentong nais mong i-request. Punan ang lahat ng kinakailangang impormasyon. Basahin at sumang-ayon sa Terms and Conditions. I-click ang "Submit Request." Tandaan ang iyong Reference Number.',
-        
+        'faq_q7': 'Maaari bang mag-apply ang isang menor de edad para sa Barangay Clearance, Certificate of Indigency, o Proof of Residency?',
+        'faq_a7': 'Oo, ngunit kailangang samahan ng magulang o legal na tagapag-alaga ang menor de edad at sila ang pipirma sa form.',
+        'faq_q8': 'Ano ang Area Representative?',
+        'faq_a8': 'Ang Area Representative ay isang itinalagang opisyal na nagbe-verify ng paninirahan at pagkakakilanlan ng mga aplikante sa isang partikular na lugar sa barangay.',
+        'faq_q9': 'Paano ko makukuha ang lagda ng Area Representative?',
+        'faq_a9': 'Maaari kang pumunta sa Barangay Hall para hanapin ang iyong area representative, o mag-upload ng scanned na kopya ng kanilang lagda kung mayroon ka na. Hindi ipoproseso ang request kung walang lagda.',
+        'faq_q10': 'Sino ang pwedeng maging reference person ko?',
+        'faq_a10': 'Kahit sinong nasa hustong gulang na residente ng Barangay Sto. Niño na makakapagpatunay ng iyong pagkakakilanlan at paninirahan, tulad ng kapitbahay, amo, o barangay official.',
+        'faq_q11': 'Gaano katagal akong dapat nakatira sa Barangay Sto. Niño para makakuha ng Proof of Residency?',
+        'faq_a11': 'Kailangan mong maging ganap na residente ng barangay. Walang mahigpit na minimum na taon, ngunit kailangan mong mapatunayan ang iyong kasalukuyang tirahan.',
+        'faq_q12': 'Paano kung wala akong Precinct Number?',
+        'faq_a12': 'Maaari mong iwanan itong blangko o isulat ang "N/A" kung hindi ka pa rehistradong botante sa barangay.',
+        'faq_q13': 'Saan matatagpuan ang Barangay Sto. Niño Office, at paano ako makikipag-ugnayan?',
+        'faq_a13': 'Ang opisina ay matatagpuan sa Barangay Hall. Maaari kang makipag-ugnayan sa pamamagitan ng telepono sa 0992 225 0927 o mag-email sa barangay.stonino@email.com.',
+        'faq_q14': 'Paano ko makukuha ang aking Barangay Clearance, Certificate of Indigency, o Proof of Residency?',
+        'faq_a14': 'Kapag na-aprubahan na ang iyong request, makakatanggap ka ng notification. Magdala ng valid ID at Reference Number sa Barangay Hall para kunin ang iyong dokumento.',
+        'faq_q15': 'Saan ko mahahanap ang aking Reference Number?',
+        'faq_a15': 'Ang iyong Reference Number ay makikita agad pagkatapos mong magsumite ng request, at makikita rin ito sa pahina ng "Aking mga Request".',
+        'faq_q16': 'Paano ako mag-a-apply para sa Event Permit?',
+        'faq_a16': 'Pumunta sa "Mag-apply ng Permit" sa sidebar. Punan ang mga detalye ng kaganapan, i-upload ang mga kinakailangang dokumento, at isumite ito nang hindi bababa sa 10 araw bago ang kaganapan.',
+        'faq_q17': 'Paano ko masusubaybayan ang status ng aking request o aplikasyon?',
+        'faq_a17': 'Pumunta sa pahina ng "Aking mga Request" sa sidebar para makita kung ang iyong request ay Pinoproseso, Aprubado, o Tinanggihan.',
+        'faq_q18': 'Saan ako pwedeng mag-check kung available ang venue?',
+        'faq_a18': 'Maaari mong tingnan ang "Kalendaryo ng mga Kaganapan" sa sidebar para makita kung ang petsa at lugar na gusto mo ay naka-book na ng ibang event.',
+        'faq_q19': 'Saan matatagpuan ang mga available na venue at court?',
+        'faq_a19': 'Kabilang sa mga karaniwang venue ang Barangay Covered Court, Multi-Purpose Hall, at mga kalapit na basketball court. Bumisita sa Barangay Hall para sa partikular na reserbasyon.',
+
         // Request Document Page
         'doc_title': 'Form ng Document Request',
         'doc_subtitle': 'Magsumite ng request para sa mga dokumento ng barangay',
@@ -401,7 +470,10 @@ const globalTranslations = {
         'view_all_announcements': 'Tingnan Lahat ng Anunsyo',
         'pinned': 'Naka-pin',
         'no_announcements': 'Wala Pang Anunsyo',
-        'no_announcements_desc': 'Wala pang announcement na na-post.'
+        'no_announcements_desc': 'Wala pang announcement na na-post.',
+
+        // ===== DAGDAG PARA SA ROLE (RESIDENT) =====
+        'resident': 'Residente'
     }
 };
 

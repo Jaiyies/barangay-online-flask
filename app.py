@@ -23,6 +23,15 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key-if-env-fails')
 
+@app.after_request
+def add_security_headers(response):
+    # Ito ang pinaka-hardcore na header
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+
 # ============================================================
 # EMAIL CONFIGURATION - BARANGAY STO. NINO
 # ============================================================
@@ -397,6 +406,66 @@ def check_maintenance():
         return redirect(url_for('login'))
 
 # ============================================================
+# ANTI-BACK BUTTON PROTECTION (CACHE + SESSION LOCK)
+# ============================================================
+
+# 1. CACHE CONTROL (Pinipigilan ang browser i-save ang page sa memory)
+@app.after_request
+def prevent_back_button_cache(response):
+    protected_endpoints = [
+        'dashboard', 'my_requests', 'my_request', 'request_document',
+        'request_document_post', 'submit_document_request', 'apply_permit',
+        'apply_permit_post', 'profile', 'user_settings', 'events_calendar',
+        'head_admin_dashboard', 'sec_admin_dashboard',
+        'court1_dashboard', 'court2_dashboard', 'court3_dashboard', 'court4_dashboard',
+        'admin_documents', 'admin_events', 'user_management', 'admin_management',
+        'announcements', 'user_announcements', 'admin_view_announcements',
+        'admin_documents_clearance', 'admin_documents_indigency', 
+        'admin_documents_residency', 'admin_documents_ready',
+        'head_admin_all_documents', 'head_admin_events', 'admin_activity_logs'
+    ]
+    
+    if request.endpoint in protected_endpoints:
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        response.headers['Vary'] = 'Cookie'
+        
+    return response
+
+
+# 2. HARDCORE SESSION LOCK + MAINTENANCE CHECK
+@app.before_request
+def block_browser_navigation_and_maintenance():
+    # --- PART A: PUBLIC PAGES (Pwedeng pasukin kahit walang login) ---
+    public_pages = [
+        'login', 'register', 'static', 'forgot_password', 
+        'show_reset_page', 'verify_reset_code', 'login_google', 
+        'authorize_google', 'index', 'about_us', 'faqs', 'events', 
+        'events_calendar', 'logout', 'barangay_map', 'generate_qr_image',
+        'uploaded_file'
+    ]
+    
+    # --- PART B: MAINTENANCE CHECK (Para sa admin roles) ---
+    allowed_maintenance = ['login', 'static', 'login_google', 'authorize_google', 
+                           'forgot_password', 'show_reset_page', 'verify_reset_code']
+    if request.endpoint not in allowed_maintenance:
+        if session.get('role') not in ADMIN_ROLES:
+            if is_maintenance_mode():
+                session.clear()
+                flash('The system is currently under maintenance. Please try again later.', 'warning')
+                return redirect(url_for('login'))
+    
+    # --- PART C: HARDCORE SESSION LOCK (Bawal pumasok kung walang session) ---
+    if 'user_id' in session:
+        return  # May session, hayaan lang
+    
+    if request.endpoint and request.endpoint not in public_pages:
+        flash('Session expired. Please login again.', 'warning')
+        return redirect(url_for('login'))
+
+
+# ============================================================
 # LOGIN ROUTE
 # ============================================================
 @app.route('/login', methods=['GET', 'POST'])
@@ -453,7 +522,7 @@ def login():
             session['email'] = user['email']
             session['role'] = user['role']
 
-            flash(f'Welcome back, {session["fullname"]}!', 'success')
+            # flash(f'Welcome back, {session["fullname"]}!', 'success')
 
             try:
                 log_conn = get_db()
@@ -539,7 +608,7 @@ def authorize_google():
         session['fullname'] = f"{user['first_name']} {user['last_name']}"
         session['email'] = user['email']
         session['role'] = user['role']
-        flash(f'Welcome back, {session["fullname"]}!', 'success')
+         # flash(f'Welcome back, {session["fullname"]}!', 'success')
 
         if user['role'] == 'resident':
             return redirect(url_for('dashboard'))
@@ -1044,18 +1113,22 @@ def api_delete_event(event_id):
     conn.close()
     return jsonify({'success': True, 'message': 'Event deleted successfully'})
 
+
 @app.route('/my-requests')
 @role_required('resident')
 def my_requests():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM document_requests WHERE user_id = %s ORDER BY created_at DESC", (session['user_id'],))
+    # DOCUMENTS: Hindi na isasama ang cancelled para mawala pagka-refresh
+    cursor.execute("SELECT * FROM document_requests WHERE user_id = %s AND status != 'cancelled' ORDER BY created_at DESC", (session['user_id'],))
     document_requests = cursor.fetchall()
 
-    cursor.execute("SELECT * FROM event_permits WHERE user_id = %s ORDER BY requested_at DESC", (session['user_id'],))
+    # PERMITS: Hindi na isasama ang cancelled para mawala pagka-refresh
+    cursor.execute("SELECT * FROM event_permits WHERE user_id = %s AND status != 'cancelled' ORDER BY requested_at DESC", (session['user_id'],))
     event_permits = cursor.fetchall()
 
+    # DOCUMENTS COUNTS
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE user_id = %s", (session['user_id'],))
     total_docs = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as pending FROM document_requests WHERE user_id = %s AND status = 'pending'", (session['user_id'],))
@@ -1066,7 +1139,10 @@ def my_requests():
     ready_docs = cursor.fetchone()['ready']
     cursor.execute("SELECT COUNT(*) as rejected FROM document_requests WHERE user_id = %s AND status = 'rejected'", (session['user_id'],))
     rejected_docs = cursor.fetchone()['rejected']
+    cursor.execute("SELECT COUNT(*) as cancelled FROM document_requests WHERE user_id = %s AND status = 'cancelled'", (session['user_id'],))
+    cancelled_docs = cursor.fetchone()['cancelled']
 
+    # PERMITS COUNTS
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE user_id = %s", (session['user_id'],))
     total_events = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as pending FROM event_permits WHERE user_id = %s AND status = 'pending'", (session['user_id'],))
@@ -1075,6 +1151,9 @@ def my_requests():
     approved_events = cursor.fetchone()['approved']
     cursor.execute("SELECT COUNT(*) as rejected FROM event_permits WHERE user_id = %s AND status = 'rejected'", (session['user_id'],))
     rejected_events = cursor.fetchone()['rejected']
+    cursor.execute("SELECT COUNT(*) as cancelled FROM event_permits WHERE user_id = %s AND status = 'cancelled'", (session['user_id'],))
+    cancelled_events = cursor.fetchone()['cancelled']
+    
     conn.close()
 
     return render_template('my_requests.html',
@@ -1085,10 +1164,73 @@ def my_requests():
                          processing_docs=processing_docs,
                          ready_docs=ready_docs,
                          rejected_docs=rejected_docs,
+                         cancelled_docs=cancelled_docs,
                          total_events=total_events,
                          pending_events=pending_events,
                          approved_events=approved_events,
-                         rejected_events=rejected_events)
+                         rejected_events=rejected_events,
+                         cancelled_events=cancelled_events)
+# ============================================================
+# CANCEL ROUTES (Pending Only)
+# ============================================================
+@app.route('/cancel-document/<int:doc_id>', methods=['POST'])
+@role_required('resident')
+def cancel_document(doc_id):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id, status, reference_number, document_type FROM document_requests WHERE id = %s AND user_id = %s", (doc_id, session['user_id']))
+        doc = cursor.fetchone()
+        if not doc:
+            return jsonify({'success': False, 'error': 'Request not found.'}), 404
+        if doc['status'] != 'pending':
+            return jsonify({'success': False, 'error': 'Only PENDING requests can be cancelled.'}), 400
+
+        cursor.execute("UPDATE document_requests SET status = 'cancelled' WHERE id = %s", (doc_id,))
+        conn.commit()
+
+        notify_role(['admin_documents', 'head_admin'], '❌ Document Request Cancelled',
+            f'{session["fullname"]} cancelled their {doc["document_type"].replace("_", " ").title()} request. Ref: {doc["reference_number"]}',
+            'document_cancelled', link='/admin/documents')
+
+        return jsonify({'success': True, 'message': 'Request cancelled successfully.'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/cancel-permit/<int:permit_id>', methods=['POST'])
+@role_required('resident')
+def cancel_permit(permit_id):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id, status, reference_number, event_name, venue FROM event_permits WHERE id = %s AND user_id = %s", (permit_id, session['user_id']))
+        permit = cursor.fetchone()
+        if not permit:
+            return jsonify({'success': False, 'error': 'Permit not found.'}), 404
+        if permit['status'] != 'pending':
+            return jsonify({'success': False, 'error': 'Only PENDING permits can be cancelled.'}), 400
+
+        cursor.execute("UPDATE event_permits SET status = 'cancelled' WHERE id = %s", (permit_id,))
+        conn.commit()
+
+        court_role = get_court_role_by_venue(permit['venue'])
+        admin_roles = ['head_admin']
+        if court_role: admin_roles.append(court_role)
+
+        notify_role(admin_roles, '❌ Permit Cancelled',
+            f'{session["fullname"]} cancelled their permit for "{permit["event_name"]}". Ref: {permit["reference_number"]}',
+            'permit_cancelled', link='/admin/events')
+
+        return jsonify({'success': True, 'message': 'Permit cancelled successfully.'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
 
 @app.route('/my_request')
 @role_required('resident')
@@ -3976,20 +4118,39 @@ def logout():
 # ============================================================
 @app.route('/forgot-password', methods=['POST'])
 def forgot_password():
+    # Kukunin natin ang Email at New Password mula sa Page 1
     email = request.form.get('email', '').strip()
-    if not email:
-        flash('Please enter your email address.', 'danger')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+
+    # 1. Validation
+    if not email or not new_password or not confirm_password:
+        flash('Please fill in all fields.', 'danger')
         return redirect(url_for('login'))
+
+    if new_password != confirm_password:
+        flash('Passwords do not match.', 'danger')
+        return redirect(url_for('login'))
+
+    if len(new_password) < 8:
+        flash('Password must be at least 8 characters long.', 'danger')
+        return redirect(url_for('login'))
+
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id, first_name, email FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
+    
     if not user:
         conn.close()
         flash('If that email is registered, a reset code has been sent. Please check your inbox.', 'info')
         return redirect(url_for('login'))
+
+    # 2. Generate Code
     reset_code = f"{random.randint(0, 999999):06d}"
     expires_at = datetime.datetime.now() + datetime.timedelta(minutes=15)
+
+    # 3. Save Code sa Database
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS password_resets (
             id INT PRIMARY KEY AUTO_INCREMENT,
@@ -4002,14 +4163,21 @@ def forgot_password():
         )
     """)
     conn.commit()
+
     cursor.execute("UPDATE password_resets SET used = TRUE WHERE user_id = %s AND used = FALSE", (user['id'],))
     cursor.execute("""
         INSERT INTO password_resets (user_id, code, expires_at) VALUES (%s, %s, %s)
     """, (user['id'], reset_code, expires_at))
     conn.commit()
     conn.close()
-    session['reset_email'] = user['email']
 
+    # === IMPORTANTE: I-SAVE SA SESSION ===
+    session['reset_email'] = user['email']
+    session['reset_new_password'] = new_password
+    session['reset_user_id'] = user['id']
+    # =====================================
+
+    # 4. Send Email
     subject = "Your Password Reset Code - Barangay Sto. Nino"
     body_html = f"""
     <html><body style="font-family:Arial,sans-serif;padding:20px;">
@@ -4021,7 +4189,8 @@ def forgot_password():
     </body></html>
     """
     send_email(user['email'], subject, body_html)
-    flash('A 6-digit reset code has been sent to your email. Check your inbox (and spam folder).', 'info')
+    
+    flash('A 6-digit reset code has been sent to your email. Check your inbox.', 'info')
     return redirect(url_for('show_reset_page'))
 
 @app.route('/reset-password', methods=['GET'])
@@ -4030,26 +4199,27 @@ def show_reset_page():
 
 @app.route('/reset-password', methods=['POST'])
 def verify_reset_code():
+    # Kukunin natin ang password sa SESSION (galing sa Page 1)
     email = session.get('reset_email', '').strip()
+    user_id = session.get('reset_user_id')
+    new_password = session.get('reset_new_password')
+    
+    # CODE LANG ANG HIHINGIN SA FORM (Page 2)
     code = request.form.get('code', '').strip()
-    new_password = request.form.get('new_password', '')
-    confirm_password = request.form.get('confirm_password', '')
 
-    if not email:
-        flash('Session expired. Please enter your email again.', 'danger')
+    # Check kung may session
+    if not email or not user_id or not new_password:
+        flash('Session expired. Please enter your email and new password again.', 'danger')
         return redirect(url_for('login'))
-    if not code or not new_password or not confirm_password:
-        flash('Please fill in all fields.', 'danger')
-        return redirect(url_for('show_reset_page'))
-    if new_password != confirm_password:
-        flash('Passwords do not match.', 'danger')
-        return redirect(url_for('show_reset_page'))
-    if len(new_password) < 8:
-        flash('Password must be at least 8 characters long.', 'danger')
+
+    if not code:
+        flash('Please enter the 6-digit code.', 'danger')
         return redirect(url_for('show_reset_page'))
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
+    
+    # I-verify ang Code laban sa Database
     cursor.execute("""
         SELECT pr.*, u.email, u.first_name, u.id as uid
         FROM password_resets pr
@@ -4059,18 +4229,53 @@ def verify_reset_code():
         LIMIT 1
     """, (email, code))
     reset_record = cursor.fetchone()
+    
     if not reset_record:
         conn.close()
-        flash('Invalid or expired code. Please try again or request a new code.', 'danger')
+        flash('Invalid or expired code. Please try again.', 'danger')
         return redirect(url_for('show_reset_page'))
 
+    # Kapag tama ang code, dito pa lang natin ise-save ang NEW PASSWORD
     hashed_password = generate_password_hash(new_password)
     cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, reset_record['uid']))
     cursor.execute("UPDATE password_resets SET used = TRUE WHERE id = %s", (reset_record['id'],))
     conn.commit()
     conn.close()
-    session.pop('reset_email', None)
 
+    # Burahin ang session para hindi na magamit muli
+    session.pop('reset_email', None)
+    session.pop('reset_new_password', None)
+    session.pop('reset_user_id', None)
+
+    # Send Confirmation Email
+    subject = "Password Changed Successfully - Barangay Sto. Nino"
+    body_html = f"""
+    <html><body style="font-family:Arial,sans-serif;padding:20px;">
+        <h2>Password Changed</h2>
+        <p>Hello {reset_record['first_name']},</p>
+        <p>Your password has been successfully changed.</p>
+        <p>Date: {datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')}</p>
+        <p style="color:#ef4444;">If you did not make this change, please contact the Barangay Office immediately.</p>
+    </body></html>
+    """
+    send_email(reset_record['email'], subject, body_html)
+    
+    flash('Password reset successfully! You can now login with your new password.', 'success')
+    return redirect(url_for('login'))
+
+    # Kapag tama ang code, i-update ang password gamit ang galing sa session
+    hashed_password = generate_password_hash(new_password)
+    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, reset_record['uid']))
+    cursor.execute("UPDATE password_resets SET used = TRUE WHERE id = %s", (reset_record['id'],))
+    conn.commit()
+    conn.close()
+
+    # Burahin ang session para hindi na magamit muli
+    session.pop('reset_email', None)
+    session.pop('reset_new_password', None)
+    session.pop('reset_user_id', None)
+
+    # Send confirmation email
     subject = "Password Changed Successfully - Barangay Sto. Nino"
     body_html = f"""
     <html><body style="font-family:Arial,sans-serif;padding:20px;">
@@ -4088,5 +4293,126 @@ def verify_reset_code():
 # ============================================================
 # MAIN
 # ============================================================
+
+
+# ============================================================
+# CHANGE PASSWORD OTP (PARA SA SETTINGS PAGE LANG)
+# ============================================================
+
+# Dictionary para i-save temporarily ang OTP para sa change password
+settings_otp_storage = {}
+
+@app.route('/api/settings/send-otp', methods=['POST'])
+def settings_send_otp():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    data = request.json
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({'success': False, 'error': 'Email is required'}), 400
+
+    # Gumawa ng 6-digit random code
+    otp = f"{random.randint(0, 999999):06d}"
+    
+    # I-save sa temporary storage
+    settings_otp_storage[session['user_id']] = otp
+
+    # Ipadala gamit ang existing send_email function mo
+    subject = "Your Password Change OTP - Barangay Sto. Nino"
+    body_html = f"""
+    <html><body style="font-family:Arial,sans-serif;padding:20px;">
+        <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;">
+            <h2 style="color:#0f3d2a;">Password Change Request</h2>
+            <p>Hello,</p>
+            <p>You requested to change your password for Barangay Sto. Nino Online Services.</p>
+            <p>Your 6-digit OTP code is:</p>
+            <h1 style="font-size:42px;letter-spacing:12px;font-family:'Courier New',monospace;color:#0f3d2a;text-align:center;">{otp}</h1>
+            <p>This code is valid for 15 minutes.</p>
+            <p style="color:#ef4444;">If you did not request this, please ignore this email.</p>
+        </div>
+    </body></html>
+    """
+    
+    if send_email(email, subject, body_html):
+        return jsonify({'success': True, 'message': 'OTP sent successfully'})
+    else:
+        # Fallback kung walang internet/SMTP (Para maka-test ka pa rin)
+        print(f"🔑 DEBUG OTP for {email}: {otp}")
+        return jsonify({'success': True, 'message': 'OTP generated (check terminal)'})
+
+@app.route('/api/settings/verify-otp', methods=['POST'])
+def settings_verify_otp():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    data = request.json
+    user_otp = data.get('otp')
+    
+    saved_otp = settings_otp_storage.get(session['user_id'])
+
+    if saved_otp and saved_otp == user_otp:
+        # Burahin pagkatapos magamit
+        del settings_otp_storage[session['user_id']] 
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': 'Invalid OTP'}), 400
+
+# ============================================================
+# UPDATE PROFILE OTP SYSTEM
+# ============================================================
+
+update_profile_otps = {}
+
+@app.route('/api/profile/send-otp', methods=['POST'])
+def profile_send_otp():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    data = request.json
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({'success': False, 'error': 'Email is required'}), 400
+
+    otp = f"{random.randint(0, 999999):06d}"
+    update_profile_otps[session['user_id']] = otp
+
+    subject = "Profile Update Verification Code - Barangay Sto. Nino"
+    body_html = f"""
+    <html><body style="font-family:Arial,sans-serif;padding:20px;">
+        <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;">
+            <h2 style="color:#0f3d2a;">Profile Update Request</h2>
+            <p>Hello,</p>
+            <p>You requested to update your profile information. To verify, please enter this 6-digit code:</p>
+            <h1 style="font-size:42px;letter-spacing:12px;font-family:'Courier New',monospace;color:#0f3d2a;text-align:center;">{otp}</h1>
+            <p>This code is valid for 15 minutes.</p>
+        </div>
+    </body></html>
+    """
+    
+    if send_email(email, subject, body_html):
+        return jsonify({'success': True, 'message': 'OTP sent successfully'})
+    else:
+        print(f"🔑 DEBUG OTP for Profile Update {email}: {otp}")
+        return jsonify({'success': True, 'message': 'OTP generated (check terminal)'})
+
+@app.route('/api/profile/verify-otp', methods=['POST'])
+def profile_verify_otp():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    data = request.json
+    user_otp = data.get('otp')
+    
+    saved_otp = update_profile_otps.get(session['user_id'])
+
+    if saved_otp and saved_otp == user_otp:
+        del update_profile_otps[session['user_id']] 
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': 'Invalid OTP'}), 400
+    
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False)

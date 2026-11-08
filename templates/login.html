@@ -109,7 +109,6 @@
             margin-bottom: 32px; 
         }
         .logo-img {
-            /* === BINAGO: Pinalaki mula 80px to 120px === */
             width: 120px; 
             height: 120px; 
             border-radius: 50%; 
@@ -592,20 +591,7 @@
                 <p>Enter your credentials to continue</p>
             </div>
 
-            <!-- FLASH MESSAGES -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-msg-inline {{ category }}">
-                            {% if category == 'success' %}<i class="fas fa-check-circle"></i>
-                            {% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>
-                            {% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
-                            {% else %}<i class="fas fa-info-circle"></i>{% endif %}
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+
 
             <!-- ===== SIGN IN SECTION ===== -->
             <div id="signInSection">
@@ -709,27 +695,68 @@
                 </div>
             </div>
 
-            <!-- ===== RESET PASSWORD SECTION ===== -->
+            <!-- ===== RESET PASSWORD SECTION (PAGE 1) ===== -->
             <div id="resetFormSection">
                 <div class="reset-header">
                     <div class="reset-icon">
                         <i class="fas fa-key"></i>
                     </div>
                     <h2>Reset Password</h2>
-                    <p>Enter your current password and new password</p>
+                    <p>Enter your email and new password</p>
                 </div>
 
                 <form method="POST" action="{{ url_for('forgot_password') }}" id="resetPasswordForm">
+                    
+                    <!-- EMAIL INPUT -->
                     <div class="input-group">
                         <label for="resetEmail"><i class="fas fa-envelope"></i> Email Address</label>
                         <input type="email" name="email" id="resetEmail" placeholder="Enter your registered email" required>
+                        <div id="emailError" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i> <span>Please enter a valid email address.</span>
+                        </div>
                     </div>
 
                     <p style="color: #64748b; font-size: 13px; text-align: center; margin: 15px 0;">
-                        We'll send a 6-digit reset code to your email. You'll enter it on the next page along with your new password.
+                        Enter your new password below. Make sure it's strong and secure.
                     </p>
 
-                    <button type="submit" class="btn-submit">
+                    <!-- NEW PASSWORD INPUT -->
+                    <div class="input-group">
+                        <label for="newPassword"><i class="fas fa-lock"></i> New Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" name="new_password" id="newPassword" placeholder="Enter new password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('newPassword', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                        
+                        <!-- Password Strength Meter -->
+                        <div id="strengthMeter" style="margin-top: 8px; height: 5px; background: #e2e8f0; border-radius: 5px; overflow: hidden; display: none;">
+                            <div id="strengthBar" style="height: 100%; width: 0; transition: all 0.3s ease;"></div>
+                        </div>
+                        <div id="strengthText" style="font-size: 12px; margin-top: 4px; font-weight: 600; display: none;"></div>
+
+                        <!-- Validation Checklist -->
+                        <div id="passwordRequirements" style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-top: 10px; display: none; font-size: 12px; color: #64748b; border: 1px solid #e2e8f0;">
+                            <div id="req-length" style="margin-bottom: 4px;"><i class="fas fa-circle" style="font-size: 6px; margin-right: 6px;"></i> At least 8 characters</div>
+                            <div id="req-upper" style="margin-bottom: 4px;"><i class="fas fa-circle" style="font-size: 6px; margin-right: 6px;"></i> At least 1 uppercase letter</div>
+                            <div id="req-lower" style="margin-bottom: 4px;"><i class="fas fa-circle" style="font-size: 6px; margin-right: 6px;"></i> At least 1 lowercase letter</div>
+                            <div id="req-number" style="margin-bottom: 4px;"><i class="fas fa-circle" style="font-size: 6px; margin-right: 6px;"></i> At least 1 number</div>
+                            <div id="req-special"><i class="fas fa-circle" style="font-size: 6px; margin-right: 6px;"></i> At least 1 special character (!@#$%^&*)</div>
+                        </div>
+                    </div>
+
+                    <!-- CONFIRM PASSWORD INPUT -->
+                    <div class="input-group">
+                        <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm New Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" name="confirm_password" id="confirmPassword" placeholder="Re-enter new password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                        <div id="confirmError" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i> <span>Passwords do not match.</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="resetSubmitBtn">
                         <i class="fas fa-paper-plane"></i> Send Reset Code
                     </button>
                 </form>
@@ -865,6 +892,158 @@
                 input.type = 'password';
                 btn.innerHTML = '<i class="fas fa-eye"></i>';
             }
+        }
+
+        // ===== RESET PASSWORD VALIDATION =====
+        const resetEmailInput = document.getElementById('resetEmail');
+        const emailError = document.getElementById('emailError');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const reqBox = document.getElementById('passwordRequirements');
+        const strengthMeter = document.getElementById('strengthMeter');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        const confirmError = document.getElementById('confirmError');
+
+        // Email validation function
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // Email live validation
+        if (resetEmailInput) {
+            resetEmailInput.addEventListener('input', function() {
+                if (this.value === '') {
+                    this.classList.remove('input-error');
+                    emailError.style.display = 'none';
+                } else if (!validateEmail(this.value)) {
+                    this.classList.add('input-error');
+                    emailError.style.display = 'flex';
+                } else {
+                    this.classList.remove('input-error');
+                    emailError.style.display = 'none';
+                }
+            });
+        }
+
+        // Password focus - show requirements
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('focus', () => {
+                reqBox.style.display = 'block';
+                strengthMeter.style.display = 'block';
+                strengthText.style.display = 'block';
+            });
+
+            newPasswordInput.addEventListener('input', function() {
+                const val = this.value;
+                
+                const hasLength = val.length >= 8;
+                const hasUpper = /[A-Z]/.test(val);
+                const hasLower = /[a-z]/.test(val);
+                const hasNumber = /[0-9]/.test(val);
+                const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+
+                updateReq('req-length', hasLength);
+                updateReq('req-upper', hasUpper);
+                updateReq('req-lower', hasLower);
+                updateReq('req-number', hasNumber);
+                updateReq('req-special', hasSpecial);
+
+                let strength = 0;
+                if (hasLength) strength++;
+                if (hasUpper) strength++;
+                if (hasLower) strength++;
+                if (hasNumber) strength++;
+                if (hasSpecial) strength++;
+
+                const percent = (strength / 5) * 100;
+                strengthBar.style.width = percent + '%';
+                
+                if (strength <= 2) {
+                    strengthBar.style.backgroundColor = '#ef4444';
+                    strengthText.innerText = 'Weak Password';
+                    strengthText.style.color = '#ef4444';
+                } else if (strength === 3 || strength === 4) {
+                    strengthBar.style.backgroundColor = '#f59e0b';
+                    strengthText.innerText = 'Good Password';
+                    strengthText.style.color = '#f59e0b';
+                } else {
+                    strengthBar.style.backgroundColor = '#22c55e';
+                    strengthText.innerText = 'Strong Password';
+                    strengthText.style.color = '#22c55e';
+                }
+
+                if (confirmPasswordInput.value !== '') checkMatch();
+            });
+        }
+
+        function updateReq(id, isValid) {
+            const el = document.getElementById(id);
+            const icon = el.querySelector('i');
+            if (isValid) {
+                el.style.color = '#22c55e';
+                icon.className = 'fas fa-check-circle';
+                icon.style.fontSize = '12px';
+            } else {
+                el.style.color = '#64748b';
+                icon.className = 'fas fa-circle';
+                icon.style.fontSize = '6px';
+            }
+        }
+
+        // Confirm password match
+        function checkMatch() {
+            if (newPasswordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('input-error');
+                confirmError.style.display = 'flex';
+                return false;
+            } else {
+                confirmPasswordInput.classList.remove('input-error');
+                confirmError.style.display = 'none';
+                return true;
+            }
+        }
+
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', checkMatch);
+        }
+
+        // Form submit guard
+        const resetForm = document.getElementById('resetPasswordForm');
+        if (resetForm) {
+            resetForm.addEventListener('submit', function(e) {
+                // Check email
+                if (!validateEmail(resetEmailInput.value)) {
+                    e.preventDefault(); 
+                    resetEmailInput.classList.add('input-error');
+                    emailError.style.display = 'flex';
+                    resetEmailInput.focus();
+                    return;
+                }
+
+                // Check password requirements
+                const val = newPasswordInput.value;
+                const hasLength = val.length >= 8;
+                const hasUpper = /[A-Z]/.test(val);
+                const hasLower = /[a-z]/.test(val);
+                const hasNumber = /[0-9]/.test(val);
+                const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+                
+                if (!hasLength || !hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+                    e.preventDefault();
+                    alert('Please make sure your password meets all the requirements.');
+                    newPasswordInput.focus();
+                    return;
+                }
+
+                // Check confirm password match
+                if (!checkMatch()) {
+                    e.preventDefault();
+                    confirmPasswordInput.focus();
+                    return;
+                }
+            });
         }
     </script>
 
