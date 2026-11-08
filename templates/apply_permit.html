@@ -2421,20 +2421,20 @@
 
     </aside>
 
-    <div class="notif-panel" id="notifPanel">
+        <div class="notif-panel" id="notifPanel">
         <div class="notif-header">
             <div class="bell-dropdown-header-left">
-                <i class="fas fa-bullhorn"></i> Recent Announcements
+                <i class="fas fa-bullhorn"></i> <span data-translate="recent_announcements">Recent Announcements</span>
             </div>
             <button class="mark-all-btn" id="markAllReadBtn" onclick="markAllAsRead(event)">
-                <i class="fas fa-check-double"></i> Mark all
+                <i class="fas fa-check-double"></i> <span id="markAllText" data-translate="mark_all">Mark all</span>
             </button>
         </div>
         <div class="notif-body" id="notifList">
-            <div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+            <div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> <span data-translate="loading">Loading...</span></div>
         </div>
         <a href="{{ url_for('user_announcements') }}" class="notif-footer">
-            View All Announcements <i class="fas fa-arrow-right"></i>
+            <span data-translate="view_all_announcements">View All Announcements</span> <i class="fas fa-arrow-right"></i>
         </a>
     </div>
 
@@ -2491,11 +2491,11 @@
             </div>
         </div>
 
-        <div class="banner">
+              <div class="banner">
             <i class="fas fa-clock"></i>
             <div class="banner-content">
-                <h4>⚠️ Important: Apply 10 Days Before Event</h4>
-                <p>Please submit your application at least <strong>10 days</strong> before the event date to allow proper processing and review by the Barangay staff.</p>
+                <h4 data-translate="apply_10_days">⚠️ Important: Apply 10 Days Before Event</h4>
+                <p data-translate="apply_10_days_desc">Please submit your application at least 10 days before the event date to allow proper processing and review by the Barangay staff.</p>
             </div>
         </div>
 
@@ -2674,11 +2674,11 @@
 
     <div id="permitModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
+                       <div class="modal-header">
                 <button class="close-modal-btn" onclick="closeModal()">&times;</button>
                 <i class="fas fa-check-circle"></i>
-                <h2>Permit Submitted!</h2>
-                <p>Your application has been received</p>
+                <h2 data-translate="permit_submitted">Permit Submitted!</h2>
+                <p data-translate="permit_received">Your application has been received</p>
             </div>
             <div class="modal-body">
                 
@@ -2689,59 +2689,58 @@
                         <p id="modalWarningText" style="margin: 0; color: #78350f; font-size: 13px; line-height: 1.6;"></p>
                     </div>
                 </div>
-
                 <div class="reference-number-box">
-                    <p><i class="fas fa-qrcode"></i> Reference Number</p>
+                    <p><i class="fas fa-qrcode"></i> <span data-translate="reference_number">Reference Number</span></p>
                     <h3 id="refNumberDisplay">BP-20260903-XXXX</h3>
                     <div class="queuing-badge" id="queuingBadge">Queue #001</div>
-                    <p class="save-hint">Please save this number for tracking</p>
+                                        <p class="save-hint" data-translate="please_save_number">Please save this number for tracking</p>
                 </div>
 
                 <div class="permit-details-grid" id="permitDetailsGrid">
-                    <div class="detail-item">
+                                        <div class="detail-item">
                         <i class="fas fa-tag"></i>
-                        <span class="label">Event:</span>
+                        <span class="label" data-translate="event_label">Event:</span>
                         <span class="value" id="modalEventName">N/A</span>
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-calendar-day"></i>
-                        <span class="label">Date:</span>
+                        <span class="label" data-translate="date_label">Date:</span>
                         <span class="value" id="modalEventDate">N/A</span>
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-clock"></i>
-                        <span class="label">Time:</span>
+                        <span class="label" data-translate="time_label_modal">Time:</span>
                         <span class="value" id="modalEventTime">N/A</span>
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span class="label">Venue:</span>
+                        <span class="label" data-translate="venue_label_modal">Venue:</span>
                         <span class="value" id="modalVenue">N/A</span>
                     </div>
                     <div class="detail-item" style="grid-column: 1 / -1;">
                         <i class="fas fa-info-circle"></i>
-                        <span class="label">Status:</span>
-                        <span class="value"><span class="status-badge-pending">Pending Review</span></span>
+                        <span class="label" data-translate="status_label">Status:</span>
+                        <span class="value"><span class="status-badge-pending" data-translate="pending">Pending Review</span></span>
                     </div>
                 </div>
 
-                <div class="waiting-banner">
+                                <div class="waiting-banner">
                     <i class="fas fa-hourglass-half"></i>
                     <div class="waiting-banner-content">
-                        <h4>Please Wait</h4>
-                        <p>Your permit is now <strong>PENDING</strong>. Please allow <strong>24 hours</strong> for the Barangay staff to review and approve your application.</p>
+                        <h4 data-translate="please_wait">Please Wait</h4>
+                        <p><span data-translate="permit_pending_desc">Your permit is now</span> <strong>PINOPROSESO</strong>. <span data-translate="permit_pending_desc_2">Please allow 24 hours for the Barangay staff to review and approve your application.</span></p>
                     </div>
                 </div>
-                <p style="text-align: center; font-size: 13px; color: var(--neutral-500); margin-top: 8px;">
-                    <i class="fas fa-clock"></i> You will receive a notification once your permit status is updated.
+                                <p style="text-align: center; font-size: 13px; color: var(--neutral-500); margin-top: 8px;">
+                    <i class="fas fa-clock"></i> <span data-translate="notification_ready_permit">You will receive a notification once your permit status is updated.</span>
                 </p>
             </div>
-            <div class="modal-footer">
+                       <div class="modal-footer">
                 <a href="/my-requests" class="modal-btn primary">
-                    <i class="fas fa-search"></i> Track Status
+                    <i class="fas fa-search"></i> <span data-translate="track_status">Track Status</span>
                 </a>
                 <button onclick="closeModal()" class="modal-btn secondary">
-                    <i class="fas fa-plus"></i> Submit Another
+                    <i class="fas fa-plus"></i> <span data-translate="submit_another">Submit Another</span>
                 </button>
             </div>
         </div>
@@ -3162,10 +3161,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             badge.style.display = 'none';
                             badge.textContent = '0';
                         }
+                                              const btn = document.getElementById('markAllReadBtn');
+                        const lang = localStorage.getItem('language') || 'en';
+                        const allReadText = lang === 'tl' ? 'Nabasa na lahat' : 'All Read';
                         
-                        const btn = document.getElementById('markAllReadBtn');
                         if (btn) {
-                            btn.innerHTML = '<i class="fas fa-check"></i> All Read';
+                            btn.innerHTML = '<i class="fas fa-check"></i> ' + allReadText;
                             btn.style.opacity = '0.6';
                             btn.disabled = true;
                         }
@@ -3176,19 +3177,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(err => console.error('Mark all read error:', err));
         }
 
-        // ===== LOAD RECENT ANNOUNCEMENTS =====
-        function loadRecentAnnouncements() {
+             function loadRecentAnnouncements() {
             var list = document.getElementById('notifList');
-            list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            var lang = localStorage.getItem('language') || 'en'; 
+            
+            var loadingText = lang === 'tl' ? 'Naglo-load...' : 'Loading...';
+            list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> ' + loadingText + '</div>';
             
             fetch('/api/announcements/recent?limit=5')
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
                     if (!data.announcements || data.announcements.length === 0) {
-                        list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                        var emptyText = lang === 'tl' ? 'Walang kamakailang anunsyo' : 'No recent announcements';
+                        list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>' + emptyText + '</div></div>';
                         return;
                     }
-                    
                     var html = '';
                     data.announcements.forEach(function(a) {
                         var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
@@ -3461,39 +3464,90 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            document.getElementById('submitBtn').addEventListener('click', function(e) {
             e.preventDefault();
 
             const form = document.getElementById('permitForm') || document.querySelector('form');
+            const submitBtn = this;
+            const lang = localStorage.getItem('language') || 'en';
+            const statusDiv = document.getElementById('availabilityStatus');
+
+            function resetSubmitBtn() {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${lang === 'tl' ? 'I-submit ang Aplikasyon' : 'Submit Application'}`;
+            }
+
+            form.querySelectorAll('input, textarea, select').forEach(field => {
+                field.style.borderColor = '';
+                field.classList.remove('error');
+            });
+            
+            let isValid = true;
+            let firstErrorField = null;
+            
+            form.querySelectorAll('[required]').forEach(field => {
+                if (field.type === 'hidden') return;
+                
+                const value = field.value.trim();
+                if (!value) {
+                    field.style.borderColor = '#dc3545';
+                    field.classList.add('error');
+                    if (!firstErrorField) firstErrorField = field;
+                    isValid = false;
+                }
+            });
+            
+            document.querySelectorAll('.custom-select').forEach(customSelect => {
+                const hiddenInput = customSelect.querySelector('input[type="hidden"]');
+                if (hiddenInput && hiddenInput.required && !hiddenInput.value) {
+                    customSelect.querySelector('.custom-select-trigger').style.borderColor = '#dc3545';
+                    if (!firstErrorField) firstErrorField = customSelect;
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                alert(lang === 'tl' 
+                    ? 'Mangyaring punan ang lahat ng kinakailangang field (may markang *).' 
+                    : 'Please fill in all required fields (marked with *).');
+                resetSubmitBtn();
+                if (firstErrorField) {
+                    firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstErrorField.focus();
+                }
+                return;
+            }
 
             if (!validateTimeRange()) {
-                alert('Please fix the time errors.');
+                alert(lang === 'tl' ? 'Mangyaring ayusin ang error sa oras.' : 'Please fix the time errors.');
+                resetSubmitBtn();
                 return;
             }
 
             const attendeesVal = parseInt(attendeesInput.value, 10);
             if (!attendeesInput.value || isNaN(attendeesVal) || attendeesVal < 1 || attendeesVal > 300) {
-                alert('Please enter a valid number of estimated attendees (1–300).');
+                alert(lang === 'tl' ? 'Mangyaring maglagay ng tamang bilang ng dadalo (1–300).' : 'Please enter a valid number of estimated attendees (1–300).');
                 attendeesInput.focus();
+                resetSubmitBtn();
                 return;
             }
 
             if (!document.getElementById('termsCheckbox').checked) {
-                alert('Please agree to the Terms and Conditions before submitting.');
+                alert(lang === 'tl' ? 'Mangyaring sumang-ayon sa Mga Tuntunin at Kundisyon bago mag-submit.' : 'Please agree to the Terms and Conditions before submitting.');
                 document.getElementById('termsCheckboxWrapper').classList.add('error');
                 document.getElementById('termsErrorMsg').classList.add('visible');
+                resetSubmitBtn();
                 return;
             }
 
-            const statusDiv = document.getElementById('availabilityStatus');
             if (statusDiv.classList.contains('unavailable')) {
-                alert('This time slot is not available. Please check the availability first.');
+                alert(lang === 'tl' ? 'Hindi available ang slot na ito. Pakisuri muna ang availability.' : 'This time slot is not available. Please check the availability first.');
+                resetSubmitBtn();
                 return;
             }
 
-            const submitBtn = this;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${lang === 'tl' ? 'Isinusubmit...' : 'Submitting...'}`;
 
             const formData = new FormData(form);
 
@@ -3533,51 +3587,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     alert('Error: ' + (data.error || 'Unknown error'));
                 }
-
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+                resetSubmitBtn();
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error: ' + error.message);
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+                resetSubmitBtn();
             });
         });
-               document.getElementById('clearBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to clear all fields?')) {
-                const form = document.querySelector('form');
-                form.reset();
-                document.getElementById('availabilityStatus').className = 'availability-status';
-                document.getElementById('availabilityStatus').style.display = 'none';
-                document.getElementById('termsCheckbox').checked = false;
-                document.getElementById('termsCheckboxWrapper').classList.remove('error');
-                document.getElementById('termsErrorMsg').classList.remove('visible');
-                document.getElementById('estimatedAttendees').classList.remove('error');
-                document.getElementById('startTime').classList.remove('error');
-                document.getElementById('endTime').classList.remove('error');
-                
-                document.getElementById('eventDateDisplay').value = '';
-                document.getElementById('eventDate').value = '';
-
-                resetCustomSelects();
-                if (termsOpen) toggleTerms();
-
-                const today = new Date();
-                const minDate = new Date(today);
-                minDate.setDate(today.getDate() + 10);
-                document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
-            }
-        });
-        
-        setTimeout(function() {
-            document.querySelectorAll('.flash-message').forEach(function(msg) {
-                msg.style.transition = 'opacity 0.5s ease';
-                msg.style.opacity = '0';
-                setTimeout(function() { msg.remove(); }, 500);
-            });
-        }, 5000);
 
                
 

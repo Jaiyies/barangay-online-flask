@@ -1660,11 +1660,18 @@
             color: var(--primary-500);
             width: 16px; font-size: 13px;
         }
-        .doc-details-grid .detail-item .label {
+              .doc-details-grid .detail-item .label {
             font-weight: 600; color: var(--neutral-500);
-            font-size: 11px; min-width: 60px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.03em;
+            margin-right: 6px; /* Ito ang magbibigay ng espasyo */
+            flex-shrink: 0;
+        }
+        
+        .doc-details-grid .detail-item .value {
+            font-weight: 600; color: var(--primary-800);
+            word-break: break-word; /* Para hindi lumabas sa box kung mahaba */
         }
         .doc-details-grid .detail-item .value {
             font-weight: 600; color: var(--primary-800);
@@ -2148,14 +2155,13 @@
 
         </div>
 
-        <div class="banner">
+                <div class="banner">
             <i class="fas fa-clock"></i>
             <div class="banner-content">
-                <h4>⚠️ Important: Please Complete All Required Fields</h4>
-                <p>Make sure to fill in all information marked with <strong>*</strong> and upload the required signature before submitting.</p>
+                <h4 data-translate="important_complete_fields">⚠️ Important: Please Complete All Required Fields</h4>
+                <p data-translate="complete_fields_desc">Make sure to fill in all information marked with <strong>*</strong> and upload the required signature before submitting.</p>
             </div>
         </div>
-
         
 
         <div class="card">
@@ -2478,8 +2484,8 @@
                 <div class="icon-circle">
                     <i class="fas fa-check"></i>
                 </div>
-                <h2>Request Submitted!</h2>
-                <p>Your document request has been received</p>
+                              <h2 data-translate="request_submitted">Request Submitted!</h2>
+                <p data-translate="request_received">Your document request has been received</p>
             </div>
             
             <div class="modal-body">
@@ -2489,7 +2495,7 @@
                     
                     <!-- KALIWA: Reference Number -->
                     <div>
-                        <div class="ref-label" style="font-size: 10px;"><i class="fas fa-qrcode"></i> Reference Number</div>
+                                            <div class="ref-label" style="font-size: 10px;"><i class="fas fa-qrcode"></i> <span data-translate="reference_number">Reference Number</span></div>
                         <div class="ref-number" id="modalRefNumber" style="font-size: 20px; margin: 2px 0;">DOC-20260905-XXXX</div>
                         <span class="ref-badge" id="modalQueueBadge" style="font-size: 10px;">Queue #001</span>
                     </div>
@@ -2501,52 +2507,51 @@
 
                 </div>
 
-                <div class="doc-details-grid" id="modalDetailsGrid">
+                               <div class="doc-details-grid" id="modalDetailsGrid">
                     <div class="detail-item">
                         <i class="fas fa-file-alt"></i>
-                        <span class="label">Document:</span>
+                        <span class="label" data-translate="document_label">Document:</span>
                         <span class="value" id="modalDocType">N/A</span>
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-user"></i>
-                        <span class="label">Applicant:</span>
+                        <span class="label" data-translate="applicant_label">Applicant:</span>
                         <span class="value" id="modalApplicant">N/A</span>
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-calendar-day"></i>
-                        <span class="label">Date:</span>
+                        <span class="label" data-translate="date_label">Date:</span>
                         <span class="value" id="modalDate">N/A</span>
                     </div>
                     <div class="detail-item" style="border-bottom: none;">
                         <i class="fas fa-info-circle"></i>
-                        <span class="label">Status:</span>
-                        <span class="value"><span class="status-badge">Pending Review</span></span>
+                        <span class="label" data-translate="status_label">Status:</span>
+                        <span class="value"><span class="status-badge" data-translate="pending">Pending Review</span></span>
                     </div>
                 </div>
-
                 <!-- BAGONG TEXT SA ILALIM -->
-                <p style="text-align:center; font-size:11px; color:#64748b; margin-top: 10px; margin-bottom: 15px; font-weight: 500;">
+                              <p style="text-align:center; font-size:11px; color:#64748b; margin-top: 10px; margin-bottom: 15px; font-weight: 500;">
                     <i class="fas fa-info-circle" style="color: #228b54;"></i> 
-                    Show this QR code to Barangay personnel for faster transaction.
+                    <span data-translate="show_qr_code">Show this QR code to Barangay personnel for faster transaction.</span>
                 </p>
 
                 <div class="waiting-banner-modal">
                     <i class="fas fa-hourglass-half"></i>
-                    <div class="waiting-text">
-                        <h4>Please Wait</h4>
-                        <p>Your request is now <strong>PENDING</strong>. Please allow <strong>1-2 business days</strong> for processing.</p>
+                                    <div class="waiting-text">
+                        <h4 data-translate="please_wait">Please Wait</h4>
+                        <p><span data-translate="request_pending_desc">Your request is now</span> <strong>PINOPROSESO</strong>. <span data-translate="request_pending_desc_2">Please allow 1-2 business days for processing.</span></p>
                     </div>
                 </div>
-                <p style="text-align:center;font-size:12px;color:var(--neutral-500);margin-top:12px;">
-                    <i class="fas fa-bell"></i> You will receive a notification once your document is ready.
+                               <p style="text-align:center;font-size:12px;color:var(--neutral-500);margin-top:12px;">
+                    <i class="fas fa-bell"></i> <span data-translate="notification_ready">You will receive a notification once your document is ready.</span>
                 </p>
             </div>
             <div class="modal-footer-actions">
-                <a href="{{ url_for('my_requests') }}" class="modal-btn primary">
-                    <i class="fas fa-search"></i> Track Status
+                               <a href="{{ url_for('my_requests') }}" class="modal-btn primary">
+                    <i class="fas fa-search"></i> <span data-translate="track_status">Track Status</span>
                 </a>
                 <button onclick="closeSuccessModal()" class="modal-btn secondary">
-                    <i class="fas fa-plus"></i> Request Another
+                    <i class="fas fa-plus"></i> <span data-translate="request_another">Request Another</span>
                 </button>
             </div>
         </div>
@@ -2886,15 +2891,13 @@
         document.getElementById('notifPanel')?.addEventListener('click', function(e) {
             e.stopPropagation();
         });
-
         document.addEventListener('DOMContentLoaded', function() {
             const savedLang = localStorage.getItem('language') || 'en';
-            document.getElementById('currentLangText').textContent = savedLang === 'tl' ? 'Tagalog' : 'English';
-            if (savedLang === 'tl') {
-                applyTranslation('tl');
+            const langTextEl = document.getElementById('currentLangText');
+            if (langTextEl) {
+                langTextEl.textContent = savedLang === 'tl' ? 'Tagalog' : 'English';
             }
         });
-
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const fileUploadArea = document.getElementById('fileUploadArea');
@@ -2979,10 +2982,11 @@
                 closeSuccessModal();
             }
         });
-
         document.getElementById('clearBtn').addEventListener('click', function(e) {
             e.preventDefault();
-            if (confirm('Are you sure you want to clear all fields?')) {
+            const lang = localStorage.getItem('language') || 'en';
+            const confirmMsg = lang === 'tl' ? 'Sigurado ka bang gusto mong burahin ang lahat ng field?' : 'Are you sure you want to clear all fields?';
+            if (confirm(confirmMsg)) {
                 const form = document.getElementById('clearanceForm');
                 form.reset();
                 fileList.innerHTML = '';
@@ -3025,40 +3029,50 @@
             });
         }, 5000);
 
-        document.getElementById('clearanceForm').addEventListener('submit', function(e) {
+               document.getElementById('clearanceForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const required = this.querySelectorAll('[required]');
+            const form = this;
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const currentLang = localStorage.getItem('language') || 'en';
+            
+            function resetSubmitBtn() {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${currentLang === 'tl' ? 'I-submit ang Request' : 'Submit Request'}`;
+            }
+
+            form.querySelectorAll('input, textarea, select').forEach(f => f.style.borderColor = '');
+            form.querySelectorAll('.custom-select-trigger').forEach(t => t.style.borderColor = '');
+            
             let valid = true;
-            required.forEach(field => {
+            let firstError = null;
+
+            form.querySelectorAll('[required]').forEach(field => {
                 if (field.type === 'checkbox') {
                     if (!field.checked) {
                         field.style.outline = '2px solid #dc3545';
+                        if (!firstError) firstError = field;
                         valid = false;
                     } else {
                         field.style.outline = 'none';
                     }
                     return;
                 }
+                
+                if (field.type === 'hidden') {
+                    if (!field.value || !field.value.trim()) {
+                        const cs = field.closest('.custom-select');
+                        if (cs) cs.querySelector('.custom-select-trigger').style.borderColor = '#dc3545';
+                        if (!firstError) firstError = cs;
+                        valid = false;
+                    }
+                    return;
+                }
+                
                 if (!field.value || !field.value.trim()) {
-                    if (field.tagName === 'INPUT' && field.type === 'hidden') {
-                        const customSelect = field.closest('.custom-select');
-                        if (customSelect) {
-                            customSelect.querySelector('.custom-select-trigger').style.borderColor = '#dc3545';
-                        }
-                    } else {
-                        field.style.borderColor = '#dc3545';
-                    }
+                    field.style.borderColor = '#dc3545';
+                    if (!firstError) firstError = field;
                     valid = false;
-                } else {
-                    if (field.tagName === 'INPUT' && field.type === 'hidden') {
-                        const customSelect = field.closest('.custom-select');
-                        if (customSelect) {
-                            customSelect.querySelector('.custom-select-trigger').style.borderColor = '#1a6b42';
-                        }
-                    } else {
-                        field.style.borderColor = '#1a6b42';
-                    }
                 }
             });
 
@@ -3066,21 +3080,26 @@
             if (docType === 'proof_residency') {
                 if (fileInput.files.length === 0) {
                     fileUploadArea.style.borderColor = '#dc3545';
+                    if (!firstError) firstError = fileUploadArea;
                     valid = false;
-                } else {
-                    fileUploadArea.style.borderColor = '#1a6b42';
                 }
             }
 
             if (!valid) {
-                alert('Please fill in all required fields (marked with *) and upload the signature.');
+                alert(currentLang === 'tl' 
+                    ? 'Mangyaring punan ang lahat ng kinakailangang field (may markang *) at i-upload ang lagda.' 
+                    : 'Please fill in all required fields (marked with *) and upload the signature.');
+                resetSubmitBtn();
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (firstError.focus) firstError.focus();
+                }
                 return;
             }
 
-            const submitBtn = document.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'tl' ? 'Isinusubmit...' : 'Submitting...'}`;
+            
             const formData = new FormData(this);
 
             fetch('/submit-document-request', {
@@ -3125,21 +3144,15 @@
                     document.querySelectorAll('input, textarea').forEach(f => {
                         f.style.borderColor = '#dde8e1';
                     });
-
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
-
                 } else {
-                    alert('Error: ' + (data.error || 'Unknown error'));
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+                    alert((currentLang === 'tl' ? 'Error: ' : 'Error: ') + (data.error || 'Unknown error'));
                 }
+                resetSubmitBtn();
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Network error: ' + error);
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+                alert((currentLang === 'tl' ? 'Network error: ' : 'Network error: ') + error);
+                resetSubmitBtn();
             });
         });
 

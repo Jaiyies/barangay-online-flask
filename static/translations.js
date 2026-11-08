@@ -19,6 +19,7 @@ const globalTranslations = {
         'track_requests_desc': 'Check status of applications',
         'barangay_map': 'Barangay Map',
         'barangay_map_desc': 'Locate health centers, evacuation sites',
+        'welcome_back': 'Welcome back',
 
         // About Us Page
         'about_subtitle': 'Get to know your Barangay Sto. Niño Online Services Portal',
@@ -43,7 +44,7 @@ const globalTranslations = {
         'email': 'Email',
         'phone': 'Phone',
         'office_hours': 'Office Hours',
-        'office_hours_value': 'Mon - Fri: 8:00 AM - 5:00 PM', // DAGDAG PARA SA ORAS
+        'office_hours_value': 'Mon - Fri: 8:00 AM - 5:00 PM',
         
         // FAQs Page
         'faq_title': 'Frequently Asked Questions',
@@ -235,8 +236,153 @@ const globalTranslations = {
         'no_announcements': 'No Announcements Yet',
         'no_announcements_desc': "Wala pang announcement na na-post.",
 
-        // ===== DAGDAG PARA SA ROLE (RESIDENT) =====
-        'resident': 'Resident'
+                // Dagdag para sa Notification Panel
+        'recent_announcements': 'Recent Announcements',
+        'mark_all': 'Mark all',
+        'no_recent_announcements': 'No recent announcements',
+        'loading': 'Loading...',
+        'all_read': 'All Read',
+
+        // Role
+        'resident': 'Resident',
+
+        // Form Placeholders & Modal Texts
+        'select_doc_placeholder': '-- Select Document Type --',
+        'surname_placeholder': 'Surname',
+        'given_name_placeholder': 'Given Name',
+        'middle_name_placeholder': 'Middle Name',
+        'complete_address_placeholder': 'Complete Address',
+        'phone_placeholder': '09XXXXXXXXX',
+        'age_placeholder': 'Age',
+        'precinct_placeholder': 'Precinct No.',
+        'pob_placeholder': 'Place of Birth',
+        'length_stay_placeholder': 'e.g. 5 years',
+        'occupation_placeholder': 'Occupation',
+        'property_deed_placeholder': 'Name on Property Deed',
+        'owner_address_placeholder': 'Address of Owner',
+        'select_date_placeholder': 'Select a date...',
+        'select_venue_placeholder': 'Select a venue...',
+        'attendees_placeholder': 'e.g., 100',
+        'event_name_placeholder': 'e.g., Barangay Basketball League',
+        'event_desc_placeholder': 'Describe your event briefly...',
+        'event_purpose_placeholder': 'Describe the purpose of your event...',
+        'time_allowed_note': 'Allowed: 8:00 AM – 10:00 PM only',
+        'max_attendees_note': 'Maximum of 300 attendees',
+        'select': 'Select',
+        'cancel_request_title': 'Cancel Request?',
+        'cancel_request_desc': 'Are you sure you want to cancel this request?',
+        'cancel_request_warning': 'This action cannot be undone.',
+        'no_keep_it': 'No, Keep it',
+        'yes_cancel': 'Yes, Cancel',
+        
+        // Bagong dagdag base sa screenshot
+        'ref_name_placeholder': 'Reference Name',
+        'ref_address_placeholder': 'Reference Address',
+        'purpose_req_placeholder': 'State the purpose of your request...',
+        'type_full_name_placeholder': 'Type your full name here',
+        'signature_consent_text': 'By typing my printed name above, I acknowledge that this serves as my digital signature, and I agree to the terms and conditions stated in this document request.',
+        'privacy_consent_text': 'I hereby give my informed consent for the Barangay Sto. Niño to collect, store, and process my personal information in accordance with the Data Privacy Act of 2012 (RA 10173) for the sole purpose of processing my document request.',
+        'not_related_to_you': '(Not Related to You)',
+        'by_typing_consent_part1': 'By typing my printed name above, I acknowledge that this serves as my',
+        'by_typing_consent_part2': 'digital signature',
+        'by_typing_consent_part3': ', and I agree to the terms and conditions stated in this document request.',
+        'privacy_consent_part1': 'I hereby give my',
+        'privacy_consent_part2': 'informed consent',
+        'privacy_consent_part3': 'for the Barangay Sto. Niño to collect, store, and process my personal information in accordance with the',
+        'privacy_consent_part4': 'Data Privacy Act of 2012 (RA 10173)',
+        'privacy_consent_part5': 'for the sole purpose of processing my document request.',
+        'father_name_placeholder': "Father's Name",
+        'mother_name_placeholder': "Mother's Name",
+        'spouse_name_placeholder': "Spouse's Name",
+        'emergency_name_placeholder': 'Emergency Contact Name',
+
+        // Terms and Conditions - Apply Permit
+        'tc_acceptance': '1. Acceptance of Terms',
+        'tc_acceptance_desc': 'By submitting this application, you agree to comply with all barangay rules and regulations regarding events and gatherings.',
+        'tc_guidelines': '2. Event Guidelines',
+        'tc_guidelines_desc': 'All events must adhere to the following:',
+        'tc_max_attendees': 'Maximum of 300 attendees per event',
+        'tc_start_time': 'Start Time: 8:00 AM - 10:00 PM',
+        'tc_end_time': 'End Time: 8:00 AM - 10:00 PM',
+        'tc_waste': 'Proper waste management must be observed',
+        'tc_noise': 'No excessive noise beyond barangay limits',
+        'tc_10_days': 'Event must be 10 days before the Event Date',
+        'tc_responsibility': '3. Responsibility',
+        'tc_responsibility_desc': 'The applicant is fully responsible for the event and must ensure the safety and orderliness of the activity.',
+        'tc_data_privacy': '4. Data Privacy',
+        'tc_data_privacy_desc': 'Your information will be used solely for permit processing and barangay records in accordance with the Data Privacy Act.',
+        'tc_cancellation': '5. Cancellation Policy',
+        'tc_cancellation_desc': 'Permit must be cancelled at least 3 days before the event. Failure to do so may result in penalties.',
+        'tc_checkbox_text': 'I have read and agree to the Terms and Conditions of Barangay Sto. Niño',
+        'choose_file': 'Choose File',
+        'no_file_chosen': 'No file chosen',
+        'upload_file_text': 'Choose File',
+
+        // Calendar Days & Menu
+        'sun': 'SUN',
+        'mon': 'MON',
+        'tue': 'TUE',
+        'wed': 'WED',
+        'thu': 'THU',
+        'fri': 'FRI',
+        'sat': 'SAT',
+        'english_menu': 'us English',
+        'tagalog_menu': 'ph Tagalog',
+        'select_date': 'Select Date',
+        'cancel_btn': 'CANCEL',
+
+        // Dagdag na Status
+        'processing': 'PROCESSING',
+        'ready_for_pickup': 'READY FOR PICKUP',
+        'cancelled': 'Cancelled',
+
+        // Settings Modal Extras
+        'req_length': 'At least 8 characters',
+        'req_upper': 'At least 1 uppercase letter',
+        'req_lower': 'At least 1 lowercase letter',
+        'req_number': 'At least 1 number',
+        'req_special': 'At least 1 special character (!@#$%^&*)',
+        'reenter_password': 'Re-enter new password',
+        'verify_update': 'Verify Profile Update',
+        'enter_code_sent': 'Enter the code sent to your email',
+        'six_digit_code': '6-Digit Code',
+        'verify_save': 'Verify & Save',
+        'invalid_code': 'Invalid code. Please try again.',
+        'check_email_spam': 'Check your email inbox (and spam folder).',
+        'a_6_digit_code_sent': 'A 6-digit reset code has been sent to your email. Check your inbox (and spam folder).',
+        'password_changed': 'Password Changed!',
+        'password_changed_desc': 'Your password has been successfully updated. A confirmation email has been sent.',
+        'okay_got_it': 'Okay, Got it',
+        'success_title': 'Success!',
+        'profile_updated_desc': 'Profile updated successfully! A confirmation email has been sent to your inbox.',
+        'sending_code': 'Sending Code...',
+        'verifying': 'Verifying...',
+        'verify_code': 'Verify Code',
+
+        // Success Modals (Request & Permit)
+        'request_submitted': 'Request Submitted!',
+        'request_received': 'Your document request has been received',
+        'permit_submitted': 'Permit Submitted!',
+        'permit_received': 'Your application has been received',
+        'please_wait': 'Please Wait',
+        'request_pending_desc': 'Your request is now',
+        'request_pending_desc_2': 'Please allow 1-2 business days for processing.',
+        'permit_pending_desc': 'Your permit is now',
+        'permit_pending_desc_2': 'Please allow 24 hours for the Barangay staff to review and approve your application.',
+        'show_qr_code': 'Show this QR code to Barangay personnel for faster transaction.',
+        'notification_ready': 'You will receive a notification once your document is ready.',
+        'notification_ready_permit': 'You will receive a notification once your permit status is updated.',
+        'track_status': 'Track Status',
+        'submit_another': 'Submit Another',
+        'request_another': 'Request Another',
+        'document_label': 'DOCUMENT:',
+        'applicant_label': 'APPLICANT:',
+        'event_label': 'EVENT:',
+        'date_label': 'DATE:',
+        'time_label_modal': 'ORAS:',
+        'venue_label_modal': 'LUGAR:',
+        'status_label': 'STATUS:',
+        'please_save_number': 'Please save this number for tracking'
     },
     'tl': {
         // Sidebar & Navigation
@@ -256,6 +402,7 @@ const globalTranslations = {
         'track_requests_desc': 'Tingnan ang status ng mga aplikasyon',
         'barangay_map': 'Mapa ng Barangay',
         'barangay_map_desc': 'Hanapin ang mga health center at evacuation site',
+        'welcome_back': 'Maligayang Pagbabalik',
 
         // About Us Page
         'about_subtitle': 'Kilalanin ang Barangay Sto. Niño Online Services Portal',
@@ -280,7 +427,7 @@ const globalTranslations = {
         'email': 'Email',
         'phone': 'Telepono',
         'office_hours': 'Oras ng Opisina',
-        'office_hours_value': 'Lunes - Biyernes: 8:00 AM - 5:00 PM', // DAGDAG PARA SA ORAS (TAGALOG)
+        'office_hours_value': 'Lunes - Biyernes: 8:00 AM - 5:00 PM',
         
         // FAQs Page
         'faq_title': 'Mga Madalas Itanong',
@@ -326,7 +473,7 @@ const globalTranslations = {
 
         // Request Document Page
         'doc_title': 'Form ng Document Request',
-        'doc_subtitle': 'Magsumite ng request para sa mga dokumento ng barangay',
+        'doc_subtitle': 'Mag-submit ng request para sa mga dokumento ng barangay',
         'doc_type': 'Uri ng Dokumento',
         'select_doc': 'Pumili ng Uri ng Dokumento',
         'personal_info': 'Personal na Impormasyon',
@@ -352,8 +499,8 @@ const globalTranslations = {
         'mother': 'Pangalan ng Ina',
         'spouse': 'Pangalan ng Asawa',
         'occupation': 'Trabaho',
-        'emergency': 'Sa Oras ng Emergency',
-        'emergency_no': 'Numero ng Emergency',
+        'emergency': 'KUNG MAY EMERGENCY',
+        'emergency_no': 'NUMERO NG TATAWAGAN',
         'ref_person': 'Reference Person',
         'ref1_name': 'Reference 1 - Pangalan',
         'ref1_address': 'Reference 1 - Tirahan',
@@ -364,7 +511,7 @@ const globalTranslations = {
         'printed_name': 'Nakalimbag na Pangalan (Digital Signature)',
         'date': 'Petsa',
         'terms': 'Mga Tuntunin at Kundisyon',
-        'submit_req': 'Isumite ang Request',
+        'submit_req': 'I-submit ang Request',
         'clear_form': 'Burahin ang Form',
         'area_rep_section': 'Lagda ng Area Representative',
         'select_rep_position': 'Pumili ng Posisyon ng Area Representative',
@@ -377,7 +524,7 @@ const globalTranslations = {
         
         // Apply Permit Page
         'permit_title': 'Aplikasyon ng Permit sa Kaganapan',
-        'permit_subtitle': 'Magsumite ng aplikasyon para sa permit ng kaganapan',
+        'permit_subtitle': 'Mag-submit ng aplikasyon para sa permit ng kaganapan',
         'event_info': 'Impormasyon ng Kaganapan',
         'event_name': 'Pangalan ng Kaganapan',
         'event_desc': 'Paglalarawan ng Kaganapan',
@@ -393,9 +540,9 @@ const globalTranslations = {
         'contact_person': 'Taong Kokontakin',
         'contact_phone': 'Telepono ng Contact',
         'supporting_doc': 'Sumusuportang Dokumento',
-        'submit_app': 'Isumite ang Aplikasyon',
+        'submit_app': 'I-submit ang Aplikasyon',
         'apply_10_days': 'Mahalaga: Mag-apply 10 Araw Bago ang Kaganapan',
-        'apply_10_days_desc': 'Mangyaring isumite ang iyong aplikasyon nang hindi bababa sa 10 araw bago ang petsa ng kaganapan upang bigyang-daan ang tamang pagproseso at pagsusuri ng Barangay staff.',
+        'apply_10_days_desc': 'Mangyaring i-submit ang iyong aplikasyon nang hindi bababa sa 10 araw bago ang petsa ng kaganapan upang bigyang-daan ang tamang pagproseso at pagsusuri ng Barangay staff.',
         'allowed_hours': 'Pinapayagan: 8:00 AM – 10:00 PM lamang',
         'max_attendees': 'Maximum na 300 dadalo',
         'accepted_formats': 'Tinatanggap na format: JPG, PNG, PDF, DOC, DOCX (Max 5MB)',
@@ -472,8 +619,154 @@ const globalTranslations = {
         'no_announcements': 'Wala Pang Anunsyo',
         'no_announcements_desc': 'Wala pang announcement na na-post.',
 
-        // ===== DAGDAG PARA SA ROLE (RESIDENT) =====
-        'resident': 'Residente'
+                // Dagdag para sa Notification Panel
+        'recent_announcements': 'Mga Kamakailang Anunsyo',
+        'mark_all': 'Markahan lahat',
+        'no_recent_announcements': 'Walang kamakailang anunsyo',
+        'loading': 'Naglo-load...',
+        'all_read': 'Nabasa na lahat',
+
+        // Role
+        'resident': 'Residente',
+
+        // Form Placeholders & Modal Texts
+        'select_doc_placeholder': '-- Pumili ng Uri ng Dokumento --',
+        'surname_placeholder': 'Apelyido',
+        'given_name_placeholder': 'Pangalan',
+        'middle_name_placeholder': 'Gitnang Pangalan',
+        'complete_address_placeholder': 'Kumpletong Tirahan',
+        'phone_placeholder': '09XXXXXXXXX',
+        'age_placeholder': 'Edad',
+        'precinct_placeholder': 'Numero ng Presinto',
+        'pob_placeholder': 'Lugar ng Kapanganakan',
+        'length_stay_placeholder': 'hal. 5 taon',
+        'occupation_placeholder': 'Trabaho',
+        'property_deed_placeholder': 'Pangalan sa Titulo ng Ari-arian',
+        'owner_address_placeholder': 'Tirahan ng May-ari',
+        'select_date_placeholder': 'Pumili ng petsa...',
+        'select_venue_placeholder': 'Pumili ng lugar...',
+        'attendees_placeholder': 'hal., 100',
+        'event_name_placeholder': 'hal., Barangay Basketball League',
+        'event_desc_placeholder': 'Ilarawan nang maikli ang kaganapan...',
+        'event_purpose_placeholder': 'Ilarawan ang layunin ng kaganapan...',
+        'time_allowed_note': 'Pinapayagan: 8:00 AM – 10:00 PM lamang',
+        'max_attendees_note': 'Maximum na 300 dadalo',
+        'select': 'Pumili',
+        'cancel_request_title': 'Kanselahin ang Request?',
+        'cancel_request_desc': 'Sigurado ka bang gusto mong kanselahin ang request na ito?',
+        'cancel_request_warning': 'Ang aksyong ito ay hindi na maibabalik.',
+        'no_keep_it': 'Hindi, Itago',
+        'yes_cancel': 'Oo, Kanselahin',
+        
+        // Bagong dagdag base sa screenshot
+        'ref_name_placeholder': 'Pangalan ng Reference',
+        'ref_address_placeholder': 'Tirahan ng Reference',
+        'purpose_req_placeholder': 'Isulat ang layunin ng iyong request...',
+        'type_full_name_placeholder': 'I-type ang iyong buong pangalan dito',
+        'signature_consent_text': 'Sa pagta-type ng aking nakalimbag na pangalan sa itaas, kinikilala ko na ito ay nagsisilbing aking digital signature, at sumasang-ayon ako sa mga tuntunin at kundisyon na nakasaad sa document request na ito.',
+        'privacy_consent_text': 'Ibinibigay ko ang aking informed consent para sa Barangay Sto. Niño na kolektahin, iimbak, at iproseso ang aking personal na impormasyon alinsunod sa Data Privacy Act of 2012 (RA 10173) para sa layunin ng pagproseso ng aking document request.',
+        'not_related_to_you': '(Hindi Ka Kaugnay)',
+        'by_typing_consent_part1': 'Sa pagta-type ng aking nakalimbag na pangalan sa itaas, kinikilala ko na ito ay nagsisilbing aking',
+        'by_typing_consent_part2': 'digital signature',
+        'by_typing_consent_part3': ', at sumasang-ayon ako sa mga tuntunin at kundisyon na nakasaad sa document request na ito.',
+        'privacy_consent_part1': 'Ibinibigay ko ang aking',
+        'privacy_consent_part2': 'informed consent',
+        'privacy_consent_part3': 'para sa Barangay Sto. Niño na kolektahin, iimbak, at iproseso ang aking personal na impormasyon alinsunod sa',
+        'privacy_consent_part4': 'Data Privacy Act of 2012 (RA 10173)',
+        'privacy_consent_part5': 'para sa layunin ng pagproseso ng aking document request.',
+        'father_name_placeholder': 'Pangalan ng Ama',
+        'mother_name_placeholder': 'Pangalan ng Ina',
+        'spouse_name_placeholder': 'Pangalan ng Asawa',
+        'emergency_name_placeholder': 'Pangalan ng Tatawagan',
+        'emergency_no_placeholder': 'Numero ng Tatawagan',
+
+        // Terms and Conditions - Apply Permit
+        'tc_acceptance': '1. Pagsang-ayon sa Mga Tuntunin',
+        'tc_acceptance_desc': 'Sa pagsumite ng aplikasyong ito, sumasang-ayon ka na sumunod sa lahat ng alituntunin at regulasyon ng barangay patungkol sa mga kaganapan at pagtitipon.',
+        'tc_guidelines': '2. Mga Alituntunin sa Kaganapan',
+        'tc_guidelines_desc': 'Ang lahat ng kaganapan ay dapat sumunod sa mga sumusunod:',
+        'tc_max_attendees': 'Maximum na 300 dadalo bawat kaganapan',
+        'tc_start_time': 'Oras ng Simula: 8:00 AM - 10:00 PM',
+        'tc_end_time': 'Oras ng Pagtatapos: 8:00 AM - 10:00 PM',
+        'tc_waste': 'Dapat sundin ang tamang pamamahala ng basura',
+        'tc_noise': 'Walang sobrang ingay na lalabag sa limitasyon ng barangay',
+        'tc_10_days': 'Ang kaganapan ay dapat 10 araw bago ang Petsa ng Kaganapan',
+        'tc_responsibility': '3. Responsibilidad',
+        'tc_responsibility_desc': 'Ang aplikante ay buong responsibilidad para sa kaganapan at dapat tiyakin ang kaligtasan at kaayusan ng aktibidad.',
+        'tc_data_privacy': '4. Data Privacy',
+        'tc_data_privacy_desc': 'Ang iyong impormasyon ay gagamitin lamang para sa pagproseso ng permit at mga rekord ng barangay alinsunod sa Data Privacy Act.',
+        'tc_cancellation': '5. Patakaran sa Pagkansela',
+        'tc_cancellation_desc': 'Ang permit ay dapat kanselahin nang hindi bababa sa 3 araw bago ang kaganapan. Ang kabiguang gawin ito ay maaaring magresulta sa mga parusa.',
+        'tc_checkbox_text': 'Nabasa at sumasang-ayon ako sa Mga Tuntunin at Kundisyon ng Barangay Sto. Niño',
+        'choose_file': 'Pumili ng File',
+        'no_file_chosen': 'Walang napiling file',
+        'upload_file_text': 'Pumili ng File',
+
+        // Calendar Days & Menu (Pabuo na base sa request mo)
+        'sun': 'LINGGO',
+        'mon': 'LUNES',
+        'tue': 'MARTES',
+        'wed': 'MIYERKULES',
+        'thu': 'HUWEBES',
+        'fri': 'BIYERNES',
+        'sat': 'SABADO',
+        'english_menu': 'us English',
+        'tagalog_menu': 'ph Tagalog',
+        'select_date': 'Pumili ng Petsa',
+        'cancel_btn': 'KANSELAHIN',
+
+        // Dagdag na Status
+        'processing': 'PINOPROSESO',
+        'ready_for_pickup': 'MAARI NANG KUNIN',
+        'cancelled': 'Kinansela',
+
+        // Settings Modal Extras
+        'req_length': 'Hindi bababa sa 8 character',
+        'req_upper': 'Hindi bababa sa 1 uppercase letter',
+        'req_lower': 'Hindi bababa sa 1 lowercase letter',
+        'req_number': 'Hindi bababa sa 1 numero',
+        'req_special': 'Hindi bababa sa 1 special character (!@#$%^&*)',
+        'reenter_password': 'Ilagay muli ang bagong password',
+        'verify_update': 'I-verify ang Update',
+        'enter_code_sent': 'Ilagay ang code na ipinadala sa iyong email',
+        'six_digit_code': '6-Digit na Code',
+        'verify_save': 'I-verify at I-save',
+        'invalid_code': 'Maling code. Pakisubukang muli.',
+        'check_email_spam': 'Tingnan ang iyong email inbox (at spam folder).',
+        'a_6_digit_code_sent': 'Isang 6-digit na reset code ang ipinadala sa iyong email. Tingnan ang iyong inbox (at spam folder).',
+        'password_changed': 'Nabago ang Password!',
+        'password_changed_desc': 'Matagumpay na na-update ang iyong password. Isang confirmation email ang ipinadala.',
+        'okay_got_it': 'Okay, Nakuha ko',
+        'success_title': 'Tagumpay!',
+        'profile_updated_desc': 'Matagumpay na na-update ang profile! Isang confirmation email ang ipinadala sa iyong inbox.',
+        'sending_code': 'Nagpapadala ng Code...',
+        'verifying': 'Nagbe-verify...',
+        'verify_code': 'I-verify ang Code',
+
+        // Success Modals (Request & Permit)
+        'request_submitted': 'Naipasa ang Request!',
+        'request_received': 'Natanggap na ang iyong dokumento request',
+        'permit_submitted': 'Naipasa ang Permit!',
+        'permit_received': 'Natanggap na ang iyong aplikasyon',
+        'please_wait': 'Maghintay Lang',
+        'request_pending_desc': 'Ang iyong request ay kasalukuyang',
+        'request_pending_desc_2': 'Mangyaring maghintay ng 1-2 business days para sa pagproseso.',
+        'permit_pending_desc': 'Ang iyong permit ay kasalukuyang',
+        'permit_pending_desc_2': 'Mangyaring maghintay ng 24 oras para sa pagsusuri at pag-apruba ng Barangay staff.',
+        'show_qr_code': 'Ipakita ang QR code na ito sa Barangay personnel para mas mabilis ang transaksyon.',
+        'notification_ready': 'Makakatanggap ka ng notification kapag handa na ang iyong dokumento.',
+        'notification_ready_permit': 'Makakatanggap ka ng notification kapag na-update na ang status ng iyong permit.',
+        'track_status': 'I-track ang Status',
+        'submit_another': 'Mag-submit ng Isa Pa',
+        'request_another': 'Mag-request ng Isa Pa',
+        'document_label': 'DOKUMENTO:',
+        'applicant_label': 'APLIKANTE:',
+        'event_label': 'KAGANAPAN:',
+        'date_label': 'PETSA:',
+        'time_label_modal': 'ORAS:',
+        'venue_label_modal': 'LUGAR:',
+        'status_label': 'STATUS:',
+        'please_save_number': 'Paki-save ang numerong ito para sa pag-track'
     }
 };
 
@@ -481,7 +774,6 @@ function applyGlobalTranslation(lang) {
     const dict = globalTranslations[lang] || globalTranslations['en'];
     const englishDict = globalTranslations['en'];
     
-    // Function para i-translate ang isang text node
     function translateTextNode(node) {
         if (node.nodeType === 3) { // Text node
             let text = node.nodeValue;
@@ -489,24 +781,76 @@ function applyGlobalTranslation(lang) {
             
             if (!trimmed || /^\d+$/.test(trimmed)) return;
             
-            // ✅ TAMANG LOGIC: Hanapin ang English value sa dictionary, tapos palitan ng Tagalog
+            // 1. Direct Match
             for (const [key, enValue] of Object.entries(englishDict)) {
                 if (trimmed.toLowerCase() === enValue.toLowerCase() && dict[key]) {
                     node.nodeValue = text.replace(trimmed, dict[key]);
                     return;
                 }
             }
+
+            // 2. Advanced Partial Match (Para sa mga pangungusap na may <strong> sa gitna)
+            let newText = text;
+            let changed = false;
+            
+            // Ayusin ang pagkakasunod-sunod: Pinakamahabang salita muna para hindi mag-conflict
+            const sortedEntries = Object.entries(englishDict).sort((a, b) => b[1].length - a[1].length);
+            
+            for (const [key, enValue] of sortedEntries) {
+                if (dict[key] && enValue.length > 5 && !newText.includes(dict[key])) {
+                    const escapedEnValue = enValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(escapedEnValue, 'gi');
+                    if (regex.test(newText)) {
+                        newText = newText.replace(regex, dict[key]);
+                        changed = true;
+                    }
+                }
+            }
+            if (changed) {
+                node.nodeValue = newText;
+            }
         } else if (node.nodeType === 1) { // Element node
             if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
             
-            // I-check kung may data-translate attribute
+            // Translate placeholder attributes
+            if (node.hasAttribute('placeholder')) {
+                let placeholderText = node.getAttribute('placeholder').trim();
+                for (const [key, enValue] of Object.entries(englishDict)) {
+                    if (placeholderText.toLowerCase() === enValue.toLowerCase() && dict[key]) {
+                        node.setAttribute('placeholder', dict[key]);
+                        break;
+                    }
+                }
+            }
+
+            // Translate value attributes
+            if (node.tagName === 'INPUT' && (node.type === 'submit' || node.type === 'button' || node.type === 'reset')) {
+                let valText = node.value.trim();
+                for (const [key, enValue] of Object.entries(englishDict)) {
+                    if (valText.toLowerCase() === enValue.toLowerCase() && dict[key]) {
+                        node.value = dict[key];
+                        break;
+                    }
+                }
+            }
+
+            // Translate title attributes
+            if (node.hasAttribute('title')) {
+                let titleText = node.getAttribute('title').trim();
+                for (const [key, enValue] of Object.entries(englishDict)) {
+                    if (titleText.toLowerCase() === enValue.toLowerCase() && dict[key]) {
+                        node.setAttribute('title', dict[key]);
+                        break;
+                    }
+                }
+            }
+            
             const dataKey = node.getAttribute('data-translate');
             if (dataKey && dict[dataKey]) {
                 node.textContent = dict[dataKey];
                 return;
             }
             
-            // I-check kung may specific translatable class
             if (node.classList.contains('translatable')) {
                 let key = node.getAttribute('data-original-text');
                 if (!key) {
@@ -514,7 +858,6 @@ function applyGlobalTranslation(lang) {
                     node.setAttribute('data-original-text', key);
                 }
                 
-                // Hanapin sa English dictionary ang key
                 let translated = null;
                 for (const [dictKey, enValue] of Object.entries(englishDict)) {
                     if (enValue.toLowerCase() === key.toLowerCase() && dict[dictKey]) {
@@ -538,6 +881,147 @@ function applyGlobalTranslation(lang) {
     }
 }
 
+// ✅ AUTO-TRANSLATE CALENDAR (Kapag naka-Tagalog)
+function translateCalendar() {
+    const lang = localStorage.getItem('language') || 'en';
+    if (lang !== 'tl') return;
+
+    // 1. I-override ang FullCalendar locale
+    if (window.mainCalendar && typeof window.mainCalendar.setOption === 'function') {
+        window.mainCalendar.setOption('locale', 'tl');
+        window.mainCalendar.setOption('buttonText', {
+            today: 'Ngayon',
+            month: 'Buwan',
+            week: 'Linggo',
+            day: 'Araw',
+            list: 'Listahan'
+        });
+    }
+
+    // 2. I-override ang "month title" (e.g., November -> Nobyembre)
+    const monthTitle = document.querySelector('.fc-toolbar-title');
+    if (monthTitle) {
+        const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthsTl = ['Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo', 'Hulyo', 'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre'];
+        
+        let currentTitle = monthTitle.textContent;
+        monthsEn.forEach((enMonth, index) => {
+            if (currentTitle.includes(enMonth)) {
+                currentTitle = currentTitle.replace(enMonth, monthsTl[index]);
+            }
+        });
+        monthTitle.textContent = currentTitle;
+    }
+
+    // 3. I-override ang mga araw (SUN, MON -> LINGGO, LUNES)
+    const dayHeaders = document.querySelectorAll('.fc-col-header-cell-cushion');
+    // Pabuo na base sa request mo bro
+    const tagalogDays = ['LINGGO', 'LUNES', 'MARTES', 'MIYERKULES', 'HUWEBES', 'BIYERNES', 'SABADO'];
+    dayHeaders.forEach((header, index) => {
+        header.textContent = tagalogDays[index % 7];
+    });
+}
+
+// ✅ Para itago ang mga alert box na may English text kapag naka-Tagalog
+function hideEnglishAlerts(lang) {
+    if (lang === 'tl') {
+        const alerts = document.querySelectorAll('.alert, .alert-warning, .bg-yellow-100, [role="alert"]');
+        alerts.forEach(alert => {
+            if (alert.textContent.includes('Please') || 
+                alert.textContent.includes('Make sure') || 
+                alert.textContent.includes('Important') || 
+                alert.textContent.includes('submit')) {
+                alert.style.display = 'none'; 
+            }
+        });
+    }
+}
+
+// ✅ Para maging Tagalog ang browser validation popup (Final Fix)
+function overrideBrowserValidation(lang) {
+    if (lang !== 'tl') return;
+
+    const applyValidation = () => {
+        document.querySelectorAll('input, textarea, select').forEach(input => {
+            // Skip hidden inputs
+            if (input.type === 'hidden') return;
+
+            // Tanggalin muna ang existing listeners para hindi mag-doble
+            input.removeEventListener('invalid', handleInvalid);
+            input.removeEventListener('input', handleInput);
+            input.removeEventListener('change', handleInput);
+
+            // Idagdag ulit
+            input.addEventListener('invalid', handleInvalid);
+            input.addEventListener('input', handleInput);
+            input.addEventListener('change', handleInput);
+        });
+    };
+
+    function handleInvalid(e) {
+        // Dito natin pinapalitan ang default English message
+        this.setCustomValidity("Mangyaring punan ang field na ito.");
+    }
+
+    function handleInput(e) {
+        // Binabalik sa normal para mawala ang error kapag may tinype na
+        this.setCustomValidity("");
+    }
+
+    // Patakbuhin agad
+    applyValidation();
+
+    // Patakbuhin muli after 500ms para sa mga dynamic na input (tulad ng datepicker)
+    setTimeout(applyValidation, 500);
+}
+
+// ✅ Para maging Tagalog ang File Upload UI
+function overrideFileUploadUI(lang) {
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.style.opacity = '0';
+        input.style.position = 'absolute';
+        input.style.zIndex = '-1';
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-file-upload-wrapper';
+        wrapper.style.display = 'flex';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.border = '1px solid #ccc';
+        wrapper.style.padding = '5px 10px';
+        wrapper.style.borderRadius = '5px';
+        wrapper.style.cursor = 'pointer';
+        wrapper.style.backgroundColor = '#fff';
+        wrapper.style.color = '#333';
+        wrapper.style.fontSize = '14px';
+        wrapper.style.width = '100%';
+        wrapper.style.boxSizing = 'border-box';
+        
+        const chooseBtnText = lang === 'tl' ? 'Pumili ng File' : 'Choose File';
+        const noFileText = lang === 'tl' ? 'Walang napiling file' : 'No file chosen';
+        
+        wrapper.innerHTML = `
+            <span style="border: 1px solid #999; padding: 2px 8px; background: #f0f0f0; margin-right: 10px; border-radius: 3px;">${chooseBtnText}</span>
+            <span class="file-name-display">${noFileText}</span>
+        `;
+        
+        input.parentNode.insertBefore(wrapper, input);
+        
+        wrapper.addEventListener('click', () => {
+            input.click();
+        });
+        
+        input.addEventListener('change', (e) => {
+            const fileNameDisplay = wrapper.querySelector('.file-name-display');
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = e.target.files[0].name;
+            } else {
+                fileNameDisplay.textContent = noFileText;
+            }
+        });
+    });
+}
+
 function setGlobalLanguage(lang) {
     localStorage.setItem('language', lang);
     location.reload();
@@ -553,5 +1037,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (savedLang === 'tl') {
         applyGlobalTranslation('tl');
+        overrideBrowserValidation('tl');
+        overrideFileUploadUI('tl');
+        hideEnglishAlerts('tl'); 
+        
+        setTimeout(translateCalendar, 300);
+        setTimeout(translateCalendar, 1000); 
+    } else {
+        overrideFileUploadUI('en');
     }
 });

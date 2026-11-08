@@ -1952,37 +1952,35 @@
                                 </button>
                             </div>
 
-                            <!-- PASSWORD STRENGTH METER -->
-                            <div id="password-strength-container" style="display: none; margin-top: 10px;">
-                                <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                                    <div id="password-strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease; background: #dc3545;"></div>
+                                                  <!-- PASSWORD STRENGTH METER -->
+                        <div id="password-strength-container" style="display: none; margin-top: 10px;">
+                            <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                                <div id="password-strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease; background: #dc3545;"></div>
+                            </div>
+                            <div id="password-strength-text" style="font-size: 0.75rem; font-weight: 700; margin-bottom: 10px;"></div>
+                            
+                            <div style="background: #f4f8f5; border: 1px solid #e3ede7; border-radius: 10px; padding: 12px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-length">
+                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_length">At least 8 characters</span>
                                 </div>
-                                <div id="password-strength-text" style="font-size: 0.75rem; font-weight: 700; margin-bottom: 10px;"></div>
-                                
-                                <div style="background: #f4f8f5; border: 1px solid #e3ede7; border-radius: 10px; padding: 12px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;">
-                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-length">
-                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 8 characters
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-uppercase">
-                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 uppercase letter
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-lowercase">
-                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 lowercase letter
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-number">
-                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 number
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-special">
-                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> At least 1 special character (!@#$%^&*)
-                                    </div>
+                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-uppercase">
+                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_upper">At least 1 uppercase letter</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-lowercase">
+                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_lower">At least 1 lowercase letter</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-number">
+                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_number">At least 1 number</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-special">
+                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_special">At least 1 special character (!@#$%^&*)</span>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="form-group">
+                                            <div class="form-group">
                             <label data-translate="confirm_new_password">Confirm New Password</label>
                             <div class="password-input-wrapper">
-                                <input type="password" name="confirm_password" id="confirm_password" required placeholder="Re-enter new password">
+                                <input type="password" name="confirm_password" id="confirm_password" required data-translate-placeholder="reenter_password" placeholder="Re-enter new password">
                                 <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirm_password', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -1999,69 +1997,68 @@
             {% endif %}
         </div>
     </div>
-
     <!-- OTP VERIFICATION MODAL (NASA LABAS NA NG FORM) -->
     <div class="modal-overlay" id="otpModal">
         <div class="modal" style="max-width: 450px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);">
-                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-key"></i> Change Password</h2>
+                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-key"></i> <span data-translate="change_pass">Change Password</span></h2>
             </div>
             <div class="modal-body" style="text-align: center; padding: 30px;">
                 <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42; width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px;">
                     <i class="fas fa-lock"></i>
                 </div>
-                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;">Change Password</h3>
-                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;">Enter the code sent to your email</p>
+                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;" data-translate="change_pass">Change Password</h3>
+                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;" data-translate="enter_code_sent">Enter the code sent to your email</p>
 
                 <div style="background: #eff8f2; border: 1px solid #d4f0df; border-radius: 12px; padding: 15px; text-align: left; font-size: 0.85rem; color: #145233; margin-bottom: 20px; display: flex; gap: 10px; align-items: flex-start;">
                     <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
-                    <span>A 6-digit reset code has been sent to your email. Check your inbox (and spam folder).</span>
+                    <span data-translate="a_6_digit_code_sent">A 6-digit reset code has been sent to your email. Check your inbox (and spam folder).</span>
                 </div>
 
                 <div style="text-align: left; margin-bottom: 20px;">
-                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;">6-Digit Code</label>
+                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;" data-translate="six_digit_code">6-Digit Code</label>
                     <input type="text" id="otpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
                     <div style="font-size: 0.75rem; color: #6b8475; margin-top: 8px; text-align: center;">
-                        <i class="fas fa-envelope" style="color: #a3dbb8;"></i> Check your email inbox (and spam folder).
+                        <i class="fas fa-envelope" style="color: #a3dbb8;"></i> <span data-translate="check_email_spam">Check your email inbox (and spam folder).</span>
                     </div>
                 </div>
 
                 <!-- Error message container -->
                 <div id="otpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
-                    <i class="fas fa-times-circle"></i> Invalid code. Please try again.
+                    <i class="fas fa-times-circle"></i> <span data-translate="invalid_code">Invalid code. Please try again.</span>
                 </div>
 
                 <button type="button" class="btn-primary" id="verifyOtpBtn" onclick="verifyOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
-                    <i class="fas fa-check-circle"></i> Verify Code
+                    <i class="fas fa-check-circle"></i> <span data-translate="verify_code">Verify Code</span>
                 </button>
             </div>
         </div>
     </div>
 
-        <!-- OTP VERIFICATION MODAL PARA SA UPDATE PROFILE -->
+            <!-- OTP VERIFICATION MODAL PARA SA UPDATE PROFILE -->
     <div class="modal-overlay" id="profileOtpModal">
         <div class="modal" style="max-width: 450px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);">
-                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-user-shield"></i> Verify Profile Update</h2>
+                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-user-shield"></i> <span data-translate="verify_update">Verify Profile Update</span></h2>
             </div>
             <div class="modal-body" style="text-align: center; padding: 30px;">
                 <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42; width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px;">
                     <i class="fas fa-envelope-open-text"></i>
                 </div>
-                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;">Verify Update</h3>
-                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;">Enter the code sent to your email</p>
+                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;" data-translate="verify_update">Verify Update</h3>
+                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;" data-translate="enter_code_sent">Enter the code sent to your email</p>
 
                 <div style="text-align: left; margin-bottom: 20px;">
-                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;">6-Digit Code</label>
+                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;" data-translate="six_digit_code">6-Digit Code</label>
                     <input type="text" id="profileOtpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
                 </div>
 
                 <div id="profileOtpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
-                    <i class="fas fa-times-circle"></i> Invalid code. Please try again.
+                    <i class="fas fa-times-circle"></i> <span data-translate="invalid_code">Invalid code. Please try again.</span>
                 </div>
 
                 <button type="button" class="btn-primary" id="verifyProfileOtpBtn" onclick="verifyProfileOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
-                    <i class="fas fa-check-circle"></i> Verify & Save
+                    <i class="fas fa-check-circle"></i> <span data-translate="verify_save">Verify & Save</span>
                 </button>
             </div>
         </div>
@@ -2503,7 +2500,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             document.getElementById('otpInput').value = ''; // Clear input
                             setTimeout(() => document.getElementById('otpInput').focus(), 300);
                         } else {
-                            alert('Failed to send OTP: ' + data.error);
+                           const lang = localStorage.getItem('language') || 'en';
+alert((lang === 'tl' ? 'Hindi nagpadala ng OTP: ' : 'Failed to send OTP: ') + data.error);
                         }
                     })
                     .catch(err => {
