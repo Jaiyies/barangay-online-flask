@@ -1743,6 +1743,7 @@ def head_admin_dashboard():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    # USERS
     cursor.execute("SELECT COUNT(*) as total FROM users")
     total_users = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM users WHERE role = 'resident'")
@@ -1750,6 +1751,7 @@ def head_admin_dashboard():
     cursor.execute("SELECT COUNT(*) as total FROM users WHERE role IN ('head_admin', 'admin_court_1', 'admin_court_2', 'admin_court_3', 'admin_court_4', 'admin_documents')")
     total_admins = cursor.fetchone()['total']
 
+    # DOCUMENTS
     cursor.execute("SELECT COUNT(*) as total FROM document_requests")
     total_requests = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'pending'")
@@ -1760,7 +1762,10 @@ def head_admin_dashboard():
     docs_ready = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'rejected'")
     docs_rejected = cursor.fetchone()['total']
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'cancelled'")
+    docs_cancelled = cursor.fetchone()['total']
 
+    # EVENTS
     cursor.execute("SELECT COUNT(*) as total FROM event_permits")
     total_events = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'pending'")
@@ -1769,7 +1774,10 @@ def head_admin_dashboard():
     events_approved = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'rejected'")
     events_rejected = cursor.fetchone()['total']
+    cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'cancelled'")
+    events_cancelled = cursor.fetchone()['total']
 
+    # PENDING LISTS
     cursor.execute("""
         SELECT d.*, u.first_name, u.last_name, u.email
         FROM document_requests d
@@ -1790,6 +1798,7 @@ def head_admin_dashboard():
     """)
     pending_events_list = cursor.fetchall()
 
+    # MONTHLY DATA
     monthly_docs_data = []
     monthly_events_data = []
     current_year = datetime.date.today().year
@@ -1817,9 +1826,11 @@ def head_admin_dashboard():
                          docs_processing=docs_processing,
                          docs_ready=docs_ready,
                          docs_rejected=docs_rejected,
+                         docs_cancelled=docs_cancelled,
                          events_pending=events_pending,
                          events_approved=events_approved,
                          events_rejected=events_rejected,
+                         events_cancelled=events_cancelled,
                          pending_documents=pending_documents,
                          pending_events_list=pending_events_list,
                          monthly_docs_data=monthly_docs_data,
@@ -1850,6 +1861,8 @@ def head_admin_all_documents():
     ready_count = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'rejected'")
     rejected_count = cursor.fetchone()['total']
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'cancelled'")
+    cancelled_count = cursor.fetchone()['total']
     conn.close()
 
     return render_template('admin/head_admin_all_documents.html',
@@ -1858,7 +1871,8 @@ def head_admin_all_documents():
                          pending_count=pending_count,
                          processing_count=processing_count,
                          ready_count=ready_count,
-                         rejected_count=rejected_count)
+                         rejected_count=rejected_count,
+                         cancelled_count=cancelled_count)
 
 @app.route('/head-admin/events')
 def head_admin_events():
@@ -1883,14 +1897,18 @@ def head_admin_events():
     approved_count = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'rejected'")
     rejected_count = cursor.fetchone()['total']
+    cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE status = 'cancelled'")
+    cancelled_count = cursor.fetchone()['total']
     conn.close()
 
     return render_template('admin/head_admin_events.html',
-                         events=events,
-                         total_events=total_events,
-                         pending_count=pending_count,
-                         approved_count=approved_count,
-                         rejected_count=rejected_count)
+                           
+                        events=events,
+                        total_events=total_events,
+                        pending_count=pending_count,
+                        approved_count=approved_count,
+                        rejected_count=rejected_count,
+                        cancelled_count=cancelled_count)
 
 @app.route('/head-admin/events/calendar')
 def head_admin_events_calendar():
@@ -2025,6 +2043,8 @@ def sec_admin_dashboard():
     ready_documents = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'rejected'")
     rejected_documents = cursor.fetchone()['total']
+    cursor.execute("SELECT COUNT(*) as total FROM document_requests WHERE status = 'cancelled'")
+    cancelled_documents = cursor.fetchone()['total']
 
     weekly_data = []
     for i in range(6, -1, -1):
@@ -2049,6 +2069,7 @@ def sec_admin_dashboard():
                          processing_documents=processing_documents,
                          ready_documents=ready_documents,
                          rejected_documents=rejected_documents,
+                         cancelled_documents=cancelled_documents,
                          weekly_data=weekly_data,
                          recent_pending=recent_pending)
 
@@ -2236,6 +2257,8 @@ def _render_court_dashboard(role):
     approved_events = cursor.fetchone()['total']
     cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE venue = %s AND status = 'rejected'", (VENUE,))
     rejected_events = cursor.fetchone()['total']
+    cursor.execute("SELECT COUNT(*) as total FROM event_permits WHERE venue = %s AND status = 'cancelled'", (VENUE,))
+    cancelled_events = cursor.fetchone()['total']
 
     monthly_data = []
     current_year = datetime.date.today().year
@@ -2261,6 +2284,7 @@ def _render_court_dashboard(role):
                          pending_events=pending_events,
                          approved_events=approved_events,
                          rejected_events=rejected_events,
+                         cancelled_events=cancelled_events,
                          monthly_data=monthly_data,
                          pending_events_list=pending_events_list,
                          court_config=config)
@@ -2319,12 +2343,22 @@ def _render_court_reviewed(role):
         ORDER BY e.event_date DESC
     """, (VENUE,))
     rejected_events = cursor.fetchall()
+    cursor.execute("""
+        SELECT e.*, u.first_name, u.last_name, u.email, u.contact_number
+        FROM event_permits e
+        JOIN users u ON e.user_id = u.id
+        WHERE e.venue = %s AND e.status = 'cancelled'
+        ORDER BY e.event_date DESC
+    """, (VENUE,))
+    cancelled_events = cursor.fetchall()
     conn.close()
     _format_event_times(approved_events)
     _format_event_times(rejected_events)
+    _format_event_times(cancelled_events)
     return render_template(config['reviewed_template'],
                          approved_events=approved_events,
                          rejected_events=rejected_events,
+                         cancelled_events=cancelled_events,
                          court_config=config)
 
 # ============================================================

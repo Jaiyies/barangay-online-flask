@@ -325,7 +325,7 @@
         /* ===== STATS CARDS (PROFESSIONAL CLEAN) ===== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 16px;
             margin-bottom: 20px;
         }
@@ -381,6 +381,8 @@
         .stat-card.processing .stat-icon { background: #f0f4f8; color: #c2410c; }
         .stat-card.ready .stat-icon { background: #f0f4f8; color: #059669; }
         .stat-card.rejected .stat-icon { background: #f0f4f8; color: #dc3545; }
+        /* ✅ DAGDAG: Cancelled (GRAY) */
+        .stat-card.cancelled .stat-icon { background: #f0f4f8; color: #6b7280; }
 
         /* ===== BIG CARD ===== */
         .big-card {
@@ -560,6 +562,8 @@
         }
         .status-ready { background: #d1fae5; color: #065f46; }
         .status-rejected { background: #fee2e2; color: #991b1b; }
+        /* ✅ DAGDAG: Cancelled (GRAY) */
+        .status-cancelled { background: #f3f4f6; color: #4b5563; }
 
         /* ===== BUTTONS ===== */
         .btn-doc {
@@ -835,7 +839,7 @@
 <!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
 
-    <!-- ===== STATS CARDS (BAGONG IDINAGDAG) ===== -->
+    <!-- ===== STATS CARDS (BAGONG IDINAGDAG — 6 cards na kasama Cancelled) ===== -->
     <div class="stats-grid">
         <div class="stat-card total">
             <div class="stat-card-inner">
@@ -892,6 +896,18 @@
                 </div>
             </div>
         </div>
+        <!-- ✅ DAGDAG: Cancelled (GRAY) -->
+        <div class="stat-card cancelled">
+            <div class="stat-card-inner">
+                <div class="stat-info">
+                    <div class="stat-label">Cancelled</div>
+                    <div class="stat-value">{{ cancelled_count or 0 }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ===== DOCUMENTS TABLE CARD ===== -->
@@ -906,6 +922,8 @@
                     <option value="processing">Processing</option>
                     <option value="ready_for_pickup">Ready for Pickup</option>
                     <option value="rejected">Rejected</option>
+                    <!-- ✅ DAGDAG: Cancelled filter -->
+                    <option value="cancelled">Cancelled</option>
                 </select>
                 <select id="typeFilter" onchange="filterTable()">
                     <option value="all">All Types</option>
@@ -955,6 +973,7 @@
                                 {% if doc.status == 'pending' %}status-pending
                                 {% elif doc.status == 'processing' %}status-processing
                                 {% elif doc.status == 'ready_for_pickup' %}status-ready
+                                {% elif doc.status == 'cancelled' %}status-cancelled
                                 {% else %}status-rejected{% endif %}">
                                 {{ doc.status.replace('_', ' ').title() }}
                             </span>
@@ -1310,6 +1329,8 @@
                 statusBg = '#d1fae5'; statusColor = '#065f46';
             } else if (statusUpper.includes('REJECTED')) {
                 statusBg = '#fee2e2'; statusColor = '#991b1b';
+            } else if (statusUpper.includes('CANCELLED')) {
+                statusBg = '#f3f4f6'; statusColor = '#4b5563';
             }
 
             const rowBg = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
@@ -1480,7 +1501,7 @@
         modal.classList.add('active');
         body.innerHTML = '<p>Loading details...</p>';
         
-        fetch(`/admin/document/${docId}/details`)
+        fetch(`/admin/document-details/${docId}`)
             .then(response => response.json())
             .then(doc => {
                 const docTypeMap = {
@@ -1493,6 +1514,7 @@
                 if (doc.status === 'processing') statusClass = 'status-processing';
                 else if (doc.status === 'ready_for_pickup') statusClass = 'status-ready';
                 else if (doc.status === 'rejected') statusClass = 'status-rejected';
+                else if (doc.status === 'cancelled') statusClass = 'status-cancelled';
                 
                 body.innerHTML = `
                     <div class="view-grid">

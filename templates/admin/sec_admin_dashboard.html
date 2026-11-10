@@ -608,10 +608,10 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
-        /* ===== STATS ===== */
+        /* ===== STATS — 5 columns na kasama Cancelled ===== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
             margin-bottom: 28px;
         }
@@ -709,6 +709,30 @@
         .footer {
             text-align: center; padding: 18px; margin-top: 24px;
             color: #8a9a8f; font-size: 11px; border-top: 1px solid #eef2f0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar-custom { width: 70px; padding: 16px 10px; }
+            .sidebar-custom.expanded { width: 240px; }
+            .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
+            body.sidebar-expanded .navbar { left: 252px; }
+            .profile-info { display: none; }
+            .profile-trigger { padding: 4px; }
+            .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
+            body.sidebar-expanded .main-with-sidebar { margin-left: 240px; }
+            .big-card { padding: 18px; border-radius: 20px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .stat-number { font-size: 24px; }
+            .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .table-header { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -808,6 +832,7 @@
 <div class="main-with-sidebar">
     <div class="big-card">
 
+        <!-- STATS — 5 cards na kasama Cancelled -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-info">
@@ -837,6 +862,14 @@
                 </div>
                 <div class="stat-icon"><i class="fas fa-check-circle" style="color:#22c55e;"></i></div>
             </div>
+            <!-- ✅ DAGDAG: Cancelled card (GRAY) -->
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h4>Cancelled</h4>
+                    <div class="stat-number">{{ cancelled_documents|default(0, true) }}</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-ban" style="color:#6b7280;"></i></div>
+            </div>
         </div>
 
         <div class="charts-row">
@@ -849,6 +882,7 @@
                     <div class="legend-item"><div class="legend-color" style="background: #ffb74d;"></div> Pending</div>
                     <div class="legend-item"><div class="legend-color" style="background: #3b82f6;"></div> Processing</div>
                     <div class="legend-item"><div class="legend-color" style="background: #66bb6a;"></div> Ready</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #6b7280;"></div> Cancelled</div>
                 </div>
             </div>
             <div class="chart-box">
@@ -1039,16 +1073,19 @@
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
+    // ===== CHARTS =====
     const pendingTotal = Number("{{ pending_documents | default(0) }}");
     const processingTotal = Number("{{ processing_documents | default(0) }}");
     const readyTotal = Number("{{ ready_documents | default(0) }}");
+    const cancelledTotal = Number("{{ cancelled_documents | default(0) }}");
+
     new Chart(document.getElementById('statusChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Pending', 'Processing', 'Ready for Pickup'],
+            labels: ['Pending', 'Processing', 'Ready for Pickup', 'Cancelled'],
             datasets: [{
-                data: [pendingTotal, processingTotal, readyTotal],
-                backgroundColor: ['#ffb74d', '#3b82f6', '#66bb6a'],
+                data: [pendingTotal, processingTotal, readyTotal, cancelledTotal],
+                backgroundColor: ['#ffb74d', '#3b82f6', '#66bb6a', '#6b7280'],
                 borderWidth: 0
             }]
         },

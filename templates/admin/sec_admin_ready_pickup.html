@@ -504,7 +504,6 @@
         </div>
     </div>
     <div class="navbar-right">
-        <!-- ===== NOTIFICATION BELL ===== -->
         <div class="notification-bell-wrap">
             <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
                 <i class="fas fa-bell"></i>
@@ -612,7 +611,7 @@
                             {% endif %}
                         </td>
                         <td style="text-align:center;">
-                            <!-- VIEW LANG DITO -->
+                            <!-- ✅ VIEW BUTTON LANG DITO SA TABLE -->
                             <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
                                 <i class="fas fa-eye"></i> View
                             </button>
@@ -841,7 +840,7 @@
         });
     }
 
-    // ===== VIEW DETAILS =====
+    // ===== VIEW DETAILS (LAHAT NG ACTIONS NASA LOOB) =====
     function viewDetails(docId) {
         const modal = document.getElementById('detailsModal');
         const body = document.getElementById('detailsBody');
@@ -875,6 +874,7 @@
                 const hasFile = doc.completed_file && doc.completed_file.trim() !== '';
                 let actionHtml = '';
 
+                // ✅ ACTION BUTTONS SA LOOB NG MODAL
                 if (hasFile) {
                     actionHtml = `
                         <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #f0f2f5; text-align: center;">
@@ -941,7 +941,7 @@
         document.getElementById('detailsModal').classList.remove('active');
     }
 
-    // ===== PRINT FUNCTION (Direct Print, No New Tab) =====
+    // ===== PRINT FUNCTION =====
     function printDocument(fileUrl) {
         const iframe = document.createElement('iframe');
         iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
@@ -987,7 +987,13 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                showToast('Success!', 'Document uploaded successfully!', 'success');
+                let msg = 'Document uploaded successfully!';
+                if (data.email_sent) {
+                    msg += ' Email notification sent to resident.';
+                } else {
+                    msg += ' Pero hindi nag-send ang email (check terminal/SMTP).';
+                }
+                showToast('Success!', msg, 'success');
                 setTimeout(() => window.location.reload(), 2000);
             } else {
                 showToast('Error!', data.error || 'Unknown error', 'error');
@@ -1022,11 +1028,7 @@
         `;
         
         container.appendChild(toast);
-        
-        // Trigger animation
         setTimeout(() => toast.classList.add('show'), 10);
-        
-        // Remove toast after 3.5 seconds
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);

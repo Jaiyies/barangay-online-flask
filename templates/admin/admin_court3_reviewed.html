@@ -6,14 +6,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reviewed Events - Court 3</title>
+    <title>Court 3 Reviewed Events - Barangay Sto. Nino</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* ===== SIDEBAR (CARD STYLE) ===== */
+        /* ===== SIDEBAR ===== */
         .sidebar-custom {
             position: fixed; left: 0; top: 0;
             width: 85px; height: 100%;
@@ -112,10 +112,8 @@
             width: 24px; min-width: 24px; font-size: 18px;
             text-align: center; color: inherit;
             transition: color 0.25s ease;
-            background: transparent !important;
-            border: none !important;
-            display: flex; align-items: center; justify-content: center;
-            line-height: 1;
+            background: transparent !important; border: none !important;
+            display: flex; align-items: center; justify-content: center; line-height: 1;
         }
         .sidebar-menu .active a i,
         .sidebar-menu a:hover i { color: #6bc48e; }
@@ -162,7 +160,7 @@
             transform: translateY(-50%) translateX(0);
         }
 
-        /* ===== NAVBAR (CARD STYLE) ===== */
+        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed; top: 12px; left: 97px; right: 12px;
             height: 64px; background: white; border-radius: 16px;
@@ -212,12 +210,25 @@
             color: white; font-weight: 700; font-size: 13.5px;
             display: flex; align-items: center; justify-content: space-between; gap: 10px;
         }
-        .bell-dropdown-header-left {
-            display: flex; align-items: center; gap: 10px;
-        }
+        .bell-dropdown-header-left { display: flex; align-items: center; gap: 10px; }
         .bell-dropdown-header i.fa-bullhorn {
             background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
         }
+        .mark-all-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white; font-size: 11px; font-weight: 600;
+            padding: 6px 12px; border-radius: 20px; cursor: pointer;
+            font-family: inherit; white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 5px;
+            transition: all 0.2s ease;
+        }
+        .mark-all-btn:hover {
+            background: rgba(255,255,255,0.28);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        .mark-all-btn:active { transform: translateY(0); }
         .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
         .bell-item {
             display: block; padding: 12px 14px; border-radius: 10px;
@@ -227,7 +238,25 @@
         }
         .bell-item:last-child { border-bottom: none; }
         .bell-item:hover { background: #f4f8f5; }
-        .bell-item-title { font-weight: 600; font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 8px; top: 50%;
+            transform: translateY(-50%);
+            width: 8px; height: 8px;
+            background: #dc3545;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15); }
+            50% { box-shadow: 0 0 0 5px rgba(220, 53, 69, 0.3); }
+        }
+        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
+        .bell-item:not(.unread) .bell-item-title { font-weight: 500; color: #6b7a72; }
+        .bell-item-title { font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; }
         .bell-item-date { font-size: 11px; color: #8a9a8f; display: flex; align-items: center; gap: 5px; }
         .bell-loading, .bell-empty { text-align: center; padding: 30px 20px; color: #8a9a8f; font-size: 13px; }
         .bell-empty i { font-size: 36px; color: #d4f0df; display: block; margin-bottom: 10px; }
@@ -237,35 +266,6 @@
             font-weight: 700; font-size: 13px; border-top: 1px solid #eef2f0;
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
-
-        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
-        .bell-item.unread::before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dc3545;
-            animation: pulse-dot 1.5s ease-in-out infinite;
-        }
-        .bell-item.unread {
-            padding-left: 22px;
-        }
-        .bell-item.unread .bell-item-title {
-            font-weight: 700;
-            color: #0d2b1e;
-        }
-        @keyframes pulse-dot {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-            }
-        }
 
         /* PROFILE DROPDOWN */
         .profile-dropdown { position: relative; }
@@ -314,17 +314,12 @@
         .profile-menu .logout-link:hover { background: #fff5f5; color: #b91c1c; }
         .profile-menu .logout-link i { color: #dc3545; }
 
-        /* ===== MAIN CONTENT ===== */
+        /* ===== MAIN ===== */
         .main-with-sidebar {
             margin-left: 85px; padding: 100px 30px 25px;
-            min-height: 100vh; animation: fadeInUp 0.4s ease;
-            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh; transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
         /* SPLIT LAYOUT */
         .split-container {
@@ -332,30 +327,35 @@
             gap: 24px; align-items: start;
         }
         .split-card {
-            background: white; border-radius: 24px;
+            background: white; border-radius: 20px;
             border: 1px solid #eef2f0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            overflow: hidden; animation: fadeInUp 0.5s ease;
+            overflow: hidden;
         }
         .split-card.approved { border-top: 4px solid #1a5d3a; }
         .split-card.rejected { border-top: 4px solid #dc3545; }
+        .split-card.cancelled { border-top: 4px solid #6b7280; }
         .split-header {
             padding: 20px 24px; display: flex; justify-content: space-between;
             align-items: center; border-bottom: 1px solid #f0f3f2;
         }
         .split-card.approved .split-header { background: linear-gradient(135deg, #f0f9f4, #e0f5e8); }
         .split-card.rejected .split-header { background: linear-gradient(135deg, #fef2f2, #fee2e2); }
+        .split-card.cancelled .split-header { background: linear-gradient(135deg, #f9fafb, #f3f4f6); }
         .split-header h2 {
             font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 10px;
         }
         .split-card.approved .split-header h2 { color: #1a5d3a; }
         .split-card.rejected .split-header h2 { color: #dc3545; }
+        .split-card.cancelled .split-header h2 { color: #4b5563; }
         .split-header h2 i { padding: 8px; border-radius: 10px; font-size: 14px; }
         .split-card.approved .split-header h2 i { background: #1a5d3a; color: white; }
         .split-card.rejected .split-header h2 i { background: #dc3545; color: white; }
+        .split-card.cancelled .split-header h2 i { background: #6b7280; color: white; }
         .split-count { font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 30px; }
         .split-card.approved .split-count { background: #1a5d3a; color: white; }
         .split-card.rejected .split-count { background: #dc3545; color: white; }
+        .split-card.cancelled .split-count { background: #6b7280; color: white; }
 
         /* EVENT CARDS */
         .event-list {
@@ -366,36 +366,43 @@
         .event-list::-webkit-scrollbar-track { background: transparent; }
         .event-list::-webkit-scrollbar-thumb { background: rgba(26, 93, 58, 0.2); border-radius: 3px; }
         .split-card.rejected .event-list::-webkit-scrollbar-thumb { background: rgba(220, 53, 69, 0.2); }
+        .split-card.cancelled .event-list::-webkit-scrollbar-thumb { background: rgba(107, 114, 128, 0.3); }
         .event-card {
-            background: #f8fafc; border-radius: 14px; padding: 16px 18px;
+            background: #f8fafc; border-radius: 12px; padding: 16px 18px;
             border-left: 4px solid #1a5d3a; cursor: pointer;
-            transition: all 0.2s ease; position: relative;
+            transition: all 0.2s ease;
         }
         .split-card.rejected .event-card { border-left-color: #dc3545; }
+        .split-card.cancelled .event-card { border-left-color: #6b7280; }
         .event-card:hover { background: white; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
         .event-card-header {
             display: flex; justify-content: space-between; align-items: flex-start;
             gap: 12px; margin-bottom: 10px;
         }
         .event-card-title { font-size: 14px; font-weight: 700; color: #0d2b1e; line-height: 1.3; flex: 1; }
+        .split-card.cancelled .event-card-title { text-decoration: line-through; color: #8a9a8f; }
         .event-card-ref {
             font-size: 10px; font-weight: 700; padding: 3px 10px;
             border-radius: 20px; background: #e0f5e8; color: #1a5d3a; white-space: nowrap;
         }
         .split-card.rejected .event-card-ref { background: #fee2e2; color: #dc3545; }
+        .split-card.cancelled .event-card-ref { background: #f3f4f6; color: #4b5563; }
         .event-card-info { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #5a6e7a; }
         .event-card-info .info-row { display: flex; align-items: center; gap: 8px; }
         .event-card-info .info-row i { color: #1a5d3a; width: 14px; font-size: 11px; }
         .split-card.rejected .event-card-info .info-row i { color: #dc3545; }
+        .split-card.cancelled .event-card-info .info-row i { color: #6b7280; }
         .event-card-remarks {
             margin-top: 10px; padding-top: 10px;
             border-top: 1px dashed #eef2f0; font-size: 11px;
             color: #5a6e7a; line-height: 1.5;
         }
         .event-card-remarks strong { color: #dc3545; font-weight: 700; display: block; margin-bottom: 3px; }
+        .split-card.cancelled .event-card-remarks strong { color: #4b5563; }
         .empty-state { text-align: center; padding: 60px 20px; color: #8a9a8f; }
         .empty-state i { font-size: 48px; color: #d4f0df; margin-bottom: 12px; display: block; }
         .split-card.rejected .empty-state i { color: #fecaca; }
+        .split-card.cancelled .empty-state i { color: #e5e7eb; }
         .empty-state h3 { color: #0d2b1e; font-size: 15px; margin-bottom: 4px; font-weight: 700; }
         .empty-state p { font-size: 12px; }
         .footer {
@@ -429,13 +436,10 @@
         }
         .modal-header.approved { background: linear-gradient(135deg, #0d2b1e, #1a5d3a); }
         .modal-header.rejected { background: linear-gradient(135deg, #7f1d1d, #dc3545); }
+        .modal-header.cancelled { background: linear-gradient(135deg, #374151, #6b7280); }
         .modal-header h3 {
             color: white; font-size: 20px; font-weight: 700;
             display: flex; align-items: center; gap: 12px;
-        }
-        .modal-header h3 i {
-            background: rgba(255,255,255,0.15); padding: 8px;
-            border-radius: 10px; font-size: 16px;
         }
         .modal-close {
             background: rgba(255,255,255,0.15); border: none;
@@ -453,12 +457,14 @@
         }
         .reference-highlight.approved { background: linear-gradient(135deg, #e0f5e8, #d0ebdd); border: 1px solid #a3dbb8; }
         .reference-highlight.rejected { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 1px solid #fca5a5; }
+        .reference-highlight.cancelled { background: linear-gradient(135deg, #f9fafb, #f3f4f6); border: 1px solid #e5e7eb; }
         .reference-highlight .ref-label {
             font-size: 12px; font-weight: 600;
             text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
         }
         .reference-highlight.approved .ref-label { color: #1a5d3a; }
         .reference-highlight.rejected .ref-label { color: #991b1b; }
+        .reference-highlight.cancelled .ref-label { color: #4b5563; }
         .reference-highlight .ref-value { font-size: 22px; color: #0d2b1e; font-weight: 800; letter-spacing: 1px; }
         .applicant-row {
             display: flex; align-items: center; gap: 16px;
@@ -471,6 +477,7 @@
         }
         .applicant-avatar.approved { background: linear-gradient(135deg, #1a5d3a, #0d2b1e); }
         .applicant-avatar.rejected { background: linear-gradient(135deg, #dc3545, #7f1d1d); }
+        .applicant-avatar.cancelled { background: linear-gradient(135deg, #6b7280, #374151); }
         .applicant-info { flex: 1; }
         .applicant-info .name { font-size: 17px; font-weight: 700; color: #0d2b1e; margin-bottom: 4px; }
         .applicant-info .contact { font-size: 13px; color: #5a6e7a; display: flex; gap: 18px; flex-wrap: wrap; }
@@ -478,6 +485,7 @@
         .applicant-info .contact i { font-size: 11px; }
         .applicant-info .contact i.approved-color { color: #1a5d3a; }
         .applicant-info .contact i.rejected-color { color: #dc3545; }
+        .applicant-info .contact i.cancelled-color { color: #6b7280; }
         .section-header {
             font-size: 13px; font-weight: 700;
             text-transform: uppercase; letter-spacing: 1px;
@@ -486,6 +494,7 @@
         }
         .section-header.approved { color: #1a5d3a; border-bottom: 2px solid #e0f5e8; }
         .section-header.rejected { color: #dc3545; border-bottom: 2px solid #fee2e2; }
+        .section-header.cancelled { color: #4b5563; border-bottom: 2px solid #f3f4f6; }
         .detail-row {
             display: flex; padding: 12px 0; border-bottom: 1px solid #f4f8f5;
             font-size: 14px; align-items: flex-start; gap: 16px;
@@ -517,6 +526,7 @@
         }
         .status-badge-modal.approved { background: #d1fae5; color: #065f46; }
         .status-badge-modal.rejected { background: #fee2e2; color: #991b1b; }
+        .status-badge-modal.cancelled { background: #f3f4f6; color: #4b5563; }
         .file-preview-section {
             margin-top: 20px; padding: 16px 18px;
             background: #eff6ff; border-radius: 12px;
@@ -535,6 +545,7 @@
             width: 100%; justify-content: center;
         }
         .btn-view-file-inline:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(30, 64, 175, 0.25); }
+
         .file-viewer-modal { max-width: 1000px !important; }
         .file-preview-container { text-align: center; padding: 20px; background: #f8f9fa; border-radius: 12px; }
         .file-preview-container img { max-width: 100%; max-height: 650px; border-radius: 8px; border: 1px solid #eef0f2; }
@@ -545,10 +556,6 @@
             color: white; border-radius: 10px; text-decoration: none;
             font-weight: 600; font-size: 13px; transition: all 0.2s ease;
         }
-        .file-preview-container .download-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13, 43, 30, 0.25); }
-        .modal-box::-webkit-scrollbar { width: 6px; }
-        .modal-box::-webkit-scrollbar-track { background: transparent; }
-        .modal-box::-webkit-scrollbar-thumb { background: rgba(26, 93, 58, 0.3); border-radius: 3px; }
 
         /* RESPONSIVE */
         @media (max-width: 992px) {
@@ -578,7 +585,7 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ===== SIDEBAR ===== -->
 <div class="sidebar-custom" id="sidebar">
     <div class="sidebar-header">
         <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img"
@@ -602,7 +609,7 @@
     </ul>
 </div>
 
-<!-- NAVBAR -->
+<!-- ===== NAVBAR ===== -->
 <nav class="navbar">
     <div class="navbar-left">
         <div class="page-title">
@@ -611,7 +618,6 @@
     </div>
     <div class="navbar-right">
 
-        <!-- NOTIFICATION BELL -->
         <div class="notification-bell-wrap">
             <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
                 <i class="fas fa-bell"></i>
@@ -622,8 +628,8 @@
                     <div class="bell-dropdown-header-left">
                         <i class="fas fa-bullhorn"></i> Recent Announcements
                     </div>
-                    <button onclick="markAllRead(event)" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">
-                        <i class="fas fa-check-double"></i> Mark all
+                    <button class="mark-all-btn" onclick="markAllRead(event)">
+                        <i class="fas fa-check-double"></i> Mark all as read
                     </button>
                 </div>
                 <div class="bell-dropdown-body" id="bellList">
@@ -637,7 +643,6 @@
             </div>
         </div>
 
-        <!-- PROFILE DROPDOWN -->
         <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-trigger" onclick="toggleProfile()">
                 <div class="profile-avatar">
@@ -666,8 +671,9 @@
     </div>
 </nav>
 
-<!-- MAIN CONTENT -->
+<!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
+
     <div class="split-container">
 
         <!-- APPROVED SIDE -->
@@ -760,12 +766,55 @@
 
     </div>
 
+    <!-- CANCELLED SECTION (full-width) — GRAY -->
+    <div style="margin-top: 24px;">
+        <div class="split-card cancelled">
+            <div class="split-header">
+                <h2><i class="fas fa-ban"></i> Cancelled Events</h2>
+                <span class="split-count">{{ cancelled_events|length }}</span>
+            </div>
+
+            <div class="event-list" style="max-height: 500px;">
+                {% if cancelled_events %}
+                    {% for event in cancelled_events %}
+                    <div class="event-card" data-event-id="{{ event.id }}" data-status="cancelled">
+                        <div class="event-card-header">
+                            <div class="event-card-title">{{ event.event_name }}</div>
+                            <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
+                        </div>
+                        <div class="event-card-info">
+                            <div class="info-row">
+                                <i class="fas fa-user"></i>
+                                <span>{{ event.first_name }} {{ event.last_name }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>{{ event.event_date }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ event.start_time }} - {{ event.end_time }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Cancelled Events</h3>
+                        <p>Cancelled events will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
-        <p>2025 Barangay Sto. Nino, Paranaque City | Court 3 Reviewed Events</p>
+        <p>© 2025 Barangay Sto. Niño, Parañaque City | Court 3 Reviewed Events</p>
     </div>
 </div>
 
-<!-- VIEW MODAL -->
+<!-- ===== VIEW MODAL ===== -->
 <div class="modal-overlay" id="eventModal">
     <div class="modal-box">
         <div class="modal-header" id="modalHeader">
@@ -847,7 +896,7 @@
     </div>
 </div>
 
-<!-- FILE VIEWER MODAL -->
+<!-- ===== FILE VIEWER MODAL ===== -->
 <div class="modal-overlay" id="fileViewerModal">
     <div class="modal-box file-viewer-modal">
         <div class="modal-header approved">
@@ -862,24 +911,29 @@
     </div>
 </div>
 
-<!-- EVENTS DATA -->
+<!-- ===== EVENTS DATA ===== -->
 <script id="approved-events-data" type="application/json">
 {{ approved_events | tojson | safe }}
 </script>
 <script id="rejected-events-data" type="application/json">
 {{ rejected_events | tojson | safe }}
 </script>
+<script id="cancelled-events-data" type="application/json">
+{{ cancelled_events | tojson | safe }}
+</script>
 
 <script>
     const APPROVED_EVENTS = JSON.parse(document.getElementById('approved-events-data').textContent);
     const REJECTED_EVENTS = JSON.parse(document.getElementById('rejected-events-data').textContent);
+    const CANCELLED_EVENTS = JSON.parse(document.getElementById('cancelled-events-data').textContent);
 
     // ===== SIDEBAR TOGGLE =====
     function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const body = document.body;
+        var sidebar = document.getElementById('sidebar');
+        var body = document.body;
         sidebar.classList.toggle('expanded');
         body.classList.toggle('sidebar-expanded');
+        localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -887,6 +941,8 @@
             document.getElementById('sidebar').classList.add('expanded');
             document.body.classList.add('sidebar-expanded');
         }
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
     });
 
     const observer = new MutationObserver(function() {
@@ -897,49 +953,49 @@
 
     // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
-        const dd = document.getElementById('profileDropdown');
-        const bell = document.getElementById('bellDropdown');
+        var dd = document.getElementById('profileDropdown');
+        var bell = document.getElementById('bellDropdown');
         if (bell) bell.classList.remove('open');
         dd.classList.toggle('open');
     }
     document.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('profileDropdown');
+        var dropdown = document.getElementById('profileDropdown');
         if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
 
     // ===== NOTIFICATION BELL =====
     function toggleBell(event) {
         if (event) event.stopPropagation();
-        const dropdown = document.getElementById('bellDropdown');
-        const userDropdown = document.getElementById('profileDropdown');
+        var dropdown = document.getElementById('bellDropdown');
+        var userDropdown = document.getElementById('profileDropdown');
         if (userDropdown) userDropdown.classList.remove('open');
         dropdown.classList.toggle('open');
         if (dropdown.classList.contains('open')) loadRecentAnnouncements();
     }
 
     function loadRecentAnnouncements() {
-        const list = document.getElementById('bellList');
+        var list = document.getElementById('bellList');
         list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
         fetch('/api/announcements/recent?limit=5')
-            .then(res => res.json())
-            .then(data => {
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
                 if (!data.announcements || data.announcements.length === 0) {
                     list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
                     return;
                 }
-                let html = '';
-                data.announcements.forEach(a => {
-                    const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                    const isUnread = !a.is_read;
-                    const itemClass = isUnread ? 'bell-item unread' : 'bell-item';
-                    html += `<a href="javascript:void(0)" onclick="openAnnouncementFromBell(${a.id})" class="${itemClass}">
-                                <div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div>
-                                <div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div>
-                             </a>`;
+                var html = '';
+                data.announcements.forEach(function(a) {
+                    var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    var isUnread = (a.is_read === 0 || a.is_read === false || a.is_read === null || a.is_read === undefined);
+                    var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
+                    html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
+                        '<div class="bell-item-title">' + escapeHtmlBell(a.title || 'Untitled') + '</div>' +
+                        '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
+                    '</a>';
                 });
                 list.innerHTML = html;
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('Bell fetch error:', err);
                 list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
             });
@@ -947,16 +1003,16 @@
 
     function openAnnouncementFromBell(announcementId) {
         fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
                 if (data.success) {
                     updateBellBadge();
                     loadRecentAnnouncements();
                 }
             })
-            .catch(err => console.error('Mark read error:', err));
+            .catch(function(err) { console.error('Mark read error:', err); });
 
-        setTimeout(() => {
+        setTimeout(function() {
             window.location.href = '/admin/announcements';
         }, 300);
     }
@@ -964,23 +1020,23 @@
     function markAllRead(event) {
         if (event) event.stopPropagation();
         fetch('/api/announcements/mark-all-read', { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
                 if (data.success) {
                     updateBellBadge();
                     loadRecentAnnouncements();
                 }
             })
-            .catch(err => console.error('Mark all read error:', err));
+            .catch(function(err) { console.error('Mark all read error:', err); });
     }
 
     function updateBellBadge() {
         fetch('/api/announcements/unread_count')
-            .then(res => res.json())
-            .then(data => {
-                const badge = document.getElementById('bellBadge');
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var badge = document.getElementById('bellBadge');
                 if (!badge) return;
-                const count = data.unread_count || 0;
+                var count = data.unread_count || 0;
                 if (count > 0) {
                     badge.textContent = count > 99 ? '99+' : count;
                     badge.style.display = 'flex';
@@ -988,35 +1044,33 @@
                     badge.style.display = 'none';
                 }
             })
-            .catch(err => console.error('Badge fetch error:', err));
+            .catch(function(err) { console.error('Badge fetch error:', err); });
     }
 
     function escapeHtmlBell(text) {
-        const div = document.createElement('div');
+        var div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
     document.addEventListener('click', function(e) {
-        const bellWrap = document.querySelector('.notification-bell-wrap');
-        const dropdown = document.getElementById('bellDropdown');
+        var bellWrap = document.querySelector('.notification-bell-wrap');
+        var dropdown = document.getElementById('bellDropdown');
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBellBadge();
-        setInterval(updateBellBadge, 30000);
-    });
-
     // ===== MODAL LOGIC =====
-    let currentFileName = null;
+    var currentFileName = null;
 
     document.querySelectorAll('.event-card').forEach(function(card) {
         card.addEventListener('click', function() {
-            const eventId = parseInt(this.getAttribute('data-event-id'));
-            const status = this.getAttribute('data-status');
-            const eventList = status === 'approved' ? APPROVED_EVENTS : REJECTED_EVENTS;
-            const event = eventList.find(function(e) { return e.id === eventId; });
+            var eventId = parseInt(this.getAttribute('data-event-id'));
+            var status = this.getAttribute('data-status');
+            var eventList;
+            if (status === 'approved') eventList = APPROVED_EVENTS;
+            else if (status === 'rejected') eventList = REJECTED_EVENTS;
+            else if (status === 'cancelled') eventList = CANCELLED_EVENTS;
+            var event = eventList.find(function(e) { return e.id === eventId; });
             if (event) openModal(event, status);
         });
     });
@@ -1024,22 +1078,22 @@
     function formatDate(dateStr) {
         if (!dateStr || dateStr === 'N/A') return 'N/A';
         try {
-            let cleanDate = dateStr;
-            if (cleanDate.includes('T')) cleanDate = cleanDate.split('T')[0];
-            const date = new Date(cleanDate + 'T00:00:00');
+            var cleanDate = dateStr;
+            if (cleanDate.indexOf('T') !== -1) cleanDate = cleanDate.split('T')[0];
+            var date = new Date(cleanDate + 'T00:00:00');
             return date.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
         } catch (e) { return dateStr; }
     }
 
     function openModal(event, status) {
         currentFileName = null;
-        const modalHeader = document.getElementById('modalHeader');
-        const referenceHighlight = document.getElementById('referenceHighlight');
-        const statusBadge = document.getElementById('statusBadge');
-        const applicantAvatar = document.getElementById('applicantAvatar');
-        const sectionEventInfo = document.getElementById('sectionEventInfo');
-        const sectionPurpose = document.getElementById('sectionPurpose');
-        const modalTitle = document.getElementById('modalTitle');
+        var modalHeader = document.getElementById('modalHeader');
+        var referenceHighlight = document.getElementById('referenceHighlight');
+        var statusBadge = document.getElementById('statusBadge');
+        var applicantAvatar = document.getElementById('applicantAvatar');
+        var sectionEventInfo = document.getElementById('sectionEventInfo');
+        var sectionPurpose = document.getElementById('sectionPurpose');
+        var modalTitle = document.getElementById('modalTitle');
 
         modalHeader.className = 'modal-header ' + status;
         referenceHighlight.className = 'reference-highlight ' + status;
@@ -1051,45 +1105,49 @@
         if (status === 'approved') {
             modalTitle.innerHTML = '<i class="fas fa-check-circle"></i> Approved Event';
             statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Approved';
-        } else {
+        } else if (status === 'rejected') {
             modalTitle.innerHTML = '<i class="fas fa-times-circle"></i> Rejected Event';
             statusBadge.innerHTML = '<i class="fas fa-times-circle"></i> Rejected';
+        } else {
+            modalTitle.innerHTML = '<i class="fas fa-ban"></i> Cancelled Event';
+            statusBadge.innerHTML = '<i class="fas fa-ban"></i> Cancelled';
         }
 
         document.getElementById('refDisplay').textContent = event.reference_number || 'N/A';
-        const initial = (event.first_name || 'A')[0].toUpperCase();
+        var initial = (event.first_name || 'A')[0].toUpperCase();
         applicantAvatar.textContent = initial;
-        document.getElementById('applicantName').textContent = `${event.first_name || ''} ${event.last_name || ''}`.trim() || 'N/A';
+        document.getElementById('applicantName').textContent = ((event.first_name || '') + ' ' + (event.last_name || '')).trim() || 'N/A';
 
-        const contactClass = status === 'approved' ? 'approved-color' : 'rejected-color';
-        let contactHtml = '';
+        var contactClass = status === 'approved' ? 'approved-color' : (status === 'rejected' ? 'rejected-color' : 'cancelled-color');
+        var contactHtml = '';
         if (event.email) contactHtml += '<span><i class="fas fa-envelope ' + contactClass + '"></i> ' + event.email + '</span>';
         if (event.contact_number) contactHtml += '<span><i class="fas fa-phone ' + contactClass + '"></i> ' + event.contact_number + '</span>';
         document.getElementById('applicantContact').innerHTML = contactHtml || '<span>No contact info</span>';
 
         document.getElementById('eventNameDisplay').textContent = event.event_name || 'N/A';
         document.getElementById('eventDateDisplay').textContent = formatDate(event.event_date);
-        document.getElementById('eventTimeDisplay').textContent = `${event.start_time || '-'} - ${event.end_time || '-'}`;
+        document.getElementById('eventTimeDisplay').textContent = (event.start_time || '-') + ' - ' + (event.end_time || '-');
         document.getElementById('eventVenueDisplay').textContent = event.venue || 'N/A';
-        document.getElementById('eventAttendeesDisplay').textContent = `${event.estimated_attendees || 0} people`;
+        document.getElementById('eventAttendeesDisplay').textContent = (event.estimated_attendees || 0) + ' people';
         document.getElementById('eventPurposeDisplay').textContent = event.purpose || 'N/A';
         document.getElementById('eventDescDisplay').textContent = event.event_description || 'N/A';
 
-        const remarksDisplay = document.getElementById('remarksDisplay');
-        const remarksValue = document.getElementById('remarksValue');
+        var remarksDisplay = document.getElementById('remarksDisplay');
+        var remarksValue = document.getElementById('remarksValue');
         if (status === 'rejected' && event.admin_remarks) {
             remarksDisplay.style.display = 'block';
+            remarksDisplay.className = 'remarks-display';
             remarksValue.textContent = event.admin_remarks;
         } else {
             remarksDisplay.style.display = 'none';
         }
 
-        const fileSection = document.getElementById('filePreviewSection');
-        const viewFileBtn = document.getElementById('viewFileBtn');
+        var fileSection = document.getElementById('filePreviewSection');
+        var viewFileBtn = document.getElementById('viewFileBtn');
         if (event.requirements_file) {
             currentFileName = event.requirements_file;
             fileSection.style.display = 'block';
-            const newBtn = viewFileBtn.cloneNode(true);
+            var newBtn = viewFileBtn.cloneNode(true);
             viewFileBtn.parentNode.replaceChild(newBtn, viewFileBtn);
             newBtn.addEventListener('click', function() { viewFile(currentFileName); });
         } else {
@@ -1105,12 +1163,12 @@
     }
 
     function viewFile(filename) {
-        const modal = document.getElementById('fileViewerModal');
-        const preview = document.getElementById('filePreviewContainer');
+        var modal = document.getElementById('fileViewerModal');
+        var preview = document.getElementById('filePreviewContainer');
         modal.classList.add('active');
-        const fileExt = filename.split('.').pop().toLowerCase();
-        const fileUrl = `/uploads/${filename}`;
-        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+        var fileExt = filename.split('.').pop().toLowerCase();
+        var fileUrl = '/uploads/' + filename;
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].indexOf(fileExt) !== -1) {
             preview.innerHTML = '<img src="' + fileUrl + '" alt="Requirement"><br><a href="' + fileUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in New Tab</a>';
         } else if (fileExt === 'pdf') {
             preview.innerHTML = '<iframe src="' + fileUrl + '"></iframe><br><a href="' + fileUrl + '" target="_blank" class="download-btn"><i class="fas fa-download"></i> Download PDF</a>';
@@ -1124,7 +1182,7 @@
         document.getElementById('filePreviewContainer').innerHTML = '<p>Loading file...</p>';
     }
 
-    document.querySelectorAll('.modal-overlay').forEach(modal => {
+    document.querySelectorAll('.modal-overlay').forEach(function(modal) {
         modal.addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('active');
         });
