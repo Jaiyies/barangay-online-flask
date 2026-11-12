@@ -158,8 +158,8 @@ const globalTranslations = {
         'contact_phone': 'Contact Phone',
         'supporting_doc': 'Supporting Document',
         'submit_app': 'Submit Application',
-        'apply_10_days': 'Important: Apply 10 Days Before Event',
-        'apply_10_days_desc': 'Please submit your application at least 10 days before the event date to allow proper processing and review by the Barangay staff.',
+        'apply_3_days': 'Important: Apply 3 Days Before Event',
+        'apply_3_days_desc': 'Please submit your application at least 3 days before the event date to allow proper processing and review by the Barangay staff.',
         'allowed_hours': 'Allowed: 8:00 AM – 10:00 PM only',
         'max_attendees': 'Maximum of 300 attendees',
         'accepted_formats': 'Accepted formats: JPG, PNG, PDF, DOC, DOCX (Max 5MB)',
@@ -234,10 +234,9 @@ const globalTranslations = {
         'view_all_announcements': 'View All Announcements',
         'pinned': 'Pinned',
         'no_announcements': 'No Announcements Yet',
-        'no_announcements_desc': "Wala pang announcement na na-post.",
+        'no_announcements_desc': "No announcements have been posted yet.", // ✅ FIXED: English na
 
-                // Dagdag para sa Notification Panel
-        'recent_announcements': 'Recent Announcements',
+        // Dagdag para sa Notification Panel
         'mark_all': 'Mark all',
         'no_recent_announcements': 'No recent announcements',
         'loading': 'Loading...',
@@ -295,6 +294,7 @@ const globalTranslations = {
         'mother_name_placeholder': "Mother's Name",
         'spouse_name_placeholder': "Spouse's Name",
         'emergency_name_placeholder': 'Emergency Contact Name',
+        'emergency_no_placeholder': 'Emergency Contact No.',
 
         // Terms and Conditions - Apply Permit
         'tc_acceptance': '1. Acceptance of Terms',
@@ -382,7 +382,8 @@ const globalTranslations = {
         'time_label_modal': 'ORAS:',
         'venue_label_modal': 'LUGAR:',
         'status_label': 'STATUS:',
-        'please_save_number': 'Please save this number for tracking'
+        'please_save_number': 'Please save this number for tracking',
+        'contact_no_label': 'Contact No.',   // <-- DITO DAPAT ITO
     },
     'tl': {
         // Sidebar & Navigation
@@ -538,11 +539,11 @@ const globalTranslations = {
         'purpose': 'Layunin',
         'purpose_event': 'Layunin ng Kaganapan',
         'contact_person': 'Taong Kokontakin',
-        'contact_phone': 'Telepono ng Contact',
+        'contact_phone': 'Telepono ng Kokontakin',
         'supporting_doc': 'Sumusuportang Dokumento',
         'submit_app': 'I-submit ang Aplikasyon',
-        'apply_10_days': 'Mahalaga: Mag-apply 10 Araw Bago ang Kaganapan',
-        'apply_10_days_desc': 'Mangyaring i-submit ang iyong aplikasyon nang hindi bababa sa 10 araw bago ang petsa ng kaganapan upang bigyang-daan ang tamang pagproseso at pagsusuri ng Barangay staff.',
+        'apply_3_days': 'Mahalaga: Mag-apply 3 Araw Bago ang Kaganapan',
+        'apply_3_days_desc': 'Mangyaring i-submit ang iyong aplikasyon nang hindi bababa sa 3 araw bago ang petsa ng kaganapan upang bigyang-daan ang tamang pagproseso at pagsusuri ng Barangay staff.',
         'allowed_hours': 'Pinapayagan: 8:00 AM – 10:00 PM lamang',
         'max_attendees': 'Maximum na 300 dadalo',
         'accepted_formats': 'Tinatanggap na format: JPG, PNG, PDF, DOC, DOCX (Max 5MB)',
@@ -619,8 +620,7 @@ const globalTranslations = {
         'no_announcements': 'Wala Pang Anunsyo',
         'no_announcements_desc': 'Wala pang announcement na na-post.',
 
-                // Dagdag para sa Notification Panel
-        'recent_announcements': 'Mga Kamakailang Anunsyo',
+        // Dagdag para sa Notification Panel
         'mark_all': 'Markahan lahat',
         'no_recent_announcements': 'Walang kamakailang anunsyo',
         'loading': 'Naglo-load...',
@@ -702,7 +702,7 @@ const globalTranslations = {
         'no_file_chosen': 'Walang napiling file',
         'upload_file_text': 'Pumili ng File',
 
-        // Calendar Days & Menu (Pabuo na base sa request mo)
+        // Calendar Days & Menu
         'sun': 'LINGGO',
         'mon': 'LUNES',
         'tue': 'MARTES',
@@ -766,44 +766,91 @@ const globalTranslations = {
         'time_label_modal': 'ORAS:',
         'venue_label_modal': 'LUGAR:',
         'status_label': 'STATUS:',
-        'please_save_number': 'Paki-save ang numerong ito para sa pag-track'
+        'please_save_number': 'Paki-save ang numerong ito para sa pag-track',
+
+        // --- DAGDAG PARA SA VALID ID AT FILE UPLOAD ---
+        'valid_id_verification': 'Beripikasyon ng Valid ID',
+        'click_upload_drag': 'I-click upang mag-upload o i-drag at i-drop',
+        'upload_clear_id': 'MAG-UPLOAD NG MALINAW NA LITRATO NG IYONG VALID ID *',
+        'upload_format_note': 'JPG, PNG, PDF (Max: 5MB)',
+
+        // --- PARA SA CONTACT NO. SA REFERENCE ---
+        'contact_no_label': 'Numero ng Kontak',
+
+                
     }
 };
 
+
+
+
+
+// ============================================================
+// CORE TRANSLATION ENGINE
+// ============================================================
+
 function applyGlobalTranslation(lang) {
-    const dict = globalTranslations[lang] || globalTranslations['en'];
-    const englishDict = globalTranslations['en'];
-    
+    const targetDict = globalTranslations[lang] || globalTranslations['en'];
+    const isEnglish = (lang === 'en');
+
+    const sourceDict = isEnglish ? globalTranslations['tl'] : globalTranslations['en'];
+
+    const sourceMap = {};
+    Object.entries(sourceDict).forEach(([key, val]) => {
+        if (typeof val === 'string' && val.trim()) {
+            sourceMap[val.trim().toLowerCase()] = key;
+        }
+    });
+
+    const sortedSourceEntries = Object.entries(sourceDict)
+        .filter(([k, v]) => typeof v === 'string' && v.length > 5)
+        .sort((a, b) => b[1].length - a[1].length);
+
+    const englishMap = {};
+    Object.entries(globalTranslations['en']).forEach(([key, val]) => {
+        if (typeof val === 'string' && val.trim()) {
+            englishMap[val.trim().toLowerCase()] = key;
+        }
+    });
+
     function translateTextNode(node) {
         if (node.nodeType === 3) { // Text node
             let text = node.nodeValue;
             let trimmed = text.trim();
-            
+
             if (!trimmed || /^\d+$/.test(trimmed)) return;
-            
-            // 1. Direct Match
-            for (const [key, enValue] of Object.entries(englishDict)) {
-                if (trimmed.toLowerCase() === enValue.toLowerCase() && dict[key]) {
-                    node.nodeValue = text.replace(trimmed, dict[key]);
-                    return;
-                }
+
+            // 1. Exact match sa source map
+            const key = sourceMap[trimmed.toLowerCase()];
+            if (key && targetDict[key] !== undefined) {
+                node.nodeValue = text.replace(trimmed, targetDict[key]);
+                return;
             }
 
-            // 2. Advanced Partial Match (Para sa mga pangungusap na may <strong> sa gitna)
+            // 2. Kung naka-English, at English na ang text — skip na
+            if (isEnglish && englishMap[trimmed.toLowerCase()]) {
+                const engKey = englishMap[trimmed.toLowerCase()];
+                const correctEnglish = globalTranslations['en'][engKey];
+                if (correctEnglish && correctEnglish !== trimmed) {
+                    node.nodeValue = text.replace(trimmed, correctEnglish);
+                }
+                return;
+            }
+
+            // 3. Partial match
             let newText = text;
             let changed = false;
-            
-            // Ayusin ang pagkakasunod-sunod: Pinakamahabang salita muna para hindi mag-conflict
-            const sortedEntries = Object.entries(englishDict).sort((a, b) => b[1].length - a[1].length);
-            
-            for (const [key, enValue] of sortedEntries) {
-                if (dict[key] && enValue.length > 5 && !newText.includes(dict[key])) {
-                    const escapedEnValue = enValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp(escapedEnValue, 'gi');
-                    if (regex.test(newText)) {
-                        newText = newText.replace(regex, dict[key]);
-                        changed = true;
-                    }
+
+            for (const [k, srcVal] of sortedSourceEntries) {
+                if (targetDict[k] === undefined) continue;
+                if (targetDict[k] === srcVal) continue;
+                if (newText.toLowerCase().includes(targetDict[k].toLowerCase())) continue;
+
+                const escaped = srcVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(escaped, 'gi');
+                if (regex.test(newText)) {
+                    newText = newText.replace(regex, targetDict[k]);
+                    changed = true;
                 }
             }
             if (changed) {
@@ -811,147 +858,197 @@ function applyGlobalTranslation(lang) {
             }
         } else if (node.nodeType === 1) { // Element node
             if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
-            
-            // Translate placeholder attributes
+
+            // Placeholder attribute
             if (node.hasAttribute('placeholder')) {
-                let placeholderText = node.getAttribute('placeholder').trim();
-                for (const [key, enValue] of Object.entries(englishDict)) {
-                    if (placeholderText.toLowerCase() === enValue.toLowerCase() && dict[key]) {
-                        node.setAttribute('placeholder', dict[key]);
-                        break;
-                    }
+                const p = node.getAttribute('placeholder').trim();
+                const k = sourceMap[p.toLowerCase()];
+                if (k && targetDict[k] !== undefined) {
+                    node.setAttribute('placeholder', targetDict[k]);
                 }
             }
 
-            // Translate value attributes
-            if (node.tagName === 'INPUT' && (node.type === 'submit' || node.type === 'button' || node.type === 'reset')) {
-                let valText = node.value.trim();
-                for (const [key, enValue] of Object.entries(englishDict)) {
-                    if (valText.toLowerCase() === enValue.toLowerCase() && dict[key]) {
-                        node.value = dict[key];
-                        break;
-                    }
+            // Value attribute (buttons)
+            if (node.tagName === 'INPUT' &&
+                (node.type === 'submit' || node.type === 'button' || node.type === 'reset')) {
+                const v = node.value.trim();
+                const k = sourceMap[v.toLowerCase()];
+                if (k && targetDict[k] !== undefined) {
+                    node.value = targetDict[k];
                 }
             }
 
-            // Translate title attributes
+            // Title attribute
             if (node.hasAttribute('title')) {
-                let titleText = node.getAttribute('title').trim();
-                for (const [key, enValue] of Object.entries(englishDict)) {
-                    if (titleText.toLowerCase() === enValue.toLowerCase() && dict[key]) {
-                        node.setAttribute('title', dict[key]);
-                        break;
-                    }
+                const t = node.getAttribute('title').trim();
+                const k = sourceMap[t.toLowerCase()];
+                if (k && targetDict[k] !== undefined) {
+                    node.setAttribute('title', targetDict[k]);
                 }
             }
-            
+
+            // data-translate key
             const dataKey = node.getAttribute('data-translate');
-            if (dataKey && dict[dataKey]) {
-                node.textContent = dict[dataKey];
+            if (dataKey && targetDict[dataKey] !== undefined) {
+                node.textContent = targetDict[dataKey];
                 return;
             }
-            
+
+            // .translatable class
             if (node.classList.contains('translatable')) {
                 let key = node.getAttribute('data-original-text');
                 if (!key) {
                     key = node.textContent.trim();
                     node.setAttribute('data-original-text', key);
                 }
-                
-                let translated = null;
-                for (const [dictKey, enValue] of Object.entries(englishDict)) {
-                    if (enValue.toLowerCase() === key.toLowerCase() && dict[dictKey]) {
-                        translated = dict[dictKey];
-                        break;
-                    }
-                }
-                
-                if (translated) {
-                    node.textContent = translated;
+                const k = sourceMap[key.toLowerCase()];
+                if (k && targetDict[k] !== undefined) {
+                    node.textContent = targetDict[k];
                 }
                 return;
             }
-            
+
             node.childNodes.forEach(child => translateTextNode(child));
         }
     }
-    
+
     if (document.body) {
         translateTextNode(document.body);
     }
 }
 
-// ✅ AUTO-TRANSLATE CALENDAR (Kapag naka-Tagalog)
+// ============================================================
+// CALENDAR TRANSLATION (English at Tagalog)
+// ============================================================
 function translateCalendar() {
     const lang = localStorage.getItem('language') || 'en';
-    if (lang !== 'tl') return;
 
-    // 1. I-override ang FullCalendar locale
+    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthsTl = ['Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo', 'Hulyo', 'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre'];
+    const daysEn = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const daysTl = ['LINGGO', 'LUNES', 'MARTES', 'MIYERKULES', 'HUWEBES', 'BIYERNES', 'SABADO'];
+
+    // I-override ang FullCalendar locale at button texts
     if (window.mainCalendar && typeof window.mainCalendar.setOption === 'function') {
-        window.mainCalendar.setOption('locale', 'tl');
-        window.mainCalendar.setOption('buttonText', {
-            today: 'Ngayon',
-            month: 'Buwan',
-            week: 'Linggo',
-            day: 'Araw',
-            list: 'Listahan'
-        });
+        if (lang === 'tl') {
+            window.mainCalendar.setOption('locale', 'tl');
+            window.mainCalendar.setOption('buttonText', {
+                today: 'Ngayon', month: 'Buwan', week: 'Linggo', day: 'Araw', list: 'Listahan', year: 'Taon'
+            });
+            window.mainCalendar.setOption('views', {
+                dayGridMonth: { buttonText: 'Buwan' },
+                timeGridWeek: { buttonText: 'Linggo' },
+                timeGridDay: { buttonText: 'Araw' },
+                listWeek: { buttonText: 'Listahan' },
+                multiMonthYear: { buttonText: 'Taon' }
+            });
+        } else {
+            window.mainCalendar.setOption('locale', 'en');
+            window.mainCalendar.setOption('buttonText', {
+                today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List', year: 'Year'
+            });
+            window.mainCalendar.setOption('views', {
+                dayGridMonth: { buttonText: 'Month' },
+                timeGridWeek: { buttonText: 'Week' },
+                timeGridDay: { buttonText: 'Day' },
+                listWeek: { buttonText: 'List' },
+                multiMonthYear: { buttonText: 'Year' }
+            });
+        }
     }
 
-    // 2. I-override ang "month title" (e.g., November -> Nobyembre)
+    // Month title
     const monthTitle = document.querySelector('.fc-toolbar-title');
     if (monthTitle) {
-        const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const monthsTl = ['Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo', 'Hulyo', 'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre'];
-        
-        let currentTitle = monthTitle.textContent;
-        monthsEn.forEach((enMonth, index) => {
-            if (currentTitle.includes(enMonth)) {
-                currentTitle = currentTitle.replace(enMonth, monthsTl[index]);
-            }
-        });
-        monthTitle.textContent = currentTitle;
+        let t = monthTitle.textContent;
+        if (lang === 'tl') {
+            monthsEn.forEach((en, i) => { if (t.includes(en)) t = t.replace(en, monthsTl[i]); });
+        } else {
+            monthsTl.forEach((tl, i) => { if (t.includes(tl)) t = t.replace(tl, monthsEn[i]); });
+        }
+        monthTitle.textContent = t;
     }
 
-    // 3. I-override ang mga araw (SUN, MON -> LINGGO, LUNES)
+    // Day headers
     const dayHeaders = document.querySelectorAll('.fc-col-header-cell-cushion');
-    // Pabuo na base sa request mo bro
-    const tagalogDays = ['LINGGO', 'LUNES', 'MARTES', 'MIYERKULES', 'HUWEBES', 'BIYERNES', 'SABADO'];
+    const targetDays = lang === 'tl' ? daysTl : daysEn;
     dayHeaders.forEach((header, index) => {
-        header.textContent = tagalogDays[index % 7];
+        header.textContent = targetDays[index % 7];
+    });
+
+    // ✅ MANUAL OVERRIDE PARA SA MGA BUTTONS AT DROPDOWN (Pilitin magpalit)
+    const toolbarChunks = document.querySelectorAll('.fc-toolbar-chunk');
+    toolbarChunks.forEach(chunk => {
+        const buttons = chunk.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const txt = btn.textContent.trim();
+            if (lang === 'tl') {
+                if (txt === 'Today') btn.textContent = 'Ngayon';
+                else if (txt === 'Month') btn.textContent = 'Buwan';
+                else if (txt === 'Year') btn.textContent = 'Taon';
+                else if (txt === 'Week') btn.textContent = 'Linggo';
+                else if (txt === 'Day') btn.textContent = 'Araw';
+            } else {
+                if (txt === 'Ngayon') btn.textContent = 'Today';
+                else if (txt === 'Buwan') btn.textContent = 'Month';
+                else if (txt === 'Taon') btn.textContent = 'Year';
+                else if (txt === 'Linggo') btn.textContent = 'Week';
+                else if (txt === 'Araw') btn.textContent = 'Day';
+            }
+        });
+
+        const selects = chunk.querySelectorAll('select');
+        selects.forEach(sel => {
+            Array.from(sel.options).forEach(opt => {
+                const optTxt = opt.textContent.trim();
+                if (lang === 'tl') {
+                    if (optTxt === 'Month') opt.textContent = 'Buwan';
+                    else if (optTxt === 'Year') opt.textContent = 'Taon';
+                } else {
+                    if (optTxt === 'Buwan') opt.textContent = 'Month';
+                    else if (optTxt === 'Taon') opt.textContent = 'Year';
+                }
+            });
+        });
     });
 }
 
-// ✅ Para itago ang mga alert box na may English text kapag naka-Tagalog
+// ============================================================
+// HIDE ENGLISH ALERTS (Tagalog only)
+// ============================================================
 function hideEnglishAlerts(lang) {
-    if (lang === 'tl') {
-        const alerts = document.querySelectorAll('.alert, .alert-warning, .bg-yellow-100, [role="alert"]');
-        alerts.forEach(alert => {
-            if (alert.textContent.includes('Please') || 
-                alert.textContent.includes('Make sure') || 
-                alert.textContent.includes('Important') || 
-                alert.textContent.includes('submit')) {
-                alert.style.display = 'none'; 
-            }
-        });
-    }
+    if (lang !== 'tl') return;
+    const alerts = document.querySelectorAll('.alert, .alert-warning, .bg-yellow-100, [role="alert"]');
+    alerts.forEach(alert => {
+        if (alert.textContent.includes('Please') ||
+            alert.textContent.includes('Make sure') ||
+            alert.textContent.includes('Important') ||
+            alert.textContent.includes('submit')) {
+            alert.style.display = 'none';
+        }
+    });
 }
 
-// ✅ Para maging Tagalog ang browser validation popup (Final Fix)
+// ============================================================
+// BROWSER VALIDATION
+// ============================================================
 function overrideBrowserValidation(lang) {
-    if (lang !== 'tl') return;
-
-    const applyValidation = () => {
+    if (lang !== 'tl') {
         document.querySelectorAll('input, textarea, select').forEach(input => {
-            // Skip hidden inputs
-            if (input.type === 'hidden') return;
-
-            // Tanggalin muna ang existing listeners para hindi mag-doble
             input.removeEventListener('invalid', handleInvalid);
             input.removeEventListener('input', handleInput);
             input.removeEventListener('change', handleInput);
+            input.setCustomValidity('');
+        });
+        return;
+    }
 
-            // Idagdag ulit
+    const applyValidation = () => {
+        document.querySelectorAll('input, textarea, select').forEach(input => {
+            if (input.type === 'hidden') return;
+            input.removeEventListener('invalid', handleInvalid);
+            input.removeEventListener('input', handleInput);
+            input.removeEventListener('change', handleInput);
             input.addEventListener('invalid', handleInvalid);
             input.addEventListener('input', handleInput);
             input.addEventListener('change', handleInput);
@@ -959,30 +1056,28 @@ function overrideBrowserValidation(lang) {
     };
 
     function handleInvalid(e) {
-        // Dito natin pinapalitan ang default English message
         this.setCustomValidity("Mangyaring punan ang field na ito.");
     }
-
     function handleInput(e) {
-        // Binabalik sa normal para mawala ang error kapag may tinype na
         this.setCustomValidity("");
     }
 
-    // Patakbuhin agad
     applyValidation();
-
-    // Patakbuhin muli after 500ms para sa mga dynamic na input (tulad ng datepicker)
     setTimeout(applyValidation, 500);
 }
 
-// ✅ Para maging Tagalog ang File Upload UI
+// ============================================================
+// FILE UPLOAD UI
+// ============================================================
 function overrideFileUploadUI(lang) {
+    document.querySelectorAll('.custom-file-upload-wrapper').forEach(w => w.remove());
+
     const fileInputs = document.querySelectorAll('input[type="file"]');
     fileInputs.forEach(input => {
         input.style.opacity = '0';
         input.style.position = 'absolute';
         input.style.zIndex = '-1';
-        
+
         const wrapper = document.createElement('div');
         wrapper.className = 'custom-file-upload-wrapper';
         wrapper.style.display = 'flex';
@@ -996,21 +1091,21 @@ function overrideFileUploadUI(lang) {
         wrapper.style.fontSize = '14px';
         wrapper.style.width = '100%';
         wrapper.style.boxSizing = 'border-box';
-        
+
         const chooseBtnText = lang === 'tl' ? 'Pumili ng File' : 'Choose File';
         const noFileText = lang === 'tl' ? 'Walang napiling file' : 'No file chosen';
-        
+
         wrapper.innerHTML = `
             <span style="border: 1px solid #999; padding: 2px 8px; background: #f0f0f0; margin-right: 10px; border-radius: 3px;">${chooseBtnText}</span>
             <span class="file-name-display">${noFileText}</span>
         `;
-        
+
         input.parentNode.insertBefore(wrapper, input);
-        
+
         wrapper.addEventListener('click', () => {
             input.click();
         });
-        
+
         input.addEventListener('change', (e) => {
             const fileNameDisplay = wrapper.querySelector('.file-name-display');
             if (e.target.files.length > 0) {
@@ -1022,28 +1117,33 @@ function overrideFileUploadUI(lang) {
     });
 }
 
+// ============================================================
+// LANGUAGE SWITCH
+// ============================================================
 function setGlobalLanguage(lang) {
     localStorage.setItem('language', lang);
     location.reload();
 }
 
+// ============================================================
+// INIT
+// ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     const savedLang = localStorage.getItem('language') || 'en';
-    
+
     const langText = document.getElementById('currentLangText');
     if (langText) {
         langText.textContent = savedLang === 'tl' ? 'Tagalog' : 'English';
     }
-    
+
+    applyGlobalTranslation(savedLang);
+    overrideBrowserValidation(savedLang);
+    overrideFileUploadUI(savedLang);
+
     if (savedLang === 'tl') {
-        applyGlobalTranslation('tl');
-        overrideBrowserValidation('tl');
-        overrideFileUploadUI('tl');
-        hideEnglishAlerts('tl'); 
-        
-        setTimeout(translateCalendar, 300);
-        setTimeout(translateCalendar, 1000); 
-    } else {
-        overrideFileUploadUI('en');
+        hideEnglishAlerts('tl');
     }
+
+    setTimeout(translateCalendar, 300);
+    setTimeout(translateCalendar, 1000);
 });

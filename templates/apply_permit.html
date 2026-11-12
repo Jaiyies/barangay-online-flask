@@ -2377,6 +2377,178 @@
             outline: none !important;
         }
 
+        /* ===== CLEAR CONFIRM MODAL ===== */
+#clearConfirmModal {
+    z-index: 9999999 !important;
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 61, 42, 0.55);
+    backdrop-filter: blur(12px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+#clearConfirmModal.active { display: flex !important; }
+
+.clear-confirm-box {
+    background: white;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+
+.clear-confirm-header {
+    background: linear-gradient(135deg, #dc3545, #a71d2a);
+    padding: 24px 20px;
+    color: white;
+    position: relative;
+}
+
+.clear-confirm-icon {
+    width: 60px; height: 60px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 24px;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.clear-confirm-header h2 {
+    font-size: 20px; font-weight: 800;
+    margin: 0; letter-spacing: -0.02em;
+}
+.clear-confirm-header p {
+    font-size: 13px; opacity: 0.9; margin-top: 4px;
+}
+
+.clear-confirm-body {
+    padding: 20px 24px;
+}
+
+.clear-confirm-body p {
+    color: var(--neutral-700);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.clear-confirm-footer {
+    display: flex; gap: 10px;
+    padding: 0 24px 24px;
+}
+
+.clear-confirm-footer button {
+    flex: 1;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.clear-confirm-footer .btn-clear-cancel {
+    background: var(--neutral-100);
+    color: var(--neutral-700);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.clear-confirm-footer .btn-clear-cancel:hover {
+    background: var(--neutral-200);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+}
+
+.clear-confirm-footer .btn-clear-confirm {
+    background: linear-gradient(135deg, #dc3545, #a71d2a);
+    color: white;
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+}
+.clear-confirm-footer .btn-clear-confirm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px rgba(220, 53, 69, 0.4);
+}
+
+/* ===== VALID ID UPLOAD AREA ===== */
+.file-upload-area {
+    border: 2px dashed var(--neutral-200);
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--neutral-50);
+    position: relative;
+    box-shadow: 
+        0 4px 12px rgba(15, 61, 42, 0.05),
+        0 2px 4px rgba(15, 61, 42, 0.03);
+}
+.file-upload-area:hover {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 28px rgba(34, 139, 84, 0.15),
+        0 4px 10px rgba(34, 139, 84, 0.08);
+}
+.file-upload-area i {
+    font-size: 32px;
+    color: var(--primary-500);
+    display: block;
+    margin-bottom: 8px;
+    transition: transform 0.2s ease;
+}
+.file-upload-area:hover i {
+    transform: scale(1.1) translateY(-3px);
+}
+.file-upload-area p {
+    font-size: 0.9rem;
+    color: var(--neutral-700);
+    font-weight: 500;
+}
+.file-upload-area .file-types {
+    font-size: 0.75rem;
+    color: var(--neutral-500);
+    margin-top: 4px;
+    font-weight: 400;
+}
+
+.file-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+.file-tag {
+    background: var(--primary-50);
+    padding: 5px 12px 5px 10px;
+    border-radius: 18px;
+    font-size: 0.8rem;
+    color: var(--primary-800);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--primary-100);
+    font-weight: 500;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(34, 139, 84, 0.08);
+}
+.file-tag:hover {
+    background: var(--primary-100);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 139, 84, 0.15);
+}
+.file-tag i { color: var(--primary-500); cursor: pointer; transition: color 0.15s; }
+.file-tag i:hover { color: var(--accent-600); }
+        
+
+
     </style>
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
@@ -2402,9 +2574,7 @@
         <a href="/apply-permit" class="active" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
         <a href="/my-requests" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
         <a href="{{ url_for('events') }}" data-tooltip="Events Calendar"><i class="fas fa-calendar-alt"></i> <span class="translatable">Events Calendar</span></a>
-        <a href="{{ url_for('settings') }}" id="sidebarSettingsLink" data-tooltip="Settings" class="{% if request.endpoint == 'settings' %}active{% endif %}">
-            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-        </a>
+       
       </nav>
 
       <div class="sidebar-footer">
@@ -2494,8 +2664,8 @@
               <div class="banner">
             <i class="fas fa-clock"></i>
             <div class="banner-content">
-                <h4 data-translate="apply_10_days">⚠️ Important: Apply 10 Days Before Event</h4>
-                <p data-translate="apply_10_days_desc">Please submit your application at least 10 days before the event date to allow proper processing and review by the Barangay staff.</p>
+                <h4 data-translate="apply_10_days">⚠️ Important: Apply 3  Days Before Event</h4>
+                <p data-translate="apply_10_days_desc">Please submit your application at least 3 days before the event date to allow proper processing and review by the Barangay staff.</p>
             </div>
         </div>
 
@@ -2597,6 +2767,33 @@
                         </div>
                     </div>
                 </div>
+ 
+              
+
+<!-- VALID ID VERIFICATION -->
+<div class="form-section-title">
+    <i class="fas fa-id-card"></i> 
+    <span data-translate="valid_id_verification">Valid ID Verification</span>
+</div>
+
+<div class="form-group" style="margin-top: 15px; margin-bottom: 24px;">
+    <label>
+        <span data-translate="upload_clear_id">Upload a Clear Photo of Your Valid ID</span> 
+        <span class="required">*</span>
+    </label>
+    
+    <div class="file-upload-area" id="validIdUploadArea" onclick="document.getElementById('validIdInput').click()">
+        <i class="fas fa-id-card"></i>
+        <p><strong data-translate="click_upload_drag">Click to upload or drag and drop</strong></p>
+        <p class="file-types" data-translate="upload_format_note">JPG, PNG, PDF (Max: 5MB)</p>
+        <input type="file" name="valid_id" id="validIdInput" accept=".jpg,.jpeg,.png,.pdf" required style="display: none;">
+    </div>
+    
+    <!-- ISA LANG ITO DAPAT -->
+    <div class="file-list" id="validIdFileList"></div>
+</div>
+
+
 
                 <div class="form-section-title"><i class="fas fa-address-book"></i> <span data-translate="contact_info">Contact Information</span></div>
                 <div class="form-row">
@@ -2638,7 +2835,7 @@
                                 <li>End Time: <strong>8:00 AM - 10:00 PM</strong></li>
                                 <li>Proper waste management must be observed</li>
                                 <li>No excessive noise beyond barangay limits</li>
-                                <li>Event must be 10 days before the event date</li>
+                                <li>Event must be 3 days before the event date</li>
                             </ul>
                             <p><strong>3. Responsibility</strong><br>The applicant is fully responsible for the event and must ensure the safety and orderliness of the activity.</p>
                             <p><strong>4. Data Privacy</strong><br>Your information will be used solely for permit processing and barangay records in accordance with the Data Privacy Act.</p>
@@ -2817,7 +3014,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
             const today = new Date();
             const minDate = new Date(today);
-            minDate.setDate(today.getDate() + 10);
+            minDate.setDate(today.getDate() + 3);
             document.getElementById('eventDate').min = minDate.toISOString().split('T')[0];
 
             initCustomSelects();
@@ -2849,9 +3046,9 @@ document.addEventListener('DOMContentLoaded', function() {
             let currentDate = new Date();
             let selectedDate = null;
             
-            // === 10 DAYS RULE LOGIC ===
-            let today = new Date();
-            let minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 10); 
+          // === 3 DAYS RULE LOGIC ===
+let today = new Date();
+let minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 3);
 
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
@@ -3287,54 +3484,63 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function validateTimeRange() {
-            const start = startTimeInput.value;
-            const end = endTimeInput.value;
-            const statusDiv = document.getElementById('availabilityStatus');
-            const messageSpan = document.getElementById('availabilityMessage');
+    const start = startTimeInput.value;
+    const end = endTimeInput.value;
+    const statusDiv = document.getElementById('availabilityStatus');
+    const messageSpan = document.getElementById('availabilityMessage');
 
-            startTimeInput.classList.remove('error');
-            endTimeInput.classList.remove('error');
+    // Linisin muna ang dating error state
+    startTimeInput.classList.remove('error');
+    endTimeInput.classList.remove('error');
 
-            if (!start || !end) return true;
+    // --- SIMULA NG BAGONG LOGIC ---
+    
+    // 1. Suriin agad ang Start Time kung meron
+    if (start && !isWithinAllowedHours(start)) {
+        startTimeInput.classList.add('error');
+        statusDiv.className = 'availability-status visible unavailable';
+        statusDiv.style.display = 'flex';
+        messageSpan.innerHTML = '⚠️ Start time must be between 8:00 AM and 10:00 PM only.';
+        return false;
+    }
 
-            if (!isWithinAllowedHours(start)) {
-                startTimeInput.classList.add('error');
-                statusDiv.className = 'availability-status visible unavailable';
-                statusDiv.style.display = 'flex';
-                messageSpan.innerHTML = '⚠️ Start time must be between 8:00 AM and 10:00 PM only.';
-                return false;
-            }
-            if (!isWithinAllowedHours(end)) {
-                endTimeInput.classList.add('error');
-                statusDiv.className = 'availability-status visible unavailable';
-                statusDiv.style.display = 'flex';
-                messageSpan.innerHTML = '⚠️ End time must be between 8:00 AM and 10:00 PM only.';
-                return false;
-            }
+    // 2. Suriin agad ang End Time kung meron
+    if (end && !isWithinAllowedHours(end)) {
+        endTimeInput.classList.add('error');
+        statusDiv.className = 'availability-status visible unavailable';
+        statusDiv.style.display = 'flex';
+        messageSpan.innerHTML = '⚠️ End time must be between 8:00 AM and 10:00 PM only.';
+        return false;
+    }
 
-            if (start >= end) {
-                startTimeInput.classList.add('error');
-                endTimeInput.classList.add('error');
-                statusDiv.className = 'availability-status visible unavailable';
-                statusDiv.style.display = 'flex';
-                messageSpan.innerHTML = '⚠️ End time must be after start time.';
-                return false;
-            }
-
-            return true;
+    // 3. Kung kumpleto na pareho, tsaka natin ikumpara kung valid ang range
+    if (start && end) {
+        if (start >= end) {
+            startTimeInput.classList.add('error');
+            endTimeInput.classList.add('error');
+            statusDiv.className = 'availability-status visible unavailable';
+            statusDiv.style.display = 'flex';
+            messageSpan.innerHTML = '⚠️ End time must be after start time.';
+            return false;
         }
+    }
 
+    // Kung wala pang nilalagay o okay naman lahat, hayaan lang (walang error)
+    return true;
+}
         eventDateInput.addEventListener('change', function() {
             const selectedDate = new Date(this.value);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const diffDays = Math.ceil((selectedDate - today) / (1000 * 60 * 60 * 24));
 
-            if (diffDays < 10) {
-                alert('⚠️ Please apply at least 10 days before the event date.');
+            if (diffDays < 3) {const langAlert = localStorage.getItem('language') || 'en';
+              alert(langAlert === 'tl' 
+    ? '⚠️ Mangyaring mag-apply nang hindi bababa sa 3 araw bago ang petsa ng kaganapan.' 
+    : '⚠️ Please apply at least 3 days before the event date.');
                 this.value = '';
                 const minDate = new Date(today);
-                minDate.setDate(today.getDate() + 10);
+                minDate.setDate(today.getDate() + 3);
                 this.min = minDate.toISOString().split('T')[0];
             }
             checkAvailability();
@@ -3360,11 +3566,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (availabilityCheckTimeout) clearTimeout(availabilityCheckTimeout);
 
-            if (!date || !startTime || !endTime || !venue) {
-                statusDiv.className = 'availability-status';
-                statusDiv.style.display = 'none';
-                return;
-            }
+          if (!date || !startTime || !endTime || !venue) {
+    // Kung may error sa oras (red border), huwag itago ang warning
+    if (!startTimeInput.classList.contains('error') && !endTimeInput.classList.contains('error')) {
+        statusDiv.className = 'availability-status';
+        statusDiv.style.display = 'none';
+    }
+    return;
+}
 
             if (!validateTimeRange()) return;
 
@@ -3403,14 +3612,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         }
 
-        startTimeInput.addEventListener('change', function() {
-            validateTimeRange();
-            checkAvailability();
-        });
-        endTimeInput.addEventListener('change', function() {
-            validateTimeRange();
-            checkAvailability();
-        });
+      startTimeInput.addEventListener('input', function() {
+    validateTimeRange(); // I-validate agad ang oras
+    checkAvailability(); // Check kung kumpleto na lahat
+});
+startTimeInput.addEventListener('change', function() {
+    validateTimeRange();
+    checkAvailability();
+});
+
+endTimeInput.addEventListener('input', function() {
+    validateTimeRange(); // I-validate agad ang oras
+    checkAvailability(); // Check kung kumpleto na lahat
+});
+endTimeInput.addEventListener('change', function() {
+    validateTimeRange();
+    checkAvailability();
+});
+
         eventDateInput.addEventListener('change', checkAvailability);
 
         document.getElementById('requirement').addEventListener('change', function() {
@@ -3505,19 +3724,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     isValid = false;
                 }
             });
-            
-            if (!isValid) {
-                alert(lang === 'tl' 
-                    ? 'Mangyaring punan ang lahat ng kinakailangang field (may markang *).' 
-                    : 'Please fill in all required fields (marked with *).');
+         
+                        if (!isValid) {
+                // Tinanggal ang alert() para walang popup
                 resetSubmitBtn();
                 if (firstErrorField) {
+                    
+                    // Siguraduhing pula ang border bago mag-scroll
+                    if (firstErrorField.classList.contains('custom-select')) {
+                        firstErrorField.querySelector('.custom-select-trigger').style.borderColor = '#dc3545';
+                        firstErrorField.querySelector('.custom-select-trigger').style.boxShadow = '0 0 0 4px rgba(220, 53, 69, 0.1)';
+                    } else if (firstErrorField.classList.contains('file-upload-area')) {
+                        firstErrorField.style.borderColor = '#dc3545';
+                        firstErrorField.style.background = '#fef2f2';
+                    } else {
+                        firstErrorField.style.borderColor = '#dc3545';
+                        firstErrorField.style.boxShadow = '0 0 0 4px rgba(220, 53, 69, 0.1)';
+                    }
+
+                    // Mag-scroll pabalik sa unang error
                     firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstErrorField.focus();
+                    
+                    // Focus kung input/select/textarea
+                    if (firstErrorField.focus && typeof firstErrorField.focus === 'function') {
+                        firstErrorField.focus();
+                    }
                 }
                 return;
             }
-
+            
             if (!validateTimeRange()) {
                 alert(lang === 'tl' ? 'Mangyaring ayusin ang error sa oras.' : 'Please fix the time errors.');
                 resetSubmitBtn();
@@ -3539,6 +3774,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 resetSubmitBtn();
                 return;
             }
+
+            // VALID ID VALIDATION
+const validIdInput = document.getElementById('validIdInput');
+const validIdUploadArea = document.getElementById('validIdUploadArea');
+if (validIdInput && validIdInput.files.length === 0) {
+    validIdUploadArea.style.borderColor = '#dc3545';
+    alert(lang === 'tl' ? 'Mangyaring mag-upload ng malinaw na larawan ng iyong Valid ID.' : 'Please upload a clear photo of your Valid ID.');
+    validIdUploadArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    resetSubmitBtn();
+    return;
+}
 
             if (statusDiv.classList.contains('unavailable')) {
                 alert(lang === 'tl' ? 'Hindi available ang slot na ito. Pakisuri muna ang availability.' : 'This time slot is not available. Please check the availability first.');
@@ -3577,10 +3823,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('termsErrorMsg').classList.remove('visible');
                     attendeesInput.classList.remove('error');
                     resetCustomSelects();
+                    
+                    // Reset Valid ID
+if (document.getElementById('validIdFileList')) {
+    document.getElementById('validIdFileList').innerHTML = '';
+}
+if (document.getElementById('validIdInput')) {
+    document.getElementById('validIdInput').value = '';
+}
+if (document.getElementById('validIdUploadArea')) {
+    document.getElementById('validIdUploadArea').style.borderColor = '';
+    document.getElementById('validIdUploadArea').style.background = '';
+}
 
                     const today = new Date();
                     const minDate = new Date(today);
-                    minDate.setDate(today.getDate() + 10);
+                    minDate.setDate(today.getDate() + 3);
                     eventDateInput.min = minDate.toISOString().split('T')[0];
 
                     if (termsOpen) toggleTerms();
@@ -3596,9 +3854,192 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
+                // ==========================================
+        // ===== CLEAR FORM CONFIRMATION (BAGO) =====
+        // ==========================================
+        
+        // 1. Kapag clinick ang "Clear Form" button, buksan ang confirmation modal
+        const clearBtnPermit = document.getElementById('clearBtn');
+        if (clearBtnPermit) {
+            clearBtnPermit.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('clearConfirmModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        // 2. Function para isara ang modal (Cancel button)
+        function closeClearConfirmModal() {
+            document.getElementById('clearConfirmModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 3. Function para i-clear talaga ang form (Yes button)
+        function confirmClearPermitForm() {
+            const form = document.getElementById('permitForm');
+            form.reset();
+
+            // Reset custom selects (venue)
+            resetCustomSelects();
+
+            // Reset valid ID upload
+            const validIdFileList = document.getElementById('validIdFileList');
+            const validIdInput = document.getElementById('validIdInput');
+            const validIdUploadArea = document.getElementById('validIdUploadArea');
+            if (validIdFileList) validIdFileList.innerHTML = '';
+            if (validIdInput) validIdInput.value = '';
+            if (validIdUploadArea) {
+                validIdUploadArea.style.borderColor = '';
+                validIdUploadArea.style.background = '';
+            }
+
+            // Reset event date display at hidden input
+            const eventDateDisplay = document.getElementById('eventDateDisplay');
+            const eventDateHidden = document.getElementById('eventDate');
+            if (eventDateDisplay) eventDateDisplay.value = '';
+            if (eventDateHidden) eventDateHidden.value = '';
+
+            // Reset min date (3 days from today)
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setDate(today.getDate() + 3);
+            if (eventDateHidden) eventDateHidden.min = minDate.toISOString().split('T')[0];
+
+            // Reset terms checkbox
+            document.getElementById('termsCheckbox').checked = false;
+            document.getElementById('termsCheckboxWrapper').classList.remove('error');
+            document.getElementById('termsErrorMsg').classList.remove('visible');
+            if (termsOpen) toggleTerms();
+
+            // Hide availability status
+            const statusDiv = document.getElementById('availabilityStatus');
+            if (statusDiv) {
+                statusDiv.className = 'availability-status';
+                statusDiv.style.display = 'none';
+            }
+
+            // Remove red error borders
+            document.querySelectorAll('input, textarea, select').forEach(f => {
+                f.style.borderColor = '';
+                f.classList.remove('error');
+            });
+            document.querySelectorAll('.custom-select-trigger').forEach(t => {
+                t.style.borderColor = '';
+            });
+
+            // Isara ang modal
+            closeClearConfirmModal();
+        }
+
+        // 4. Kapag clinick sa labas ng modal, isara ito
+        const clearModalPermit = document.getElementById('clearConfirmModal');
+        if (clearModalPermit) {
+            clearModalPermit.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeClearConfirmModal();
+                }
+            });
+        }
+        // ===== END CLEAR FORM CONFIRMATION =====
+
+
+        // ===== VALID ID UPLOAD HANDLER =====
+document.addEventListener('DOMContentLoaded', function() {
+    const validIdInput = document.getElementById('validIdInput');
+    const validIdFileList = document.getElementById('validIdFileList');
+    const validIdUploadArea = document.getElementById('validIdUploadArea');
+
+    if (validIdInput) {
+        validIdInput.addEventListener('change', function() {
+            updateValidIdList(this.files);
+            if (this.files.length > 0) {
+                validIdUploadArea.style.borderColor = '#1a6b42';
+                validIdUploadArea.style.background = 'var(--primary-50)';
+            }
+        });
+    }
+
+    // Drag & drop support
+    if (validIdUploadArea) {
+        validIdUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'var(--primary-500)';
+            this.style.background = 'var(--primary-50)';
+        });
+        validIdUploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            if (validIdInput.files.length === 0) {
+                this.style.borderColor = 'var(--neutral-200)';
+                this.style.background = 'var(--neutral-50)';
+            }
+        });
+        validIdUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                validIdInput.files = files;
+                updateValidIdList(files);
+                validIdUploadArea.style.borderColor = '#1a6b42';
+                validIdUploadArea.style.background = 'var(--primary-50)';
+            }
+        });
+    }
+
+    function updateValidIdList(files) {
+        validIdFileList.innerHTML = '';
+        if (files.length === 0) return;
+        for (let i = 0; i < files.length; i++) {
+            const tag = document.createElement('span');
+            tag.className = 'file-tag';
+            tag.innerHTML = `<i class="fas fa-file"></i> ${files[i].name} (${(files[i].size / 1024).toFixed(1)} KB) <i class="fas fa-times" onclick="removeValidIdFile(event, ${i})"></i>`;
+            validIdFileList.appendChild(tag);
+        }
+    }
+
+    window.removeValidIdFile = function(event, index) {
+        event.stopPropagation(); // Para hindi mag-trigger yung click ng buong box
+        const dt = new DataTransfer();
+        const files = validIdInput.files;
+        for (let i = 0; i < files.length; i++) {
+            if (i !== index) dt.items.add(files[i]);
+        }
+        validIdInput.files = dt.files;
+        updateValidIdList(validIdInput.files);
+        if (validIdInput.files.length === 0) {
+            validIdUploadArea.style.borderColor = 'var(--neutral-200)';
+            validIdUploadArea.style.background = 'var(--neutral-50)';
+        }
+    };
+});
                
 
     </script>
+
+
+<!-- ✅ CLEAR CONFIRM MODAL -->
+<div id="clearConfirmModal">
+    <div class="clear-confirm-box">
+        <div class="clear-confirm-header">
+            <div class="clear-confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2>Clear Form?</h2>
+            <p>This action cannot be undone.</p>
+        </div>
+        <div class="clear-confirm-body">
+            <p>Are you sure you want to clear all fields? All the information you've entered will be removed.</p>
+        </div>
+        <div class="clear-confirm-footer">
+            <button type="button" class="btn-clear-cancel" onclick="closeClearConfirmModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="button" class="btn-clear-confirm" onclick="confirmClearPermitForm()">
+                <i class="fas fa-trash-alt"></i> Yes, Clear Form
+            </button>
+        </div>
+    </div>
+</div>
+
         <!-- CUSTOM CALENDAR MODAL -->
     <div class="custom-date-modal" id="customDateModal">
         <div class="custom-date-content">
@@ -3635,5 +4076,22 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+
+       <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
+    <script>
+        (function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.pushState(null, null, location.href);
+                window.location.reload();
+            };
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        })();
+    </script>
+    
 </body>
 </html>

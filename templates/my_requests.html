@@ -1680,9 +1680,7 @@
         <a href="{{ url_for('apply_permit') }}" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
         <a href="{{ url_for('my_requests') }}" class="active" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
         <a href="{{ url_for('events') }}" data-tooltip="Events Calendar"><i class="fas fa-calendar-alt"></i> <span class="translatable">Events Calendar</span></a>
-        <a href="{{ url_for('settings') }}" id="sidebarSettingsLink" data-tooltip="Settings" class="{% if request.endpoint == 'settings' %}active{% endif %}">
-            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-        </a>
+        
       </nav>
 
       <div class="sidebar-footer">
@@ -2430,5 +2428,22 @@
 
         }
     </script>
+
+     <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
+    <script>
+        (function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.pushState(null, null, location.href);
+                window.location.reload();
+            };
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        })();
+    </script>
+    
 </body>
 </html>

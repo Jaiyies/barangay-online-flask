@@ -30,6 +30,13 @@ def add_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    # BAGONG DAGDAG: Anti-Back Button Cache Control
+    if request.endpoint and 'static' not in request.endpoint:
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    
     return response
 
 # ============================================================
@@ -47,15 +54,16 @@ mail = Mail(app)
 
 # ============ GOOGLE OAUTH SETUP ============
 oauth = OAuth(app)
-
 google = oauth.register(
     name='google',
     client_id=os.getenv('GOOGLE_CLIENT_ID'),
     client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid email profile'}
+    client_kwargs={
+        'scope': 'openid email profile',
+        'prompt': 'select_account'   # 👈 ITO ANG SUSI
+    }
 )
-
 # ============================================================
 # EMAIL HELPER FUNCTION
 # ============================================================
@@ -199,8 +207,10 @@ def uploaded_file(filename):
 # ============================================================
 # HOME/INDEX ROUTE
 # ============================================================
+
 @app.route('/')
 def index():
+    # LAGING login page, walang session check
     return redirect(url_for('login'))
 
 # ============================================================
@@ -456,14 +466,33 @@ def block_browser_navigation_and_maintenance():
                 flash('The system is currently under maintenance. Please try again later.', 'warning')
                 return redirect(url_for('login'))
     
-    # --- PART C: HARDCORE SESSION LOCK (Bawal pumasok kung walang session) ---
+            # --- PART C: HARDCORE SESSION LOCK ---
     if 'user_id' in session:
+        # BAGONG DAGDAG: Kung naka-login at pinindot ang back arrow papuntang /login,
+        # i-redirect pabalik sa tamang dashboard (para hindi makalabas gamit ang back arrow)
+        # PERO: Kung i-type directly ang /login, hayaan mag-show ng login page
+        referer = request.headers.get('Referer', '')
+        if request.endpoint == 'login' and request.method == 'GET':
+            # Kung galing sa loob ng website (back arrow), redirect sa dashboard
+            if referer and '127.0.0.1:5000' in referer and '/login' not in referer:
+                role = session.get('role')
+                if role == 'head_admin':
+                    return redirect(url_for('head_admin_dashboard'))
+                elif role == 'admin_documents':
+                    return redirect(url_for('sec_admin_dashboard'))
+                elif role == 'admin_court_1':
+                    return redirect(url_for('court1_dashboard'))
+                elif role == 'admin_court_2':
+                    return redirect(url_for('court2_dashboard'))
+                elif role == 'admin_court_3':
+                    return redirect(url_for('court3_dashboard'))
+                elif role == 'admin_court_4':
+                    return redirect(url_for('court4_dashboard'))
+                return redirect(url_for('dashboard'))
+            # Kung direct type (walang referer), hayaan mag-login page
         return  # May session, hayaan lang
-    
-    if request.endpoint and request.endpoint not in public_pages:
-        flash('Session expired. Please login again.', 'warning')
-        return redirect(url_for('login'))
 
+   
 
 # ============================================================
 # LOGIN ROUTE
@@ -565,7 +594,10 @@ def login():
 @app.route('/login/google')
 def login_google():
     redirect_uri = url_for('authorize_google', _external=True)
-    return google.authorize_redirect(redirect_uri)
+    return google.authorize_redirect(
+        redirect_uri,
+        prompt='select_account'   # 👈 FORCE account picker
+    )
 
 @app.route('/login/google/authorized')
 def authorize_google():
@@ -807,6 +839,8 @@ def profile():
     conn.close()
     return render_template('profile.html', user=user)
 
+
+
 @app.route('/user-update-profile', methods=['POST'])
 @role_required('resident')
 def user_update_profile():
@@ -837,7 +871,345 @@ def user_update_profile():
     session['fullname'] = f"{first_name} {last_name}"
     session['email'] = email
 
+    # ============================================================
+    # ✅ SAVE SA ACTIVITY LOGS
+    # ============================================================
+    try:
+        log_conn = get_db()
+        log_cursor = log_conn.cursor()
+        log_cursor.execute("""
+            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+            VALUES (%s, %s, %s, %s)
+        """, (session['user_id'], 'profile_updated', None,
+              f'Resident updated profile: {first_name} {last_name} ({email}) from {request.remote_addr}'))
+        log_conn.commit()
+        log_conn.close()
+    except Exception as e:
+        print(f"Activity log error: {e}")
+
+    # ============================================================
+    # ✅ SEND EMAIL CONFIRMATION
+    # ============================================================
     subject = "Profile Update Confirmation - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">✅</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Profile Updated Successfully</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your profile details have been successfully updated on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>. Here are your current information:
+                            </p>
+                            <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {first_name} {last_name}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {email}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {contact_number if contact_number else 'N/A'}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {address if address else 'N/A'}</td></tr>
+                            </table>
+                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="color:#991b1b;font-size:13px;">
+                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:20px;text-align:center;">
+                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(email, subject, body_html)
+
+    flash('Profile updated successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('user_settings'))
+
+
+@app.route('/user-change-password', methods=['POST'])
+@role_required('resident')
+def user_change_password():
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+
+    if not current_password or not new_password or not confirm_password:
+        flash('Please fill in all fields.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    if len(new_password) < 8:
+        flash('New password must be at least 8 characters.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+
+    otp_verified = session.get('password_otp_verified', False)
+    otp_verified_at = session.get('password_otp_verified_at', 0)
+    otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
+
+    if not otp_valid:
+        if not user or not check_password_hash(user['password'], current_password):
+            conn.close()
+            flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
+            return redirect(url_for('user_settings'))
+    else:
+        if not user:
+            conn.close()
+            flash('User not found.', 'danger')
+            return redirect(url_for('user_settings'))
+
+    session.pop('password_otp_verified', None)
+    session.pop('password_otp_verified_at', None)
+
+    hashed_password = generate_password_hash(new_password)
+    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
+    conn.commit()
+    conn.close()
+
+    # ============================================================
+    # ✅ SEND EMAIL CONFIRMATION
+    # ============================================================
+    subject = "Password Changed Successfully - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔒</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your password has been successfully changed on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
+                            </p>
+                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="color:#991b1b;font-size:13px;">
+                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:20px;text-align:center;">
+                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(user['email'], subject, body_html)
+
+    # ============================================================
+    # ✅ SAVE SA ACTIVITY LOGS
+    # ============================================================
+    try:
+        log_conn = get_db()
+        log_cursor = log_conn.cursor()
+        log_cursor.execute("""
+            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+            VALUES (%s, %s, %s, %s)
+        """, (session['user_id'], 'password_changed', None,
+              f'Resident changed their password from {request.remote_addr}'))
+        log_conn.commit()
+        log_conn.close()
+    except Exception as e:
+        print(f"Activity log error: {e}")
+
+    flash('Password changed successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('user_settings'))
+
+@app.route('/user-change-password', methods=['POST'])
+@role_required('resident')
+def user_change_password2():
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+
+    if not current_password or not new_password or not confirm_password:
+        flash('Please fill in all fields.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    if len(new_password) < 8:
+        flash('New password must be at least 8 characters.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+
+    # CHECK OTP VERIFIED SESSION FLAG (valid for 5 mins)
+    otp_verified = session.get('password_otp_verified', False)
+    otp_verified_at = session.get('password_otp_verified_at', 0)
+    otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
+
+    if not otp_valid:
+        # Fallback: traditional current password check
+        if not user or not check_password_hash(user['password'], current_password):
+            conn.close()
+            flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
+            return redirect(url_for('user_settings'))
+    else:
+        # OTP verified — skip current password check, but validate user exists
+        if not user:
+            conn.close()
+            flash('User not found.', 'danger')
+            return redirect(url_for('user_settings'))
+
+    # Clear OTP session flag
+    session.pop('password_otp_verified', None)
+    session.pop('password_otp_verified_at', None)
+
+    hashed_password = generate_password_hash(new_password)
+    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
+    conn.commit()
+    conn.close()
+
+    # ============================================================
+    # ✅ SEND EMAIL CONFIRMATION
+    # ============================================================
+    subject = "Password Changed Successfully - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔒</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your password has been successfully changed on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
+                            </p>
+                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="color:#991b1b;font-size:13px;">
+                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:20px;text-align:center;">
+                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(user['email'], subject, body_html)
+
+    # ============================================================
+    # ✅ SAVE SA ACTIVITY LOGS
+    # ============================================================
+    try:
+        log_conn = get_db()
+        log_cursor = log_conn.cursor()
+        log_cursor.execute("""
+            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+            VALUES (%s, %s, %s, %s)
+        """, (session['user_id'], 'password_changed', None,
+              f'Resident changed their password from {request.remote_addr}'))
+        log_conn.commit()
+        log_conn.close()
+    except Exception as e:
+        print(f"Activity log error: {e}")
+
+    flash('Password changed successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('user_settings'))
+
+    subject = "Profile Update Confirmation - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">✅</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Profile Updated Successfully</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your profile details have been successfully updated on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>. Here are your current information:
+                            </p>
+                            <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {first_name} {last_name}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {email}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {contact_number if contact_number else 'N/A'}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {address if address else 'N/A'}</td></tr>
+                            </table>
+                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="color:#991b1b;font-size:13px;">
+                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:20px;text-align:center;">
+                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(email, subject, body_html)
+
+    flash('Profile updated successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('user_settings'))
     body_html = f"""
     <!DOCTYPE html>
     <html>
@@ -878,7 +1250,7 @@ def user_update_profile():
 
 @app.route('/user-change-password', methods=['POST'])
 @role_required('resident')
-def user_change_password():
+def user_change_password3():
     current_password = request.form.get('current_password', '')
     new_password = request.form.get('new_password', '')
     confirm_password = request.form.get('confirm_password', '')
@@ -900,17 +1272,139 @@ def user_change_password():
     cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
 
-    if not user or not check_password_hash(user['password'], current_password):
-        conn.close()
-        flash('Current password is incorrect.', 'danger')
+    # 👇 CHECK OTP VERIFIED SESSION FLAG (valid for 5 mins)
+    otp_verified = session.get('password_otp_verified', False)
+    otp_verified_at = session.get('password_otp_verified_at', 0)
+    otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
+
+    if not otp_valid:
+        # Fallback: traditional current password check
+        if not user or not check_password_hash(user['password'], current_password):
+            conn.close()
+            flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
+            return redirect(url_for('user_settings'))
+    else:
+        # ✅ OTP verified — skip current password check, but validate user exists
+        if not user:
+            conn.close()
+            flash('User not found.', 'danger')
+            return redirect(url_for('user_settings'))
+
+    # Clear OTP session flag
+    session.pop('password_otp_verified', None)
+    session.pop('password_otp_verified_at', None)
+@app.route('/user-change-password', methods=['POST'])
+@role_required('resident')
+def user_change_password4():
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+
+    if not current_password or not new_password or not confirm_password:
+        flash('Please fill in all fields.', 'danger')
         return redirect(url_for('user_settings'))
+
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    if len(new_password) < 8:
+        flash('New password must be at least 8 characters.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+
+    # CHECK OTP VERIFIED SESSION FLAG (valid for 5 mins)
+    otp_verified = session.get('password_otp_verified', False)
+    otp_verified_at = session.get('password_otp_verified_at', 0)
+    otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
+
+    if not otp_valid:
+        # Fallback: traditional current password check
+        if not user or not check_password_hash(user['password'], current_password):
+            conn.close()
+            flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
+            return redirect(url_for('user_settings'))
+    else:
+        # OTP verified — skip current password check, but validate user exists
+        if not user:
+            conn.close()
+            flash('User not found.', 'danger')
+            return redirect(url_for('user_settings'))
+
+    # Clear OTP session flag
+    session.pop('password_otp_verified', None)
+    session.pop('password_otp_verified_at', None)
 
     hashed_password = generate_password_hash(new_password)
     cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
     conn.commit()
     conn.close()
 
+    # ============================================================
+    # ✅ SEND EMAIL CONFIRMATION
+    # ============================================================
     subject = "Password Changed Successfully - Barangay Sto. Nino"
+    body_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔒</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your password has been successfully changed on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
+                            </p>
+                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="color:#991b1b;font-size:13px;">
+                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:20px;text-align:center;">
+                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body>
+    </html>
+    """
+    send_email(user['email'], subject, body_html)
+
+    # ============================================================
+    # ✅ SAVE SA ACTIVITY LOGS (Backend tracking)
+    # ============================================================
+    try:
+        log_conn = get_db()
+        log_cursor = log_conn.cursor()
+        log_cursor.execute("""
+            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+            VALUES (%s, %s, %s, %s)
+        """, (session['user_id'], 'password_changed', None, 
+              f'Resident changed their password from {request.remote_addr}'))
+        log_conn.commit()
+        log_conn.close()
+    except Exception as e:
+        print(f"Activity log error: {e}")
+
+    flash('Password changed successfully! A confirmation email has been sent.', 'success')
+    return redirect(url_for('user_settings'))
     body_html = f"""
     <!DOCTYPE html>
     <html>
@@ -1281,8 +1775,10 @@ def request_document_post():
     emergency_name = request.form.get('emergency_name', '').strip()
     emergency_number = request.form.get('emergency_number', '').strip()
     ref1_name = request.form.get('ref1_name', '').strip()
+    ref1_contact = request.form.get('ref1_contact', '').strip()
     ref1_address = request.form.get('ref1_address', '').strip()
     ref2_name = request.form.get('ref2_name', '').strip()
+    ref2_contact = request.form.get('ref2_contact', '').strip()
     ref2_address = request.form.get('ref2_address', '').strip()
     purpose = request.form.get('purpose', '').strip()
     printed_name = request.form.get('printed_name', '').strip()
@@ -1407,6 +1903,20 @@ def submit_document_request():
             if uploaded and uploaded.filename:
                 file_data = save_uploaded_file(uploaded)
 
+                        # ✅ VALID ID UPLOAD
+        valid_id_data = None
+        if 'valid_id' in request.files:
+            uploaded_id = request.files['valid_id']
+            if uploaded_id and uploaded_id.filename:
+                valid_id_data = save_uploaded_file(uploaded_id)
+                if not valid_id_data:
+                    conn.close() if conn else None
+                    return jsonify({'error': 'Invalid Valid ID file type. Allowed: JPG, PNG, PDF'}), 400
+            else:
+                return jsonify({'error': 'Valid ID is required. Please upload a clear photo of your ID.'}), 400
+        else:
+            return jsonify({'error': 'Valid ID is required. Please upload a clear photo of your ID.'}), 400
+
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
 
@@ -1433,15 +1943,24 @@ def submit_document_request():
             insert_cols.append('document_path')
             insert_vals.append(file_data)
 
+                    # ✅ SAVE VALID ID PATH
+        if valid_id_data and 'valid_id_path' in col_names:
+            insert_cols.append('valid_id_path')
+            insert_vals.append(valid_id_data)
+        elif valid_id_data:
+            # Fallback kung wala pang column sa DB — i-save sa document_path o gumawa ng bagong column
+            print("WARNING: 'valid_id_path' column not found in document_requests table!")
+
         ALLOWED_COLS = {
             'surname', 'given_name', 'middle_name', 'address', 'contact_no',
             'civil_status', 'age', 'dob', 'precinct_no', 'place_of_birth',
             'length_of_stay', 'residency_type', 'lessor_name', 'lessor_address',
             'rep_position', 'father_name', 'mother_name', 'spouse_name',
             'occupation', 'emergency_name', 'emergency_number',
-            'ref1_name', 'ref1_address', 'ref2_name', 'ref2_address',
+            'ref1_name', 'ref1_contact', 'ref1_address', 'ref2_name', 'ref2_contact', 'ref2_address',
             'purpose', 'printed_name', 'signature_date'
         }
+
         for key, value in data.items():
             if key in ALLOWED_COLS and key in col_names and key not in insert_cols:
                 insert_cols.append(key)
@@ -1558,14 +2077,27 @@ def apply_permit_post():
     try:
         selected_date = datetime.datetime.strptime(event_date, '%Y-%m-%d').date()
         diff_days = (selected_date - datetime.date.today()).days
-        if diff_days < 10:
-            return jsonify({'success': False, 'error': 'Please apply at least 10 days before the event date.'}), 400
+        if diff_days < 3:
+            return jsonify({'success': False, 'error': 'Please apply at least 3 days before the event date.'}), 400
     except ValueError:
         return jsonify({'success': False, 'error': 'Invalid date format.'}), 400
 
     file_data = None
     if 'requirement' in request.files:
         file_data = save_uploaded_file(request.files['requirement'])
+
+    # ✅ VALID ID UPLOAD PARA SA PERMIT
+    valid_id_data = None
+    if 'valid_id' in request.files:
+        uploaded_id = request.files['valid_id']
+        if uploaded_id and uploaded_id.filename:
+            valid_id_data = save_uploaded_file(uploaded_id)
+            if not valid_id_data:
+                return jsonify({'success': False, 'error': 'Invalid Valid ID file type. Allowed: JPG, PNG, PDF'}), 400
+        else:
+            return jsonify({'success': False, 'error': 'Valid ID is required. Please upload a clear photo of your ID.'}), 400
+    else:
+        return jsonify({'success': False, 'error': 'Valid ID is required. Please upload a clear photo of your ID.'}), 400
 
     ref_num = f"BP-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
     queue_num = get_next_queue_number('event_permits', venue)
@@ -1600,14 +2132,15 @@ def apply_permit_post():
                 user_id, event_name, event_description, purpose,
                 contact_person, contact_phone,
                 event_date, start_time, end_time, estimated_attendees, venue,
-                status, requirements_file, reference_number, queuing_number
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s)
+                status, requirements_file, reference_number, queuing_number,
+                valid_id_path
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s, %s)
         """, (
             session['user_id'], event_name, event_description, purpose,
             contact_person, contact_phone,
             event_date, start_time, end_time,
             estimated_attendees if estimated_attendees else 0,
-            venue, file_data, ref_num, queue_num
+            venue, file_data, ref_num, queue_num, valid_id_data
         ))
         conn.commit()
 
@@ -4129,7 +4662,6 @@ def check_session():
         <a href="/logout">Logout</a>
         """
     return "No active session. <a href='/login'>Login</a>"
-
 @app.route('/logout')
 def logout():
     if 'user_id' in session:
@@ -4144,9 +4676,15 @@ def logout():
             log_conn.close()
         except Exception as e:
             print(f"Logout log error: {e}")
+    
+    # BAGONG DAGDAG: Linisin lahat ng session keys
     session.clear()
-    return redirect(url_for('login'))
-
+    session.modified = True
+    
+    # BAGONG DAGDAG: no-cache header sa logout redirect
+    response = redirect(url_for('login'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 # ============================================================
 # FORGOT PASSWORD ROUTES
 # ============================================================
@@ -4388,7 +4926,10 @@ def settings_verify_otp():
 
     if saved_otp and saved_otp == user_otp:
         # Burahin pagkatapos magamit
-        del settings_otp_storage[session['user_id']] 
+        del settings_otp_storage[session['user_id']]
+        # 👇 I-set ang session flag para sa password change
+        session['password_otp_verified'] = True
+        session['password_otp_verified_at'] = datetime.datetime.now().timestamp()
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Invalid OTP'}), 400

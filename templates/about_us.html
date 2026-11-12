@@ -1091,6 +1091,44 @@
                 max-height: 200px !important; 
             }
         }
+
+                /* === BAGONG CARD PARA SA WELCOME TEXT === */
+        .welcome-card {
+            background: linear-gradient(165deg, #ffffff 0%, var(--primary-50) 100%);
+            padding: 28px 30px;
+            border-radius: 18px;
+            border: 1.5px solid var(--primary-100);
+            box-shadow: 0 8px 20px rgba(34, 139, 84, 0.06);
+            margin-bottom: 24px; /* Space bago mag-Mission at Vision */
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .welcome-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 16px 40px rgba(34, 139, 84, 0.18),
+                0 6px 16px rgba(34, 139, 84, 0.12);
+            border-color: var(--primary-300);
+        }
+
+        .welcome-card .about-title {
+            font-size: 1.4rem;
+            color: var(--primary-800);
+            font-weight: 800;
+            margin-bottom: 14px;
+            letter-spacing: -0.02em;
+        }
+
+        .welcome-card .about-intro-text p {
+            color: var(--neutral-700);
+            font-size: 0.92rem;
+            line-height: 1.75;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-card .about-intro-text p:last-child {
+            margin-bottom: 0;
+        }
     </style>
     
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
@@ -1117,9 +1155,7 @@
         <a href="{{ url_for('apply_permit') }}" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
         <a href="{{ url_for('my_requests') }}" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
         <a href="{{ url_for('events') }}" data-tooltip="Events Calendar"><i class="fas fa-calendar-alt"></i> <span class="translatable">Events Calendar</span></a>
-        <a href="{{ url_for('settings') }}" id="sidebarSettingsLink" data-tooltip="Settings" class="{% if request.endpoint == 'settings' %}active{% endif %}">
-            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-        </a>
+       
       </nav>
 
       <!-- ===== SIDEBAR FOOTER: About Us + FAQs + Bell ===== -->
@@ -1167,11 +1203,13 @@
 
         <div class="card">
 
-            <!-- INTRO -->
-            <div class="about-intro">
+                        <!-- INTRO -->
+            <div class="welcome-card">
                 <h2 class="about-title" data-translate="welcome_title">Welcome to Barangay Sto. Niño Online Services Portal</h2>
-                <p data-translate="welcome_p1">Our goal is to make the process of obtaining documents and submitting permit applications easier, faster, and more reliable for all residents of Barangay Sto. Niño.</p>
-                <p data-translate="welcome_p2">Through this online portal, you no longer have to wait in long lines at the barangay hall. You can request documents and apply for permits right from the comfort of your home.</p>
+                <div class="about-intro-text">
+                    <p data-translate="welcome_p1">Our goal is to make the process of obtaining documents and submitting permit applications easier, faster, and more reliable for all residents of Barangay Sto. Niño.</p>
+                    <p data-translate="welcome_p2">Through this online portal, you no longer have to wait in long lines at the barangay hall. You can request documents and apply for permits right from the comfort of your home.</p>
+                </div>
             </div>
 
             <!-- MISSION & VISION -->
@@ -1458,5 +1496,22 @@
             }, 300);
         }
     </script>
+
+     <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
+    <script>
+        (function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.pushState(null, null, location.href);
+                window.location.reload();
+            };
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        })();
+    </script>
+    
 </body>
 </html>

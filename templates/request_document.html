@@ -2039,7 +2039,13 @@
                 max-height: 200px !important; 
             }
         }
-        
+
+             
+                /* Pwersahing nasa pinakataas at hindi matatakpan */
+        #clearConfirmModal {
+            z-index: 9999999 !important; 
+        }
+
     </style>
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
 </head>
@@ -2065,9 +2071,7 @@
         <a href="{{ url_for('apply_permit') }}" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
         <a href="{{ url_for('my_requests') }}" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
         <a href="{{ url_for('events') }}" data-tooltip="Events Calendar"><i class="fas fa-calendar-alt"></i> <span class="translatable">Events Calendar</span></a>
-        <a href="{{ url_for('settings') }}" id="sidebarSettingsLink" data-tooltip="Settings" class="{% if request.endpoint == 'settings' %}active{% endif %}">
-            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-        </a>
+       
       </nav>
 
       <div class="sidebar-footer">
@@ -2287,7 +2291,7 @@
                 </div>
 
                                 <div class="form-row">
-                    <div class="form-col" style="max-width: 32%;">
+                    <div class="form-col">
                         <div class="form-group">
                             <label for="occupation"><span data-translate="occupation">Occupation</span> <span class="required">*</span></label>
                             <input type="text" name="occupation" id="occupation" placeholder="Occupation" required>
@@ -2360,7 +2364,8 @@
                 </div>
 
                 <div class="form-section-title"><i class="fas fa-users"></i> <span data-translate="family_info">Family Information</span></div>
-                                 <!-- BAGONG LAYOUT PARA SA FAMILY INFO & EMERGENCY -->
+
+                                <!-- BAGONG LAYOUT PARA SA FAMILY INFO & EMERGENCY -->
                 <div class="form-row" style="align-items: flex-start;">
                     
                     <!-- KALIWANG SIDE: Father, Mother, Spouse -->
@@ -2382,7 +2387,7 @@
                     <!-- KANANG SIDE: Emergency Name, Emergency No. -->
                     <div class="form-col" style="display: flex; flex-direction: column; gap: 18px; flex: 1;">
                         <div class="form-group">
-                            <label for="emergencyName"><span data-translate="emergency">In Case of Emergency</span> <span class="required">*</span></label>
+                            <label for="emergencyName"><span data-translate="emergency">Name of Emergency Contact Person</span> <span class="required">*</span></label>
                             <input type="text" name="emergency_name" id="emergencyName" placeholder="Emergency Contact Name" required>
                         </div>
                         <div class="form-group">
@@ -2392,46 +2397,71 @@
                     </div>
 
                 </div>
-                <div class="form-section-title"><i class="fas fa-user-friends"></i> <span data-translate="ref_person">Reference Person</span> <span style="font-weight:400;font-size:0.75rem;color:var(--neutral-500);">(Not Related to You)</span></div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="ref1Name"><span data-translate="ref1_name">Reference 1 - Name</span> <span class="required">*</span></label>
-                            <input type="text" name="ref1_name" id="ref1Name" placeholder="Reference Name" required>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="ref1Address"><span data-translate="ref1_address">Reference 1 - Address</span> <span class="required">*</span></label>
-                            <input type="text" name="ref1_address" id="ref1Address" placeholder="Reference Address" required>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="ref2Name"><span data-translate="ref2_name">Reference 2 - Name</span> <span class="required">*</span></label>
-                            <input type="text" name="ref2_name" id="ref2Name" placeholder="Reference Name" required>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="ref2Address"><span data-translate="ref2_address">Reference 2 - Address</span> <span class="required">*</span></label>
-                            <input type="text" name="ref2_address" id="ref2Address" placeholder="Reference Address" required>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="form-section-title"><i class="fas fa-bullseye"></i> <span data-translate="purpose_sig">Purpose & Signature</span></div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="purpose"><span data-translate="purpose_doc">Purpose of Securing Document</span> <span class="required">*</span></label>
-                            <textarea name="purpose" id="purpose" placeholder="State the purpose of your request..." required></textarea>
-                        </div>
-                    </div>
-                </div>
+                <!-- BAGONG CODE -->
+<div class="form-section-title"><i class="fas fa-user-friends"></i> <span data-translate="ref_person">Reference Person</span> <span style="font-weight:400;font-size:0.75rem;color:var(--neutral-500);" data-translate="not_related_note">(Not Related to You)</span></div>
+
+<!-- REFERENCE 1 -->
+<div class="form-row">
+    <div class="form-col">
+        <div class="form-group">
+            <label for="ref1Name"><span data-translate="ref1_name">Reference 1 - Name</span> <span class="required">*</span></label>
+            <input type="text" name="ref1_name" id="ref1Name" placeholder="Reference Name" required>
+        </div>
+    </div>
+    <div class="form-col">
+        <div class="form-group">
+            <label for="ref1Contact"><span data-translate="contact_no_label">Contact No.</span> <span class="required">*</span></label>
+            <input type="text" name="ref1_contact" id="ref1Contact" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
+        </div>
+    </div>
+    <div class="form-col">
+        <div class="form-group">
+            <label for="ref1Address"><span data-translate="ref1_address">Reference 1 - Address</span> <span class="required">*</span></label>
+            <input type="text" name="ref1_address" id="ref1Address" placeholder="Reference Address" required>
+        </div>
+    </div>
+</div>
+
+<!-- REFERENCE 2 -->
+<div class="form-row">
+    <div class="form-col">
+        <div class="form-group">
+            <label for="ref2Name"><span data-translate="ref2_name">Reference 2 - Name</span> <span class="required">*</span></label>
+            <input type="text" name="ref2_name" id="ref2Name" placeholder="Reference Name" required>
+        </div>
+    </div>
+    <div class="form-col">
+        <div class="form-group">
+            <label for="ref2Contact"><span data-translate="contact_no_label">Contact No.</span> <span class="required">*</span></label>
+            <input type="text" name="ref2_contact" id="ref2Contact" placeholder="09XXXXXXXXX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
+        </div>
+    </div>
+    <div class="form-col">
+        <div class="form-group">
+            <label for="ref2Address"><span data-translate="ref2_address">Reference 2 - Address</span> <span class="required">*</span></label>
+            <input type="text" name="ref2_address" id="ref2Address" placeholder="Reference Address" required>
+        </div>
+    </div>
+</div>
+
+<!-- VALID ID VERIFICATION -->
+<div class="form-section-title"><i class="fas fa-id-card"></i> <span data-translate="valid_id_verification">Valid ID Verification</span></div>
+
+<div class="form-group" style="margin-top: 15px; margin-bottom: 24px;">
+    <label><span data-translate="upload_clear_id">Upload a Clear Photo of Your Valid ID</span> <span class="required">*</span></label>
+    
+    <div class="file-upload-area" id="validIdUploadArea" onclick="document.getElementById('validIdInput').click()">
+        <i class="fas fa-id-card"></i>
+        <p><strong data-translate="click_upload_drag">Click to upload or drag and drop</strong></p>
+        <p class="file-types" data-translate="upload_format_note">JPG, PNG, PDF (Max: 5MB)</p>
+        <input type="file" name="valid_id" id="validIdInput" accept=".jpg,.jpeg,.png,.pdf" required style="display: none;">
+    </div>
+    
+    <!-- ISA LANG ITO DAPAT -->
+    <div class="file-list" id="validIdFileList"></div>
+</div>
 
                 <div class="form-row">
                     <div class="form-col">
@@ -2476,38 +2506,30 @@
         </div>
 
     </main>
-
+        <!-- SUCCESS MODAL -->
     <div class="modal-overlay" id="successModal">
         <div class="modal-box">
             <div class="modal-header-success">
-                <button class="modal-close-btn" onclick="closeSuccessModal()">&times;</button>
-                <div class="icon-circle">
-                    <i class="fas fa-check"></i>
-                </div>
-                              <h2 data-translate="request_submitted">Request Submitted!</h2>
-                <p data-translate="request_received">Your document request has been received</p>
+                <!-- Pwede mong ilagay dito yung mga header icons mo kung meron -->
+                ...
             </div>
             
+            <!-- BAGONG LAYOUT: MAGKATABI ANG REFERENCE AT QR -->
             <div class="modal-body">
-                
-                <!-- BAGONG LAYOUT: MAGKATABI ANG REFERENCE AT QR -->
                 <div class="reference-box" style="display: flex; align-items: center; justify-content: space-between; text-align: left; gap: 15px; padding: 20px 24px;">
-                    
                     <!-- KALIWA: Reference Number -->
                     <div>
-                                            <div class="ref-label" style="font-size: 10px;"><i class="fas fa-qrcode"></i> <span data-translate="reference_number">Reference Number</span></div>
+                        <div class="ref-label" style="font-size: 10px;"><i class="fas fa-qrcode"></i> <span data-translate="reference_number">Reference Number</span></div>
                         <div class="ref-number" id="modalRefNumber" style="font-size: 20px; margin: 2px 0;">DOC-20260905-XXXX</div>
                         <span class="ref-badge" id="modalQueueBadge" style="font-size: 10px;">Queue #001</span>
                     </div>
-
                     <!-- KANAN: QR Code -->
                     <div style="text-align: center; flex-shrink: 0;">
                         <img id="successQrImage" src="" alt="QR Code" style="width: 90px; height: 90px; border-radius: 8px; border: 2px solid #228b54; background: white; padding: 3px;">
                     </div>
-
                 </div>
 
-                               <div class="doc-details-grid" id="modalDetailsGrid">
+                <div class="doc-details-grid" id="modalDetailsGrid">
                     <div class="detail-item">
                         <i class="fas fa-file-alt"></i>
                         <span class="label" data-translate="document_label">Document:</span>
@@ -2529,25 +2551,27 @@
                         <span class="value"><span class="status-badge" data-translate="pending">Pending Review</span></span>
                     </div>
                 </div>
-                <!-- BAGONG TEXT SA ILALIM -->
-                              <p style="text-align:center; font-size:11px; color:#64748b; margin-top: 10px; margin-bottom: 15px; font-weight: 500;">
+
+                <p style="text-align:center; font-size:11px; color:#64748b; margin-top: 10px; margin-bottom: 15px; font-weight: 500;">
                     <i class="fas fa-info-circle" style="color: #228b54;"></i> 
                     <span data-translate="show_qr_code">Show this QR code to Barangay personnel for faster transaction.</span>
                 </p>
 
                 <div class="waiting-banner-modal">
                     <i class="fas fa-hourglass-half"></i>
-                                    <div class="waiting-text">
+                    <div class="waiting-text">
                         <h4 data-translate="please_wait">Please Wait</h4>
                         <p><span data-translate="request_pending_desc">Your request is now</span> <strong>PINOPROSESO</strong>. <span data-translate="request_pending_desc_2">Please allow 1-2 business days for processing.</span></p>
                     </div>
                 </div>
-                               <p style="text-align:center;font-size:12px;color:var(--neutral-500);margin-top:12px;">
+                
+                <p style="text-align:center;font-size:12px;color:var(--neutral-500);margin-top:12px;">
                     <i class="fas fa-bell"></i> <span data-translate="notification_ready">You will receive a notification once your document is ready.</span>
                 </p>
             </div>
+            
             <div class="modal-footer-actions">
-                               <a href="{{ url_for('my_requests') }}" class="modal-btn primary">
+                <a href="{{ url_for('my_requests') }}" class="modal-btn primary">
                     <i class="fas fa-search"></i> <span data-translate="track_status">Track Status</span>
                 </a>
                 <button onclick="closeSuccessModal()" class="modal-btn secondary">
@@ -2557,8 +2581,33 @@
         </div>
     </div>
 
-    <script>
+    <!-- ✅ DITO DAPAT ANG CLEAR CONFIRM MODAL (labas ng successModal) -->
+    <div class="modal-overlay" id="clearConfirmModal">
+        <div class="modal-box" style="max-width: 400px; text-align: center;">
+            <div class="modal-header-success" style="background: linear-gradient(135deg, #dc3545, #a71d2a); padding: 24px 20px;">
+                <div class="icon-circle" style="width: 60px; height: 60px; font-size: 24px; margin-bottom: 10px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 style="font-size: 20px;">Clear Form?</h2>
+                <p style="font-size: 13px;">This action cannot be undone.</p>
+            </div>
+            <div class="modal-body" style="padding: 20px 24px;">
+                <p style="color: var(--neutral-700); font-size: 14px; margin-bottom: 0;">
+                    Are you sure you want to clear all fields? All the information you've entered will be removed.
+                </p>
+            </div>
+            <div class="modal-footer-actions" style="padding: 0 24px 24px; gap: 10px;">
+                <button type="button" class="modal-btn secondary" onclick="closeClearConfirmModal()" style="background: var(--neutral-100); color: var(--neutral-700);">
+                    Cancel
+                </button>
+                <button type="button" class="modal-btn primary" onclick="confirmClearForm()" style="background: linear-gradient(135deg, #dc3545, #a71d2a); box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);">
+                    Yes, Clear Form
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <script>
         // ===== BELL BADGE LOADER =====
         document.addEventListener('DOMContentLoaded', function() {
             fetch('/api/announcements/unread_count')
@@ -2850,6 +2899,10 @@
                 });
         }
 
+        document.getElementById('validIdFileList').innerHTML = '';
+        if (document.getElementById('validIdInput')) document.getElementById('validIdInput').value = '';
+        if (document.getElementById('validIdUploadArea')) document.getElementById('validIdUploadArea').style.borderColor = '#cbd5e1';
+
         // Function para pag pinindot yung announcement sa loob ng bell
         function openAnnouncementFromBell(announcementId) {
             fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
@@ -2950,20 +3003,39 @@
             updateFileList(fileInput.files);
         }
 
-        document.getElementById('dob').addEventListener('change', function() {
-            if (this.value) {
-                const birthDate = new Date(this.value);
-                const today = new Date();
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const m = today.getMonth() - birthDate.getMonth();
-                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                if (age >= 0 && age <= 120) {
-                    document.getElementById('age').value = age;
-                }
+       document.getElementById('dob').addEventListener('change', function() {
+    const ageInput = document.getElementById('age');
+    
+    // Reset muna ang styles bago mag-validate
+    ageInput.style.borderColor = '';
+    ageInput.style.boxShadow = '';
+    
+    if (this.value) {
+        const birthDate = new Date(this.value);
+        const today = new Date(); // Real-world current date
+        
+        // Eksaktong age calculation (kasama month at day)
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        if (age >= 0 && age <= 120) {
+            ageInput.value = age;
+            
+            // Kapag below 18, gawing RED
+            if (age < 18) {
+                ageInput.style.borderColor = '#dc3545';
+                ageInput.style.boxShadow = '0 0 0 4px rgba(220, 53, 69, 0.1)';
+            } else {
+                ageInput.style.borderColor = '#1a6b42'; // Green kapag valid
             }
-        });
+        } else {
+            ageInput.value = '';
+        }
+    }
+});
 
         function showSuccessModal() {
             const modal = document.getElementById('successModal');
@@ -2982,25 +3054,76 @@
                 closeSuccessModal();
             }
         });
+      
+        // I-open ang custom modal
         document.getElementById('clearBtn').addEventListener('click', function(e) {
             e.preventDefault();
-            const lang = localStorage.getItem('language') || 'en';
-            const confirmMsg = lang === 'tl' ? 'Sigurado ka bang gusto mong burahin ang lahat ng field?' : 'Are you sure you want to clear all fields?';
-            if (confirm(confirmMsg)) {
-                const form = document.getElementById('clearanceForm');
-                form.reset();
-                fileList.innerHTML = '';
-                if (fileInput) fileInput.value = '';
-                document.getElementById('signatureDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('areaRepSection').classList.remove('visible');
-                resetCustomSelects();
-                if (fileUploadArea) fileUploadArea.style.borderColor = '#cbd5e1';
-                document.querySelectorAll('input, select, textarea').forEach(f => {
-                    f.style.borderColor = '#dde8e1';
-                });
+            
+            // 1. SIGURADUHING SARADO ANG SUCCESS MODAL BAGO MAG-OPEN
+            const successModal = document.getElementById('successModal');
+            if (successModal) {
+                successModal.classList.remove('active');
             }
+            
+            // 2. Tsaka buksan ang Clear Confirm Modal
+            document.getElementById('clearConfirmModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
         });
 
+        function closeClearConfirmModal() {
+            document.getElementById('clearConfirmModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function confirmClearForm() {
+            const form = document.getElementById('clearanceForm');
+            form.reset();
+
+            // Reset file lists
+            document.getElementById('fileList').innerHTML = '';
+            if (document.getElementById('fileInput')) document.getElementById('fileInput').value = '';
+
+            // Reset valid ID
+            document.getElementById('validIdFileList').innerHTML = '';
+            if (document.getElementById('validIdInput')) {
+                document.getElementById('validIdInput').value = '';
+                document.getElementById('validIdUploadArea').style.borderColor = '#cbd5e1';
+                document.getElementById('validIdUploadArea').style.background = 'var(--neutral-50)';
+            }
+
+            // Reset date
+            document.getElementById('signatureDate').value = new Date().toISOString().split('T')[0];
+
+            // Itago area rep
+            document.getElementById('areaRepSection').classList.remove('visible');
+
+            // Reset custom selects
+            resetCustomSelects();
+
+            if (document.getElementById('fileUploadArea')) {
+                document.getElementById('fileUploadArea').style.borderColor = '#cbd5e1';
+            }
+
+            document.querySelectorAll('input, select, textarea').forEach(f => {
+                f.style.borderColor = '#dde8e1';
+            });
+
+            // ✅ Isara ang confirm modal
+            closeClearConfirmModal();
+        }
+
+        // Close modal kapag clinick sa labas
+        document.getElementById('clearConfirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeClearConfirmModal();
+            }
+        });    
+
+        document.getElementById('validIdFileList').innerHTML = '';
+        if (document.getElementById('validIdInput')) {
+            document.getElementById('validIdInput').value = '';
+            document.getElementById('validIdUploadArea').style.borderColor = '#cbd5e1';
+        }
         document.querySelectorAll('input, textarea').forEach(field => {
             field.addEventListener('input', function() {
                 this.style.borderColor = '#dde8e1';
@@ -3029,7 +3152,7 @@
             });
         }, 5000);
 
-               document.getElementById('clearanceForm').addEventListener('submit', function(e) {
+        document.getElementById('clearanceForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const form = this;
@@ -3041,6 +3164,19 @@
                 submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${currentLang === 'tl' ? 'I-submit ang Request' : 'Submit Request'}`;
             }
 
+             // 🔥 BAGONG DAGDAG: Age validation bago mag-submit
+    const ageInput = document.getElementById('age');
+    const calculatedAge = parseInt(ageInput.value, 10);
+    
+    if (isNaN(calculatedAge) || calculatedAge < 18) {
+        ageInput.style.borderColor = '#dc3545';
+        ageInput.style.boxShadow = '0 0 0 4px rgba(220, 53, 69, 0.1)';
+        ageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ageInput.focus();
+        resetSubmitBtn();
+        return; // Harangin ang submit
+    }
+    
             form.querySelectorAll('input, textarea, select').forEach(f => f.style.borderColor = '');
             form.querySelectorAll('.custom-select-trigger').forEach(t => t.style.borderColor = '');
             
@@ -3085,14 +3221,39 @@
                 }
             }
 
-            if (!valid) {
-                alert(currentLang === 'tl' 
-                    ? 'Mangyaring punan ang lahat ng kinakailangang field (may markang *) at i-upload ang lagda.' 
-                    : 'Please fill in all required fields (marked with *) and upload the signature.');
+            // VALID ID VALIDATION
+            const validIdInput = document.getElementById('validIdInput');
+            const validIdUploadArea = document.getElementById('validIdUploadArea');
+            if (validIdInput && validIdInput.files.length === 0) {
+                validIdUploadArea.style.borderColor = '#dc3545';
+                if (!firstError) firstError = validIdUploadArea;
+                valid = false;
+            }
+
+                        if (!valid) {
+                // Tinanggal ang alert() para walang popup
+                
                 resetSubmitBtn();
                 if (firstError) {
+                    // Siguraduhing kulay pula ang border bago mag-scroll
+                    if (firstError.classList.contains('custom-select')) {
+                        firstError.querySelector('.custom-select-trigger').style.borderColor = '#dc3545';
+                        firstError.querySelector('.custom-select-trigger').style.boxShadow = '0 0 0 4px rgba(220, 53, 69, 0.1)';
+                    } else if (firstError.classList.contains('file-upload-area')) {
+                        firstError.style.borderColor = '#dc3545';
+                        firstError.style.background = '#fef2f2';
+                    } else {
+                        firstError.style.borderColor = '#dc3545';
+                        firstError.style.boxShadow = '0 0 0 4px rgba(220, 53, 69, 0.1)';
+                    }
+
+                    // Mag-scroll pabalik sa unang error
                     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    if (firstError.focus) firstError.focus();
+                    
+                    // Focus kung input/select/textarea
+                    if (firstError.focus && typeof firstError.focus === 'function') {
+                        firstError.focus();
+                    }
                 }
                 return;
             }
@@ -3156,6 +3317,93 @@
             });
         });
 
+        // ===== VALID ID UPLOAD HANDLER =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const validIdInput = document.getElementById('validIdInput');
+            const validIdFileList = document.getElementById('validIdFileList');
+            const validIdUploadArea = document.getElementById('validIdUploadArea');
+
+            if (validIdInput) {
+                // Trigger kapag nag-select ng file
+                validIdInput.addEventListener('change', function() {
+                    updateValidIdList(this.files);
+                    if (this.files.length > 0) {
+                        validIdUploadArea.style.borderColor = '#1a6b42';
+                        validIdUploadArea.style.background = 'var(--primary-50)';
+                    }
+                });
+            }
+
+            // Drag & drop support
+            if (validIdUploadArea) {
+                validIdUploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.borderColor = 'var(--primary-500)';
+                    this.style.background = 'var(--primary-50)';
+                });
+                validIdUploadArea.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    if (validIdInput.files.length === 0) {
+                        this.style.borderColor = 'var(--neutral-200)';
+                        this.style.background = 'var(--neutral-50)';
+                    }
+                });
+                validIdUploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        validIdInput.files = files;
+                        updateValidIdList(files);
+                        validIdUploadArea.style.borderColor = '#1a6b42';
+                        validIdUploadArea.style.background = 'var(--primary-50)';
+                    }
+                });
+            }
+
+            function updateValidIdList(files) {
+                validIdFileList.innerHTML = '';
+                if (files.length === 0) return;
+                for (let i = 0; i < files.length; i++) {
+                    const tag = document.createElement('span');
+                    tag.className = 'file-tag';
+                    tag.innerHTML = `<i class="fas fa-file"></i> ${files[i].name} (${(files[i].size / 1024).toFixed(1)} KB) <i class="fas fa-times" onclick="removeValidIdFile(event, ${i})"></i>`;
+                    validIdFileList.appendChild(tag);
+                }
+            }
+
+                       window.removeValidIdFile = function(event, index) {
+                event.stopPropagation();
+                event.preventDefault();
+                const dt = new DataTransfer();
+                const files = validIdInput.files;
+                for (let i = 0; i < files.length; i++) {
+                    if (i !== index) dt.items.add(files[i]);
+                }
+                validIdInput.files = dt.files;
+                updateValidIdList(validIdInput.files);
+                if (validIdInput.files.length === 0) {
+                    validIdUploadArea.style.borderColor = 'var(--neutral-200)';
+                    validIdUploadArea.style.background = 'var(--neutral-50)';
+                }
+            };
+        });
     </script>
+
+     <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
+    <script>
+        (function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.pushState(null, null, location.href);
+                window.location.reload();
+            };
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        })();
+    </script>
+
 </body>
 </html>

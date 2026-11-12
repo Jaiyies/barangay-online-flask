@@ -1680,9 +1680,7 @@
         <a href="{{ url_for('apply_permit') }}" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
         <a href="{{ url_for('my_requests') }}" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
         <a href="{{ url_for('events') }}" data-tooltip="Events Calendar"><i class="fas fa-calendar-alt"></i> <span class="translatable">Events Calendar</span></a>
-        <a href="{{ url_for('settings') }}" id="sidebarSettingsLink" data-tooltip="Settings" class="active">
-            <i class="fas fa-cog"></i> <span class="translatable">Settings</span>
-        </a>
+       
       </nav>
 
       <div class="sidebar-footer">
@@ -1792,10 +1790,10 @@
                     <i class="fas fa-lock"></i> <span data-translate="change_pass">Change Password</span>
                 </button>
             </div>
-
         </div>
     </main>
 
+    <!-- ===== PROFILE MODAL ===== -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal">
             <div class="modal-header">
@@ -1805,46 +1803,48 @@
                 </button>
             </div>
 
-            {% set ns = namespace(profile_success=False) %}
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        {% if 'profile' in message|lower and category == 'success' %}
-                            {% set ns.profile_success = True %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+        {% set ns = namespace(profile_success=False) %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if 'profile' in message|lower and category == 'success' %}
+                        {% set ns.profile_success = True %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-            {% if ns.profile_success %}
-                <div class="modal-body" style="text-align: center; padding: 40px 30px;">
-                    <div class="success-icon-wrapper">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3 class="success-title">Success!</h3>
-                    <p class="success-text">
-                        Profile updated successfully! A confirmation email has been sent to your inbox.
-                    </p>
-                    <button type="button" class="btn-primary" onclick="closeModal('profileModal')" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-check"></i> Okay, Got it
-                    </button>
+        {% if ns.profile_success %}
+            <div class="modal-body" style="text-align: center; padding: 40px 30px;">
+                <div class="success-icon-wrapper">
+                    <i class="fas fa-check-circle"></i>
                 </div>
-            {% else %}
-                <form method="POST" action="{{ url_for('user_update_profile') }}">
-                    <div class="modal-body">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    {% if 'profile' in message|lower and category != 'success' %}
-                                    <div class="flash {{ category }}">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        <span>{{ message }}</span>
-                                    </div>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+                <h3 class="success-title">Success!</h3>
+                <p class="success-text">
+                    Profile updated successfully! A confirmation email has been sent to your inbox.
+                </p>
+                <button type="button" class="btn-primary" onclick="closeModal('profileModal')" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-check"></i> Okay, Got it
+                </button>
+            </div>
+        {% else %}
+            <form method="POST" action="{{ url_for('user_update_profile') }}" id="profileUpdateForm">
+                <div class="modal-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                {% if 'profile' in message|lower and category != 'success' %}
+                                <div class="flash {{ category }}">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>{{ message }}</span>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
 
+                    <!-- FORM FIELDS -->
+                    <div id="profileFormFields">
                         <div class="form-row">
                             <div class="form-group">
                                 <label data-translate="first_name">First Name</label>
@@ -1868,67 +1868,92 @@
                             <input type="text" name="address" value="{{ user.address if user else '' }}" placeholder="House No., Street, Barangay">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-secondary" onclick="closeModal('profileModal')"><span data-translate="cancel">Cancel</span></button>
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-save"></i> <span data-translate="save_changes">Save Changes</span>
+
+                    <!-- INLINE OTP CARD -->
+                    <div id="profileOtpCard" style="display: none; text-align: center; padding: 10px 0;">
+                        <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42;">
+                            <i class="fas fa-envelope-open-text"></i>
+                        </div>
+                        <h3 style="color: #0f3d2a; font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;" data-translate="verify_update">Verify Update</h3>
+                        <p id="profileOtpEmailText" style="color: #6b8475; font-size: 0.9rem; margin-bottom: 20px;" data-translate="enter_code_sent">Enter the code sent to your email</p>
+
+                        <div style="text-align: left; margin-bottom: 15px;">
+                            <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;" data-translate="six_digit_code">6-Digit Code</label>
+                            <input type="text" id="profileOtpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
+                        </div>
+
+                        <div id="profileOtpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
+                            <i class="fas fa-times-circle"></i> <span data-translate="invalid_code">Invalid code. Please try again.</span>
+                        </div>
+
+                        <button type="button" class="btn-primary" id="verifyProfileOtpBtn" onclick="verifyProfileOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
+                            <i class="fas fa-check-circle"></i> <span data-translate="verify_save">Verify & Save</span>
                         </button>
                     </div>
-                </form>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="passwordModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2><i class="fas fa-key"></i> <span data-translate="change_pass">Change Password</span></h2>
-                <button class="modal-close" onclick="closeModal('passwordModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            {% set ns_pw = namespace(password_success=False) %}
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        {% if 'password' in message|lower and category == 'success' %}
-                            {% set ns_pw.password_success = True %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            {% if ns_pw.password_success %}
-                <div class="modal-body" style="text-align: center; padding: 40px 30px;">
-                    <div class="success-icon-wrapper">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3 class="success-title">Password Changed!</h3>
-                    <p class="success-text">
-                        Your password has been successfully updated. A confirmation email has been sent.
-                    </p>
-                    <button type="button" class="btn-primary" onclick="closeModal('passwordModal')" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-check"></i> Okay, Got it
+                </div>
+                <div class="modal-footer" id="profileModalFooter">
+                    <button type="button" class="btn-secondary" id="profileCancelBtn" onclick="closeModal('profileModal')"><span data-translate="cancel">Cancel</span></button>
+                    <button type="submit" class="btn-primary" id="profileSaveBtn">
+                        <i class="fas fa-save"></i> <span data-translate="save_changes">Save Changes</span>
                     </button>
                 </div>
-            {% else %}
-                                 <form id="changePasswordForm" method="POST" action="{{ url_for('user_change_password') }}">
-                    <div class="modal-body">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    {% if 'password' in message|lower and category != 'success' %}
-                                    <div class="flash {{ category }}">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        <span>{{ message }}</span>
-                                    </div>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+            </form>
+        {% endif %}
+    </div>
+</div>
 
-                        <!-- EMAIL FIELD -->
+<!-- ===== PASSWORD MODAL ===== -->
+<div class="modal-overlay" id="passwordModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><i class="fas fa-key"></i> <span data-translate="change_pass">Change Password</span></h2>
+            <button class="modal-close" onclick="closeModal('passwordModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        {% set ns_pw = namespace(password_success=False) %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if 'password' in message|lower and category == 'success' %}
+                        {% set ns_pw.password_success = True %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if ns_pw.password_success %}
+            <div class="modal-body" style="text-align: center; padding: 40px 30px;">
+                <div class="success-icon-wrapper">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="success-title">Password Changed!</h3>
+                <p class="success-text">
+                    Your password has been successfully updated. A confirmation email has been sent.
+                </p>
+                <button type="button" class="btn-primary" onclick="closeModal('passwordModal')" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-check"></i> Okay, Got it
+                </button>
+            </div>
+        {% else %}
+            <form id="changePasswordForm" method="POST" action="{{ url_for('user_change_password') }}">
+                <div class="modal-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                {% if 'password' in message|lower and category != 'success' %}
+                                <div class="flash {{ category }}">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>{{ message }}</span>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- FORM FIELDS -->
+                    <div id="passwordFormFields">
                         <div class="form-group">
                             <label data-translate="email_address">Email Address</label>
                             <input type="email" name="email" id="email_password" value="{{ user.email if user else '' }}" required placeholder="Enter your registered email">
@@ -1943,6 +1968,7 @@
                                 </button>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label data-translate="new_password">New Password</label>
                             <div class="password-input-wrapper">
@@ -1951,33 +1977,40 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
+ <!-- BAGONG DAGDAG: REAL-TIME ERROR MESSAGE -->
+    <div id="same-password-error" style="display: none; color: #dc3545; font-size: 0.8rem; font-weight: 600; margin-top: 6px;">
+        <i class="fas fa-exclamation-circle"></i> New password cannot be the same as the current password.
+    </div>
 
-                                                  <!-- PASSWORD STRENGTH METER -->
-                        <div id="password-strength-container" style="display: none; margin-top: 10px;">
-                            <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                                <div id="password-strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease; background: #dc3545;"></div>
-                            </div>
-                            <div id="password-strength-text" style="font-size: 0.75rem; font-weight: 700; margin-bottom: 10px;"></div>
-                            
-                            <div style="background: #f4f8f5; border: 1px solid #e3ede7; border-radius: 10px; padding: 12px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;">
-                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-length">
-                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_length">At least 8 characters</span>
+                            <!-- PASSWORD STRENGTH METER -->
+                            <div id="password-strength-container" style="display: none; margin-top: 10px;">
+                                <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                                    <div id="password-strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease; background: #dc3545;"></div>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-uppercase">
-                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_upper">At least 1 uppercase letter</span>
+                                <div id="password-strength-text" style="font-size: 0.75rem; font-weight: 700; margin-bottom: 10px;"></div>
+                                
+                                <div style="background: #f4f8f5; border: 1px solid #e3ede7; border-radius: 10px; padding: 12px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-length">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_length">At least 8 characters</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-uppercase">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_upper">At least 1 uppercase letter</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-lowercase">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_lower">At least 1 lowercase letter</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-number">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_number">At least 1 number</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-special">
+                                        <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_special">At least 1 special character (!@#$%^&*)</span>
+                                    </div>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-lowercase">
-                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_lower">At least 1 lowercase letter</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-number">
-                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_number">At least 1 number</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: #64748b;" id="req-special">
-                                    <i class="fas fa-circle" style="font-size: 8px; color: #dc3545;"></i> <span data-translate="req_special">At least 1 special character (!@#$%^&*)</span>
-                                </div>
-                            </div>
-                        </div>
-                                            <div class="form-group">
+                          
+                                                            </div>
+                        </div> <!-- ✅ Close ng New Password form-group -->
+
+                        <div class="form-group">
                             <label data-translate="confirm_new_password">Confirm New Password</label>
                             <div class="password-input-wrapper">
                                 <input type="password" name="confirm_password" id="confirm_password" required data-translate-placeholder="reenter_password" placeholder="Re-enter new password">
@@ -1986,86 +2019,48 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-secondary" onclick="closeModal('passwordModal')"><span data-translate="cancel">Cancel</span></button>
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-check"></i> <span data-translate="update_password">Update Password</span>
+                     </div>
+
+                    <!-- INLINE OTP CARD -->
+                    <div id="passwordOtpCard" style="display: none; text-align: center; padding: 10px 0;">
+                        <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42;">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3 style="color: #0f3d2a; font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;" data-translate="change_pass">Change Password</h3>
+                        <p id="passwordOtpEmailText" style="color: #6b8475; font-size: 0.9rem; margin-bottom: 20px;" data-translate="enter_code_sent">Enter the code sent to your email</p>
+
+                        <div style="background: #eff8f2; border: 1px solid #d4f0df; border-radius: 12px; padding: 12px; text-align: left; font-size: 0.8rem; color: #145233; margin-bottom: 15px; display: flex; gap: 8px; align-items: flex-start;">
+                            <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
+                            <span data-translate="a_6_digit_code_sent">A 6-digit code has been sent to your email. Check your inbox (and spam folder).</span>
+                        </div>
+
+                        <div style="text-align: left; margin-bottom: 15px;">
+                            <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;" data-translate="six_digit_code">6-Digit Code</label>
+                            <input type="text" id="passwordOtpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
+                        </div>
+
+                        <div id="passwordOtpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
+                            <i class="fas fa-times-circle"></i> <span data-translate="invalid_code">Invalid code. Please try again.</span>
+                        </div>
+
+                        <button type="button" class="btn-primary" id="verifyPasswordOtpBtn" onclick="verifyPasswordOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
+                            <i class="fas fa-check-circle"></i> <span data-translate="verify_code">Verify Code</span>
                         </button>
                     </div>
-                </form>
-            {% endif %}
-        </div>
+                </div>
+                <div class="modal-footer" id="passwordModalFooter">
+                    <button type="button" class="btn-secondary" id="passwordCancelBtn" onclick="closeModal('passwordModal')"><span data-translate="cancel">Cancel</span></button>
+                    <button type="submit" class="btn-primary" id="passwordSubmitBtn">
+                        <i class="fas fa-check"></i> <span data-translate="update_password">Update Password</span>
+                    </button>
+                </div>
+            </form>
+        {% endif %}
     </div>
-    <!-- OTP VERIFICATION MODAL (NASA LABAS NA NG FORM) -->
-    <div class="modal-overlay" id="otpModal">
-        <div class="modal" style="max-width: 450px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);">
-                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-key"></i> <span data-translate="change_pass">Change Password</span></h2>
-            </div>
-            <div class="modal-body" style="text-align: center; padding: 30px;">
-                <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42; width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px;">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;" data-translate="change_pass">Change Password</h3>
-                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;" data-translate="enter_code_sent">Enter the code sent to your email</p>
+</div>
 
-                <div style="background: #eff8f2; border: 1px solid #d4f0df; border-radius: 12px; padding: 15px; text-align: left; font-size: 0.85rem; color: #145233; margin-bottom: 20px; display: flex; gap: 10px; align-items: flex-start;">
-                    <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
-                    <span data-translate="a_6_digit_code_sent">A 6-digit reset code has been sent to your email. Check your inbox (and spam folder).</span>
-                </div>
-
-                <div style="text-align: left; margin-bottom: 20px;">
-                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;" data-translate="six_digit_code">6-Digit Code</label>
-                    <input type="text" id="otpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
-                    <div style="font-size: 0.75rem; color: #6b8475; margin-top: 8px; text-align: center;">
-                        <i class="fas fa-envelope" style="color: #a3dbb8;"></i> <span data-translate="check_email_spam">Check your email inbox (and spam folder).</span>
-                    </div>
-                </div>
-
-                <!-- Error message container -->
-                <div id="otpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
-                    <i class="fas fa-times-circle"></i> <span data-translate="invalid_code">Invalid code. Please try again.</span>
-                </div>
-
-                <button type="button" class="btn-primary" id="verifyOtpBtn" onclick="verifyOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
-                    <i class="fas fa-check-circle"></i> <span data-translate="verify_code">Verify Code</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-            <!-- OTP VERIFICATION MODAL PARA SA UPDATE PROFILE -->
-    <div class="modal-overlay" id="profileOtpModal">
-        <div class="modal" style="max-width: 450px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #1a6b42, #0f3d2a);">
-                <h2 style="margin: 0 auto; justify-content: center;"><i class="fas fa-user-shield"></i> <span data-translate="verify_update">Verify Profile Update</span></h2>
-            </div>
-            <div class="modal-body" style="text-align: center; padding: 30px;">
-                <div class="success-icon-wrapper" style="background: #eff8f2; color: #1a6b42; width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px;">
-                    <i class="fas fa-envelope-open-text"></i>
-                </div>
-                <h3 style="color: #0f3d2a; font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;" data-translate="verify_update">Verify Update</h3>
-                <p style="color: #6b8475; font-size: 0.9rem; margin-bottom: 25px;" data-translate="enter_code_sent">Enter the code sent to your email</p>
-
-                <div style="text-align: left; margin-bottom: 20px;">
-                    <label style="font-weight: 700; color: #3d5a4a; font-size: 0.85rem; margin-bottom: 8px; display: block;" data-translate="six_digit_code">6-Digit Code</label>
-                    <input type="text" id="profileOtpInput" maxlength="6" placeholder="0 0 0 0 0 0" style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; letter-spacing: 8px; font-weight: 700; border: 2px solid #1a6b42; border-radius: 12px; outline: none;">
-                </div>
-
-                <div id="profileOtpError" style="display: none; color: #dc3545; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px;">
-                    <i class="fas fa-times-circle"></i> <span data-translate="invalid_code">Invalid code. Please try again.</span>
-                </div>
-
-                <button type="button" class="btn-primary" id="verifyProfileOtpBtn" onclick="verifyProfileOTP()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem;">
-                    <i class="fas fa-check-circle"></i> <span data-translate="verify_save">Verify & Save</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    <script>
-
-        // ===== BELL BADGE LOADER =====
+   <script>
+// ===== BELL BADGE LOADER =====
 document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/announcements/unread_count')
         .then(res => res.json())
@@ -2083,585 +2078,634 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(err => console.error('Bell count error:', err));
 });
 
-        // ===== MODAL FUNCTIONS =====
-        function openModal(id) {
-            document.getElementById(id).classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
+// ===== MODAL FUNCTIONS =====
+function openModal(id) {
+    document.getElementById(id).classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+    document.body.style.overflow = '';
+    
+    // Reset profile modal
+    if (id === 'profileModal') {
+        const otpCard = document.getElementById('profileOtpCard');
+        const fields = document.getElementById('profileFormFields');
+        const saveBtn = document.getElementById('profileSaveBtn');
+        const cancelBtn = document.getElementById('profileCancelBtn');
+        if (otpCard) otpCard.style.display = 'none';
+        if (fields) fields.style.display = '';
+        if (saveBtn) saveBtn.style.display = '';
+        if (cancelBtn) cancelBtn.innerHTML = '<span data-translate="cancel">Cancel</span>';
+    }
+    
+    // Reset password modal
+    if (id === 'passwordModal') {
+        const otpCard = document.getElementById('passwordOtpCard');
+        const fields = document.getElementById('passwordFormFields');
+        const submitBtn = document.getElementById('passwordSubmitBtn');
+        const cancelBtn = document.getElementById('passwordCancelBtn');
+        if (otpCard) otpCard.style.display = 'none';
+        if (fields) fields.style.display = '';
+        if (submitBtn) submitBtn.style.display = '';
+        if (cancelBtn) cancelBtn.innerHTML = '<span data-translate="cancel">Cancel</span>';
+    }
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('show');
             document.body.style.overflow = '';
         }
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('show');
-                    document.body.style.overflow = '';
-                }
-            });
+    });
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.show').forEach(m => {
+            m.classList.remove('show');
+            document.body.style.overflow = '';
         });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.show').forEach(m => {
-                    m.classList.remove('show');
-                    document.body.style.overflow = '';
-                });
-            }
-        });
+    }
+});
 
-        // ===== AUTO-OPEN MODAL KAPAG MAY FLASH MESSAGE =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const hasProfileSuccess = document.querySelector('#profileModal .success-title');
-            const hasPasswordSuccess = document.querySelector('#passwordModal .success-title');
+// ===== AUTO-OPEN MODAL KAPAG MAY FLASH MESSAGE =====
+document.addEventListener('DOMContentLoaded', function() {
+    const hasProfileSuccess = document.querySelector('#profileModal .success-title');
+    const hasPasswordSuccess = document.querySelector('#passwordModal .success-title');
 
-            if (hasProfileSuccess) {
-                openModal('profileModal');
-            } else if (hasPasswordSuccess) {
-                openModal('passwordModal');
-            }
-        });
+    if (hasProfileSuccess) {
+        openModal('profileModal');
+    } else if (hasPasswordSuccess) {
+        openModal('passwordModal');
+    }
+});
 
-        // ===== PASSWORD SHOW/HIDE TOGGLE =====
-        function togglePasswordVisibility(inputId, button) {
-            const input = document.getElementById(inputId);
-            const icon = button.querySelector('i');
+// ===== PASSWORD SHOW/HIDE TOGGLE =====
+function togglePasswordVisibility(inputId, button) {
+    const input = document.getElementById(inputId);
+    const icon = button.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
 
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+// ===== SIDEBAR TOGGLE LOGIC =====
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const desktopToggle = document.getElementById('sidebarToggle');
+    if (!sidebar) return;
+
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed && window.innerWidth > 992) {
+        sidebar.classList.add('collapsed');
+        document.body.classList.add('sidebar-collapsed');
+    }
+    if (desktopToggle) {
+        desktopToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const notifPanel = document.getElementById('notifPanel');
+            const notifBell = document.getElementById('notifBell');
+            if (notifPanel) notifPanel.classList.remove('show');
+            if (notifBell) notifBell.classList.remove('active');
+
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('expanded-mobile');
             } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                sidebar.classList.toggle('collapsed');
+                document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
+        const isToggleButton = desktopToggle && desktopToggle.contains(e.target);
+        if (sidebar && window.innerWidth <= 992) {
+            if (!isClickInsideSidebar && !isToggleButton) {
+                sidebar.classList.remove('expanded-mobile');
             }
         }
+    });
+});
 
-        // ===== SIDEBAR TOGGLE LOGIC (MOBILE + DESKTOP) =====
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebar       = document.getElementById('sidebar');
-            const desktopToggle = document.getElementById('sidebarToggle');
-            const settingsLink  = document.getElementById('sidebarSettingsLink');
+// ===== SMOOTH PAGE TRANSITION =====
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (this.classList.contains('active') || !href || href === '#') return;
+        e.preventDefault();
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) mainContent.classList.add('fade-out');
+        setTimeout(() => { window.location.href = href; }, 200);
+    });
+});
 
-            if (!sidebar) return;
+// ===== USER MENU DROPDOWN =====
+function toggleUserMenu(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('userMenu');
+    const langMenu = document.getElementById('langMenu');
+    if (langMenu) langMenu.classList.remove('show');
+    if (menu) menu.classList.toggle('show');
+}
 
-            // ---- DESKTOP COLLAPSE STATE ----
-            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (isCollapsed && window.innerWidth > 992) {
-                sidebar.classList.add('collapsed');
-                document.body.classList.add('sidebar-collapsed');
-            }
-            if (desktopToggle) {
-                desktopToggle.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    
-                    // ISARA ANG NOTIF PANEL PAG CLINICK ANG BURGER
-                    const notifPanel = document.getElementById('notifPanel');
-                    const notifBell = document.getElementById('notifBell');
-                    if (notifPanel) notifPanel.classList.remove('show');
-                    if (notifBell) notifBell.classList.remove('active');
+document.addEventListener('click', function(e) {
+    const userMenu = document.getElementById('userMenu');
+    const userBadge = document.querySelector('.user-badge');
+    if (userMenu && userBadge && !userBadge.contains(e.target) && !userMenu.contains(e.target)) {
+        userMenu.classList.remove('show');
+    }
+});
 
-                    if (window.innerWidth <= 992) {
-                        sidebar.classList.toggle('expanded-mobile');
-                    } else {
-                        sidebar.classList.toggle('collapsed');
-                        document.body.classList.toggle('sidebar-collapsed');
-                        localStorage.setItem(
-                            'sidebarCollapsed',
-                            sidebar.classList.contains('collapsed')
-                        );
-                    }
-                });
-            }
+// ===== LANGUAGE SWITCHER =====
+function toggleLangMenu(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('langMenu');
+    const userMenu = document.getElementById('userMenu');
+    if (userMenu) userMenu.classList.remove('show');
+    if (menu) menu.classList.toggle('show');
+}
 
-            // ---- CLOSE SIDEBAR PAG CLICK SA LABAS (Mobile) ----
-            document.addEventListener('click', function(e) {
-                const isClickInsideSidebar = sidebar && sidebar.contains(e.target);
-                const isToggleButton = desktopToggle && desktopToggle.contains(e.target);
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('langMenu');
+    const switcher = document.querySelector('.lang-switcher');
+    if (menu && switcher && !switcher.contains(e.target)) {
+        menu.classList.remove('show');
+    }
+});
 
-                if (sidebar && window.innerWidth <= 992) {
-                    if (!isClickInsideSidebar && !isToggleButton) {
-                        sidebar.classList.remove('expanded-mobile');
-                    }
+// ===== NOTIFICATION BELL =====
+function toggleNotifPanel(event) {
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notifBell');
+    if (panel) {
+        panel.classList.toggle('show');
+        if (bell) bell.classList.toggle('active');
+        if (panel.classList.contains('show')) loadRecentAnnouncements();
+    }
+}
+
+function markAllAsRead(event) {
+    if (event) event.stopPropagation();
+    fetch('/api/announcements/mark-all-read', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.getElementById('bellBadge');
+                if (badge) { badge.style.display = 'none'; badge.textContent = '0'; }
+                const btn = document.getElementById('markAllReadBtn');
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> All Read';
+                    btn.style.opacity = '0.6';
+                    btn.disabled = true;
                 }
+                loadRecentAnnouncements();
+            }
+        })
+        .catch(err => console.error('Mark all read error:', err));
+}
+
+function loadRecentAnnouncements() {
+    var list = document.getElementById('notifList');
+    if (!list) return;
+    list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    fetch('/api/announcements/recent?limit=5')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (!data.announcements || data.announcements.length === 0) {
+                list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
+                return;
+            }
+            var html = '';
+            data.announcements.forEach(function(a) {
+                var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                var isUnread = (a.is_read === 0 || a.is_read === false || a.is_read === null || a.is_read === undefined);
+                var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
+                html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
+                    '<div class="bell-item-title">' + (a.title || 'Untitled') + '</div>' +
+                    '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
+                '</a>';
             });
-
-            // ---- SHOW SETTINGS LINK ----
-            if (settingsLink && window.location.pathname.includes('settings')) {
-                settingsLink.classList.add('visible');
-            }
+            list.innerHTML = html;
+        })
+        .catch(function(err) {
+            console.error('Bell fetch error:', err);
+            list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
         });
+}
 
-        // ===== SMOOTH PAGE TRANSITION =====
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                const href = this.getAttribute('href');
-                if (this.classList.contains('active') || !href || href === '#') return;
-                e.preventDefault();
-                const mainContent = document.querySelector('.main-content');
-                if (mainContent) {
-                    mainContent.classList.add('fade-out');
-                }
-                setTimeout(() => {
-                    window.location.href = href;
-                }, 200);
-            });
-        });
-
-        // ===== USER MENU DROPDOWN =====
-        function toggleUserMenu(event) {
-            if (event) event.stopPropagation();
-            const menu = document.getElementById('userMenu');
-            const langMenu = document.getElementById('langMenu');
-            if (langMenu) langMenu.classList.remove('show');
-            if (menu) menu.classList.toggle('show');
-        }
-
-        document.addEventListener('click', function(e) {
-            const userMenu = document.getElementById('userMenu');
-            const userBadge = document.querySelector('.user-badge');
-            if (userMenu && userBadge && !userBadge.contains(e.target) && !userMenu.contains(e.target)) {
-                userMenu.classList.remove('show');
-            }
-        });
-
-        // ===== LANGUAGE SWITCHER =====
-        function toggleLangMenu(event) {
-            if (event) event.stopPropagation();
-            const menu = document.getElementById('langMenu');
-            const userMenu = document.getElementById('userMenu');
-            if (userMenu) userMenu.classList.remove('show');
-            if (menu) menu.classList.toggle('show');
-        }
-
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('langMenu');
-            const switcher = document.querySelector('.lang-switcher');
-            if (menu && switcher && !switcher.contains(e.target)) {
-                menu.classList.remove('show');
-            }
-        });
-
-        // ===== NOTIFICATION BELL LOGIC (KATULAD NG DASHBOARD) =====
-        function toggleNotifPanel(event) {
-            if (event) event.stopPropagation();
-            const panel = document.getElementById('notifPanel');
-            const bell = document.getElementById('notifBell');
-            
-            if (panel) {
-                panel.classList.toggle('show');
-                if (bell) bell.classList.toggle('active');
-                if (panel.classList.contains('show')) {
-                    loadRecentAnnouncements();
-                }
-            }
-        }
-
-        function markAllAsRead(event) {
-            if (event) event.stopPropagation();
-            
-            fetch('/api/announcements/mark-all-read', { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
+function openAnnouncementFromBell(announcementId) {
+    fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.success) {
+                fetch('/api/announcements/unread_count')
+                    .then(res => res.json())
+                    .then(data => {
                         const badge = document.getElementById('bellBadge');
                         if (badge) {
-                            badge.style.display = 'none';
-                            badge.textContent = '0';
+                            if (data.unread_count > 0) {
+                                badge.textContent = data.unread_count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
                         }
-                        
-                        const btn = document.getElementById('markAllReadBtn');
-                        if (btn) {
-                            btn.innerHTML = '<i class="fas fa-check"></i> All Read';
-                            btn.style.opacity = '0.6';
-                            btn.disabled = true;
-                        }
-
-                        loadRecentAnnouncements();
-                    }
-                })
-                .catch(err => console.error('Mark all read error:', err));
-        }
-
-        function loadRecentAnnouncements() {
-            var list = document.getElementById('notifList');
-            if (!list) return;
-            list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
-            
-            fetch('/api/announcements/recent?limit=5')
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    if (!data.announcements || data.announcements.length === 0) {
-                        list.innerHTML = '<div class="bell-empty"><i class="fas fa-bell-slash"></i><div>No recent announcements</div></div>';
-                        return;
-                    }
-                    
-                    var html = '';
-                    data.announcements.forEach(function(a) {
-                        var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                        var isUnread = (a.is_read === 0 || a.is_read === false || a.is_read === null || a.is_read === undefined);
-                        var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
-                        
-                        html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
-                            '<div class="bell-item-title">' + (a.title || 'Untitled') + '</div>' +
-                            '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
-                        '</a>';
                     });
-                    list.innerHTML = html;
-                })
-                .catch(function(err) {
-                    console.error('Bell fetch error:', err);
-                    list.innerHTML = '<div class="bell-empty"><i class="fas fa-exclamation-triangle"></i><div>Failed to load</div></div>';
-                });
-        }
-
-        function openAnnouncementFromBell(announcementId) {
-            fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        fetch('/api/announcements/unread_count')
-                            .then(res => res.json())
-                            .then(data => {
-                                const badge = document.getElementById('bellBadge');
-                                if (badge) {
-                                    if (data.unread_count > 0) {
-                                        badge.textContent = data.unread_count;
-                                        badge.style.display = 'flex';
-                                    } else {
-                                        badge.style.display = 'none';
-                                    }
-                                }
-                            });
-                        loadRecentAnnouncements();
-                    }
-                })
-                .catch(function(err) { console.error('Mark read error:', err); });
-
-            setTimeout(function() {
-                window.location.href = "{{ url_for('user_announcements') }}";
-            }, 300);
-        }
-        // ===== CLICK ANYWHERE TO CLOSE NOTIF PANEL =====
-        document.addEventListener('click', function(e) {
-            const panel = document.getElementById('notifPanel');
-            const bell = document.getElementById('notifBell');
-            
-            if (panel && bell) {
-                if (!panel.contains(e.target)) {
-                    panel.classList.remove('show');
-                    bell.classList.remove('active');
-                }
+                loadRecentAnnouncements();
             }
-        });
+        })
+        .catch(function(err) { console.error('Mark read error:', err); });
+    setTimeout(function() {
+        window.location.href = "{{ url_for('user_announcements') }}";
+    }, 300);
+}
 
-        // Iwasan ang pagsasara kapag clinick ang loob ng panel
-        document.getElementById('notifPanel')?.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-        // ===== PASSWORD VALIDATION AT EMAIL CHECK (MAY STRENGTH METER AT OTP) =====
-        let generatedOTP = ""; 
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notifBell');
+    if (panel && bell) {
+        if (!panel.contains(e.target)) {
+            panel.classList.remove('show');
+            bell.classList.remove('active');
+        }
+    }
+});
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordForm = document.getElementById('changePasswordForm');
-            const newPasswordInput = document.getElementById('new_password');
-            
-            // Strength Meter Elements
-            const strengthContainer = document.getElementById('password-strength-container');
-            const strengthBar = document.getElementById('password-strength-bar');
-            const strengthText = document.getElementById('password-strength-text');
-            
-            // Requirements
-            const reqLength = document.getElementById('req-length');
-            const reqUppercase = document.getElementById('req-uppercase');
-            const reqLowercase = document.getElementById('req-lowercase');
-            const reqNumber = document.getElementById('req-number');
-            const reqSpecial = document.getElementById('req-special');
+document.getElementById('notifPanel')?.addEventListener('click', function(e) {
+    e.stopPropagation();
+});
 
-            // LIVE CHECKER
+// ===== PASSWORD STRENGTH METER & REAL-TIME VALIDATION =====
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPasswordInput = document.getElementById('current_password');
+    const newPasswordInput = document.getElementById('new_password');
+    const samePasswordError = document.getElementById('same-password-error');
+    
+    const strengthContainer = document.getElementById('password-strength-container');
+    const strengthBar = document.getElementById('password-strength-bar');
+    const strengthText = document.getElementById('password-strength-text');
+    const reqLength = document.getElementById('req-length');
+    const reqUppercase = document.getElementById('req-uppercase');
+    const reqLowercase = document.getElementById('req-lowercase');
+    const reqNumber = document.getElementById('req-number');
+    const reqSpecial = document.getElementById('req-special');
+
+    // Function para i-check kung magkapareho
+    function checkSamePassword() {
+        const currentVal = currentPasswordInput ? currentPasswordInput.value : '';
+        const newVal = newPasswordInput ? newPasswordInput.value : '';
+        
+        if (newVal.length > 0 && currentVal === newVal) {
+            // Ipakita ang red error
+            if (samePasswordError) samePasswordError.style.display = 'block';
             if (newPasswordInput) {
-                newPasswordInput.addEventListener('input', function() {
-                    const val = this.value;
-                    if (val.length === 0) {
-                        strengthContainer.style.display = 'none';
-                        return;
-                    }
-                    strengthContainer.style.display = 'block';
-
-                    const hasLength = val.length >= 8;
-                    const hasUpper = /[A-Z]/.test(val);
-                    const hasLower = /[a-z]/.test(val);
-                    const hasNumber = /[0-9]/.test(val);
-                    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-
-                    function updateReqUI(element, isValid) {
-                        const icon = element.querySelector('i');
-                        if (isValid) {
-                            element.style.color = '#10b981';
-                            icon.className = 'fas fa-check-circle';
-                            icon.style.color = '#10b981';
-                            icon.style.fontSize = '12px';
-                        } else {
-                            element.style.color = '#64748b';
-                            icon.className = 'fas fa-circle';
-                            icon.style.color = '#dc3545';
-                            icon.style.fontSize = '8px';
-                        }
-                    }
-
-                    updateReqUI(reqLength, hasLength);
-                    updateReqUI(reqUppercase, hasUpper);
-                    updateReqUI(reqLowercase, hasLower);
-                    updateReqUI(reqNumber, hasNumber);
-                    updateReqUI(reqSpecial, hasSpecial);
-
-                    let score = 0;
-                    if (hasLength) score++;
-                    if (hasUpper) score++;
-                    if (hasLower) score++;
-                    if (hasNumber) score++;
-                    if (hasSpecial) score++;
-
-                    const percentage = (score / 5) * 100;
-                    strengthBar.style.width = percentage + '%';
-
-                    if (score <= 2) {
-                        strengthBar.style.background = '#dc3545';
-                        strengthText.style.color = '#dc3545';
-                        strengthText.textContent = 'Weak Password';
-                    } else if (score === 3 || score === 4) {
-                        strengthBar.style.background = '#3b82f6';
-                        strengthText.style.color = '#3b82f6';
-                        strengthText.textContent = 'Good Password';
-                    } else if (score === 5) {
-                        strengthBar.style.background = '#10b981';
-                        strengthText.style.color = '#10b981';
-                        strengthText.textContent = 'Strong Password';
-                    }
-                });
+                newPasswordInput.style.borderColor = '#dc3545';
+                newPasswordInput.style.backgroundColor = '#fef2f2';
             }
-
-                        // SUBMIT VALIDATION & OTP TRIGGER (NAKA-CONNECT NA SA FLASK)
-            if (passwordForm) {
-                passwordForm.addEventListener('submit', function(e) {
-                    e.preventDefault(); 
-
-                    const newPassword = document.getElementById('new_password').value;
-                    const confirmPassword = document.getElementById('confirm_password').value;
-                    const emailField = document.getElementById('email_password').value;
-
-                    // Check kung may email
-                    if (!emailField || emailField.trim() === '') {
-                        document.getElementById('email_password').style.borderColor = '#dc3545';
-                        document.getElementById('email_password').focus();
-                        return;
-                    }
-                    
-                    // Check kung pasado sa requirements
-                    if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
-                        document.getElementById('new_password').style.borderColor = '#dc3545';
-                        document.getElementById('new_password').focus();
-                        return;
-                    }
-
-                    // Check kung tugma ang password
-                    if (newPassword !== confirmPassword) {
-                        document.getElementById('confirm_password').style.borderColor = '#dc3545';
-                        document.getElementById('confirm_password').focus();
-                        return;
-                    }
-
-                    // Ipakita ang loading state sa button
-                    const submitBtn = passwordForm.querySelector('button[type="submit"]');
-                    const originalBtnText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
-                    submitBtn.disabled = true;
-
-                    // MAGPADALA NG REQUEST SA FLASK PARA SA TOTOONG EMAIL OTP
-                    fetch('/api/settings/send-otp', {  // <--- ITO ANG TAMA
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: emailField })
-                    })
-
-                    .then(res => res.json())
-                    .then(data => {
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-
-                        if (data.success) {
-                            // Ilagay ang email sa OTP modal
-                            const otpEmailText = document.querySelector('#otpModal .modal-body p');
-                            if(otpEmailText) otpEmailText.innerHTML = `Enter the code sent to <br><strong>${emailField}</strong>`;
-
-                            // Isara ang password modal, buksan ang OTP modal
-                            closeModal('passwordModal');
-                            openModal('otpModal');
-                            document.getElementById('otpInput').value = ''; // Clear input
-                            setTimeout(() => document.getElementById('otpInput').focus(), 300);
-                        } else {
-                           const lang = localStorage.getItem('language') || 'en';
-alert((lang === 'tl' ? 'Hindi nagpadala ng OTP: ' : 'Failed to send OTP: ') + data.error);
-                        }
-                    })
-                    .catch(err => {
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-                        console.error(err);
-                        alert('Network error. Check console.');
-                    });
-                });
+        } else {
+            // Itago ang red error
+            if (samePasswordError) samePasswordError.style.display = 'none';
+            if (newPasswordInput) {
+                newPasswordInput.style.borderColor = '';
+                newPasswordInput.style.backgroundColor = '';
             }
-        });
-        // ===== OTP VERIFICATION FUNCTION =====
-        function verifyOTP() {
-            const inputOtp = document.getElementById('otpInput').value;
-            const errorMsg = document.getElementById('otpError');
-            const submitBtn = document.getElementById('verifyOtpBtn');
-            
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-            submitBtn.disabled = true;
-
-            // I-VERIFY SA BACKEND (Python)
-            // PALITAN ANG URL AT TANGGALIN ANG EMAIL SA BODY
-            fetch('/api/settings/verify-otp', { 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ otp: inputOtp }) 
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    errorMsg.style.display = 'none';
-                    const form = document.getElementById('changePasswordForm');
-                    form.submit(); // Tuloy sa pagpalit ng password
-                } else {
-                    errorMsg.style.display = 'block';
-                    document.getElementById('otpInput').style.borderColor = '#dc3545';
-                    document.getElementById('otpInput').value = ''; 
-                    document.getElementById('otpInput').focus();
-                    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Code';
-                    submitBtn.disabled = false;
-                    if (navigator.vibrate) navigator.vibrate(200);
-                }
-            })
-            .catch(err => {
-                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Code';
-                submitBtn.disabled = false;
-                console.error(err);
-            });
         }
-        // Allow "Enter" key to verify OTP
-        document.getElementById('otpInput')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                verifyOTP();
+    }
+
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            // 1. I-CHECK AGAD PAG NAGTYPE (Real-time)
+            checkSamePassword();
+
+            // 2. Existing logic for strength meter
+            const val = this.value;
+            if (val.length === 0) {
+                if (strengthContainer) strengthContainer.style.display = 'none';
+                return;
             }
-        });
+            if (strengthContainer) strengthContainer.style.display = 'block';
 
-                // ===== UPDATE PROFILE OTP LOGIC =====
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hanapin yung form sa loob ng profileModal
-            const profileForm = document.querySelector('#profileModal form');
+            const hasLength = val.length >= 8;
+            const hasUpper = /[A-Z]/.test(val);
+            const hasLower = /[a-z]/.test(val);
+            const hasNumber = /[0-9]/.test(val);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(val);
 
-            if (profileForm) {
-                // Palitan ang action attribute para hindi mag-submit agad
-                profileForm.addEventListener('submit', function(e) {
-                    e.preventDefault(); // Pigilan ang normal submit
-
-                    // Kunin ang email value
-                    const emailInput = profileForm.querySelector('input[name="email"]');
-                    const emailField = emailInput ? emailInput.value : '';
-
-                    if (!emailField) {
-                        emailInput.style.borderColor = '#dc3545';
-                        return;
-                    }
-
-                    // Ipakita ang loading state sa Save Changes button
-                    const submitBtn = profileForm.querySelector('button[type="submit"]');
-                    const originalBtnText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
-                    submitBtn.disabled = true;
-
-                    // Magpadala ng OTP request sa Flask
-                    fetch('/api/profile/send-otp', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: emailField })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-
-                        if (data.success) {
-                            // Ilagay ang email sa OTP modal
-                            const otpText = document.querySelector('#profileOtpModal .modal-body p');
-                            if(otpText) otpText.innerHTML = `Enter the code sent to <br><strong>${emailField}</strong>`;
-
-                            // Isara ang profileModal, buksan ang profileOtpModal
-                            closeModal('profileModal');
-                            openModal('profileOtpModal');
-                            document.getElementById('profileOtpInput').value = '';
-                            setTimeout(() => document.getElementById('profileOtpInput').focus(), 300);
-                        } else {
-                            alert('Failed to send OTP: ' + data.error);
-                        }
-                    })
-                    .catch(err => {
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-                        console.error(err);
-                        alert('Network error. Check console.');
-                    });
-                });
-            }
-        });
-
-        // ===== PROFILE OTP VERIFY FUNCTION =====
-        function verifyProfileOTP() {
-            const inputOtp = document.getElementById('profileOtpInput').value;
-            const errorMsg = document.getElementById('profileOtpError');
-            const submitBtn = document.getElementById('verifyProfileOtpBtn');
-            
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-            submitBtn.disabled = true;
-
-            fetch('/api/profile/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ otp: inputOtp })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    errorMsg.style.display = 'none';
-                    // Kapag tama ang OTP, i-submit na yung form para ma-save
-                    const form = document.querySelector('#profileModal form');
-                    form.submit(); // Gagamitin nito ang normal form submit
+            function updateReqUI(element, isValid) {
+                if (!element) return;
+                const icon = element.querySelector('i');
+                if (isValid) {
+                    element.style.color = '#10b981';
+                    icon.className = 'fas fa-check-circle';
+                    icon.style.color = '#10b981';
+                    icon.style.fontSize = '12px';
                 } else {
-                    errorMsg.style.display = 'block';
-                    document.getElementById('profileOtpInput').style.borderColor = '#dc3545';
-                    document.getElementById('profileOtpInput').value = ''; 
-                    document.getElementById('profileOtpInput').focus();
-                    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Save';
-                    submitBtn.disabled = false;
+                    element.style.color = '#64748b';
+                    icon.className = 'fas fa-circle';
+                    icon.style.color = '#dc3545';
+                    icon.style.fontSize = '8px';
                 }
-            })
-            .catch(err => {
-                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify & Save';
-                submitBtn.disabled = false;
-                console.error(err);
-            });
+            }
+
+            updateReqUI(reqLength, hasLength);
+            updateReqUI(reqUppercase, hasUpper);
+            updateReqUI(reqLowercase, hasLower);
+            updateReqUI(reqNumber, hasNumber);
+            updateReqUI(reqSpecial, hasSpecial);
+
+            let score = 0;
+            if (hasLength) score++;
+            if (hasUpper) score++;
+            if (hasLower) score++;
+            if (hasNumber) score++;
+            if (hasSpecial) score++;
+
+            const percentage = (score / 5) * 100;
+            if (strengthBar) strengthBar.style.width = percentage + '%';
+
+            if (score <= 2) {
+                if (strengthBar) strengthBar.style.background = '#dc3545';
+                if (strengthText) { strengthText.style.color = '#dc3545'; strengthText.textContent = 'Weak Password'; }
+            } else if (score === 3 || score === 4) {
+                if (strengthBar) strengthBar.style.background = '#3b82f6';
+                if (strengthText) { strengthText.style.color = '#3b82f6'; strengthText.textContent = 'Good Password'; }
+            } else if (score === 5) {
+                if (strengthBar) strengthBar.style.background = '#10b981';
+                if (strengthText) { strengthText.style.color = '#10b981'; strengthText.textContent = 'Strong Password'; }
+            }
+        });
+
+        // I-check din kung nagbago ang current password (para accurate ang warning)
+        if (currentPasswordInput) {
+            currentPasswordInput.addEventListener('input', checkSamePassword);
+        }
+    }
+});
+
+
+// ===== PASSWORD FORM SUBMIT (SEND OTP) =====
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordForm = document.getElementById('changePasswordForm');
+    if (!passwordForm) return;
+
+    passwordForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const currentPassword = document.getElementById('current_password').value;
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const emailField = document.getElementById('email_password').value;
+
+        if (!emailField || emailField.trim() === '') {
+            document.getElementById('email_password').style.borderColor = '#dc3545';
+            document.getElementById('email_password').focus();
+            return;
         }
 
-        // Allow "Enter" key to verify Profile OTP
-        document.getElementById('profileOtpInput')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                verifyProfileOTP();
-            }
-        });
+        // === BAGONG VALIDATION: CURRENT VS NEW PASSWORD ===
+        if (currentPassword === newPassword) {
+            const newPassInput = document.getElementById('new_password');
+            const samePassError = document.getElementById('same-password-error');
+            
+            newPassInput.style.borderColor = '#dc3545';
+            newPassInput.style.backgroundColor = '#fef2f2';
+            if (samePassError) samePassError.style.display = 'block';
+            
+            newPassInput.focus();
+            return; // Pipigilan nito ang pag-send ng OTP
+        }
 
+        if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+            document.getElementById('new_password').style.borderColor = '#dc3545';
+            document.getElementById('new_password').focus();
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            document.getElementById('confirm_password').style.borderColor = '#dc3545';
+            document.getElementById('confirm_password').focus();
+            return;
+        }
+
+        const submitBtn = document.getElementById('passwordSubmitBtn');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
+        submitBtn.disabled = true;
+
+        fetch('/api/settings/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailField })
+        })
+        .then(res => res.json())
+        .then(data => {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+
+            if (data.success) {
+                document.getElementById('passwordFormFields').style.display = 'none';
+                document.getElementById('passwordOtpCard').style.display = 'block';
+
+                const otpEmailText = document.getElementById('passwordOtpEmailText');
+                if (otpEmailText) otpEmailText.innerHTML = `Enter the code sent to <br><strong>${emailField}</strong>`;
+
+                document.getElementById('passwordSubmitBtn').style.display = 'none';
+                document.getElementById('passwordCancelBtn').innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+
+                document.getElementById('passwordOtpInput').value = '';
+                setTimeout(() => document.getElementById('passwordOtpInput').focus(), 300);
+            } else {
+                alert('Failed to send OTP: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+            console.error(err);
+            alert('Network error. Check console.');
+        });
+    });
+});
+
+// ===== PASSWORD OTP VERIFY =====
+function verifyPasswordOTP() {
+    const inputOtp = document.getElementById('passwordOtpInput').value.trim();
+    const errorMsg = document.getElementById('passwordOtpError');
+    const submitBtn = document.getElementById('verifyPasswordOtpBtn');
+
+    if (!inputOtp || inputOtp.length !== 6) {
+        errorMsg.style.display = 'block';
+        errorMsg.querySelector('span').textContent = 'Please enter the 6-digit code.';
+        return;
+    }
+
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+    submitBtn.disabled = true;
+
+    fetch('/api/settings/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: inputOtp })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            errorMsg.style.display = 'none';
+            document.getElementById('changePasswordForm').submit();
+        } else {
+            errorMsg.style.display = 'block';
+            errorMsg.querySelector('span').textContent = data.error || 'Invalid code. Please try again.';
+            document.getElementById('passwordOtpInput').style.borderColor = '#dc3545';
+            document.getElementById('passwordOtpInput').value = '';
+            document.getElementById('passwordOtpInput').focus();
+            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span data-translate="verify_code">Verify Code</span>';
+            submitBtn.disabled = false;
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+    })
+    .catch(err => {
+        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span data-translate="verify_code">Verify Code</span>';
+        submitBtn.disabled = false;
+        console.error(err);
+    });
+}
+
+document.getElementById('passwordOtpInput')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') verifyPasswordOTP();
+});
+
+// ===== PROFILE FORM SUBMIT (SEND OTP) =====
+document.addEventListener('DOMContentLoaded', function() {
+    const profileForm = document.getElementById('profileUpdateForm');
+    if (!profileForm) return;
+
+    profileForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const emailInput = profileForm.querySelector('input[name="email"]');
+        const emailField = emailInput ? emailInput.value : '';
+
+        if (!emailField) {
+            emailInput.style.borderColor = '#dc3545';
+            emailInput.focus();
+            return;
+        }
+
+        const submitBtn = document.getElementById('profileSaveBtn');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
+        submitBtn.disabled = true;
+
+        fetch('/api/profile/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailField })
+        })
+        .then(res => res.json())
+        .then(data => {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+
+            if (data.success) {
+                document.getElementById('profileFormFields').style.display = 'none';
+                document.getElementById('profileOtpCard').style.display = 'block';
+
+                const otpEmailText = document.getElementById('profileOtpEmailText');
+                if (otpEmailText) otpEmailText.innerHTML = `Enter the code sent to <br><strong>${emailField}</strong>`;
+
+                document.getElementById('profileSaveBtn').style.display = 'none';
+                document.getElementById('profileCancelBtn').innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+
+                document.getElementById('profileOtpInput').value = '';
+                setTimeout(() => document.getElementById('profileOtpInput').focus(), 300);
+            } else {
+                alert('Failed to send OTP: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+            console.error(err);
+            alert('Network error. Check console.');
+        });
+    });
+});
+
+// ===== PROFILE OTP VERIFY =====
+function verifyProfileOTP() {
+    const inputOtp = document.getElementById('profileOtpInput').value.trim();
+    const errorMsg = document.getElementById('profileOtpError');
+    const submitBtn = document.getElementById('verifyProfileOtpBtn');
+
+    if (!inputOtp || inputOtp.length !== 6) {
+        errorMsg.style.display = 'block';
+        errorMsg.querySelector('span').textContent = 'Please enter the 6-digit code.';
+        return;
+    }
+
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+    submitBtn.disabled = true;
+
+    fetch('/api/profile/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: inputOtp })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            errorMsg.style.display = 'none';
+            document.getElementById('profileUpdateForm').submit();
+        } else {
+            errorMsg.style.display = 'block';
+            errorMsg.querySelector('span').textContent = data.error || 'Invalid code. Please try again.';
+            document.getElementById('profileOtpInput').style.borderColor = '#dc3545';
+            document.getElementById('profileOtpInput').value = '';
+            document.getElementById('profileOtpInput').focus();
+            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span data-translate="verify_save">Verify & Save</span>';
+            submitBtn.disabled = false;
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+    })
+    .catch(err => {
+        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span data-translate="verify_save">Verify & Save</span>';
+        submitBtn.disabled = false;
+        console.error(err);
+    });
+}
+
+document.getElementById('profileOtpInput')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') verifyProfileOTP();
+});
+</script>
+
+ <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
+    <script>
+        (function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.pushState(null, null, location.href);
+                window.location.reload();
+            };
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        })();
     </script>
+    
 </body>
 </html>
