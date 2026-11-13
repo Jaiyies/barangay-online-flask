@@ -493,6 +493,41 @@ def block_browser_navigation_and_maintenance():
         return  # May session, hayaan lang
 
    
+# ============================================================
+# ✅ PASSWORD VERSION CHECK (Force logout pag pinalitan ng head admin)
+# ============================================================
+@app.before_request
+def check_password_version():
+    """Force logout kung nagbago ang password_version."""
+    skip_endpoints = [
+        'login', 'logout', 'static', 'login_google', 'authorize_google',
+        'forgot_password', 'show_reset_page', 'verify_reset_code',
+        'index', 'register', 'about_us', 'faqs', 'barangay_map',
+        'generate_qr_image', 'uploaded_file'
+    ]
+    if request.endpoint in skip_endpoints:
+        return
+
+    if 'user_id' in session and 'password_version' in session:
+        try:
+            conn = get_db()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT password_version FROM users WHERE id = %s",
+                           (session['user_id'],))
+            user = cursor.fetchone()
+            conn.close()
+
+            if user:
+                current_version = user.get('password_version', 0) or 0
+                session_version = session.get('password_version', 0) or 0
+
+                if current_version != session_version:
+                    session.clear()
+                    session.modified = True
+                    flash('Your password was changed by the Head Admin. Please login again with your new password.', 'warning')
+                    return redirect(url_for('login'))
+        except Exception as e:
+            print(f"Password version check error: {e}")
 
 # ============================================================
 # LOGIN ROUTE
@@ -546,13 +581,15 @@ def login():
                 flash('This is an Admin account. Please select "Admin" in the dropdown to login.', 'danger')
                 return render_template('login.html')
 
+
             session['user_id'] = user['id']
             session['fullname'] = f"{user['first_name']} {user['last_name']}"
             session['email'] = user['email']
             session['role'] = user['role']
+            session['temp_password'] = bool(user.get('temp_password', False))
+            session['password_version'] = user.get('password_version', 0)   # ✅ IDAGDAG ITO
 
             # flash(f'Welcome back, {session["fullname"]}!', 'success')
-
             try:
                 log_conn = get_db()
                 log_cursor = log_conn.cursor()
@@ -640,6 +677,8 @@ def authorize_google():
         session['fullname'] = f"{user['first_name']} {user['last_name']}"
         session['email'] = user['email']
         session['role'] = user['role']
+        session['temp_password'] = bool(user.get('temp_password', False))
+        session['password_version'] = user.get('password_version', 0)  
          # flash(f'Welcome back, {session["fullname"]}!', 'success')
 
         if user['role'] == 'resident':
@@ -1049,398 +1088,6 @@ def user_change_password():
     flash('Password changed successfully! A confirmation email has been sent.', 'success')
     return redirect(url_for('user_settings'))
 
-@app.route('/user-change-password', methods=['POST'])
-@role_required('resident')
-def user_change_password2():
-    current_password = request.form.get('current_password', '')
-    new_password = request.form.get('new_password', '')
-    confirm_password = request.form.get('confirm_password', '')
-
-    if not current_password or not new_password or not confirm_password:
-        flash('Please fill in all fields.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    if new_password != confirm_password:
-        flash('New passwords do not match.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    if len(new_password) < 8:
-        flash('New password must be at least 8 characters.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
-    user = cursor.fetchone()
-
-    # CHECK OTP VERIFIED SESSION FLAG (valid for 5 mins)
-    otp_verified = session.get('password_otp_verified', False)
-    otp_verified_at = session.get('password_otp_verified_at', 0)
-    otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
-
-    if not otp_valid:
-        # Fallback: traditional current password check
-        if not user or not check_password_hash(user['password'], current_password):
-            conn.close()
-            flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
-            return redirect(url_for('user_settings'))
-    else:
-        # OTP verified — skip current password check, but validate user exists
-        if not user:
-            conn.close()
-            flash('User not found.', 'danger')
-            return redirect(url_for('user_settings'))
-
-    # Clear OTP session flag
-    session.pop('password_otp_verified', None)
-    session.pop('password_otp_verified_at', None)
-
-    hashed_password = generate_password_hash(new_password)
-    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
-    conn.commit()
-    conn.close()
-
-    # ============================================================
-    # ✅ SEND EMAIL CONFIRMATION
-    # ============================================================
-    subject = "Password Changed Successfully - Barangay Sto. Nino"
-    body_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
-        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
-            <tr><td align="center">
-                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:35px;text-align:center;">
-                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔒</div>
-                            <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
-                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
-                                Your password has been successfully changed on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
-                            </p>
-                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
-                                <tr><td style="color:#991b1b;font-size:13px;">
-                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
-                                </td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:20px;text-align:center;">
-                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td></tr>
-        </table>
-    </body>
-    </html>
-    """
-    send_email(user['email'], subject, body_html)
-
-    # ============================================================
-    # ✅ SAVE SA ACTIVITY LOGS
-    # ============================================================
-    try:
-        log_conn = get_db()
-        log_cursor = log_conn.cursor()
-        log_cursor.execute("""
-            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
-            VALUES (%s, %s, %s, %s)
-        """, (session['user_id'], 'password_changed', None,
-              f'Resident changed their password from {request.remote_addr}'))
-        log_conn.commit()
-        log_conn.close()
-    except Exception as e:
-        print(f"Activity log error: {e}")
-
-    flash('Password changed successfully! A confirmation email has been sent.', 'success')
-    return redirect(url_for('user_settings'))
-
-    subject = "Profile Update Confirmation - Barangay Sto. Nino"
-    body_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
-        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
-            <tr><td align="center">
-                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
-                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">✅</div>
-                            <h1 style="margin:0;color:#fff;font-size:22px;">Profile Updated Successfully</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
-                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
-                                Your profile details have been successfully updated on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>. Here are your current information:
-                            </p>
-                            <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
-                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {first_name} {last_name}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {email}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {contact_number if contact_number else 'N/A'}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {address if address else 'N/A'}</td></tr>
-                            </table>
-                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
-                                <tr><td style="color:#991b1b;font-size:13px;">
-                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
-                                </td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:20px;text-align:center;">
-                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td></tr>
-        </table>
-    </body>
-    </html>
-    """
-    send_email(email, subject, body_html)
-
-    flash('Profile updated successfully! A confirmation email has been sent.', 'success')
-    return redirect(url_for('user_settings'))
-    body_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
-        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
-            <tr><td align="center">
-                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
-                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">✅</div>
-                            <h1 style="margin:0;color:#fff;font-size:22px;">Profile Updated Successfully</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
-                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
-                                Your profile details have been successfully updated. Here are your current information:
-                            </p>
-                            <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
-                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {first_name} {last_name}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {email}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {contact_number if contact_number else 'N/A'}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {address if address else 'N/A'}</td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </td></tr>
-        </table>
-    </body>
-    </html>
-    """
-    send_email(email, subject, body_html)
-
-    flash('Profile updated successfully! A confirmation email has been sent.', 'success')
-    return redirect(url_for('user_settings'))
-
-@app.route('/user-change-password', methods=['POST'])
-@role_required('resident')
-def user_change_password3():
-    current_password = request.form.get('current_password', '')
-    new_password = request.form.get('new_password', '')
-    confirm_password = request.form.get('confirm_password', '')
-
-    if not current_password or not new_password or not confirm_password:
-        flash('Please fill in all fields.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    if new_password != confirm_password:
-        flash('New passwords do not match.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    if len(new_password) < 8:
-        flash('New password must be at least 8 characters.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
-    user = cursor.fetchone()
-
-    # 👇 CHECK OTP VERIFIED SESSION FLAG (valid for 5 mins)
-    otp_verified = session.get('password_otp_verified', False)
-    otp_verified_at = session.get('password_otp_verified_at', 0)
-    otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
-
-    if not otp_valid:
-        # Fallback: traditional current password check
-        if not user or not check_password_hash(user['password'], current_password):
-            conn.close()
-            flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
-            return redirect(url_for('user_settings'))
-    else:
-        # ✅ OTP verified — skip current password check, but validate user exists
-        if not user:
-            conn.close()
-            flash('User not found.', 'danger')
-            return redirect(url_for('user_settings'))
-
-    # Clear OTP session flag
-    session.pop('password_otp_verified', None)
-    session.pop('password_otp_verified_at', None)
-@app.route('/user-change-password', methods=['POST'])
-@role_required('resident')
-def user_change_password4():
-    current_password = request.form.get('current_password', '')
-    new_password = request.form.get('new_password', '')
-    confirm_password = request.form.get('confirm_password', '')
-
-    if not current_password or not new_password or not confirm_password:
-        flash('Please fill in all fields.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    if new_password != confirm_password:
-        flash('New passwords do not match.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    if len(new_password) < 8:
-        flash('New password must be at least 8 characters.', 'danger')
-        return redirect(url_for('user_settings'))
-
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
-    user = cursor.fetchone()
-
-    # CHECK OTP VERIFIED SESSION FLAG (valid for 5 mins)
-    otp_verified = session.get('password_otp_verified', False)
-    otp_verified_at = session.get('password_otp_verified_at', 0)
-    otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
-
-    if not otp_valid:
-        # Fallback: traditional current password check
-        if not user or not check_password_hash(user['password'], current_password):
-            conn.close()
-            flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
-            return redirect(url_for('user_settings'))
-    else:
-        # OTP verified — skip current password check, but validate user exists
-        if not user:
-            conn.close()
-            flash('User not found.', 'danger')
-            return redirect(url_for('user_settings'))
-
-    # Clear OTP session flag
-    session.pop('password_otp_verified', None)
-    session.pop('password_otp_verified_at', None)
-
-    hashed_password = generate_password_hash(new_password)
-    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
-    conn.commit()
-    conn.close()
-
-    # ============================================================
-    # ✅ SEND EMAIL CONFIRMATION
-    # ============================================================
-    subject = "Password Changed Successfully - Barangay Sto. Nino"
-    body_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
-        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
-            <tr><td align="center">
-                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:35px;text-align:center;">
-                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔒</div>
-                            <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
-                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
-                                Your password has been successfully changed on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
-                            </p>
-                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
-                                <tr><td style="color:#991b1b;font-size:13px;">
-                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
-                                </td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:20px;text-align:center;">
-                            <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td></tr>
-        </table>
-    </body>
-    </html>
-    """
-    send_email(user['email'], subject, body_html)
-
-    # ============================================================
-    # ✅ SAVE SA ACTIVITY LOGS (Backend tracking)
-    # ============================================================
-    try:
-        log_conn = get_db()
-        log_cursor = log_conn.cursor()
-        log_cursor.execute("""
-            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
-            VALUES (%s, %s, %s, %s)
-        """, (session['user_id'], 'password_changed', None, 
-              f'Resident changed their password from {request.remote_addr}'))
-        log_conn.commit()
-        log_conn.close()
-    except Exception as e:
-        print(f"Activity log error: {e}")
-
-    flash('Password changed successfully! A confirmation email has been sent.', 'success')
-    return redirect(url_for('user_settings'))
-    body_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
-        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
-            <tr><td align="center">
-                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-                    <tr>
-                        <td style="background:linear-gradient(135deg,#0f3d2a,#2a5298);padding:35px;text-align:center;">
-                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔒</div>
-                            <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
-                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
-                                Your password has been successfully changed.
-                            </p>
-                            <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
-                                <tr><td style="color:#991b1b;font-size:13px;">
-                                    ⚠️ <strong>If you did not make this change,</strong> please contact the Barangay Office immediately.
-                                </td></tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </td></tr>
-        </table>
-    </body>
-    </html>
-    """
-    send_email(user['email'], subject, body_html)
-
-    flash('Password changed successfully! A confirmation email has been sent.', 'success')
-    return redirect(url_for('user_settings'))
 
 # ============================================================
 # EVENTS CALENDAR (RESIDENT)
@@ -1463,34 +1110,7 @@ def barangay_map():
 # ============================================================
 # EVENT CRUD API
 # ============================================================
-@app.route('/api/events', methods=['GET'])
-def api_get_events():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Please login first.'}), 401
-
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT e.*, u.first_name, u.last_name
-        FROM event_permits e
-        JOIN users u ON e.user_id = u.id
-        WHERE e.status = 'approved'
-        ORDER BY e.event_date DESC
-    """)
-    events = cursor.fetchall()
-    conn.close()
-
-    for event in events:
-        if event.get('event_date') and hasattr(event['event_date'], 'strftime'):
-            event['event_date'] = event['event_date'].strftime('%Y-%m-%d')
-        if event.get('requested_at') and hasattr(event['requested_at'], 'strftime'):
-            event['requested_at'] = event['requested_at'].strftime('%Y-%m-%d %H:%M:%S')
-        if event.get('start_time'):
-            event['start_time'] = str(event['start_time'])
-        if event.get('end_time'):
-            event['end_time'] = str(event['end_time'])
-    return jsonify({'success': True, 'events': events})
-
+    
 @app.route('/api/events/<int:event_id>', methods=['GET'])
 def api_get_event(event_id):
     if 'user_id' not in session:
@@ -1510,6 +1130,32 @@ def api_get_event(event_id):
     if not event:
         return jsonify({'error': 'Event not found'}), 404
 
+    # ============================================================
+    # ✅ SECURITY: VENUE / OWNERSHIP RESTRICTION
+    # ============================================================
+    user_role = session.get('role')
+    user_id = session.get('user_id')
+
+    if user_role in COURT_CONFIG:
+        # Court admin: pwede lang makita ang events sa kanyang venue
+        expected_venue = COURT_CONFIG[user_role]['venue']
+        if event['venue'] != expected_venue:
+            return jsonify({'error': 'Unauthorized. This event belongs to another court.'}), 403
+
+    elif user_role == 'resident':
+        # Resident: pwede lang makita ang SARILING event
+        if event['user_id'] != user_id:
+            return jsonify({'error': 'Unauthorized. You can only view your own events.'}), 403
+
+    elif user_role == 'admin_documents':
+        # Documents admin: walang access sa event permits
+        return jsonify({'error': 'Unauthorized. Documents admin cannot view event details.'}), 403
+
+    # head_admin: full access (walang restriction)
+
+    # ============================================================
+    # FORMAT DATES/TIMES
+    # ============================================================
     if event.get('event_date') and hasattr(event['event_date'], 'strftime'):
         event['event_date'] = event['event_date'].strftime('%Y-%m-%d')
     if event.get('requested_at') and hasattr(event['requested_at'], 'strftime'):
@@ -2316,7 +1962,7 @@ def head_admin_dashboard():
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
         WHERE d.status = 'pending'
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
         LIMIT 5
     """)
     pending_documents = cursor.fetchall()
@@ -2326,7 +1972,7 @@ def head_admin_dashboard():
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.status = 'pending'
-        ORDER BY e.requested_at DESC
+        ORDER BY e.requested_at ASC
         LIMIT 5
     """)
     pending_events_list = cursor.fetchall()
@@ -2381,7 +2027,7 @@ def head_admin_all_documents():
         SELECT d.*, u.first_name, u.last_name, u.email, u.contact_number
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
     """)
     documents = cursor.fetchall()
     cursor.execute("SELECT COUNT(*) as total FROM document_requests")
@@ -2419,7 +2065,7 @@ def head_admin_events():
         SELECT e.*, u.first_name, u.last_name, u.email, u.contact_number
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
-        ORDER BY e.id DESC
+        ORDER BY e.id ASC
     """)
     events = cursor.fetchall()
     cursor.execute("SELECT COUNT(*) as total FROM event_permits")
@@ -2460,7 +2106,7 @@ def api_all_approved_events():
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.status = 'approved'
-        ORDER BY e.requested_at DESC
+        ORDER BY e.requested_at ASC
     """)
     events = cursor.fetchall()
     conn.close()
@@ -2500,7 +2146,7 @@ def api_events_by_court(court_role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'approved' AND e.event_date >= CURDATE()
-        ORDER BY e.requested_at DESC
+        ORDER BY e.requested_at ASC
     """, (VENUE,))
     events = cursor.fetchall()
     conn.close()
@@ -2537,7 +2183,7 @@ def api_approved_events():
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.status = 'approved'
-        ORDER BY e.requested_at DESC
+        ORDER BY e.requested_at ASC
     """)
     events = cursor.fetchall()
     conn.close()
@@ -2590,7 +2236,7 @@ def sec_admin_dashboard():
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
         WHERE d.status = 'pending'
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
         LIMIT 5
     """)
     recent_pending = cursor.fetchall()
@@ -2618,7 +2264,7 @@ def admin_documents():
         SELECT d.*, u.first_name, u.last_name, u.email, u.contact_number
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
     """)
     documents = cursor.fetchall()
     conn.close()
@@ -2636,7 +2282,7 @@ def admin_documents_clearance():
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
         WHERE d.document_type = 'clearance'
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
     """)
     documents = cursor.fetchall()
     conn.close()
@@ -2654,7 +2300,7 @@ def admin_documents_ready():
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
         WHERE d.status IN ('processing', 'ready_for_pickup')
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
     """)
     documents = cursor.fetchall()
     conn.close()
@@ -2731,7 +2377,7 @@ def admin_documents_indigency():
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
         WHERE d.document_type = 'indigency'
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
     """)
     documents = cursor.fetchall()
     conn.close()
@@ -2749,7 +2395,7 @@ def admin_documents_residency():
         FROM document_requests d
         JOIN users u ON d.user_id = u.id
         WHERE d.document_type = 'proof_residency'
-        ORDER BY d.created_at DESC
+       ORDER BY d.created_at ASC
     """)
     documents = cursor.fetchall()
     conn.close()
@@ -2807,7 +2453,7 @@ def _render_court_dashboard(role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'pending'
-        ORDER BY e.id DESC
+        ORDER BY e.id ASC
     """, (VENUE,))
     pending_events_list = cursor.fetchall()
     conn.close()
@@ -2839,7 +2485,7 @@ def _render_court_pending(role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'pending'
-        ORDER BY e.requested_at DESC
+        ORDER BY e.requested_at ASC
     """, (VENUE,))
     pending_events = cursor.fetchall()
     conn.close()
@@ -2865,7 +2511,7 @@ def _render_court_reviewed(role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'approved'
-        ORDER BY e.event_date DESC
+        ORDER BY e.event_date ASC
     """, (VENUE,))
     approved_events = cursor.fetchall()
     cursor.execute("""
@@ -2873,7 +2519,7 @@ def _render_court_reviewed(role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'rejected'
-        ORDER BY e.event_date DESC
+        ORDER BY e.event_date ASC
     """, (VENUE,))
     rejected_events = cursor.fetchall()
     cursor.execute("""
@@ -2881,7 +2527,7 @@ def _render_court_reviewed(role):
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
         WHERE e.venue = %s AND e.status = 'cancelled'
-        ORDER BY e.event_date DESC
+        ORDER BY e.event_date ASC
     """, (VENUE,))
     cancelled_events = cursor.fetchall()
     conn.close()
@@ -2928,7 +2574,7 @@ def court1_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at DESC
+        ORDER BY l.created_at ASC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -2966,7 +2612,7 @@ def court2_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at DESC
+        ORDER BY l.created_at ASC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -3004,7 +2650,7 @@ def court3_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at DESC
+        ORDER BY l.created_at ASC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -3042,7 +2688,7 @@ def court4_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at DESC
+        ORDER BY l.created_at ASC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -3084,24 +2730,59 @@ def _get_court_events(role):
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
+    # ✅ Approved lang (walang date filter — kasama pati past)
     cursor.execute("""
         SELECT e.*, u.first_name, u.last_name
         FROM event_permits e
         JOIN users u ON e.user_id = u.id
-        WHERE e.venue = %s AND e.status = 'approved' AND e.event_date >= CURDATE()
-        ORDER BY e.requested_at DESC
+        WHERE e.venue = %s AND e.status = 'approved'
+        ORDER BY e.event_date ASC
     """, (VENUE,))
     events = cursor.fetchall()
     conn.close()
 
+    now = datetime.datetime.now()
+    today = now.date()
+
     result = []
     for event in events:
+        event_date = event['event_date']
+        end_time = event['end_time']
+
+        # ✅ Check kung past/done na (tapos na ang event oras)
+        is_done = False
+        try:
+            if event_date and end_time:
+                if hasattr(end_time, 'total_seconds'):
+                    sec = int(end_time.total_seconds())
+                    end_dt = datetime.datetime.combine(event_date, datetime.time(sec // 3600, (sec % 3600) // 60))
+                else:
+                    end_dt = datetime.datetime.combine(event_date, datetime.datetime.strptime(str(end_time), '%H:%M:%S').time())
+                is_done = end_dt < now
+            elif event_date:
+                is_done = event_date < today
+        except Exception as ex:
+            print(f"Date parse warning: {ex}")
+            is_done = False
+
+        # ✅ Kulay lang ang nagdi-distinguish — WALANG prefix sa title
+        if is_done:
+            bg_color = '#94a3b8'   # gray
+            border_color = '#64748b'
+        else:
+            bg_color = '#1a5d3a'   # green
+            border_color = '#0d2b1e'
+
         result.append({
             'id': event['id'],
-            'title': event['event_name'],
-            'start': event['event_date'].strftime('%Y-%m-%d') if event['event_date'] else None,
+            'title': event['event_name'] or 'Untitled',
+            'start': event_date.strftime('%Y-%m-%d') if event_date else None,
+            'backgroundColor': bg_color,
+            'borderColor': border_color,
+            'textColor': '#ffffff',
             'extendedProps': {
                 'status': event['status'],
+                'is_done': is_done,
                 'reference': event['reference_number'] or 'N/A',
                 'organizer': f"{event['first_name']} {event['last_name']}",
                 'venue': event['venue'] or 'N/A',
@@ -3109,7 +2790,8 @@ def _get_court_events(role):
                 'start_time': str(event['start_time']) if event['start_time'] else '',
                 'end_time': str(event['end_time']) if event['end_time'] else '',
                 'purpose': event['purpose'] or 'N/A',
-                'remarks': event.get('admin_remarks', '') or ''
+                'description': event.get('event_description', '') or 'N/A',
+                'admin_remarks': event.get('admin_remarks', '') or ''
             }
         })
     return jsonify(result)
@@ -3216,6 +2898,99 @@ def _update_event_status(event_id):
     conn.close()
     return jsonify({'success': True, 'message': f'Event {status} successfully'})
 
+# ============================================================
+# API: CHECK DUPLICATE EVENT (Court Admin 1-4 + Documents Admin)
+# ============================================================
+@app.route('/api/check-duplicate-event/<int:event_id>', methods=['GET'])
+@login_required
+def check_duplicate_event(event_id):
+    """Check if there are similar events (same venue, date, overlapping time)."""
+    role = session.get('role')
+    
+    # Allow: Court Admins 1-4 at Documents Admin
+    allowed_roles = ['admin_court_1', 'admin_court_2', 'admin_court_3', 'admin_court_4', 'admin_documents']
+    if role not in allowed_roles:
+        return jsonify({'error': 'Unauthorized. Admin access only.'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get current event details
+        cursor.execute("""
+            SELECT e.*, u.first_name, u.last_name
+            FROM event_permits e
+            JOIN users u ON e.user_id = u.id
+            WHERE e.id = %s
+        """, (event_id,))
+        current_event = cursor.fetchone()
+        
+        if not current_event:
+            return jsonify({'error': 'Event not found'}), 404
+        
+        # Check kung may duplicate (same venue, same date, overlapping time)
+        # Statuses to check: approved, pending
+        cursor.execute("""
+            SELECT e.*, u.first_name, u.last_name, u.email
+            FROM event_permits e
+            JOIN users u ON e.user_id = u.id
+            WHERE e.venue = %s 
+              AND e.event_date = %s 
+              AND e.id != %s
+              AND e.status IN ('approved', 'pending')
+              AND e.start_time < %s 
+              AND e.end_time > %s
+            ORDER BY e.requested_at DESC
+        """, (
+            current_event['venue'],
+            current_event['event_date'],
+            event_id,
+            current_event['end_time'],
+            current_event['start_time']
+        ))
+        duplicates = cursor.fetchall()
+        
+        # Format response
+        result = []
+        for dup in duplicates:
+            result.append({
+                'id': dup['id'],
+                'event_name': dup['event_name'],
+                'event_date': str(dup['event_date']),
+                'start_time': str(dup['start_time'])[:5],
+                'end_time': str(dup['end_time'])[:5],
+                'venue': dup['venue'],
+                'organizer': f"{dup['first_name']} {dup['last_name']}",
+                'reference': dup['reference_number'] or 'N/A',
+                'status': dup['status'],
+                'purpose': dup.get('purpose') or 'N/A'
+            })
+        
+        print(f"\n🔍 DUPLICATE CHECK for event {event_id}: {len(result)} duplicate(s) found")
+        
+        return jsonify({
+            'success': True,
+            'has_duplicates': len(result) > 0,
+            'count': len(result),
+            'duplicates': result,
+            'current_event': {
+                'id': current_event['id'],
+                'event_name': current_event['event_name'],
+                'event_date': str(current_event['event_date']),
+                'start_time': str(current_event['start_time'])[:5],
+                'end_time': str(current_event['end_time'])[:5],
+                'venue': current_event['venue']
+            }
+        })
+        
+    except Exception as e:
+        print(f"Check duplicate error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+
 @app.route('/api/event/<int:event_id>/update-status', methods=['POST'])
 def update_event_status(event_id):
     if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
@@ -3292,23 +3067,26 @@ def admin_activity_logs():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     role = session.get('role')
+    
     if role == 'head_admin':
+        # BAGONG DAGDAG: Isinama ang u.role sa SELECT
         cursor.execute("""
             SELECT l.*, u.first_name, u.last_name, u.role
             FROM admin_activity_logs l
             LEFT JOIN users u ON l.admin_id = u.id
-            ORDER BY l.created_at DESC
+            ORDER BY l.created_at ASC
             LIMIT 100
         """)
         logs = cursor.fetchall()
         conn.close()
         return render_template('admin/head_admin_activity_logs.html', logs=logs)
+        
     cursor.execute("""
         SELECT l.*, u.first_name, u.last_name
         FROM admin_activity_logs l
         LEFT JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at DESC
+        ORDER BY l.created_at ASC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -3502,14 +3280,14 @@ def admin_events():
             FROM event_permits e
             JOIN users u ON e.user_id = u.id
             WHERE e.venue = %s
-            ORDER BY e.id DESC
+            ORDER BY e.id ASC
         """, (VENUE,))
     else:
         cursor.execute("""
             SELECT e.*, u.first_name, u.last_name, u.email, u.contact_number
             FROM event_permits e
             JOIN users u ON e.user_id = u.id
-            ORDER BY e.id DESC
+            ORDER BY e.id ASC
         """)
     events = cursor.fetchall()
     conn.close()
@@ -3572,6 +3350,121 @@ def sec_admin_settings():
         return redirect(url_for('login'))
     return render_template('admin/sec_admin_settings.html')
 
+
+# ============================================================
+# REQUEST PASSWORD CHANGE (Documents Admin → Head Admin)
+# ============================================================
+@app.route('/request-password-change', methods=['POST'])
+def request_password_change_docs_admin():
+    # ✅ Payagan lahat ng secondary admin (hindi head_admin)
+    allowed_requesters = ['admin_documents', 'admin_court_1', 'admin_court_2',
+                          'admin_court_3', 'admin_court_4']
+    if 'user_id' not in session or session.get('role') not in allowed_requesters:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+
+    reason = request.form.get('reason', '').strip()
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id, first_name, last_name, email, role FROM users WHERE id = %s",
+                       (session['user_id'],))
+        requester = cursor.fetchone()
+        if not requester:
+            flash('User not found.', 'danger')
+            return redirect(url_for('secondary_admin_settings'))
+
+        cursor.execute("SELECT id, first_name, email FROM users WHERE role = 'head_admin'")
+        head_admins = cursor.fetchall()
+
+        # ✅ Role display para sa notification at email
+        role_display = {
+            'admin_documents': 'Documents Admin',
+            'admin_court_1': 'Court 1 Admin',
+            'admin_court_2': 'Court 2 Admin',
+            'admin_court_3': 'Court 3 Admin',
+            'admin_court_4': 'Court 4 Admin',
+        }.get(requester['role'], 'Admin')
+
+        # Notification sa lahat ng head admin
+        for ha in head_admins:
+            create_notification(
+                ha['id'],
+                '🔐 Password Change Request',
+                f'{requester["first_name"]} {requester["last_name"]} ({role_display}) requested a password change. Reason: {reason or "No reason provided"}',
+                'password_change_request',
+                link='/admins'
+            )
+
+        # Activity log
+        cursor.execute("""
+            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+            VALUES (%s, %s, %s, %s)
+        """, (session['user_id'], 'password_change_request', None,
+              f'{role_display} requested password change. Reason: {reason or "N/A"}'))
+        conn.commit()
+
+        # Email sa lahat ng head admin
+        subject = f"Password Change Request - {role_display}"
+        for ha in head_admins:
+            body_html = f"""
+            <!DOCTYPE html>
+            <html><body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+                <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+                    <tr><td align="center">
+                        <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                            <tr>
+                                <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
+                                    <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔐</div>
+                                    <h1 style="margin:0;color:#fff;font-size:22px;">Password Change Request</h1>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:35px 40px;">
+                                    <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {ha['first_name']}!</h2>
+                                    <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                        May nag-request ng password change sa admin panel.
+                                    </p>
+                                    <table style="background:#f8fafc;border-left:4px solid #1a5d3a;padding:20px;border-radius:10px;margin:20px 0;width:100%;">
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Name:</strong> {requester['first_name']} {requester['last_name']}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {requester['email']}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Role:</strong> {role_display}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Reason:</strong> {reason or 'No reason provided'}</td></tr>
+                                    </table>
+                                    <p style="margin:20px 0 10px;color:#64748b;font-size:14px;">
+                                        Pumunta sa <strong>Admin Management</strong> para mag-set ng bagong password.
+                                    </p>
+                                    <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
+                                        <a href="http://127.0.0.1:5000/admins" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Go to Admin Management</a>
+                                    </td></tr></table>
+                                </td>
+                            </tr>
+                            <tr><td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:20px;text-align:center;">
+                                <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                            </td></tr>
+                        </table>
+                    </td></tr>
+                </table>
+            </body></html>
+            """
+            send_email(ha['email'], subject, body_html)
+
+        # ✅ Clear temp_password flag
+        session['temp_password'] = False
+        cursor.execute("UPDATE users SET temp_password = FALSE WHERE id = %s", (session['user_id'],))
+        conn.commit()
+
+        flash('Password change request sent to Head Admin. Please wait for their action.', 'success')
+        return redirect(url_for('secondary_admin_settings'))
+    except Exception as e:
+        conn.rollback()
+        print(f"Request password change error: {e}")
+        flash(f'Error: {str(e)}', 'danger')
+        return redirect(url_for('secondary_admin_settings'))
+    finally:
+        conn.close()
+
 @app.route('/admin-update-profile', methods=['POST'])
 def admin_update_profile():
     if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
@@ -3619,15 +3512,28 @@ def admin_change_password():
         conn.close()
         flash('Current password is incorrect.', 'danger')
         return redirect(url_for('sec_admin_settings'))
+    
     hashed_password = generate_password_hash(new_password)
-    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
+    cursor.execute("""
+        UPDATE users SET password = %s, temp_password = FALSE,
+                         password_version = password_version + 1
+        WHERE id = %s
+    """, (hashed_password, session['user_id']))
     conn.commit()
+    # ✅ I-update ang session
+    cursor.execute("SELECT password_version FROM users WHERE id = %s", (session['user_id'],))
+    new_version = cursor.fetchone()
+    if new_version:
+        session['password_version'] = new_version.get('password_version', 0)
+        session.modified = True
     conn.close()
+    session['temp_password'] = False
     flash('Password changed successfully!', 'success')
     return redirect(url_for('sec_admin_settings'))
 
 @app.route('/secondary-admin-settings')
 def secondary_admin_settings():
+
     if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
@@ -3645,18 +3551,19 @@ def secondary_admin_update_profile():
         return redirect(url_for('login'))
     first_name = request.form.get('first_name', '').strip()
     last_name = request.form.get('last_name', '').strip()
-    email = request.form.get('email', '').strip()
-    if not first_name or not last_name or not email:
+    # ✅ HINDI NA KINUKUHA ANG EMAIL — locked na
+    if not first_name or not last_name:
         flash('Please fill in all fields.', 'danger')
         return redirect(url_for('secondary_admin_settings'))
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET first_name = %s, last_name = %s, email = %s WHERE id = %s",
-                   (first_name, last_name, email, session['user_id']))
+    # ✅ WALANG email sa UPDATE query
+    cursor.execute("UPDATE users SET first_name = %s, last_name = %s WHERE id = %s",
+                   (first_name, last_name, session['user_id']))
     conn.commit()
     conn.close()
     session['fullname'] = f"{first_name} {last_name}"
-    session['email'] = email
+    # ✅ WALANG session['email'] = email
     flash('Profile updated successfully!', 'success')
     return redirect(url_for('secondary_admin_settings'))
 
@@ -3677,6 +3584,7 @@ def secondary_admin_change_password():
     if len(new_password) < 8:
         flash('New password must be at least 8 characters.', 'danger')
         return redirect(url_for('secondary_admin_settings'))
+    
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
@@ -3685,10 +3593,22 @@ def secondary_admin_change_password():
         conn.close()
         flash('Current password is incorrect.', 'danger')
         return redirect(url_for('secondary_admin_settings'))
+    
     hashed_password = generate_password_hash(new_password)
-    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
+    cursor.execute("""
+        UPDATE users SET password = %s, temp_password = FALSE,
+                         password_version = password_version + 1
+        WHERE id = %s
+    """, (hashed_password, session['user_id']))
     conn.commit()
+    # ✅ I-update ang session
+    cursor.execute("SELECT password_version FROM users WHERE id = %s", (session['user_id'],))
+    new_version = cursor.fetchone()
+    if new_version:
+        session['password_version'] = new_version.get('password_version', 0)
+        session.modified = True
     conn.close()
+    session['temp_password'] = False
     flash('Password changed successfully!', 'success')
     return redirect(url_for('secondary_admin_settings'))
 
@@ -3699,7 +3619,7 @@ def user_management():
         return redirect(url_for('login'))
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, first_name, last_name, email, contact_number, address, role, is_verified, created_at FROM users WHERE role = 'resident' ORDER BY created_at DESC")
+    cursor.execute("SELECT id, first_name, last_name, email, contact_number, address, role, is_verified, created_at FROM users WHERE role = 'resident' ORDER BY created_at ASC")
     users = cursor.fetchall()
     conn.close()
     for user in users:
@@ -3782,17 +3702,210 @@ def api_delete_user(user_id):
         return jsonify({'error': 'Unauthorized'}), 401
     if user_id == session['user_id']:
         return jsonify({'error': 'You cannot delete your own account'}), 400
+
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
-    user = cursor.fetchone()
-    if not user:
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        cursor.execute("DELETE FROM document_requests WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM event_permits WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM notifications WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM announcement_reads WHERE user_id = %s", (user_id,))
+        
+        cursor.execute("UPDATE admin_activity_logs SET admin_id = NULL WHERE admin_id = %s", (user_id,))
+        cursor.execute("UPDATE announcements SET created_by = NULL WHERE created_by = %s", (user_id,))
+
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        
+        conn.commit()
+        return jsonify({'message': 'User deleted successfully'})
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"Delete error: {e}")
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
+    finally:
         conn.close()
-        return jsonify({'error': 'User not found'}), 404
-    cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
-    conn.commit()
-    conn.close()
-    return jsonify({'message': 'User deleted successfully'})
+
+@app.route('/api/user/<int:user_id>/request-password-change', methods=['POST'])
+def request_password_change(user_id):
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id, first_name, last_name, role FROM users WHERE id = %s", (user_id,))
+        target_admin = cursor.fetchone()
+        if not target_admin:
+            return jsonify({'error': 'Admin not found'}), 404
+            
+        cursor.execute("SELECT email, first_name FROM users WHERE id = %s", (session['user_id'],))
+        head_admin = cursor.fetchone()
+        
+        # Gumawa ng 6-digit code
+        otp_code = f"{random.randint(0, 999999):06d}"
+        
+        # I-save sa session (naka-tie sa target user para hindi magamit sa iba)
+        session['admin_pass_otp'] = otp_code
+        session['admin_pass_target'] = user_id
+        session['admin_pass_time'] = datetime.datetime.now().timestamp()
+        
+        subject = "Admin Password Change - Verification Code"
+        body_html = f"""
+        <html><body style="font-family:Arial,sans-serif;padding:20px;background:#f4f8f5;">
+            <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;text-align:center;">
+                <h2 style="color:#0f3d2a;">🔐 Verification Code</h2>
+                <p>Hello <strong>{head_admin['first_name']}</strong>,</p>
+                <p>You requested to change the password for <strong>{target_admin['first_name']} {target_admin['last_name']}</strong> ({target_admin['role']}).</p>
+                <p>Your 6-digit verification code is:</p>
+                <h1 style="font-size:42px;letter-spacing:12px;font-family:'Courier New',monospace;color:#0f3d2a;background:#f4f8f5;padding:15px;border-radius:10px;">{otp_code}</h1>
+                <p style="color:#64748b;font-size:13px;">This code expires in 10 minutes.</p>
+            </div>
+        </body></html>
+        """
+        send_email(head_admin['email'], subject, body_html)
+
+        return jsonify({'success': True, 'message': 'Verification code sent to your email.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/user/confirm-password-change', methods=['POST'])
+def confirm_password_change():
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    data = request.get_json()
+    otp_code = data.get('otp_code', '')
+    new_password = data.get('new_password', '')
+    target_id = data.get('target_id')
+    
+    if not otp_code or not new_password or len(new_password) < 8:
+        return jsonify({'error': 'Invalid input. Password must be at least 8 characters.'}), 400
+        
+    # I-check kung tugma ang OTP at hindi expired (10 mins = 600 seconds)
+    saved_otp = session.get('admin_pass_otp')
+    saved_target = session.get('admin_pass_target')
+    saved_time = session.get('admin_pass_time', 0)
+    
+    current_time = datetime.datetime.now().timestamp()
+    
+    if str(target_id) != str(saved_target):
+        return jsonify({'error': 'Target admin mismatch. Please try again.'}), 400
+        
+    if not saved_otp or saved_otp != otp_code:
+        return jsonify({'error': 'Invalid verification code.'}), 400
+        
+    if current_time - saved_time > 600:
+        return jsonify({'error': 'Verification code has expired. Please request a new one.'}), 400
+        
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id, first_name, last_name, email, role FROM users WHERE id = %s", (target_id,))
+        target_admin = cursor.fetchone()
+        if not target_admin:
+            return jsonify({'error': 'Admin not found'}), 404
+            
+        hashed_password = generate_password_hash(new_password)
+        cursor.execute("""
+            UPDATE users SET password = %s, temp_password = FALSE,
+                             password_version = password_version + 1
+            WHERE id = %s
+        """, (hashed_password, target_id))
+        
+        cursor.execute("""
+            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+            VALUES (%s, %s, %s, %s)
+        """, (session['user_id'], 'password_changed', None, f"Head Admin changed password for {target_admin['role']} (ID: {target_id})"))
+        
+        conn.commit()
+
+        # ✅ SEND CONFIRMATION EMAIL SA TARGET ADMIN
+        try:
+            role_display = target_admin['role'].replace('admin_', '').replace('_', ' ').title()
+            if target_admin['role'] == 'admin_documents':
+                role_display = 'Documents Admin'
+            elif target_admin['role'] == 'head_admin':
+                role_display = 'Head Admin'
+
+            subject = "Your Password Has Been Changed - Barangay Sto. Nino"
+            body_html = f"""
+            <!DOCTYPE html>
+            <html><body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+                <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+                    <tr><td align="center">
+                        <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                            <tr>
+                                <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
+                                    <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🔐</div>
+                                    <h1 style="margin:0;color:#fff;font-size:22px;">Password Changed</h1>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:35px 40px;">
+                                    <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {target_admin['first_name']}!</h2>
+                                    <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                        Your password has been successfully changed by the <strong>Head Admin</strong> on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
+                                    </p>
+                                    <table style="background:#f8fafc;border-left:4px solid #1a5d3a;padding:20px;border-radius:10px;margin:20px 0;width:100%;">
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Account:</strong> {target_admin['first_name']} {target_admin['last_name']}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Role:</strong> {role_display}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {target_admin['email']}</td></tr>
+                                    </table>
+                                    <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
+                                        <tr><td style="color:#991b1b;font-size:13px;">
+                                            ⚠️ <strong>If you did not request this change,</strong> please contact the Head Admin immediately.
+                                        </td></tr>
+                                    </table>
+                                    <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
+                                        <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Login Now</a>
+                                    </td></tr></table>
+                                </td>
+                            </tr>
+                            <tr><td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:20px;text-align:center;">
+                                <p style="margin:0;color:#c9d6f0;font-size:11px;">© 2026 Barangay Sto. Nino. Automated message.</p>
+                            </td></tr>
+                        </table>
+                    </td></tr>
+                </table>
+            </body></html>
+            """
+            send_email(target_admin['email'], subject, body_html)
+        except Exception as email_err:
+            print(f"Confirmation email error: {email_err}")
+
+        # ✅ CREATE NOTIFICATION SA TARGET ADMIN
+        try:
+            create_notification(
+                target_id,
+                '🔐 Password Changed',
+                f'Your password has been changed by the Head Admin on {datetime.datetime.now().strftime("%B %d, %Y at %I:%M %p")}.',
+                'password_changed',
+                link='/'
+            )
+        except Exception as notif_err:
+            print(f"Notification error: {notif_err}")
+        
+        # Clear session data
+        session.pop('admin_pass_otp', None)
+        session.pop('admin_pass_target', None)
+        session.pop('admin_pass_time', None)
+
+        return jsonify({'success': True, 'message': 'Password updated successfully'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
 
 @app.route('/api/user/<int:user_id>/toggle-active', methods=['POST'])
 def api_toggle_admin_active(user_id):
@@ -3856,7 +3969,7 @@ def admin_management():
         SELECT id, first_name, last_name, email, contact_number, address, role, is_verified, created_at
         FROM users
         WHERE role IN ('head_admin', 'admin_court_1', 'admin_court_2', 'admin_court_3', 'admin_court_4', 'admin_documents')
-        ORDER BY role DESC, created_at DESC
+        ORDER BY role DESC, created_at ASC
     """)
     admins = cursor.fetchall()
     conn.close()
@@ -3881,13 +3994,13 @@ def create_admin():
     if 'user_id' not in session or session.get('role') != 'head_admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
+        
     first_name = request.form.get('first_name', '').strip()
     last_name = request.form.get('last_name', '').strip()
     email = request.form.get('email', '').strip()
-    password = request.form.get('password', '')
     role = request.form.get('role', 'admin_court_1')
 
-    if not first_name or not last_name or not email or not password:
+    if not first_name or not last_name or not email:
         flash('Please fill in all fields.', 'danger')
         return redirect(url_for('admin_management'))
     if role not in ADMIN_ROLES:
@@ -3903,15 +4016,93 @@ def create_admin():
         flash('Email address already registered.', 'danger')
         return redirect(url_for('admin_management'))
 
-    hashed_password = generate_password_hash(password)
+    import secrets
+    temp_password = secrets.token_urlsafe(16)
+    hashed_password = generate_password_hash(temp_password)
+    
     cursor.execute("""
-        INSERT INTO users (first_name, last_name, email, password, role, is_verified)
-        VALUES (%s, %s, %s, %s, %s, TRUE)
+        INSERT INTO users (first_name, last_name, email, password, role, is_verified, temp_password)
+        VALUES (%s, %s, %s, %s, %s, TRUE, TRUE)
     """, (first_name, last_name, email, hashed_password, role))
+    new_user_id = cursor.lastrowid
+    conn.commit()
+    
+    # ✅ Generate auto-login token
+    auto_login_token = secrets.token_urlsafe(32)
+    expires_at = datetime.datetime.now() + datetime.timedelta(days=7)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS auto_login_tokens (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            token VARCHAR(255) NOT NULL UNIQUE,
+            expires_at DATETIME NOT NULL,
+            used BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    """)
+    conn.commit()
+
+    cursor.execute("""
+        INSERT INTO auto_login_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)
+    """, (new_user_id, auto_login_token, expires_at))
     conn.commit()
     conn.close()
-    flash('Admin created successfully!', 'success')
+    
+    subject = "Welcome to Barangay Sto. Nino Admin Panel"
+    role_display = role.replace('admin_', '').replace('_', ' ').title()
+    if role == 'head_admin': role_display = 'Head Admin'
+    elif role == 'admin_documents': role_display = 'Documents Admin'
+
+    body_html = f"""
+    <!DOCTYPE html>
+    <html><body style="margin:0;padding:0;background:#f4f8f5;font-family:'Segoe UI',Tahoma,sans-serif;">
+        <table width="100%" style="background:#f4f8f5;padding:40px 15px;">
+            <tr><td align="center">
+                <table width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#0f3d2a,#228b54);padding:35px;text-align:center;">
+                            <div style="width:70px;height:70px;background:#fff;border-radius:50%;line-height:70px;font-size:32px;margin:0 auto 12px;">🛡️</div>
+                            <h1 style="margin:0;color:#fff;font-size:22px;">Welcome to the Admin Team!</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:35px 40px;">
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
+                            <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
+                                Your admin account has been successfully created. You can now access the dashboard using the button below.
+                            </p>
+                            <table style="background:#f8fafc;border-left:4px solid #1a5d3a;padding:20px;border-radius:10px;margin:20px 0;width:100%;">
+                                <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Role:</strong> <span style="color:#1a5d3a;">{role_display}</span></td></tr>
+                                <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {email}</td></tr>
+                            </table>
+                            
+                            <div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:15px;border-radius:10px;margin:20px 0;">
+                                <p style="margin:0;color:#92400e;font-size:13px;line-height:1.6;">
+                                    ⚠️ <strong>Important:</strong> You are using a <strong>temporary password</strong>. Please request a password change from the Head Admin after logging in.
+                                </p>
+                            </div>
+                            
+                            <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
+                                <a href="http://127.0.0.1:5000/auto-login/{auto_login_token}" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Go to Dashboard</a>
+                            </td></tr></table>
+                            
+                            <p style="margin:20px 0 0;color:#94a3b8;font-size:12px;text-align:center;">
+                                This link expires in 7 days.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td></tr>
+        </table>
+    </body></html>
+    """
+    send_email(email, subject, body_html)
+
+    flash('Admin created successfully! Auto-login link sent to their email.', 'success')
     return redirect(url_for('admin_management'))
+
 
 @app.route('/api/user/<int:user_id>/update-role', methods=['POST'])
 def api_update_user_role(user_id):
@@ -4031,22 +4222,33 @@ def create_announcement():
     title = request.form.get('title', '').strip()
     content = request.form.get('content', '').strip()
     is_draft = request.form.get('is_draft', '0') == '1'
+    
+    image_file = None
+    if 'image' in request.files:
+        file = request.files['image']
+        if file and file.filename:
+            image_file = save_uploaded_file(file)
+
     if not title or not content:
         flash('Please fill in all fields.', 'danger')
         return redirect(url_for('announcements'))
+        
     conn = get_db()
     cursor = conn.cursor()
+    # Kailangan mo munang mag-ADD COLUMN image_path VARCHAR(255) NULL sa announcements table mo sa MySQL!
     cursor.execute("""
-        INSERT INTO announcements (title, content, created_by, is_draft)
-        VALUES (%s, %s, %s, %s)
-    """, (title, content, session['user_id'], is_draft))
+        INSERT INTO announcements (title, content, created_by, is_draft, image_path)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (title, content, session['user_id'], is_draft, image_file))
     conn.commit()
     conn.close()
+    
     if is_draft:
         flash('Announcement saved as draft!', 'info')
     else:
         flash('Announcement posted successfully!', 'success')
     return redirect(url_for('announcements'))
+
 
 @app.route('/edit-announcement/<int:announcement_id>', methods=['POST'])
 def edit_announcement(announcement_id):
@@ -4055,12 +4257,28 @@ def edit_announcement(announcement_id):
         return redirect(url_for('login'))
     title = request.form.get('title', '').strip()
     content = request.form.get('content', '').strip()
+    
     if not title or not content:
         flash('Please fill in all fields.', 'danger')
         return redirect(url_for('announcements'))
+        
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE announcements SET title = %s, content = %s WHERE id = %s", (title, content, announcement_id))
+    cursor = conn.cursor(dictionary=True)
+    
+    # Kunin muna kung may existing image
+    cursor.execute("SELECT image_path FROM announcements WHERE id = %s", (announcement_id,))
+    ann = cursor.fetchone()
+    image_file = ann['image_path'] if ann else None
+    
+    # Kung may bagong upload, palitan
+    if 'image' in request.files:
+        file = request.files['image']
+        if file and file.filename:
+            image_file = save_uploaded_file(file)
+            
+    cursor.execute("""
+        UPDATE announcements SET title = %s, content = %s, image_path = %s WHERE id = %s
+    """, (title, content, image_file, announcement_id))
     conn.commit()
     conn.close()
     flash('Announcement updated successfully!', 'success')
@@ -4208,6 +4426,7 @@ def user_announcements():
     user_id = session['user_id']
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("""
         SELECT a.*, u.first_name, u.last_name,
                CASE WHEN ar.id IS NOT NULL THEN 1 ELSE 0 END as is_read
@@ -4250,13 +4469,14 @@ def api_recent_announcements():
         return jsonify({'error': 'Unauthorized', 'announcements': []}), 401
     try:
         limit = int(request.args.get('limit', 5))
-        if limit > 20:
-            limit = 20
+        if limit > 20: limit = 20
         conn = get_db()
         cursor = conn.cursor(dictionary=True)
         user_id = session['user_id']
+        
+        # SIGURADUHING KASAMA ANG image_path
         cursor.execute("""
-            SELECT a.id, a.title, a.content, a.created_at,
+            SELECT a.id, a.title, a.content, a.created_at, a.image_path,
                    CASE WHEN ar.id IS NOT NULL THEN 1 ELSE 0 END as is_read
             FROM announcements a
             LEFT JOIN announcement_reads ar ON ar.announcement_id = a.id AND ar.user_id = %s
@@ -4273,7 +4493,7 @@ def api_recent_announcements():
     except Exception as e:
         print(f"Recent announcements error: {e}")
         return jsonify({'error': str(e), 'announcements': []}), 500
-
+    
 @app.route('/send-email-all', methods=['POST'])
 def send_email_all():
     if 'user_id' not in session or session.get('role') != 'head_admin':
@@ -4498,20 +4718,27 @@ def update_profile():
     if 'user_id' not in session or session.get('role') != 'head_admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
+        
     first_name = request.form.get('first_name', '').strip()
     last_name = request.form.get('last_name', '').strip()
-    email = request.form.get('email', '').strip()
-    if not first_name or not last_name or not email:
+    email = request.form.get('email', '').strip() # Kukunin pa rin natin para sa validation kung meron man
+    
+    if not first_name or not last_name:
         flash('Please fill in all fields.', 'danger')
         return redirect(url_for('settings'))
+        
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET first_name = %s, last_name = %s, email = %s WHERE id = %s",
-                   (first_name, last_name, email, session['user_id']))
+    
+    # HINDI NA ISASAMA ANG EMAIL SA UPDATE
+    cursor.execute("UPDATE users SET first_name = %s, last_name = %s WHERE id = %s",
+                   (first_name, last_name, session['user_id']))
     conn.commit()
     conn.close()
+    
     session['fullname'] = f"{first_name} {last_name}"
-    session['email'] = email
+    # Hindi na natin gagalawin ang session['email'] dahil hindi naman nagbago
+    
     flash('Profile updated successfully!', 'success')
     return redirect(url_for('settings'))
 
@@ -4520,11 +4747,15 @@ def change_password():
     if 'user_id' not in session or session.get('role') != 'head_admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
+        
     current_password = request.form.get('current_password', '')
     new_password = request.form.get('new_password', '')
     confirm_password = request.form.get('confirm_password', '')
-    if not current_password or not new_password or not confirm_password:
-        flash('Please fill in all fields.', 'danger')
+    otp_code = request.form.get('otp_code', '').strip()
+    
+    # ✅ Basic validation
+    if not current_password or not new_password or not confirm_password or not otp_code:
+        flash('Please fill in all fields including the verification code.', 'danger')
         return redirect(url_for('settings'))
     if new_password != confirm_password:
         flash('New passwords do not match.', 'danger')
@@ -4532,18 +4763,66 @@ def change_password():
     if len(new_password) < 8:
         flash('New password must be at least 8 characters.', 'danger')
         return redirect(url_for('settings'))
+        
+    # === ✅ OTP VALIDATION (STRICT — HINDI PWEDENG LUMUSOT) ===
+    saved_otp = session.get('settings_otp_code')
+    saved_time = session.get('settings_otp_time', 0)
+    
+    # 1. Dapat may OTP
+    if not saved_otp:
+        flash('No OTP requested. Please click "Send Code" first.', 'danger')
+        return redirect(url_for('settings'))
+    
+    # 2. Dapat hindi expired (5 mins)
+    if datetime.datetime.now().timestamp() - saved_time > 300:
+        session.pop('settings_otp_code', None)
+        session.pop('settings_otp_time', None)
+        session.pop('settings_otp_attempts', None)
+        session.modified = True
+        flash('Verification code has expired. Please request a new one.', 'danger')
+        return redirect(url_for('settings'))
+    
+    # 3. Dapat TAMA ang OTP (case-sensitive, exact match)
+    if str(saved_otp).strip() != str(otp_code).strip():
+        flash('Invalid verification code. Please try again.', 'danger')
+        return redirect(url_for('settings'))
+        
+    # === UPDATE PASSWORD ===
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
-    user = cursor.fetchone()
-    if not user or not check_password_hash(user['password'], current_password):
+    try:
+        cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
+        user = cursor.fetchone()
+        
+        if not user or not check_password_hash(user['password'], current_password):
+            flash('Current password is incorrect.', 'danger')
+            return redirect(url_for('settings'))
+            
+        hashed_password = generate_password_hash(new_password)
+        cursor.execute("""
+            UPDATE users SET password = %s, temp_password = FALSE,
+                             password_version = password_version + 1
+            WHERE id = %s
+        """, (hashed_password, session['user_id']))
+        conn.commit()
+        # ✅ I-update ang session para hindi ma-force logout ang sarili
+        cursor.execute("SELECT password_version FROM users WHERE id = %s", (session['user_id'],))
+        new_version = cursor.fetchone()
+        if new_version:
+            session['password_version'] = new_version.get('password_version', 0)
+            session.modified = True
+    finally:
         conn.close()
-        flash('Current password is incorrect.', 'danger')
-        return redirect(url_for('settings'))
-    hashed_password = generate_password_hash(new_password)
-    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, session['user_id']))
-    conn.commit()
-    conn.close()
+
+    # ✅ Burahin ang OTP para hindi na magamit muli
+    session.pop('settings_otp_code', None)
+    session.pop('settings_otp_time', None)
+    session.pop('settings_otp_attempts', None)
+    session.pop('password_otp_verified', None)
+    session.pop('password_otp_verified_at', None)
+    session['temp_password'] = False
+    session.modified = True
+    
     flash('Password changed successfully!', 'success')
     return redirect(url_for('settings'))
 
@@ -4767,6 +5046,10 @@ def forgot_password():
 
 @app.route('/reset-password', methods=['GET'])
 def show_reset_page():
+    email_param = request.args.get('email')
+    if email_param:
+        session['reset_email'] = email_param.strip()
+    
     return render_template('reset_password.html')
 
 @app.route('/reset-password', methods=['POST'])
@@ -4874,35 +5157,37 @@ def verify_reset_code():
 # Dictionary para i-save temporarily ang OTP para sa change password
 settings_otp_storage = {}
 
+# ============================================================
+# CHANGE PASSWORD OTP (SESSION-BASED ONLY — NO DICT)
+# ============================================================
 @app.route('/api/settings/send-otp', methods=['POST'])
 def settings_send_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
         
-    data = request.json
-    email = data.get('email')
-    
+    email = session.get('email')
     if not email:
-        return jsonify({'success': False, 'error': 'Email is required'}), 400
+        return jsonify({'success': False, 'error': 'Email not found'}), 400
 
-    # Gumawa ng 6-digit random code
     otp = f"{random.randint(0, 999999):06d}"
     
-    # I-save sa temporary storage
-    settings_otp_storage[session['user_id']] = otp
+    # ✅ I-save sa session (walang dict)
+    session['settings_otp_code'] = otp
+    session['settings_otp_time'] = datetime.datetime.now().timestamp()
+    session['settings_otp_attempts'] = 0  # ✅ Bilang ng maling attempt
+    session.modified = True
 
-    # Ipadala gamit ang existing send_email function mo
     subject = "Your Password Change OTP - Barangay Sto. Nino"
     body_html = f"""
     <html><body style="font-family:Arial,sans-serif;padding:20px;">
         <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;">
             <h2 style="color:#0f3d2a;">Password Change Request</h2>
             <p>Hello,</p>
-            <p>You requested to change your password for Barangay Sto. Nino Online Services.</p>
+            <p>You requested to change your password.</p>
             <p>Your 6-digit OTP code is:</p>
             <h1 style="font-size:42px;letter-spacing:12px;font-family:'Courier New',monospace;color:#0f3d2a;text-align:center;">{otp}</h1>
-            <p>This code is valid for 15 minutes.</p>
-            <p style="color:#ef4444;">If you did not request this, please ignore this email.</p>
+            <p>This code is valid for 5 minutes.</p>
+            <p style="color:#dc2626;font-size:12px;">If you did not request this, please ignore this email.</p>
         </div>
     </body></html>
     """
@@ -4910,7 +5195,7 @@ def settings_send_otp():
     if send_email(email, subject, body_html):
         return jsonify({'success': True, 'message': 'OTP sent successfully'})
     else:
-        # Fallback kung walang internet/SMTP (Para maka-test ka pa rin)
+        # Fallback: i-print sa terminal kung email fail
         print(f"🔑 DEBUG OTP for {email}: {otp}")
         return jsonify({'success': True, 'message': 'OTP generated (check terminal)'})
 
@@ -4919,20 +5204,45 @@ def settings_verify_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
 
-    data = request.json
-    user_otp = data.get('otp')
+    data = request.json or {}
+    user_otp = (data.get('otp') or '').strip()
     
-    saved_otp = settings_otp_storage.get(session['user_id'])
+    saved_otp = session.get('settings_otp_code')
+    saved_time = session.get('settings_otp_time', 0)
+    attempts = session.get('settings_otp_attempts', 0)
 
-    if saved_otp and saved_otp == user_otp:
-        # Burahin pagkatapos magamit
-        del settings_otp_storage[session['user_id']]
-        # 👇 I-set ang session flag para sa password change
-        session['password_otp_verified'] = True
-        session['password_otp_verified_at'] = datetime.datetime.now().timestamp()
-        return jsonify({'success': True})
-    else:
-        return jsonify({'success': False, 'error': 'Invalid OTP'}), 400
+    # ✅ 1. Check kung may OTP
+    if not saved_otp:
+        return jsonify({'success': False, 'error': 'No OTP requested. Please click Send Code first.'}), 400
+
+    # ✅ 2. Check kung expired (5 mins = 300 seconds)
+    if datetime.datetime.now().timestamp() - saved_time > 300:
+        session.pop('settings_otp_code', None)
+        session.pop('settings_otp_time', None)
+        session.pop('settings_otp_attempts', None)
+        session.modified = True
+        return jsonify({'success': False, 'error': 'OTP has expired. Please request a new one.'}), 400
+
+    # ✅ 3. Check kung sobra na sa attempts (max 5)
+    if attempts >= 5:
+        session.pop('settings_otp_code', None)
+        session.pop('settings_otp_time', None)
+        session.pop('settings_otp_attempts', None)
+        session.modified = True
+        return jsonify({'success': False, 'error': 'Too many failed attempts. Please request a new OTP.'}), 429
+
+    # ✅ 4. Check kung MALI ang OTP
+    if saved_otp != user_otp:
+        session['settings_otp_attempts'] = attempts + 1
+        session.modified = True
+        remaining = 5 - (attempts + 1)
+        return jsonify({'success': False, 'error': f'Invalid OTP. {remaining} attempt(s) left.'}), 400
+
+    # ✅ 5. TAMA — i-mark as verified (pero huwag pa i-delete ang OTP)
+    session['password_otp_verified'] = True
+    session['password_otp_verified_at'] = datetime.datetime.now().timestamp()
+    session.modified = True
+    return jsonify({'success': True, 'message': 'OTP verified'})
 
 # ============================================================
 # UPDATE PROFILE OTP SYSTEM
@@ -4988,6 +5298,165 @@ def profile_verify_otp():
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Invalid OTP'}), 400
+
+# ============================================================
+# HEAD ADMIN DELETE ACCOUNT (WITH SAFEGUARDS + DEBUG)
+# ============================================================
+@app.route('/head-admin-delete-account', methods=['POST'])
+def head_admin_delete_account():
+    if 'user_id' not in session or session.get('role') != 'head_admin':
+        print("❌ FAILED: Not logged in as head_admin")
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+
+    confirm_text = request.form.get('confirm_text', '').strip()
+    password = request.form.get('password', '')
+    
+    # 🔍 DEBUG - Print what we received
+    print("\n" + "="*60)
+    print("🔍 DELETE ACCOUNT ATTEMPT")
+    print(f"   user_id: {session.get('user_id')}")
+    print(f"   confirm_text: '{confirm_text}' (length: {len(confirm_text)})")
+    print(f"   password provided: {bool(password)} (length: {len(password) if password else 0})")
+    print("="*60 + "\n")
+
+    # ✅ SAFEGUARD 1: Confirm text check
+    if confirm_text != 'DELETE':
+        print(f"❌ SAFEGUARD 1 FAILED: Expected 'DELETE', got '{confirm_text}'")
+        flash('Please type DELETE to confirm.', 'danger')
+        return redirect(url_for('settings'))
+    
+    print("✅ SAFEGUARD 1 PASSED")
+
+    if not password:
+        print("❌ FAILED: No password provided")
+        flash('Please enter your password.', 'danger')
+        return redirect(url_for('settings'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    # ✅ SAFEGUARD 2: Verify password
+    cursor.execute("SELECT password, email, first_name FROM users WHERE id = %s", (session['user_id'],))
+    user = cursor.fetchone()
+
+    if not user:
+        print(f"❌ SAFEGUARD 2 FAILED: User ID {session['user_id']} not found in DB")
+        conn.close()
+        flash('Password is incorrect.', 'danger')
+        return redirect(url_for('settings'))
+
+    if not check_password_hash(user['password'], password):
+        print(f"❌ SAFEGUARD 2 FAILED: Wrong password for {user['email']}")
+        conn.close()
+        flash('Password is incorrect.', 'danger')
+        return redirect(url_for('settings'))
+    
+    print(f"✅ SAFEGUARD 2 PASSED (user: {user['email']})")
+
+    # ✅ SAFEGUARD 3: Cannot delete kung siya lang ang Head Admin
+    cursor.execute("""
+        SELECT COUNT(*) as total FROM users 
+        WHERE role = 'head_admin' AND is_verified = TRUE AND id != %s
+    """, (session['user_id'],))
+    other_admins = cursor.fetchone()['total']
+    
+    print(f"🔍 SAFEGUARD 3: Other active head admins = {other_admins}")
+
+    if other_admins == 0:
+        print(f"❌ SAFEGUARD 3 FAILED: Only 1 head admin (you)")
+        conn.close()
+        flash('Cannot delete: You are the only active Head Admin. Create another Head Admin account first.', 'danger')
+        return redirect(url_for('settings'))
+    
+    print(f"✅ SAFEGUARD 3 PASSED")
+
+    # ✅ Proceed sa deletion
+    user_id = session['user_id']
+    try:
+        print(f"🗑️ Deleting user ID {user_id}...")
+        
+        # Anonymize activity logs
+        cursor.execute("UPDATE admin_activity_logs SET admin_id = NULL WHERE admin_id = %s", (user_id,))
+        
+        # Anonymize announcements
+        cursor.execute("UPDATE announcements SET created_by = NULL WHERE created_by = %s", (user_id,))
+        
+        # Delete notifications
+        cursor.execute("DELETE FROM notifications WHERE user_id = %s", (user_id,))
+        
+        # Delete user
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        
+        conn.commit()
+        conn.close()
+
+        print(f"✅ USER DELETED SUCCESSFULLY (user_id: {user_id})")
+
+        # Clear session
+        session.clear()
+        session.modified = True
+
+        flash('Your Head Admin account has been permanently deleted. You have been logged out.', 'info')
+        return redirect(url_for('login'))
+
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        print(f"❌ DELETE ERROR: {str(e)}")
+        flash(f'Error deleting account: {str(e)}', 'danger')
+        return redirect(url_for('settings'))
+
+
+
+@app.route('/auto-login/<string:token>')
+def auto_login(token):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT t.*, u.id as user_id, u.first_name, u.last_name, u.email, u.role, u.is_verified, u.temp_password, u.password_version
+        FROM auto_login_tokens t
+        JOIN users u ON t.user_id = u.id
+        WHERE t.token = %s AND t.used = FALSE AND t.expires_at > NOW()
+    """, (token,))
+    token_data = cursor.fetchone()
+
+    if not token_data:
+        conn.close()
+        flash('Invalid or expired auto-login link.', 'danger')
+        return redirect(url_for('login'))
+
+    if not token_data['is_verified']:
+        conn.close()
+        flash('Your account has been deactivated.', 'danger')
+        return redirect(url_for('login'))
+
+    cursor.execute("UPDATE auto_login_tokens SET used = TRUE WHERE id = %s", (token_data['id'],))
+    conn.commit()
+    conn.close()
+
+    session['user_id'] = token_data['user_id']
+    session['fullname'] = f"{token_data['first_name']} {token_data['last_name']}"
+    session['email'] = token_data['email']
+    session['role'] = token_data['role']
+    session['temp_password'] = bool(token_data.get('temp_password', False))
+    session['password_version'] = token_data.get('password_version', 0)
+
+    role = token_data['role']
+    if role == 'head_admin':
+        return redirect(url_for('head_admin_dashboard'))
+    elif role == 'admin_documents':
+        return redirect(url_for('sec_admin_dashboard'))
+    elif role == 'admin_court_1':
+        return redirect(url_for('court1_dashboard'))
+    elif role == 'admin_court_2':
+        return redirect(url_for('court2_dashboard'))
+    elif role == 'admin_court_3':
+        return redirect(url_for('court3_dashboard'))
+    elif role == 'admin_court_4':
+        return redirect(url_for('court4_dashboard'))
+    return redirect(url_for('login'))
     
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False)

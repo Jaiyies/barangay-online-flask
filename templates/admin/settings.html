@@ -26,10 +26,6 @@
             from { opacity: 1; transform: scale(1) translateY(0); }
             to { opacity: 0; transform: scale(0.9) translateY(20px); }
         }
-        @keyframes toastSlide {
-            from { transform: translateX(120px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
         @keyframes pulse-dot {
             0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
             50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
@@ -159,7 +155,7 @@
         .navbar {
             position: fixed; top: 12px; left: 97px; right: 12px;
             height: 64px; background: white; border-radius: 16px;
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: flex-end; align-items: center;
             padding: 0 20px; z-index: 99;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             border: 1px solid #eef2f0; gap: 16px;
@@ -167,27 +163,6 @@
         }
         body.sidebar-expanded .navbar { left: 292px; }
         .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
-
-        .navbar-search {
-            display: flex; align-items: center;
-            background: #f4f8f5; border-radius: 50px;
-            padding: 10px 22px; gap: 12px;
-            border: 1.5px solid #d4f0df;
-            box-shadow: 0 0 0 3px rgba(107,196,142,0.08);
-            transition: all 0.25s ease;
-            width: 100%; max-width: 480px;
-        }
-        .navbar-search:focus-within {
-            border-color: #1a5d3a; background: white;
-            box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
-        }
-        .navbar-search i { color: #8a9a8f; font-size: 14px; }
-        .navbar-search input {
-            border: none; background: transparent; outline: none;
-            font-size: 13px; font-family: inherit; color: #0d2b1e; width: 100%;
-        }
-        .navbar-search input::placeholder { color: #a8bdb2; }
-
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
         /* ===== NOTIFICATION BELL ===== */
@@ -409,6 +384,7 @@
         }
         .modal-btn.submit { background: #1a5d3a; color: white; }
         .modal-btn.submit:hover { background: #0d2b1e; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,93,58,0.35); }
+        .modal-btn.submit:disabled { background: #8a9a8f; cursor: not-allowed; transform: none; }
         .modal-btn.cancel { background: #f0f2f5; color: #5a6e7a; }
         .modal-btn.cancel:hover { background: #e2e6ea; transform: translateY(-2px); }
 
@@ -418,7 +394,7 @@
             background: white; border-radius: 12px; padding: 16px 24px;
             display: flex; align-items: center; gap: 14px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            z-index: 2000; transform: translateX(420px);
+            z-index: 9999; transform: translateX(420px);
             transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             border-left: 4px solid; max-width: 380px;
         }
@@ -436,7 +412,6 @@
             .sidebar-custom.expanded { width: 240px; }
             .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
             body.sidebar-expanded .navbar { left: 252px; }
-            .navbar-search { display: none; }
             .profile-info { display: none; }
             .profile-trigger { padding: 4px; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
@@ -454,7 +429,7 @@
 <!-- ===== SIDEBAR ===== -->
 <div class="sidebar-custom" id="sidebar">
     <div class="sidebar-header">
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img" 
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img"
              onerror="this.style.display='none'; this.parentElement.querySelector('.logo-fallback').style.display='flex'">
         <div class="logo-fallback" style="display: none; width: 48px; height: 48px; background: rgba(255,255,255,0.12); border-radius: 50%; align-items: center; justify-content: center; font-size: 20px;">
             <i class="fas fa-landmark"></i>
@@ -478,14 +453,8 @@
 
 <!-- ===== NAVBAR ===== -->
 <nav class="navbar">
-    <div class="navbar-left">
-        <div class="navbar-search">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search settings..." id="navSearch">
-        </div>
-    </div>
+    <div class="navbar-left"></div>
     <div class="navbar-right">
-
         <!-- NOTIFICATION BELL -->
         <div class="notification-bell-wrap">
             <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
@@ -565,16 +534,6 @@
                 </button>
             </div>
 
-            <!-- System Configuration -->
-            <div class="settings-card" onclick="openModal('configModal')">
-                <div class="icon"><i class="fas fa-sliders-h"></i></div>
-                <h3>System Configuration</h3>
-                <p>View and update system settings like barangay name, address, and email notifications.</p>
-                <button class="btn-settings" onclick="event.stopPropagation(); openModal('configModal')">
-                    <i class="fas fa-cog"></i> Configure System
-                </button>
-            </div>
-
             <!-- Database Backup -->
             <div class="settings-card" onclick="confirmBackup()">
                 <div class="icon"><i class="fas fa-database"></i></div>
@@ -599,6 +558,20 @@
                 </p>
                 <button class="btn-settings" onclick="event.stopPropagation(); openModal('maintenanceModal')">
                     <i class="fas fa-toggle-on"></i> Toggle Mode
+                </button>
+            </div>
+
+            <!-- ✅ NEW: Delete Account (DANGER ZONE) -->
+            <div class="settings-card" onclick="openModal('deleteAccountModal')"
+                 style="border: 2px solid #dc2626; background: #fef2f2;">
+                <div class="icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 style="color: #dc2626;">Delete Account</h3>
+                <p style="color: #991b1b;">Permanently delete your Head Admin account. <strong>This cannot be undone.</strong></p>
+                <button class="btn-settings" style="background: #dc2626;"
+                        onclick="event.stopPropagation(); openModal('deleteAccountModal')">
+                    <i class="fas fa-trash"></i> Delete Account
                 </button>
             </div>
         </div>
@@ -626,8 +599,8 @@
                 <input type="text" name="last_name" value="{{ session.fullname.split()[-1] if session.fullname and session.fullname.split()|length > 1 else '' }}" required>
             </div>
             <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" name="email" value="{{ session.email }}" required>
+                <label><i class="fas fa-envelope"></i> Email <span style="font-size:10px; color:#8a9a8f; text-transform: none; letter-spacing: 0;">(Cannot be changed)</span></label>
+                <input type="email" name="email" value="{{ session.email }}" readonly style="background: #eef2f0; color: #8a9a8f; cursor: not-allowed;">
             </div>
             <div class="modal-actions">
                 <button type="button" class="modal-btn cancel" onclick="closeModal('profileModal')">Cancel</button>
@@ -637,65 +610,43 @@
     </div>
 </div>
 
-<!-- ===== PASSWORD MODAL ===== -->
+<!-- ===== PASSWORD MODAL (WITH OTP + AJAX VERIFY) ===== -->
 <div id="passwordModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <h3><i class="fas fa-key"></i> Change Password</h3>
             <button class="close-modal" onclick="closeModal('passwordModal')">&times;</button>
         </div>
-        <form method="POST" action="{{ url_for('change_password') }}" class="modal-body">
+        <form method="POST" action="{{ url_for('change_password') }}" class="modal-body" id="changePasswordForm" onsubmit="return verifyOtpBeforeSubmit(event)">
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Current Password</label>
-                <input type="password" name="current_password" required>
+                <input type="password" name="current_password" id="currentPassword" required>
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> New Password</label>
-                <input type="password" name="new_password" required minlength="8">
+                <input type="password" name="new_password" id="newPassword" required minlength="8" oninput="toggleSendOtpBtn()">
                 <small style="color: #6b7a72; font-size: 11px;">Must be at least 8 characters</small>
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Confirm New Password</label>
-                <input type="password" name="confirm_password" required>
+                <input type="password" name="confirm_password" id="confirmPassword" required>
             </div>
+
+            <!-- OTP SECTION -->
+            <div class="form-group" style="border-top: 1px dashed #eef2f0; padding-top: 16px; margin-top: 16px;">
+                <label><i class="fas fa-shield-alt"></i> Verification Code</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" name="otp_code" id="otpCode" placeholder="Enter 6-digit code" maxlength="6" style="flex: 1;">
+                    <button type="button" id="sendOtpBtn" class="modal-btn submit" style="padding: 11px 20px; white-space: nowrap;" onclick="sendOtp()" disabled>Send Code</button>
+                </div>
+                <div style="font-size: 11px; color: #6b7a72; margin-top: 8px;">
+                    <i class="fas fa-info-circle"></i> A verification code will be sent to your registered email.
+                </div>
+            </div>
+
             <div class="modal-actions">
                 <button type="button" class="modal-btn cancel" onclick="closeModal('passwordModal')">Cancel</button>
-                <button type="submit" class="modal-btn submit"><i class="fas fa-save"></i> Update Password</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- ===== CONFIG MODAL ===== -->
-<div id="configModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-sliders-h"></i> System Configuration</h3>
-            <button class="close-modal" onclick="closeModal('configModal')">&times;</button>
-        </div>
-        <form method="POST" action="{{ url_for('system_config') }}" class="modal-body">
-            <div class="form-group">
-                <label><i class="fas fa-building"></i> Barangay Name</label>
-                <input type="text" name="barangay_name" value="{{ config.barangay_name or 'Barangay Sto. Nino' }}" required>
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-map-marker-alt"></i> Address</label>
-                <input type="text" name="barangay_address" value="{{ config.barangay_address or 'Paranaque City' }}" required>
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-phone"></i> Contact Number</label>
-                <input type="text" name="contact_number" value="{{ config.contact_number or 'N/A' }}">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email Notifications</label>
-                <select name="email_notifications">
-                    <option value="enabled" {% if config.email_notifications == 'enabled' %}selected{% endif %}>Enabled</option>
-                    <option value="disabled" {% if config.email_notifications == 'disabled' %}selected{% endif %}>Disabled</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="modal-btn cancel" onclick="closeModal('configModal')">Cancel</button>
-                <button type="submit" class="modal-btn submit"><i class="fas fa-save"></i> Save Settings</button>
+                <button type="submit" class="modal-btn submit" id="changePasswordSubmitBtn"><i class="fas fa-save"></i> Update Password</button>
             </div>
         </form>
     </div>
@@ -728,12 +679,73 @@
                 <div class="modal-actions">
                     <button type="button" class="modal-btn cancel" onclick="closeModal('maintenanceModal')">Cancel</button>
                     <button type="submit" class="modal-btn submit">
-                        <i class="fas fa-toggle-on"></i> 
+                        <i class="fas fa-toggle-on"></i>
                         {% if maintenance_mode %}Turn Off{% else %}Turn On{% endif %}
                     </button>
                 </div>
             </form>
         </div>
+    </div>
+</div>
+
+<!-- ✅ NEW: DELETE ACCOUNT MODAL (FIXED) -->
+<div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header" style="background: #fef2f2; border-bottom: 2px solid #dc2626;">
+            <h3 style="color: #dc2626;">
+                <i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i> Delete Head Admin Account
+            </h3>
+            <button class="close-modal" onclick="closeModal('deleteAccountModal')">&times;</button>
+        </div>
+        <!-- ✅ FIX: Added autocomplete="off" -->
+        <form method="POST" action="{{ url_for('head_admin_delete_account') }}" class="modal-body" autocomplete="off">
+            <!-- Warning Box -->
+            <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="color: #991b1b; font-size: 13px; line-height: 1.6; margin: 0 0 8px;">
+                    ⚠️ <strong>WARNING:</strong> This will <strong>permanently delete</strong> your account and:
+                </p>
+                <ul style="color: #991b1b; font-size: 13px; margin: 0 0 8px 20px; padding: 0;">
+                    <li>Remove your Head Admin access</li>
+                    <li>Delete your notifications</li>
+                    <li>Anonymize your activity logs</li>
+                    <li>Anonymize your authored announcements</li>
+                </ul>
+                <p style="color: #991b1b; font-size: 13px; margin: 0; font-weight: 700;">
+                    This action CANNOT be undone.
+                </p>
+            </div>
+
+            <!-- Safeguard Info -->
+            <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="color: #1e40af; font-size: 12px; margin: 0; line-height: 1.5;">
+                    <i class="fas fa-shield-alt"></i> <strong>Safeguard:</strong> Hindi ka pwedeng mag-delete kung ikaw lang ang Head Admin, o kung may pending documents/permits pa.
+                </p>
+            </div>
+
+            <!-- ✅ FIX: Added id, oninput, and autocomplete attributes -->
+            <div class="form-group">
+                <label style="color: #dc2626;"><i class="fas fa-keyboard"></i> Type <strong>DELETE</strong> to confirm</label>
+                <input type="text" name="confirm_text" id="confirm_text_input" placeholder="DELETE" required
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       oninput="this.value = this.value.toUpperCase();"
+                       style="text-transform: uppercase; letter-spacing: 3px; font-weight: 700; text-align: center; font-size: 16px;">
+            </div>
+
+            <!-- ✅ FIX: Added autocomplete="new-password" -->
+            <div class="form-group">
+                <label style="color: #dc2626;"><i class="fas fa-lock"></i> Enter Your Password</label>
+                <input type="password" name="password" placeholder="Current password" required autocomplete="new-password">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeModal('deleteAccountModal')">
+                    Cancel
+                </button>
+                <button type="submit" class="modal-btn submit" style="background: #dc2626;">
+                    <i class="fas fa-trash"></i> Permanently Delete
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -879,7 +891,7 @@
         var icon = document.getElementById('toastIcon');
         var msg = document.getElementById('toastMessage');
         if (!toast || !icon || !msg) return;
-        
+
         if (type === 'success') {
             icon.className = 'fas fa-check-circle';
             toast.className = 'toast-notification success show';
@@ -888,7 +900,7 @@
             toast.className = 'toast-notification error show';
         }
         msg.innerText = message;
-        
+
         if (toastTimeout) clearTimeout(toastTimeout);
         toastTimeout = setTimeout(function() { toast.classList.remove('show'); }, 3000);
     }
@@ -911,6 +923,109 @@
             content.classList.remove('closing');
             setTimeout(function() { modal.style.display = 'none'; }, 200);
         }, 250);
+    }
+
+    // ===== OTP LOGIC =====
+    function toggleSendOtpBtn() {
+        var newPass = document.getElementById('newPassword').value;
+        var btn = document.getElementById('sendOtpBtn');
+        if (newPass.length >= 8) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+
+    function sendOtp() {
+        var btn = document.getElementById('sendOtpBtn');
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
+        fetch('/api/settings/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Verification code sent to your email!', 'success');
+                btn.textContent = 'Sent!';
+                setTimeout(function() {
+                    btn.textContent = 'Resend Code';
+                    btn.disabled = false;
+                }, 5000);
+            } else {
+                showToast(data.error || 'Error sending code.', 'error');
+                btn.textContent = 'Send Code';
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            showToast('Error sending code.', 'error');
+            btn.textContent = 'Send Code';
+            btn.disabled = false;
+        });
+    }
+
+    // ===== AJAX OTP VERIFY BEFORE SUBMIT =====
+    function verifyOtpBeforeSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const otp = (document.getElementById('otpCode').value || '').trim();
+        const currentPassword = (document.getElementById('currentPassword').value || '').trim();
+        const newPassword = (document.getElementById('newPassword').value || '').trim();
+        const confirmPassword = (document.getElementById('confirmPassword').value || '').trim();
+
+        // Client-side validation
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            showToast('Please fill in all password fields.', 'error');
+            return false;
+        }
+        if (newPassword !== confirmPassword) {
+            showToast('New passwords do not match.', 'error');
+            return false;
+        }
+        if (newPassword.length < 8) {
+            showToast('New password must be at least 8 characters.', 'error');
+            return false;
+        }
+        if (!otp || otp.length !== 6) {
+            showToast('Please enter the 6-digit verification code.', 'error');
+            return false;
+        }
+
+        const submitBtn = document.getElementById('changePasswordSubmitBtn');
+        const originalHtml = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+        // Verify OTP sa backend bago i-submit ang form
+        fetch('/api/settings/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ otp: otp })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Tama ang OTP — tuloy ang native form submit
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                // Bypass onsubmit para hindi mag-loop
+                HTMLFormElement.prototype.submit.call(form);
+            } else {
+                showToast(data.error || 'Invalid verification code.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        })
+        .catch(err => {
+            console.error('Verify OTP error:', err);
+            showToast('Error verifying code. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalHtml;
+        });
+
+        return false;
     }
 
     // ===== BACKUP =====
@@ -937,16 +1052,6 @@
             closeModal(e.target.id);
         }
     };
-
-    // ===== NAV SEARCH =====
-    document.getElementById('navSearch').addEventListener('keyup', function(e) {
-        const search = e.target.value.toLowerCase();
-        const cards = document.querySelectorAll('.settings-card');
-        cards.forEach(card => {
-            const text = card.textContent.toLowerCase();
-            card.style.display = text.includes(search) ? '' : 'none';
-        });
-    });
 </script>
 </body>
 </html>

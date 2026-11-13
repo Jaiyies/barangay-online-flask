@@ -116,7 +116,6 @@
         .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
         .sidebar-custom.expanded .sidebar-menu .active a { transform: translateX(4px); }
 
-        /* Tooltip for collapsed sidebar */
         .sidebar-custom:not(.expanded) .sidebar-menu a::after {
             content: attr(data-title);
             position: absolute; left: 110%; top: 50%;
@@ -145,27 +144,7 @@
         body.sidebar-expanded .navbar { left: 292px; }
         .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
 
-        .navbar-search {
-            display: flex; align-items: center;
-            background: #f4f8f5; border-radius: 50px;
-            padding: 10px 22px; gap: 12px;
-            border: 1.5px solid #d4f0df;
-            box-shadow: 0 0 0 3px rgba(107,196,142,0.08);
-            transition: all 0.25s ease;
-            width: 100%; max-width: 480px;
-        }
-        .navbar-search:focus-within {
-            border-color: #1a5d3a; background: white;
-            box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
-        }
-        .navbar-search i { color: #8a9a8f; font-size: 14px; }
-        .navbar-search input {
-            border: none; background: transparent; outline: none;
-            font-size: 13px; font-family: inherit; color: #0d2b1e; width: 100%;
-        }
-        .navbar-search input::placeholder { color: #a8bdb2; }
-
-        .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; margin-left: auto; }
 
         /* ===== NOTIFICATION BELL ===== */
         .notification-bell-wrap { position: relative; margin-right: 12px; }
@@ -397,15 +376,34 @@
             font-weight: 600; margin-bottom: 6px;
             text-transform: uppercase; letter-spacing: 0.3px;
         }
-        .form-group input {
+        .form-group input, .form-group textarea {
             width: 100%; padding: 11px 14px;
             border: 1px solid #eef2f0; border-radius: 8px;
             font-family: inherit; font-size: 13px; color: #0d2b1e;
             background: #f8fafc;
         }
-        .form-group input:focus {
+        .form-group textarea { resize: vertical; min-height: 90px; }
+        .form-group input:focus, .form-group textarea:focus {
             outline: none; border-color: #1a5d3a; background: white;
         }
+        /* ✅ READONLY EMAIL STYLE */
+        .form-group input[readonly] {
+            background: #eef2f0;
+            color: #6b7d72;
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+        .form-note {
+            display: block;
+            font-size: 11px;
+            color: #8a9a8f;
+            margin-top: 6px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .form-note i { color: #d97706; font-size: 10px; }
 
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
         .modal-actions button {
@@ -453,12 +451,34 @@
             border-top: 1px solid #eef2f0;
         }
 
+        /* ===== INFO BOX (para sa password request notice) ===== */
+        .info-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .info-box i {
+            color: #d97706;
+            font-size: 18px;
+            margin-top: 2px;
+        }
+        .info-box div {
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.55;
+        }
+        .info-box strong { color: #78350f; }
+
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
             .sidebar-custom.expanded { width: 240px; }
             .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
             body.sidebar-expanded .navbar { left: 252px; }
-            .navbar-search { display: none; }
             .profile-info { display: none; }
             .profile-trigger { padding: 4px; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
@@ -497,7 +517,6 @@
     </div>
     <ul class="sidebar-menu">
         {% if session.role == 'admin_documents' %}
-        <!-- 5 MENU ITEMS PARA SA DOCUMENTS ADMIN -->
         <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
         <li><a href="{{ url_for('admin_documents') }}" data-title="All Documents"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
         <li><a href="{{ url_for('admin_documents_clearance') }}" data-title="Barangay Clearance"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
@@ -531,14 +550,9 @@
     </ul>
 </div>
 
-<!-- ===== NAVBAR ===== -->
+<!-- ===== NAVBAR (WALANG SEARCH BAR) ===== -->
 <nav class="navbar">
-    <div class="navbar-left">
-        <div class="navbar-search">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search settings..." id="navSearch">
-        </div>
-    </div>
+    <div class="navbar-left"></div>
     <div class="navbar-right">
 
         <!-- NOTIFICATION BELL -->
@@ -609,7 +623,7 @@
 
         <div class="page-header">
             <h1><i class="fas fa-cog"></i> Settings</h1>
-            <p>Manage your account, security, and preferences</p>
+            <p>Manage your account and preferences</p>
         </div>
 
         <div class="settings-grid">
@@ -617,25 +631,25 @@
             <div class="settings-card">
                 <div class="settings-icon"><i class="fas fa-user-edit"></i></div>
                 <h3>Update Profile</h3>
-                <p>Update your personal information including name and email.</p>
+                <p>Update your personal information (name only). Email cannot be changed.</p>
                 <button class="settings-btn" onclick="openModal('profileModal')">
                     <i class="fas fa-pen"></i> Update Profile
                 </button>
             </div>
 
             <div class="settings-card">
-                <div class="settings-icon"><i class="fas fa-key"></i></div>
-                <h3>Change Password</h3>
-                <p>Change your account password to keep it secure.</p>
-                <button class="settings-btn" onclick="openModal('passwordModal')">
-                    <i class="fas fa-lock"></i> Change Password
+                <div class="settings-icon" style="background:#fffbeb; color:#d97706;"><i class="fas fa-paper-plane"></i></div>
+                <h3>Request Password Change</h3>
+                <p>Request a password reset from the Head Admin. For security, only the Head Admin can set a new password.</p>
+                <button class="settings-btn" style="background:#d97706;" onclick="openModal('passwordRequestModal')">
+                    <i class="fas fa-lock"></i> Request Change
                 </button>
             </div>
 
             <div class="settings-card">
                 <div class="settings-icon"><i class="fas fa-info-circle"></i></div>
                 <h3>Account Information</h3>
-                <p>View your account details (role, status, date joined).</p>
+                <p>View your account details (role, email, date joined).</p>
                 <button class="settings-btn" onclick="openModal('infoModal')">
                     <i class="fas fa-eye"></i> View Info
                 </button>
@@ -684,7 +698,12 @@
             </div>
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" name="email" value="{{ user.email if user else '' }}" required>
+                <!-- ✅ READONLY: hindi na mababago -->
+                <input type="email" name="email" value="{{ user.email if user else '' }}" readonly>
+                <small class="form-note">
+                    <i class="fas fa-lock"></i>
+                    Email cannot be changed. Contact the Head Admin if you need to update it.
+                </small>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeModal('profileModal')">Cancel</button>
@@ -694,35 +713,36 @@
     </div>
 </div>
 
-<!-- ===== CHANGE PASSWORD MODAL ===== -->
-<div class="modal-overlay" id="passwordModal">
+<!-- ===== REQUEST PASSWORD CHANGE MODAL ===== -->
+<div class="modal-overlay" id="passwordRequestModal">
     <div class="modal-box">
         <div class="modal-header">
-            <h3><i class="fas fa-key"></i> Change Password</h3>
-            <button class="modal-close" onclick="closeModal('passwordModal')"><i class="fas fa-times"></i></button>
+            <h3><i class="fas fa-paper-plane"></i> Request Password Change</h3>
+            <button class="modal-close" onclick="closeModal('passwordRequestModal')"><i class="fas fa-times"></i></button>
         </div>
-        <form method="POST" action="{{ url_for('secondary_admin_change_password') }}">
-            <div class="form-group">
-                <label>Current Password</label>
-                <input type="password" name="current_password" required>
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>Note:</strong> For security reasons, only the <strong>Head Admin</strong> can change your password.
+                Your request will be sent to them via email and in-app notification. Please wait for their action.
             </div>
+        </div>
+        <form method="POST" action="{{ url_for('request_password_change_docs_admin') }}">
             <div class="form-group">
-                <label>New Password</label>
-                <input type="password" name="new_password" required minlength="8">
-            </div>
-            <div class="form-group">
-                <label>Confirm New Password</label>
-                <input type="password" name="confirm_password" required minlength="8">
+                <label>Reason for Request <span style="color:#dc3545;">*</span></label>
+                <textarea name="reason" placeholder="e.g., I forgot my password, or I need to update it for security reasons..." required></textarea>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeModal('passwordModal')">Cancel</button>
-                <button type="submit" class="btn-save"><i class="fas fa-check"></i> Update Password</button>
+                <button type="button" class="btn-cancel" onclick="closeModal('passwordRequestModal')">Cancel</button>
+                <button type="submit" class="btn-save" style="background:#d97706;">
+                    <i class="fas fa-paper-plane"></i> Send Request
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- ===== ACCOUNT INFORMATION MODAL ===== -->
+<!-- ===== ACCOUNT INFORMATION MODAL (WALANG VERIFIED) ===== -->
 <div class="modal-overlay" id="infoModal">
     <div class="modal-box">
         <div class="modal-header">
@@ -748,10 +768,7 @@
                 {% else %}Admin{% endif %}
             </span>
         </div>
-        <div class="info-row">
-            <span class="label">Status</span>
-            <span class="value">{{ 'Verified' if user.is_verified else 'Blocked' }}</span>
-        </div>
+        <!-- ✅ TINANGGAL: Status (Verified/Blocked) -->
         <div class="info-row">
             <span class="label">Date Joined</span>
             <span class="value">{{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'N/A' }}</span>
@@ -984,16 +1001,6 @@
                 `;
             });
     }
-
-    // ===== NAV SEARCH =====
-    document.getElementById('navSearch').addEventListener('keyup', function(e) {
-        const search = e.target.value.toLowerCase();
-        const cards = document.querySelectorAll('.settings-card');
-        cards.forEach(card => {
-            const text = card.textContent.toLowerCase();
-            card.style.display = text.includes(search) ? '' : 'none';
-        });
-    });
 </script>
 </body>
 </html>

@@ -167,7 +167,7 @@
         .navbar {
             position: fixed; top: 12px; left: 97px; right: 12px;
             height: 64px; background: white; border-radius: 16px;
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: flex-end; align-items: center;
             padding: 0 20px; z-index: 99;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
             border: 1px solid #eef2f0; gap: 16px;
@@ -175,28 +175,6 @@
         }
         body.sidebar-expanded .navbar { left: 292px; }
         .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
-
-        /* ===== SEARCH BAR ===== */
-        .navbar-search {
-            display: flex; align-items: center;
-            background: #f4f8f5; border-radius: 50px;
-            padding: 10px 22px; gap: 12px;
-            border: 1.5px solid #d4f0df;
-            box-shadow: 0 0 0 3px rgba(107,196,142,0.08);
-            transition: all 0.25s ease;
-            width: 100%; max-width: 480px;
-        }
-        .navbar-search:focus-within {
-            border-color: #1a5d3a;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
-        }
-        .navbar-search i { color: #8a9a8f; font-size: 14px; }
-        .navbar-search input {
-            border: none; background: transparent; outline: none;
-            font-size: 13px; font-family: inherit; color: #0d2b1e; width: 100%;
-        }
-        .navbar-search input::placeholder { color: #a8bdb2; }
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
         /* ===== NOTIFICATION BELL ===== */
@@ -569,6 +547,275 @@
             font-size: 11px; border-top: 1px solid #eef2f0;
         }
 
+        /* ============================================================ */
+        /* ===== DETAILS MODAL CARD ===== */
+        /* ============================================================ */
+        .details-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(13, 43, 30, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .details-modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .details-modal-card {
+            background: white;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 720px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .details-modal-overlay.open .details-modal-card {
+            transform: translateY(0) scale(1);
+        }
+        .details-modal-header {
+            background: linear-gradient(135deg, #0d2b1e 0%, #1a5d3a 100%);
+            color: white;
+            padding: 22px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+        .details-modal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+        .details-modal-icon {
+            width: 46px; height: 46px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .details-modal-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .details-modal-header p {
+            font-size: 12px;
+            opacity: 0.75;
+            font-weight: 500;
+        }
+        .details-modal-close {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .details-modal-close:hover {
+            background: rgba(220, 53, 69, 0.85);
+            border-color: rgba(220, 53, 69, 0.85);
+            transform: rotate(90deg);
+        }
+        .details-modal-body {
+            padding: 26px 28px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .details-modal-body::-webkit-scrollbar { width: 8px; }
+        .details-modal-body::-webkit-scrollbar-track { background: #f0f2f5; }
+        .details-modal-body::-webkit-scrollbar-thumb { background: #c8d6cd; border-radius: 10px; }
+        .details-modal-body::-webkit-scrollbar-thumb:hover { background: #1a5d3a; }
+
+        .details-section {
+            margin-bottom: 22px;
+        }
+        .details-section:last-child { margin-bottom: 0; }
+        .details-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #8a9a8f;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .details-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #eef2f0;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 20px;
+        }
+        .details-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+        .details-item.full-width {
+            grid-column: 1 / -1;
+        }
+        .details-item .label {
+            font-size: 11px;
+            color: #8a9a8f;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .details-item .value {
+            font-size: 13.5px;
+            color: #0d2b1e;
+            font-weight: 600;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        .details-item .value.muted {
+            color: #a8bdb2;
+            font-weight: 500;
+            font-style: italic;
+        }
+        .details-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #fff4e0;
+            color: #b76e00;
+        }
+        .details-file-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #f4f8f5;
+            border: 1px solid #eef2f0;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #0d2b1e;
+            transition: all 0.15s ease;
+        }
+        .details-file-preview:hover {
+            background: #eef8f2;
+            border-color: #d4f0df;
+        }
+        .details-file-preview i {
+            font-size: 20px;
+            color: #1a5d3a;
+            flex-shrink: 0;
+        }
+        .details-file-preview .file-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+        .details-file-preview .file-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0d2b1e;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .details-file-preview .file-hint {
+            font-size: 11px;
+            color: #8a9a8f;
+        }
+        .details-file-preview .file-action {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1a5d3a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .details-file-empty {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #fafbfa;
+            border: 1px dashed #d4e0d8;
+            border-radius: 12px;
+            color: #a8bdb2;
+            font-size: 12px;
+            font-style: italic;
+        }
+        .details-file-empty i { font-size: 16px; }
+        .details-modal-footer {
+            padding: 16px 28px;
+            background: #f8fafc;
+            border-top: 1px solid #eef2f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .details-btn-secondary {
+            background: white;
+            color: #5a6e7a;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .details-btn-secondary:hover {
+            background: #f4f8f5;
+            border-color: #d4f0df;
+            color: #0d2b1e;
+        }
+
+        @media (max-width: 640px) {
+            .details-grid { grid-template-columns: 1fr; }
+            .details-modal-card { max-height: 92vh; }
+            .details-modal-header { padding: 18px 20px; }
+            .details-modal-body { padding: 20px; }
+            .details-modal-footer { padding: 14px 20px; }
+            .details-modal-header h2 { font-size: 15px; }
+        }
+        /* ===== END DETAILS MODAL CSS ===== */
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1200px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
@@ -576,7 +823,6 @@
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .charts-row { grid-template-columns: 1fr; }
-            .navbar-search { max-width: 300px; }
         }
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
@@ -584,7 +830,6 @@
             .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
             body.sidebar-expanded .navbar { left: 252px; }
             .navbar-left { gap: 12px; }
-            .navbar-search { display: none; }
             .profile-info { display: none; }
             .profile-trigger { padding: 4px; }
             .main-with-sidebar { margin-left: 70px; padding: 80px 16px 16px; }
@@ -634,12 +879,7 @@
 
 <!-- ===== NAVBAR ===== -->
 <nav class="navbar">
-    <div class="navbar-left">
-        <div class="navbar-search">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search requests..." id="navSearch">
-        </div>
-    </div>
+    <div class="navbar-left"></div>
     <div class="navbar-right">
 
         <!-- NOTIFICATION BELL -->
@@ -824,7 +1064,51 @@
                                 <td>{{ doc.first_name }} {{ doc.last_name }}</td>
                                 <td>{{ doc.created_at.strftime('%b %d, %Y') if doc.created_at else 'N/A' }}</td>
                                 <td><span class="status-badge status-pending">Pending</span></td>
-                                <td><a href="{{ url_for('head_admin_all_documents') }}" class="btn-view"><i class="fas fa-eye"></i> Review</a></td>
+                                <td>
+                                    <button class="btn-view"
+                                            data-type="document"
+                                            data-ref="{{ doc.reference_number or 'N/A' }}"
+                                            data-queue="{{ doc.queuing_number or 'N/A' }}"
+                                            data-status="{{ doc.status or 'pending' }}"
+                                            data-doctype="{{ doc.document_type or 'N/A' }}"
+                                            data-surname="{{ doc.surname or '' }}"
+                                            data-given="{{ doc.given_name or '' }}"
+                                            data-middle="{{ doc.middle_name or '' }}"
+                                            data-address="{{ doc.address or '' }}"
+                                            data-contact="{{ doc.contact_no or '' }}"
+                                            data-civil="{{ doc.civil_status or '' }}"
+                                            data-age="{{ doc.age or '' }}"
+                                            data-dob="{{ doc.dob or '' }}"
+                                            data-precinct="{{ doc.precinct_no or '' }}"
+                                            data-pob="{{ doc.place_of_birth or '' }}"
+                                            data-stay="{{ doc.length_of_stay or '' }}"
+                                            data-residency="{{ doc.residency_type or '' }}"
+                                            data-lessor="{{ doc.lessor_name or '' }}"
+                                            data-lessoraddr="{{ doc.lessor_address or '' }}"
+                                            data-rep="{{ doc.rep_position or '' }}"
+                                            data-father="{{ doc.father_name or '' }}"
+                                            data-mother="{{ doc.mother_name or '' }}"
+                                            data-spouse="{{ doc.spouse_name or '' }}"
+                                            data-occupation="{{ doc.occupation or '' }}"
+                                            data-emergency="{{ doc.emergency_name or '' }}"
+                                            data-emergencynum="{{ doc.emergency_number or '' }}"
+                                            data-ref1name="{{ doc.ref1_name or '' }}"
+                                            data-ref1contact="{{ doc.ref1_contact or '' }}"
+                                            data-ref1addr="{{ doc.ref1_address or '' }}"
+                                            data-ref2name="{{ doc.ref2_name or '' }}"
+                                            data-ref2contact="{{ doc.ref2_contact or '' }}"
+                                            data-ref2addr="{{ doc.ref2_address or '' }}"
+                                            data-purpose="{{ doc.purpose or '' }}"
+                                            data-printedname="{{ doc.printed_name or '' }}"
+                                            data-signdate="{{ doc.signature_date or '' }}"
+                                            data-docpath="{{ doc.document_path or '' }}"
+                                            data-validid="{{ doc.valid_id_path or '' }}"
+                                            data-date="{{ doc.created_at.strftime('%b %d, %Y %I:%M %p') if doc.created_at else 'N/A' }}"
+                                            data-applicant="{{ doc.first_name }} {{ doc.last_name }}"
+                                            onclick="openDetails(this)">
+                                        <i class="fas fa-eye"></i> Review
+                                    </button>
+                                </td>
                             </tr>
                             {% endfor %}
                             {% for event in pending_events_list %}
@@ -835,7 +1119,30 @@
                                 <td>{{ event.first_name }} {{ event.last_name }}</td>
                                 <td>{{ event.requested_at.strftime('%b %d, %Y') if event.requested_at else 'N/A' }}</td>
                                 <td><span class="status-badge status-pending">Pending</span></td>
-                                <td><a href="{{ url_for('head_admin_events') }}" class="btn-view"><i class="fas fa-eye"></i> Review</a></td>
+                                <td>
+                                    <button class="btn-view"
+                                            data-type="event"
+                                            data-ref="{{ event.reference_number or 'N/A' }}"
+                                            data-queue="{{ event.queuing_number or 'N/A' }}"
+                                            data-status="{{ event.status or 'pending' }}"
+                                            data-eventname="{{ event.event_name or '' }}"
+                                            data-eventdesc="{{ event.event_description or '' }}"
+                                            data-purpose="{{ event.purpose or '' }}"
+                                            data-eventdate="{{ event.event_date or '' }}"
+                                            data-start="{{ event.start_time or '' }}"
+                                            data-end="{{ event.end_time or '' }}"
+                                            data-venue="{{ event.venue or '' }}"
+                                            data-attendees="{{ event.estimated_attendees or '0' }}"
+                                            data-contactperson="{{ event.contact_person or '' }}"
+                                            data-contactphone="{{ event.contact_phone or '' }}"
+                                            data-reqfile="{{ event.requirements_file or '' }}"
+                                            data-validid="{{ event.valid_id_path or '' }}"
+                                            data-date="{{ event.requested_at.strftime('%b %d, %Y %I:%M %p') if event.requested_at else 'N/A' }}"
+                                            data-applicant="{{ event.first_name }} {{ event.last_name }}"
+                                            onclick="openDetails(this)">
+                                        <i class="fas fa-eye"></i> Review
+                                    </button>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}
@@ -858,6 +1165,37 @@
         <p>© 2025 Barangay Sto. Niño, Parañaque City | Head Admin Dashboard</p>
     </div>
 </div>
+
+<!-- ============================================================ -->
+<!-- ===== DETAILS MODAL CARD ===== -->
+<!-- ============================================================ -->
+<div class="details-modal-overlay" id="detailsModalOverlay" onclick="closeDetailsOnOverlay(event)">
+    <div class="details-modal-card" onclick="event.stopPropagation()">
+        <div class="details-modal-header">
+            <div class="details-modal-header-left">
+                <div class="details-modal-icon" id="detailsModalIcon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div>
+                    <h2 id="detailsModalTitle">Request Details</h2>
+                    <p id="detailsModalSubtitle">Loading...</p>
+                </div>
+            </div>
+            <button class="details-modal-close" onclick="closeDetails()" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="details-modal-body" id="detailsModalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="details-modal-footer">
+            <button class="details-btn-secondary" onclick="closeDetails()">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+<!-- ===== END DETAILS MODAL ===== -->
 
 <script>
     // ===== SIDEBAR TOGGLE =====
@@ -993,6 +1331,248 @@
         updateBellBadge();
         setInterval(updateBellBadge, 30000);
     });
+
+    // ============================================================
+    // ===== DETAILS MODAL LOGIC =====
+    // ============================================================
+
+    function esc(value) {
+        if (value === null || value === undefined || value === '') return '';
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function val(value, fallback) {
+        if (value === null || value === undefined || value === '') {
+            return '<span class="value muted">' + (fallback || 'N/A') + '</span>';
+        }
+        return '<span class="value">' + esc(value) + '</span>';
+    }
+
+    function renderFilePreview(filePath, label) {
+        if (!filePath) {
+            return '<div class="details-file-empty"><i class="fas fa-minus-circle"></i> No ' + (label || 'file') + ' uploaded</div>';
+        }
+        const safePath = esc(filePath);
+        const ext = String(filePath).split('.').pop().toLowerCase();
+        let icon = 'fa-file';
+        if (['jpg','jpeg','png','gif'].includes(ext)) icon = 'fa-file-image';
+        else if (ext === 'pdf') icon = 'fa-file-pdf';
+        else if (['doc','docx'].includes(ext)) icon = 'fa-file-word';
+        return '<a href="/uploads/' + safePath + '" target="_blank" class="details-file-preview">' +
+                   '<i class="fas ' + icon + '"></i>' +
+                   '<div class="file-info">' +
+                       '<span class="file-name">' + safePath + '</span>' +
+                       '<span class="file-hint">Click to open in new tab</span>' +
+                   '</div>' +
+                   '<span class="file-action">View</span>' +
+               '</a>';
+    }
+
+    function buildDocumentDetails(btn) {
+        const d = btn.dataset;
+
+        let nameFormatted = 'N/A';
+        if (d.surname || d.given) {
+            nameFormatted = (d.surname ? esc(d.surname) + ', ' : '') +
+                            (d.given ? esc(d.given) + ' ' : '') +
+                            (d.middle ? esc(d.middle) : '');
+            nameFormatted = nameFormatted.trim().replace(/,$/, '');
+        }
+
+        let html = '';
+
+        // Section: Request Info
+        html += '<div class="details-section">';
+        html += '<div class="details-section-title"><i class="fas fa-info-circle"></i> Request Information</div>';
+        html += '<div class="details-grid">';
+        html += '<div class="details-item"><span class="label">Reference No.</span><span class="value">' + esc(d.ref) + '</span></div>';
+        html += '<div class="details-item"><span class="label">Queue No.</span><span class="value">' + esc(d.queue) + '</span></div>';
+        html += '<div class="details-item"><span class="label">Document Type</span><span class="value">' + esc(d.doctype) + '</span></div>';
+        html += '<div class="details-item"><span class="label">Status</span><span class="details-pill">' + esc(d.status).toUpperCase() + '</span></div>';
+        html += '<div class="details-item"><span class="label">Date Submitted</span><span class="value">' + esc(d.date) + '</span></div>';
+        html += '<div class="details-item"><span class="label">Applicant</span><span class="value">' + esc(d.applicant) + '</span></div>';
+        html += '</div></div>';
+
+        // Section: Personal Info
+        html += '<div class="details-section">';
+        html += '<div class="details-section-title"><i class="fas fa-user"></i> Personal Information</div>';
+        html += '<div class="details-grid">';
+        html += '<div class="details-item full-width"><span class="label">Full Name</span><span class="value">' + nameFormatted + '</span></div>';
+        html += '<div class="details-item"><span class="label">Civil Status</span>' + val(d.civil) + '</div>';
+        html += '<div class="details-item"><span class="label">Age</span>' + val(d.age) + '</div>';
+        html += '<div class="details-item"><span class="label">Date of Birth</span>' + val(d.dob) + '</div>';
+        html += '<div class="details-item"><span class="label">Place of Birth</span>' + val(d.pob) + '</div>';
+        html += '<div class="details-item"><span class="label">Occupation</span>' + val(d.occupation) + '</div>';
+        html += '<div class="details-item"><span class="label">Precinct No.</span>' + val(d.precinct) + '</div>';
+        html += '<div class="details-item full-width"><span class="label">Address</span>' + val(d.address) + '</div>';
+        html += '<div class="details-item"><span class="label">Contact No.</span>' + val(d.contact) + '</div>';
+        html += '<div class="details-item"><span class="label">Length of Stay</span>' + val(d.stay) + '</div>';
+        html += '<div class="details-item"><span class="label">Residency Type</span>' + val(d.residency) + '</div>';
+        html += '</div></div>';
+
+        // Lessor info (only if present)
+        if (d.lessor || d.lessoraddr) {
+            html += '<div class="details-section">';
+            html += '<div class="details-section-title"><i class="fas fa-home"></i> Lessor Information</div>';
+            html += '<div class="details-grid">';
+            html += '<div class="details-item"><span class="label">Lessor Name</span>' + val(d.lessor) + '</div>';
+            html += '<div class="details-item full-width"><span class="label">Lessor Address</span>' + val(d.lessoraddr) + '</div>';
+            html += '</div></div>';
+        }
+
+        // Family info
+        if (d.father || d.mother || d.spouse) {
+            html += '<div class="details-section">';
+            html += '<div class="details-section-title"><i class="fas fa-users"></i> Family Information</div>';
+            html += '<div class="details-grid">';
+            html += '<div class="details-item"><span class="label">Father\'s Name</span>' + val(d.father) + '</div>';
+            html += '<div class="details-item"><span class="label">Mother\'s Name</span>' + val(d.mother) + '</div>';
+            html += '<div class="details-item"><span class="label">Spouse\'s Name</span>' + val(d.spouse) + '</div>';
+            html += '</div></div>';
+        }
+
+        // Emergency + References
+        if (d.emergency || d.emergencynum || d.ref1name || d.ref2name) {
+            html += '<div class="details-section">';
+            html += '<div class="details-section-title"><i class="fas fa-phone-alt"></i> Emergency &amp; References</div>';
+            html += '<div class="details-grid">';
+            html += '<div class="details-item"><span class="label">Emergency Contact</span>' + val(d.emergency) + '</div>';
+            html += '<div class="details-item"><span class="label">Emergency No.</span>' + val(d.emergencynum) + '</div>';
+            html += '<div class="details-item full-width"><span class="label">Reference 1 (Name / Contact / Address)</span>' +
+                    val(d.ref1name) + ' &middot; ' + val(d.ref1contact) + ' &middot; ' + val(d.ref1addr) + '</div>';
+            html += '<div class="details-item full-width"><span class="label">Reference 2 (Name / Contact / Address)</span>' +
+                    val(d.ref2name) + ' &middot; ' + val(d.ref2contact) + ' &middot; ' + val(d.ref2addr) + '</div>';
+            html += '</div></div>';
+        }
+
+        // Purpose
+        if (d.purpose) {
+            html += '<div class="details-section">';
+            html += '<div class="details-section-title"><i class="fas fa-bullseye"></i> Purpose</div>';
+            html += '<div class="details-item full-width">' + val(d.purpose) + '</div>';
+            html += '</div>';
+        }
+
+        // Signature
+        if (d.printedname || d.signdate) {
+            html += '<div class="details-section">';
+            html += '<div class="details-section-title"><i class="fas fa-signature"></i> Signature Details</div>';
+            html += '<div class="details-grid">';
+            html += '<div class="details-item"><span class="label">Printed Name</span>' + val(d.printedname) + '</div>';
+            html += '<div class="details-item"><span class="label">Signature Date</span>' + val(d.signdate) + '</div>';
+            html += '</div></div>';
+        }
+
+        // Attachments
+        html += '<div class="details-section">';
+        html += '<div class="details-section-title"><i class="fas fa-paperclip"></i> Attachments</div>';
+        html += '<div class="details-item full-width" style="margin-bottom:12px;"><span class="label">Valid ID</span>' +
+                renderFilePreview(d.validid, 'Valid ID') + '</div>';
+        html += '<div class="details-item full-width"><span class="label">Supporting Document</span>' +
+                renderFilePreview(d.docpath, 'supporting document') + '</div>';
+        html += '</div>';
+
+        return html;
+    }
+
+    function buildEventDetails(btn) {
+        const d = btn.dataset;
+
+        let html = '';
+
+        // Section: Permit Info
+        html += '<div class="details-section">';
+        html += '<div class="details-section-title"><i class="fas fa-info-circle"></i> Permit Information</div>';
+        html += '<div class="details-grid">';
+        html += '<div class="details-item"><span class="label">Reference No.</span><span class="value">' + esc(d.ref) + '</span></div>';
+        html += '<div class="details-item"><span class="label">Queue No.</span><span class="value">' + esc(d.queue) + '</span></div>';
+        html += '<div class="details-item"><span class="label">Status</span><span class="details-pill">' + esc(d.status).toUpperCase() + '</span></div>';
+        html += '<div class="details-item"><span class="label">Date Submitted</span><span class="value">' + esc(d.date) + '</span></div>';
+        html += '<div class="details-item full-width"><span class="label">Applicant</span><span class="value">' + esc(d.applicant) + '</span></div>';
+        html += '</div></div>';
+
+        // Section: Event Info
+        html += '<div class="details-section">';
+        html += '<div class="details-section-title"><i class="fas fa-calendar-alt"></i> Event Information</div>';
+        html += '<div class="details-grid">';
+        html += '<div class="details-item full-width"><span class="label">Event Name</span><span class="value">' + esc(d.eventname) + '</span></div>';
+        html += '<div class="details-item"><span class="label">Event Date</span>' + val(d.eventdate) + '</div>';
+        html += '<div class="details-item"><span class="label">Venue</span>' + val(d.venue) + '</div>';
+        html += '<div class="details-item"><span class="label">Start Time</span>' + val(d.start) + '</div>';
+        html += '<div class="details-item"><span class="label">End Time</span>' + val(d.end) + '</div>';
+        html += '<div class="details-item"><span class="label">Estimated Attendees</span>' + val(d.attendees) + '</div>';
+        html += '<div class="details-item full-width"><span class="label">Description</span>' + val(d.eventdesc) + '</div>';
+        html += '<div class="details-item full-width"><span class="label">Purpose</span>' + val(d.purpose) + '</div>';
+        html += '</div></div>';
+
+        // Section: Contact Person
+        html += '<div class="details-section">';
+        html += '<div class="details-section-title"><i class="fas fa-address-book"></i> Contact Person</div>';
+        html += '<div class="details-grid">';
+        html += '<div class="details-item"><span class="label">Name</span>' + val(d.contactperson) + '</div>';
+        html += '<div class="details-item"><span class="label">Phone No.</span>' + val(d.contactphone) + '</div>';
+        html += '</div></div>';
+
+        // Attachments
+        html += '<div class="details-section">';
+        html += '<div class="details-section-title"><i class="fas fa-paperclip"></i> Attachments</div>';
+        html += '<div class="details-item full-width" style="margin-bottom:12px;"><span class="label">Valid ID</span>' +
+                renderFilePreview(d.validid, 'Valid ID') + '</div>';
+        html += '<div class="details-item full-width"><span class="label">Requirements File</span>' +
+                renderFilePreview(d.reqfile, 'requirements file') + '</div>';
+        html += '</div>';
+
+        return html;
+    }
+
+    function openDetails(btn) {
+        const type = btn.dataset.type;
+        const overlay = document.getElementById('detailsModalOverlay');
+        const icon = document.getElementById('detailsModalIcon');
+        const title = document.getElementById('detailsModalTitle');
+        const subtitle = document.getElementById('detailsModalSubtitle');
+        const body = document.getElementById('detailsModalBody');
+
+        if (type === 'document') {
+            icon.innerHTML = '<i class="fas fa-file-alt"></i>';
+            title.textContent = 'Document Request Details';
+            subtitle.textContent = (btn.dataset.doctype || 'Document') + ' • Ref: ' + (btn.dataset.ref || 'N/A');
+            body.innerHTML = buildDocumentDetails(btn);
+        } else {
+            icon.innerHTML = '<i class="fas fa-calendar-alt"></i>';
+            title.textContent = 'Event Permit Details';
+            subtitle.textContent = (btn.dataset.eventname || 'Event') + ' • Ref: ' + (btn.dataset.ref || 'N/A');
+            body.innerHTML = buildEventDetails(btn);
+        }
+
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetails() {
+        const overlay = document.getElementById('detailsModalOverlay');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function closeDetailsOnOverlay(event) {
+        if (event.target.id === 'detailsModalOverlay') {
+            closeDetails();
+        }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDetails();
+        }
+    });
+
+    // ===== END DETAILS MODAL LOGIC =====
 
     // ===== DOCUMENT STATUS CHART (PIE) =====
     const docsPending = Number("{{ docs_pending | default(0) }}");
@@ -1139,16 +1719,6 @@
     }
     updateLastUpdated();
     setInterval(updateLastUpdated, 60000);
-
-    // ===== NAV SEARCH =====
-    document.getElementById('navSearch').addEventListener('keyup', function(e) {
-        const search = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#pendingRequestsTable tr');
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(search) ? '' : 'none';
-        });
-    });
 </script>
 </body>
 </html>

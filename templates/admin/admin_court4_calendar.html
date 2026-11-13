@@ -15,7 +15,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* ===== SIDEBAR (CARD STYLE) ===== */
+        /* ===== SIDEBAR ===== */
         .sidebar-custom {
             position: fixed; left: 0; top: 0;
             width: 85px; height: 100%;
@@ -63,19 +63,16 @@
             color: rgba(255,255,255,0.9); font-size: 18px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.25s ease;
-            flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
         .sidebar-burger:hover {
             background: rgba(107,196,142,0.2);
             border-color: rgba(107,196,142,0.4);
             color: #6bc48e; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(107,196,142,0.15);
         }
         .sidebar-custom.expanded .sidebar-burger {
             position: absolute; top: 0; right: 0;
             margin-top: 0; width: 40px; height: 40px;
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.12);
         }
 
         .sidebar-menu {
@@ -83,41 +80,28 @@
             gap: 10px; width: 100%; padding: 0; margin: 0;
         }
         .sidebar-menu li { margin: 0; width: 100%; display: flex; justify-content: center; }
-        .sidebar-menu a,
-        .sidebar-menu a:link,
-        .sidebar-menu a:visited,
-        .sidebar-menu a:focus,
-        .sidebar-menu a:active {
+        .sidebar-menu a {
             display: flex; align-items: center; justify-content: center;
             width: 52px; height: 52px; padding: 0;
             color: rgba(255,255,255,0.7); text-decoration: none;
             border-radius: 14px; transition: all 0.25s ease; font-size: 18px;
-            background: rgba(255,255,255,0.04) !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            outline: none !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
         }
         .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.1) !important;
-            border-color: rgba(255,255,255,0.18) !important;
+            background: rgba(255,255,255,0.1);
             color: white; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
         .sidebar-menu .active a {
-            background: rgba(107,196,142,0.2) !important;
-            border-color: rgba(107,196,142,0.35) !important;
+            background: rgba(107,196,142,0.2);
+            border-color: rgba(107,196,142,0.35);
             color: #6bc48e;
-            box-shadow: 0 4px 12px rgba(107,196,142,0.15) !important;
         }
         .sidebar-menu i {
             width: 24px; min-width: 24px; font-size: 18px;
             text-align: center; color: inherit;
-            transition: color 0.25s ease;
-            background: transparent !important;
-            border: none !important;
             display: flex; align-items: center; justify-content: center;
-            line-height: 1;
         }
         .sidebar-menu .active a i,
         .sidebar-menu a:hover i { color: #6bc48e; }
@@ -129,7 +113,7 @@
         .sidebar-custom.expanded .sidebar-menu a {
             justify-content: flex-start; width: 100%; height: auto;
             padding: 14px 16px; gap: 14px; font-size: 13.5px;
-            font-weight: 500; border-radius: 14px; overflow: hidden;
+            font-weight: 500; border-radius: 14px;
         }
         .sidebar-custom.expanded .sidebar-menu span { display: inline-block; opacity: 1; max-width: 200px; }
         .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
@@ -144,33 +128,22 @@
             padding: 8px 14px; border-radius: 8px;
             font-size: 12px; font-weight: 600; white-space: nowrap;
             opacity: 0; visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 999; pointer-events: none;
-            border: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar-custom:not(.expanded) .sidebar-menu a::before {
-            content: ''; position: absolute; left: 105%; top: 50%;
-            transform: translateY(-50%) translateX(-10px);
-            border-width: 6px; border-style: solid;
-            border-color: transparent #0d2b1e transparent transparent;
-            opacity: 0; visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 999; pointer-events: none;
-        }
-        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after,
-        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::before {
+        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after {
             opacity: 1; visibility: visible;
             transform: translateY(-50%) translateX(0);
         }
 
-        /* ===== NAVBAR (CARD STYLE) ===== */
+        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed; top: 12px; left: 97px; right: 12px;
             height: 64px; background: white; border-radius: 16px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; z-index: 99;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             border: 1px solid #eef2f0; gap: 16px;
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -183,7 +156,7 @@
         .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
-        /* NOTIFICATION BELL */
+        /* ===== BELL ===== */
         .notification-bell-wrap { position: relative; margin-right: 12px; }
         .bell-btn {
             position: relative; background: #f4f8f5; border: 1px solid #eef2f0;
@@ -198,7 +171,7 @@
             background: #dc3545; color: white; font-size: 10px; font-weight: 700;
             min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid white; box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+            border: 2px solid white;
         }
         .bell-dropdown {
             position: absolute; top: calc(100% + 12px); right: 0;
@@ -221,8 +194,6 @@
             background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
         }
         .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
-        .bell-dropdown-body::-webkit-scrollbar { width: 5px; }
-        .bell-dropdown-body::-webkit-scrollbar-thumb { background: rgba(26, 93, 58, 0.3); border-radius: 3px; }
         .bell-item {
             display: block; padding: 12px 14px; border-radius: 10px;
             text-decoration: none; color: #0d2b1e;
@@ -242,36 +213,20 @@
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
 
-        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
         .bell-item.unread::before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dc3545;
+            content: ""; position: absolute; left: 6px; top: 50%;
+            transform: translateY(-50%); width: 8px; height: 8px;
+            border-radius: 50%; background: #dc3545;
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
-        .bell-item.unread {
-            padding-left: 22px;
-        }
-        .bell-item.unread .bell-item-title {
-            font-weight: 700;
-            color: #0d2b1e;
-        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
         @keyframes pulse-dot {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
         }
 
-        /* PROFILE DROPDOWN */
+        /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
         .profile-trigger {
             display: flex; align-items: center; gap: 10px;
@@ -318,130 +273,245 @@
         .profile-menu .logout-link:hover { background: #fff5f5; color: #b91c1c; }
         .profile-menu .logout-link i { color: #dc3545; }
 
-        /* ===== MAIN CONTENT ===== */
+        /* ===== MAIN ===== */
         .main-with-sidebar {
             margin-left: 85px; padding: 100px 30px 25px;
-            min-height: 100vh; animation: fadeInUp 0.4s ease;
-            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh; transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         .big-card {
             background: white; border-radius: 28px;
             padding: 32px 34px; border: 1px solid #eef2f0;
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
         }
 
+        /* ✅ SPLIT LAYOUT */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* CALENDAR SECTION */
+        .calendar-section {
+            background: white; 
+            border-radius: 20px;
+            padding: 24px; 
+            border: 1px solid #eef2f0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+            height: fit-content;
+        }
+
         .calendar-header {
             display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 24px;
+            align-items: center; margin-bottom: 20px;
             flex-wrap: wrap; gap: 12px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f3f2;
         }
         .calendar-header h2 {
-            font-size: 20px; color: #0d2b1e; font-weight: 700;
+            font-size: 18px; color: #0d2b1e; font-weight: 700;
             display: flex; align-items: center; gap: 10px;
         }
         .calendar-header h2 i { color: #1a5d3a; }
         .legend { display: flex; gap: 16px; flex-wrap: wrap; }
         .legend-item {
             display: flex; align-items: center; gap: 6px;
-            font-size: 12px; color: #5a6e7a; font-weight: 500;
+            font-size: 12px; color: #5a6e7a; font-weight: 600;
+            background: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #eef2f0;
         }
-        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+        .legend-color { width: 10px; height: 10px; border-radius: 3px; }
 
-        #calendar {
-            background: #f8fafc; border-radius: 14px;
-            padding: 16px; border: 1px solid #eef2f0;
+        /* ✅ SIDE PANEL */
+        .side-panel {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #eef2f0;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow: hidden;
         }
 
-        /* FullCalendar Customization */
-        .fc .fc-toolbar-title {
-            font-size: 18px !important; font-weight: 700 !important;
-            color: #0d2b1e !important;
+        .side-panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f3f2;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
         }
+        .side-panel-header .header-icon {
+            background: #e0f5e8;
+            color: #1a5d3a;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .side-panel-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0d2b1e;
+            letter-spacing: -0.3px;
+        }
+
+        .side-panel-body {
+            padding: 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .side-panel-body::-webkit-scrollbar { width: 5px; }
+        .side-panel-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+        /* ✅ EMPTY STATE */
+        .empty-panel-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            height: 100%;
+            min-height: 400px;
+        }
+        .empty-panel-state .pointer-icon {
+            font-size: 56px;
+            color: #d1d5db;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .empty-panel-state h4 {
+            color: #4b5563;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .empty-panel-state p {
+            color: #9ca3af;
+            font-size: 13px;
+            line-height: 1.6;
+            max-width: 240px;
+        }
+
+        /* ✅ EVENT DETAILS */
+        .event-detail-item {
+            padding: 14px 0;
+            border-bottom: 1px dashed #eef2f0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .event-detail-item:first-child {
+            padding-top: 0;
+        }
+        .event-detail-item:last-child { 
+            border-bottom: none; 
+            padding-bottom: 0;
+        }
+        .event-detail-item .label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8a9a8f;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .event-detail-item .label i {
+            font-size: 12px;
+            color: #a3b1a8;
+        }
+        .event-detail-item .value {
+            font-size: 14px;
+            color: #0d2b1e;
+            font-weight: 600;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .event-detail-item .value.large { 
+            font-size: 16px; 
+            font-weight: 800;
+            color: #0d2b1e;
+        }
+        .status-badge-cal {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 16px;
+            border-radius: 30px; 
+            font-size: 11px;
+            font-weight: 800; 
+            letter-spacing: 0.5px;
+            width: fit-content;
+            text-transform: uppercase;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .status-badge-cal.approved { background: #e0f5e8; color: #1a5d3a; border: 1px solid #a3dbb8; }
+        .status-badge-cal.done { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
+
+        /* FullCalendar Overrides */
+        .fc { font-family: 'Inter', sans-serif !important; }
+        .fc .fc-toolbar-title { font-size: 20px !important; font-weight: 800 !important; color: #0d2b1e !important; letter-spacing: -0.5px; }
         .fc .fc-button {
-            background: #0d2b1e !important; border: none !important;
+            background: #f8fafc !important; border: 1px solid #eef2f0 !important;
+            color: #0d2b1e !important;
             font-weight: 600 !important; font-size: 12px !important;
-            padding: 8px 14px !important; border-radius: 8px !important;
+            padding: 8px 16px !important; border-radius: 10px !important;
             text-transform: capitalize !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02) !important;
+            transition: all 0.2s ease !important;
         }
-        .fc .fc-button:hover { background: #1a5d3a !important; }
-        .fc .fc-button-active { background: #1a5d3a !important; }
-        .fc .fc-daygrid-day-number {
-            color: #0d2b1e !important; font-weight: 600 !important;
-            font-size: 13px !important;
-        }
+        .fc .fc-button:hover { background: #eef8f2 !important; border-color: #d4f0df !important; color: #1a5d3a !important; }
+        .fc .fc-button-primary:not(:disabled).fc-button-active { background: #1a5d3a !important; border-color: #1a5d3a !important; color: white !important; }
+        .fc .fc-daygrid-day-number { color: #0d2b1e !important; font-weight: 600 !important; font-size: 13px !important; padding: 6px !important; }
         .fc .fc-col-header-cell-cushion {
             color: #5a6e7a !important; font-weight: 700 !important;
             font-size: 12px !important; text-transform: uppercase !important;
-            padding: 10px 0 !important;
+            padding: 12px 0 !important;
         }
         .fc .fc-day-today { background: #f0f9f4 !important; }
+        .fc .fc-day-today .fc-daygrid-day-number { color: #1a5d3a !important; font-weight: 800 !important; }
         .fc-event {
-            border: none !important; border-radius: 6px !important;
-            padding: 3px 6px !important; font-size: 11px !important;
-            font-weight: 600 !important; cursor: pointer !important;
-            background: #1a5d3a !important; color: white !important;
+            border: none !important; 
+            border-radius: 6px !important;
+            padding: 4px 8px !important; 
+            font-size: 11px !important;
+            font-weight: 600 !important; 
+            cursor: pointer !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            transition: all 0.2s ease !important;
         }
+        .fc-event:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important; }
 
         .footer {
-            text-align: center; padding: 20px;
-            margin-top: 28px; color: #8a9a8f;
-            font-size: 11px; border-top: 1px solid #eef2f0;
-        }
-
-        /* MODAL */
-        .modal-overlay {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999; justify-content: center;
-            align-items: center; padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-box {
-            background: white; border-radius: 16px;
-            max-width: 500px; width: 100%;
-            max-height: 90vh; overflow-y: auto;
-            padding: 28px; animation: modalIn 0.3s ease;
-        }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-header {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 20px;
-            padding-bottom: 16px; border-bottom: 1px solid #eef2f0;
-        }
-        .modal-header h3 { color: #0d2b1e; font-size: 18px; font-weight: 700; }
-        .modal-close {
-            background: none; border: none; font-size: 20px;
-            color: #8a9a8f; cursor: pointer;
-        }
-        .modal-close:hover { color: #dc3545; }
-
-        .modal-row {
-            display: flex; justify-content: space-between;
-            padding: 10px 0; border-bottom: 1px solid #f4f8f5;
-            font-size: 13px;
-        }
-        .modal-row .label { color: #8a9a8f; font-weight: 500; }
-        .modal-row .value {
-            color: #0d2b1e; font-weight: 600;
-            text-align: right; max-width: 60%;
-        }
-        .approved-badge {
-            display: inline-block; padding: 4px 14px;
-            background: #e0f5e8; color: #1a5d3a;
-            border-radius: 30px; font-size: 11px;
-            font-weight: 700; letter-spacing: 0.5px;
+            text-align: center; padding: 20px; margin-top: 28px;
+            color: #8a9a8f; font-size: 11px; border-top: 1px solid #eef2f0;
         }
 
         /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .split-layout { grid-template-columns: 1fr 340px; }
+        }
+        @media (max-width: 992px) {
+            .split-layout { grid-template-columns: 1fr; }
+            .side-panel { position: static; min-height: 300px; max-height: none; }
+        }
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
             .sidebar-custom.expanded { width: 240px; }
@@ -459,7 +529,7 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ===== SIDEBAR ===== -->
 <div class="sidebar-custom" id="sidebar">
     <div class="sidebar-header">
         <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo-img"
@@ -483,7 +553,7 @@
     </ul>
 </div>
 
-<!-- NAVBAR -->
+<!-- ===== NAVBAR ===== -->
 <nav class="navbar">
     <div class="navbar-left">
         <div class="page-title">
@@ -492,7 +562,6 @@
     </div>
     <div class="navbar-right">
 
-        <!-- NOTIFICATION BELL -->
         <div class="notification-bell-wrap">
             <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
                 <i class="fas fa-bell"></i>
@@ -518,7 +587,6 @@
             </div>
         </div>
 
-        <!-- PROFILE DROPDOWN -->
         <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-trigger" onclick="toggleProfile()">
                 <div class="profile-avatar">
@@ -547,33 +615,48 @@
     </div>
 </nav>
 
-<!-- MAIN CONTENT -->
+<!-- ===== MAIN CONTENT ===== -->
 <div class="main-with-sidebar">
     <div class="big-card">
-        <div class="calendar-header">
-            <h2><i class="fas fa-calendar-alt"></i> Approved Events - Court 4</h2>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #1a5d3a;"></div> Approved Event
+        <div class="split-layout">
+
+            <!-- LEFT: CALENDAR -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <h2><i class="fas fa-calendar-alt"></i> Approved Events</h2>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #1a5d3a;"></div> Upcoming
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #94a3b8;"></div> Done
+                        </div>
+                    </div>
+                </div>
+                <div id="calendar"></div>
+            </div>
+
+            <!-- RIGHT: DETAILS PANEL -->
+            <div class="side-panel">
+                <div class="side-panel-header">
+                    <div class="header-icon"><i class="fas fa-info-circle"></i></div>
+                    <h3>Event Details</h3>
+                </div>
+                <div class="side-panel-body" id="detailsPanelBody">
+                    <!-- ✅ EMPTY STATE -->
+                    <div class="empty-panel-state">
+                        <i class="fas fa-hand-pointer pointer-icon"></i>
+                        <h4>No Date Selected</h4>
+                        <p>Click on an event in the calendar to see the full details here.</p>
+                    </div>
                 </div>
             </div>
+
         </div>
-        <div id="calendar"></div>
     </div>
 
     <div class="footer">
-        <p>2025 Barangay Sto. Nino, Paranaque City | Court 4 Calendar</p>
-    </div>
-</div>
-
-<!-- EVENT MODAL (View Only) -->
-<div class="modal-overlay" id="eventModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3 id="modalTitle">Event Details</h3>
-            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="modalBody"></div>
+        <p>© 2025 Barangay Sto. Niño, Parañaque City | Court 4 Calendar</p>
     </div>
 </div>
 
@@ -584,6 +667,7 @@
         const body = document.body;
         sidebar.classList.toggle('expanded');
         body.classList.toggle('sidebar-expanded');
+        localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -591,13 +675,9 @@
             document.getElementById('sidebar').classList.add('expanded');
             document.body.classList.add('sidebar-expanded');
         }
+        updateBellBadge();
+        setInterval(updateBellBadge, 30000);
     });
-
-    const observer = new MutationObserver(function() {
-        localStorage.setItem('sidebarExpanded',
-            document.getElementById('sidebar').classList.contains('expanded'));
-    });
-    observer.observe(document.getElementById('sidebar'), { attributes: true, attributeFilter: ['class'] });
 
     // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
@@ -618,9 +698,7 @@
         const userDropdown = document.getElementById('profileDropdown');
         if (userDropdown) userDropdown.classList.remove('open');
         dropdown.classList.toggle('open');
-        if (dropdown.classList.contains('open')) {
-            loadRecentAnnouncements();
-        }
+        if (dropdown.classList.contains('open')) loadRecentAnnouncements();
     }
 
     function loadRecentAnnouncements() {
@@ -706,14 +784,7 @@
     document.addEventListener('click', function(e) {
         const bellWrap = document.querySelector('.notification-bell-wrap');
         const dropdown = document.getElementById('bellDropdown');
-        if (bellWrap && dropdown && !bellWrap.contains(e.target)) {
-            dropdown.classList.remove('open');
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBellBadge();
-        setInterval(updateBellBadge, 30000);
+        if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
     // ===== CALENDAR =====
@@ -727,7 +798,7 @@
                 right: 'dayGridMonth,timeGridWeek,listMonth'
             },
             height: 'auto',
-            events: '/api/court4/events',
+            events: '/api/court4/events', // approved + done
             eventClick: function(info) {
                 showEventDetails(info.event);
             }
@@ -735,35 +806,80 @@
         calendar.render();
     });
 
+    // ✅ UPDATE SIDE PANEL
     function showEventDetails(event) {
         const props = event.extendedProps;
+        const isDone = props.is_done;
+        const panel = document.getElementById('detailsPanelBody');
 
-        document.getElementById('modalTitle').innerText = event.title;
+        const badgeClass = isDone ? 'done' : 'approved';
+        const badgeIcon = isDone ? 'fa-check-double' : 'fa-check-circle';
+        const badgeText = isDone ? 'DONE' : 'APPROVED';
 
-        let html = `
-            <div class="modal-row"><span class="label">Reference:</span><span class="value">${props.reference || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Applicant:</span><span class="value">${props.organizer || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Date:</span><span class="value">${event.startStr || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Time:</span><span class="value">${props.start_time || ''} - ${props.end_time || ''}</span></div>
-            <div class="modal-row"><span class="label">Venue:</span><span class="value">${props.venue || 'N/A'}</span></div>
-            <div class="modal-row"><span class="label">Attendees:</span><span class="value">${props.attendees || 0}</span></div>
-            <div class="modal-row"><span class="label">Purpose:</span><span class="value">${props.purpose || 'N/A'}</span></div>
-            <div class="modal-row">
-                <span class="label">Status:</span>
-                <span class="value"><span class="approved-badge">APPROVED</span></span>
+        const html = `
+            <div style="margin-bottom:20px;">
+                <span class="status-badge-cal ${badgeClass}">
+                    <i class="fas ${badgeIcon}"></i> ${badgeText}
+                </span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-tag"></i> Event Name</span>
+                <span class="value large">${escapeHtml(props.event_name || event.title)}</span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-barcode"></i> Reference No.</span>
+                <span class="value">${escapeHtml(props.reference || 'N/A')}</span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-user"></i> Organizer</span>
+                <span class="value">${escapeHtml(props.organizer || 'N/A')}</span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-calendar-day"></i> Date</span>
+                <span class="value">${formatDate(event.startStr)}</span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-clock"></i> Time</span>
+                <span class="value">${escapeHtml((props.start_time || '') + ' - ' + (props.end_time || ''))}</span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-map-marker-alt"></i> Venue</span>
+                <span class="value">${escapeHtml(props.venue || 'N/A')}</span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-users"></i> Attendees</span>
+                <span class="value">${props.attendees || 0} people</span>
+            </div>
+            
+            <div class="event-detail-item">
+                <span class="label"><i class="fas fa-bullseye"></i> Purpose</span>
+                <span class="value">${escapeHtml(props.purpose || 'N/A')}</span>
             </div>
         `;
-        document.getElementById('modalBody').innerHTML = html;
-        document.getElementById('eventModal').classList.add('active');
+        panel.innerHTML = html;
     }
 
-    function closeModal() {
-        document.getElementById('eventModal').classList.remove('active');
+    function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const cleanDate = dateStr.split('T')[0];
+            const date = new Date(cleanDate + 'T00:00:00');
+            return date.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+        } catch (e) { return dateStr; }
     }
 
-    document.getElementById('eventModal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
-    });
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 </script>
 </body>
 </html>

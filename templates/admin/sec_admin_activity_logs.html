@@ -537,9 +537,20 @@
                     <div class="menu-name">{{ session.fullname or 'Admin' }}</div>
                     <div class="menu-email">{{ session.email or 'admin@barangay.gov.ph' }}</div>
                 </div>
+                <!-- ✅ DYNAMIC PROFILE SETTINGS LINK -->
+                {% if session.role == 'head_admin' %}
+                <a href="{{ url_for('settings') }}">
+                    <i class="fas fa-user-cog"></i> Profile Settings
+                </a>
+                {% elif session.role == 'admin_documents' %}
+                <a href="{{ url_for('sec_admin_settings') }}">
+                    <i class="fas fa-user-cog"></i> Profile Settings
+                </a>
+                {% elif session.role in ['admin_court_1', 'admin_court_2', 'admin_court_3', 'admin_court_4'] %}
                 <a href="{{ url_for('secondary_admin_settings') }}">
                     <i class="fas fa-user-cog"></i> Profile Settings
                 </a>
+                {% endif %}
                 <div class="divider"></div>
                 <a href="{{ url_for('logout') }}" class="logout-link">
                     <i class="fas fa-sign-out-alt"></i> Logout

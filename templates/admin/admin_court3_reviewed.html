@@ -61,19 +61,16 @@
             color: rgba(255,255,255,0.9); font-size: 18px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.25s ease;
-            flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
         .sidebar-burger:hover {
             background: rgba(107,196,142,0.2);
             border-color: rgba(107,196,142,0.4);
             color: #6bc48e; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(107,196,142,0.15);
         }
         .sidebar-custom.expanded .sidebar-burger {
             position: absolute; top: 0; right: 0;
             margin-top: 0; width: 40px; height: 40px;
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.12);
         }
 
         .sidebar-menu {
@@ -81,39 +78,28 @@
             gap: 10px; width: 100%; padding: 0; margin: 0;
         }
         .sidebar-menu li { margin: 0; width: 100%; display: flex; justify-content: center; }
-        .sidebar-menu a,
-        .sidebar-menu a:link,
-        .sidebar-menu a:visited,
-        .sidebar-menu a:focus,
-        .sidebar-menu a:active {
+        .sidebar-menu a {
             display: flex; align-items: center; justify-content: center;
             width: 52px; height: 52px; padding: 0;
             color: rgba(255,255,255,0.7); text-decoration: none;
             border-radius: 14px; transition: all 0.25s ease; font-size: 18px;
-            background: rgba(255,255,255,0.04) !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            outline: none !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
         }
         .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.1) !important;
-            border-color: rgba(255,255,255,0.18) !important;
+            background: rgba(255,255,255,0.1);
             color: white; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
         .sidebar-menu .active a {
-            background: rgba(107,196,142,0.2) !important;
-            border-color: rgba(107,196,142,0.35) !important;
+            background: rgba(107,196,142,0.2);
+            border-color: rgba(107,196,142,0.35);
             color: #6bc48e;
-            box-shadow: 0 4px 12px rgba(107,196,142,0.15) !important;
         }
         .sidebar-menu i {
             width: 24px; min-width: 24px; font-size: 18px;
             text-align: center; color: inherit;
-            transition: color 0.25s ease;
-            background: transparent !important; border: none !important;
-            display: flex; align-items: center; justify-content: center; line-height: 1;
+            display: flex; align-items: center; justify-content: center;
         }
         .sidebar-menu .active a i,
         .sidebar-menu a:hover i { color: #6bc48e; }
@@ -125,7 +111,7 @@
         .sidebar-custom.expanded .sidebar-menu a {
             justify-content: flex-start; width: 100%; height: auto;
             padding: 14px 16px; gap: 14px; font-size: 13.5px;
-            font-weight: 500; border-radius: 14px; overflow: hidden;
+            font-weight: 500; border-radius: 14px;
         }
         .sidebar-custom.expanded .sidebar-menu span { display: inline-block; opacity: 1; max-width: 200px; }
         .sidebar-custom.expanded .sidebar-menu a:hover { transform: translateX(4px); }
@@ -140,22 +126,11 @@
             padding: 8px 14px; border-radius: 8px;
             font-size: 12px; font-weight: 600; white-space: nowrap;
             opacity: 0; visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 999; pointer-events: none;
-            border: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar-custom:not(.expanded) .sidebar-menu a::before {
-            content: ''; position: absolute; left: 105%; top: 50%;
-            transform: translateY(-50%) translateX(-10px);
-            border-width: 6px; border-style: solid;
-            border-color: transparent #0d2b1e transparent transparent;
-            opacity: 0; visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 999; pointer-events: none;
-        }
-        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after,
-        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::before {
+        .sidebar-custom:not(.expanded) .sidebar-menu a:hover::after {
             opacity: 1; visibility: visible;
             transform: translateY(-50%) translateX(0);
         }
@@ -166,7 +141,7 @@
             height: 64px; background: white; border-radius: 16px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; z-index: 99;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             border: 1px solid #eef2f0; gap: 16px;
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -179,7 +154,7 @@
         .navbar-left .page-title i { color: #1a5d3a; margin-right: 8px; }
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
-        /* NOTIFICATION BELL */
+        /* ===== BELL ===== */
         .notification-bell-wrap { position: relative; margin-right: 12px; }
         .bell-btn {
             position: relative; background: #f4f8f5; border: 1px solid #eef2f0;
@@ -194,7 +169,7 @@
             background: #dc3545; color: white; font-size: 10px; font-weight: 700;
             min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid white; box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+            border: 2px solid white;
         }
         .bell-dropdown {
             position: absolute; top: calc(100% + 12px); right: 0;
@@ -210,25 +185,12 @@
             color: white; font-weight: 700; font-size: 13.5px;
             display: flex; align-items: center; justify-content: space-between; gap: 10px;
         }
-        .bell-dropdown-header-left { display: flex; align-items: center; gap: 10px; }
+        .bell-dropdown-header-left {
+            display: flex; align-items: center; gap: 10px;
+        }
         .bell-dropdown-header i.fa-bullhorn {
             background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
         }
-        .mark-all-btn {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white; font-size: 11px; font-weight: 600;
-            padding: 6px 12px; border-radius: 20px; cursor: pointer;
-            font-family: inherit; white-space: nowrap;
-            display: inline-flex; align-items: center; gap: 5px;
-            transition: all 0.2s ease;
-        }
-        .mark-all-btn:hover {
-            background: rgba(255,255,255,0.28);
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-        }
-        .mark-all-btn:active { transform: translateY(0); }
         .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
         .bell-item {
             display: block; padding: 12px 14px; border-radius: 10px;
@@ -238,25 +200,7 @@
         }
         .bell-item:last-child { border-bottom: none; }
         .bell-item:hover { background: #f4f8f5; }
-        .bell-item.unread { padding-left: 22px; }
-        .bell-item.unread::before {
-            content: '';
-            position: absolute;
-            left: 8px; top: 50%;
-            transform: translateY(-50%);
-            width: 8px; height: 8px;
-            background: #dc3545;
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
-            animation: pulse-dot 2s infinite;
-        }
-        @keyframes pulse-dot {
-            0%, 100% { box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15); }
-            50% { box-shadow: 0 0 0 5px rgba(220, 53, 69, 0.3); }
-        }
-        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
-        .bell-item:not(.unread) .bell-item-title { font-weight: 500; color: #6b7a72; }
-        .bell-item-title { font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; }
+        .bell-item-title { font-weight: 600; font-size: 13px; color: #0d2b1e; margin-bottom: 4px; line-height: 1.4; }
         .bell-item-date { font-size: 11px; color: #8a9a8f; display: flex; align-items: center; gap: 5px; }
         .bell-loading, .bell-empty { text-align: center; padding: 30px 20px; color: #8a9a8f; font-size: 13px; }
         .bell-empty i { font-size: 36px; color: #d4f0df; display: block; margin-bottom: 10px; }
@@ -267,7 +211,20 @@
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
 
-        /* PROFILE DROPDOWN */
+        .bell-item.unread::before {
+            content: ""; position: absolute; left: 6px; top: 50%;
+            transform: translateY(-50%); width: 8px; height: 8px;
+            border-radius: 50%; background: #dc3545;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+        }
+
+        /* ===== PROFILE ===== */
         .profile-dropdown { position: relative; }
         .profile-trigger {
             display: flex; align-items: center; gap: 10px;
@@ -321,16 +278,17 @@
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
 
-        /* SPLIT LAYOUT */
+        /* ✅ SPLIT LAYOUT */
         .split-container {
             display: grid; grid-template-columns: 1fr 1fr;
-            gap: 24px; align-items: start;
+            gap: 24px; align-items: start; margin-bottom: 24px;
         }
         .split-card {
             background: white; border-radius: 20px;
             border: 1px solid #eef2f0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
             overflow: hidden;
+            display: flex; flex-direction: column;
         }
         .split-card.approved { border-top: 4px solid #1a5d3a; }
         .split-card.rejected { border-top: 4px solid #dc3545; }
@@ -357,16 +315,19 @@
         .split-card.rejected .split-count { background: #dc3545; color: white; }
         .split-card.cancelled .split-count { background: #6b7280; color: white; }
 
-        /* EVENT CARDS */
+        /* ✅ EVENT CARDS (3 limit scroll) */
         .event-list {
-            padding: 16px 20px 20px; max-height: calc(100vh - 240px);
-            overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+            padding: 16px 20px 20px; 
+            max-height: 420px; /* Saktong 3 cards bago mag-scroll */
+            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
         }
         .event-list::-webkit-scrollbar { width: 6px; }
         .event-list::-webkit-scrollbar-track { background: transparent; }
         .event-list::-webkit-scrollbar-thumb { background: rgba(26, 93, 58, 0.2); border-radius: 3px; }
         .split-card.rejected .event-list::-webkit-scrollbar-thumb { background: rgba(220, 53, 69, 0.2); }
         .split-card.cancelled .event-list::-webkit-scrollbar-thumb { background: rgba(107, 114, 128, 0.3); }
+
         .event-card {
             background: #f8fafc; border-radius: 12px; padding: 16px 18px;
             border-left: 4px solid #1a5d3a; cursor: pointer;
@@ -375,23 +336,38 @@
         .split-card.rejected .event-card { border-left-color: #dc3545; }
         .split-card.cancelled .event-card { border-left-color: #6b7280; }
         .event-card:hover { background: white; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        
         .event-card-header {
             display: flex; justify-content: space-between; align-items: flex-start;
-            gap: 12px; margin-bottom: 10px;
+            gap: 12px; margin-bottom: 8px;
         }
         .event-card-title { font-size: 14px; font-weight: 700; color: #0d2b1e; line-height: 1.3; flex: 1; }
         .split-card.cancelled .event-card-title { text-decoration: line-through; color: #8a9a8f; }
+        
+        .event-card-ref-group { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
         .event-card-ref {
             font-size: 10px; font-weight: 700; padding: 3px 10px;
             border-radius: 20px; background: #e0f5e8; color: #1a5d3a; white-space: nowrap;
         }
         .split-card.rejected .event-card-ref { background: #fee2e2; color: #dc3545; }
         .split-card.cancelled .event-card-ref { background: #f3f4f6; color: #4b5563; }
+        .event-card-queue {
+            font-size: 10px; font-weight: 700; padding: 3px 10px;
+            border-radius: 20px; background: #dbeafe; color: #1e40af; white-space: nowrap;
+        }
+
         .event-card-info { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #5a6e7a; }
         .event-card-info .info-row { display: flex; align-items: center; gap: 8px; }
         .event-card-info .info-row i { color: #1a5d3a; width: 14px; font-size: 11px; }
         .split-card.rejected .event-card-info .info-row i { color: #dc3545; }
         .split-card.cancelled .event-card-info .info-row i { color: #6b7280; }
+        
+        .event-card-id {
+            margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eef2f0;
+            font-size: 11px; color: #5a6e7a; display: flex; align-items: center; gap: 6px;
+        }
+        .event-card-id strong { color: #0d2b1e; font-weight: 700; }
+        
         .event-card-remarks {
             margin-top: 10px; padding-top: 10px;
             border-top: 1px dashed #eef2f0; font-size: 11px;
@@ -399,6 +375,7 @@
         }
         .event-card-remarks strong { color: #dc3545; font-weight: 700; display: block; margin-bottom: 3px; }
         .split-card.cancelled .event-card-remarks strong { color: #4b5563; }
+
         .empty-state { text-align: center; padding: 60px 20px; color: #8a9a8f; }
         .empty-state i { font-size: 48px; color: #d4f0df; margin-bottom: 12px; display: block; }
         .split-card.rejected .empty-state i { color: #fecaca; }
@@ -410,7 +387,7 @@
             color: #8a9a8f; font-size: 11px; border-top: 1px solid #eef2f0;
         }
 
-        /* MODAL */
+        /* ===== MODAL ===== */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.55);
@@ -419,28 +396,27 @@
             padding: 20px; opacity: 0; transition: opacity 0.25s ease;
         }
         .modal-overlay.active { display: flex; opacity: 1; }
+        
         .modal-box {
-            background: white; border-radius: 20px; max-width: 950px;
-            width: 100%; max-height: 92vh; overflow-y: auto;
+            background: white; border-radius: 20px; max-width: 850px;
+            width: 100%; max-height: 90vh; 
+            display: flex; flex-direction: column; /* ✅ Flex para hindi magulo scroll */
             animation: modalIn 0.3s ease; box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+            overflow: hidden; /* ✅ Itago ang lumalabas sa gilid */
         }
         @keyframes modalIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+        
         .modal-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 24px 32px; color: white;
-            border-radius: 20px 20px 0 0;
-            position: sticky; top: 0; z-index: 10;
+            padding: 24px 32px; color: white; flex-shrink: 0; /* ✅ Hindi liliit */
         }
         .modal-header.approved { background: linear-gradient(135deg, #0d2b1e, #1a5d3a); }
         .modal-header.rejected { background: linear-gradient(135deg, #7f1d1d, #dc3545); }
         .modal-header.cancelled { background: linear-gradient(135deg, #374151, #6b7280); }
-        .modal-header h3 {
-            color: white; font-size: 20px; font-weight: 700;
-            display: flex; align-items: center; gap: 12px;
-        }
+        .modal-header h3 { color: white; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 12px; margin: 0; }
         .modal-close {
             background: rgba(255,255,255,0.15); border: none;
             font-size: 18px; color: white; cursor: pointer;
@@ -449,7 +425,14 @@
             transition: all 0.25s ease;
         }
         .modal-close:hover { background: rgba(0,0,0,0.3); transform: rotate(90deg); }
-        .modal-body-wrapper { padding: 28px 32px; }
+        
+        /* ✅ Bagong scroll area */
+        .modal-body-wrapper {
+            padding: 28px 32px; overflow-y: auto; flex: 1;
+        }
+        .modal-body-wrapper::-webkit-scrollbar { width: 6px; }
+        .modal-body-wrapper::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        
         .reference-highlight {
             border-radius: 12px; padding: 18px 22px; margin-bottom: 24px;
             display: flex; align-items: center; justify-content: space-between;
@@ -466,6 +449,7 @@
         .reference-highlight.rejected .ref-label { color: #991b1b; }
         .reference-highlight.cancelled .ref-label { color: #4b5563; }
         .reference-highlight .ref-value { font-size: 22px; color: #0d2b1e; font-weight: 800; letter-spacing: 1px; }
+        
         .applicant-row {
             display: flex; align-items: center; gap: 16px;
             padding: 16px 0; margin-bottom: 8px; border-bottom: 2px solid #f0f3f2;
@@ -486,6 +470,7 @@
         .applicant-info .contact i.approved-color { color: #1a5d3a; }
         .applicant-info .contact i.rejected-color { color: #dc3545; }
         .applicant-info .contact i.cancelled-color { color: #6b7280; }
+        
         .section-header {
             font-size: 13px; font-weight: 700;
             text-transform: uppercase; letter-spacing: 1px;
@@ -495,6 +480,7 @@
         .section-header.approved { color: #1a5d3a; border-bottom: 2px solid #e0f5e8; }
         .section-header.rejected { color: #dc3545; border-bottom: 2px solid #fee2e2; }
         .section-header.cancelled { color: #4b5563; border-bottom: 2px solid #f3f4f6; }
+        
         .detail-row {
             display: flex; padding: 12px 0; border-bottom: 1px solid #f4f8f5;
             font-size: 14px; align-items: flex-start; gap: 16px;
@@ -507,6 +493,7 @@
         }
         .detail-row .value { flex: 1; color: #0d2b1e; font-weight: 500; line-height: 1.5; word-break: break-word; }
         .detail-row .value.strong { font-weight: 700; font-size: 15px; }
+        
         .remarks-display {
             margin-top: 20px; padding: 18px 20px;
             background: #fef2f2; border-radius: 12px;
@@ -518,6 +505,7 @@
             margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
         }
         .remarks-display .value { font-size: 14px; color: #0d2b1e; line-height: 1.6; }
+        
         .status-badge-modal {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 6px 16px; border-radius: 40px;
@@ -527,6 +515,7 @@
         .status-badge-modal.approved { background: #d1fae5; color: #065f46; }
         .status-badge-modal.rejected { background: #fee2e2; color: #991b1b; }
         .status-badge-modal.cancelled { background: #f3f4f6; color: #4b5563; }
+        
         .file-preview-section {
             margin-top: 20px; padding: 16px 18px;
             background: #eff6ff; border-radius: 12px;
@@ -628,8 +617,8 @@
                     <div class="bell-dropdown-header-left">
                         <i class="fas fa-bullhorn"></i> Recent Announcements
                     </div>
-                    <button class="mark-all-btn" onclick="markAllRead(event)">
-                        <i class="fas fa-check-double"></i> Mark all as read
+                    <button onclick="markAllRead(event)" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">
+                        <i class="fas fa-check-double"></i> Mark all
                     </button>
                 </div>
                 <div class="bell-dropdown-body" id="bellList">
@@ -689,7 +678,10 @@
                     <div class="event-card" data-event-id="{{ event.id }}" data-status="approved">
                         <div class="event-card-header">
                             <div class="event-card-title">{{ event.event_name }}</div>
-                            <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
+                            <div class="event-card-ref-group">
+                                <div class="event-card-queue">Q: {{ event.queuing_number or 'N/A' }}</div>
+                                <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
+                            </div>
                         </div>
                         <div class="event-card-info">
                             <div class="info-row">
@@ -704,6 +696,9 @@
                                 <i class="fas fa-clock"></i>
                                 <span>{{ event.start_time }} - {{ event.end_time }}</span>
                             </div>
+                        </div>
+                        <div class="event-card-id">
+                            <i class="fas fa-id-card"></i> ID / Contact: <strong>{{ event.contact_number or event.email or 'N/A' }}</strong>
                         </div>
                     </div>
                     {% endfor %}
@@ -730,7 +725,10 @@
                     <div class="event-card" data-event-id="{{ event.id }}" data-status="rejected">
                         <div class="event-card-header">
                             <div class="event-card-title">{{ event.event_name }}</div>
-                            <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
+                            <div class="event-card-ref-group">
+                                <div class="event-card-queue">Q: {{ event.queuing_number or 'N/A' }}</div>
+                                <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
+                            </div>
                         </div>
                         <div class="event-card-info">
                             <div class="info-row">
@@ -745,6 +743,9 @@
                                 <i class="fas fa-clock"></i>
                                 <span>{{ event.start_time }} - {{ event.end_time }}</span>
                             </div>
+                        </div>
+                        <div class="event-card-id">
+                            <i class="fas fa-id-card"></i> ID / Contact: <strong>{{ event.contact_number or event.email or 'N/A' }}</strong>
                         </div>
                         {% if event.admin_remarks %}
                         <div class="event-card-remarks">
@@ -766,46 +767,50 @@
 
     </div>
 
-    <!-- CANCELLED SECTION (full-width) — GRAY -->
-    <div style="margin-top: 24px;">
-        <div class="split-card cancelled">
-            <div class="split-header">
-                <h2><i class="fas fa-ban"></i> Cancelled Events</h2>
-                <span class="split-count">{{ cancelled_events|length }}</span>
-            </div>
+    <!-- CANCELLED SECTION -->
+    <div class="split-card cancelled">
+        <div class="split-header">
+            <h2><i class="fas fa-ban"></i> Cancelled Events</h2>
+            <span class="split-count">{{ cancelled_events|length }}</span>
+        </div>
 
-            <div class="event-list" style="max-height: 500px;">
-                {% if cancelled_events %}
-                    {% for event in cancelled_events %}
-                    <div class="event-card" data-event-id="{{ event.id }}" data-status="cancelled">
-                        <div class="event-card-header">
-                            <div class="event-card-title">{{ event.event_name }}</div>
+        <div class="event-list">
+            {% if cancelled_events %}
+                {% for event in cancelled_events %}
+                <div class="event-card" data-event-id="{{ event.id }}" data-status="cancelled">
+                    <div class="event-card-header">
+                        <div class="event-card-title">{{ event.event_name }}</div>
+                        <div class="event-card-ref-group">
+                            <div class="event-card-queue">Q: {{ event.queuing_number or 'N/A' }}</div>
                             <div class="event-card-ref">{{ event.reference_number or 'N/A' }}</div>
                         </div>
-                        <div class="event-card-info">
-                            <div class="info-row">
-                                <i class="fas fa-user"></i>
-                                <span>{{ event.first_name }} {{ event.last_name }}</span>
-                            </div>
-                            <div class="info-row">
-                                <i class="fas fa-calendar-day"></i>
-                                <span>{{ event.event_date }}</span>
-                            </div>
-                            <div class="info-row">
-                                <i class="fas fa-clock"></i>
-                                <span>{{ event.start_time }} - {{ event.end_time }}</span>
-                            </div>
+                    </div>
+                    <div class="event-card-info">
+                        <div class="info-row">
+                            <i class="fas fa-user"></i>
+                            <span>{{ event.first_name }} {{ event.last_name }}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>{{ event.event_date }}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ event.start_time }} - {{ event.end_time }}</span>
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <h3>No Cancelled Events</h3>
-                        <p>Cancelled events will appear here.</p>
+                    <div class="event-card-id">
+                        <i class="fas fa-id-card"></i> ID / Contact: <strong>{{ event.contact_number or event.email or 'N/A' }}</strong>
                     </div>
-                {% endif %}
-            </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Cancelled Events</h3>
+                    <p>Cancelled events will appear here.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -847,6 +852,14 @@
                 <i class="fas fa-calendar-alt"></i> Event Information
             </div>
 
+            <div class="detail-row">
+                <div class="label">Queue Number</div>
+                <div class="value" id="queueDisplay">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">ID / Contact</div>
+                <div class="value" id="idContactDisplay">-</div>
+            </div>
             <div class="detail-row">
                 <div class="label">Event Name</div>
                 <div class="value strong" id="eventNameDisplay">-</div>
@@ -903,7 +916,7 @@
             <h3><i class="fas fa-file-alt"></i> Uploaded Requirement</h3>
             <button class="modal-close" onclick="closeFileViewer()"><i class="fas fa-times"></i></button>
         </div>
-        <div style="padding: 24px;">
+        <div style="padding: 24px; overflow-y: auto;">
             <div class="file-preview-container" id="filePreviewContainer">
                 <p>Loading file...</p>
             </div>
@@ -945,12 +958,6 @@
         setInterval(updateBellBadge, 30000);
     });
 
-    const observer = new MutationObserver(function() {
-        localStorage.setItem('sidebarExpanded',
-            document.getElementById('sidebar').classList.contains('expanded'));
-    });
-    observer.observe(document.getElementById('sidebar'), { attributes: true, attributeFilter: ['class'] });
-
     // ===== PROFILE DROPDOWN =====
     function toggleProfile() {
         var dd = document.getElementById('profileDropdown');
@@ -986,7 +993,7 @@
                 var html = '';
                 data.announcements.forEach(function(a) {
                     var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                    var isUnread = (a.is_read === 0 || a.is_read === false || a.is_read === null || a.is_read === undefined);
+                    var isUnread = !a.is_read;
                     var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
                     html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
                         '<div class="bell-item-title">' + escapeHtmlBell(a.title || 'Untitled') + '</div>' +
@@ -1123,6 +1130,10 @@
         if (event.email) contactHtml += '<span><i class="fas fa-envelope ' + contactClass + '"></i> ' + event.email + '</span>';
         if (event.contact_number) contactHtml += '<span><i class="fas fa-phone ' + contactClass + '"></i> ' + event.contact_number + '</span>';
         document.getElementById('applicantContact').innerHTML = contactHtml || '<span>No contact info</span>';
+
+        // ✅ Queue Number & ID / Contact
+        document.getElementById('queueDisplay').textContent = event.queuing_number || 'N/A';
+        document.getElementById('idContactDisplay').textContent = event.contact_number || event.email || 'N/A';
 
         document.getElementById('eventNameDisplay').textContent = event.event_name || 'N/A';
         document.getElementById('eventDateDisplay').textContent = formatDate(event.event_date);

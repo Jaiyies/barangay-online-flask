@@ -505,6 +505,67 @@
             font-size: 11px; border-top: 1px solid #eef2f0;
         }
 
+        /* ===== MODAL CSS (TULAD NG COURT 1 & 2) ===== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(13, 43, 30, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 9999; display: none;
+            align-items: center; justify-content: center;
+            padding: 20px; animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.open { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-box {
+            background: white; border-radius: 24px;
+            max-width: 780px; width: 100%; max-height: 90vh;
+            overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header {
+            background: linear-gradient(135deg, #0d2b1e, #1a5d3a);
+            color: white; padding: 22px 28px; display: flex;
+            justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .modal-header h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; margin: 0; }
+        .modal-close {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+            color: white; width: 34px; height: 34px; border-radius: 50%;
+            cursor: pointer; font-size: 16px; display: flex;
+            align-items: center; justify-content: center; transition: all 0.2s ease;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+        .modal-body { padding: 28px; overflow-y: auto; flex: 1; }
+        .modal-body::-webkit-scrollbar { width: 6px; }
+        .modal-body::-webkit-scrollbar-track { background: #f0f2f5; border-radius: 10px; }
+        .modal-body::-webkit-scrollbar-thumb { background: #1a5d3a; border-radius: 10px; }
+
+        .detail-section { background: #f8fafc; border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; border: 1px solid #eef2f0; }
+        .detail-section-title { font-size: 12px; font-weight: 700; color: #1a5d3a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
+        .detail-item { font-size: 13px; color: #334155; }
+        .detail-item .label { color: #8a9a8f; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 2px; }
+        .detail-item .value { color: #0d2b1e; font-weight: 600; word-break: break-word; }
+        .detail-item.full-width { grid-column: 1 / -1; }
+
+        .status-badge-modal { display: inline-block; padding: 4px 14px; border-radius: 40px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .status-pending-modal { background: #fff4e0; color: #b76e00; }
+        .status-approved-modal { background: #dcfce7; color: #166534; }
+        .status-rejected-modal { background: #fee2e2; color: #991b1b; }
+        .status-cancelled-modal { background: #f1f5f9; color: #475569; }
+
+        .modal-loading { text-align: center; padding: 40px; color: #8a9a8f; }
+        .modal-loading i { font-size: 32px; margin-bottom: 12px; display: block; }
+
+        .modal-footer { padding: 16px 28px; background: #f8fafc; border-top: 1px solid #eef2f0; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+        .modal-footer button { padding: 9px 22px; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.2s ease; }
+        .btn-secondary { background: #eef2f0; color: #5a6e7a; }
+        .btn-secondary:hover { background: #dde5e1; }
+        .btn-primary { background: #0d2b1e; color: white; }
+        .btn-primary:hover { background: #1a5d3a; }
+
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .charts-row { grid-template-columns: 1fr; }
@@ -528,6 +589,9 @@
             .court-banner-text h2 { font-size: 24px; }
             .court-banner-text p { font-size: 14px; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
+            .detail-grid { grid-template-columns: 1fr; }
+            .modal-box { max-height: 95vh; }
+            .modal-header, .modal-body, .modal-footer { padding: 18px; }
         }
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
@@ -622,6 +686,23 @@
 </nav>
 
 <div class="main-with-sidebar">
+
+    <!-- ✅ TEMP PASSWORD WARNING BANNER (TULAD NG COURT 1 & 2) -->
+    {% if session.temp_password %}
+    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 16px rgba(245,158,11,0.15);">
+        <div style="width: 44px; height: 44px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <i class="fas fa-exclamation-triangle" style="color: #d97706; font-size: 22px;"></i>
+        </div>
+        <div style="flex: 1;">
+            <strong style="color: #92400e; font-size: 15px; display: block; margin-bottom: 3px;">Temporary Password Detected</strong>
+            <p style="margin: 0; color: #78350f; font-size: 13px; line-height: 1.5;">
+                Your password is temporary. Please request a password change from the Head Admin on the
+                <a href="{{ url_for('secondary_admin_settings') }}" style="color: #92400e; font-weight: 700; text-decoration: underline;">Settings page</a>.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="big-card">
 
         <div class="court-banner">
@@ -725,9 +806,10 @@
                                 <td>{{ event.event_date or 'N/A' }}</td>
                                 <td><span class="status-badge status-pending">Pending</span></td>
                                 <td>
-                                    <a href="{{ url_for('court3_pending') }}" class="btn-view">
+                                    <!-- ✅ REVIEW BUTTON — NAGBUBUKAS NG MODAL -->
+                                    <button type="button" class="btn-view" data-event-id="{{ event.id }}" onclick="openEventModal(this.dataset.eventId)">
                                         <i class="fas fa-eye"></i> Review
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -749,6 +831,30 @@
 
     <div class="footer">
         <p>© 2025 Barangay Sto. Nino, Paranaque City | Court 3 Dashboard</p>
+    </div>
+</div>
+
+<!-- ===== MODAL DETAILS (TULAD NG COURT 1 & 2) ===== -->
+<div class="modal-overlay" id="eventModal" onclick="closeEventModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="fas fa-calendar-alt"></i> Event Details</h3>
+            <button type="button" class="modal-close" onclick="closeEventModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <div class="modal-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading details...
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeEventModal()">Close</button>
+            <button type="button" class="btn-primary" onclick="goToPending()">
+                <i class="fas fa-external-link-alt"></i> Go to Pending Events
+            </button>
+        </div>
     </div>
 </div>
 
@@ -935,6 +1041,127 @@
             maintainAspectRatio: true,
             scales: { y: { beginAtZero: true, grid: { display: false } } },
             plugins: { legend: { display: false } }
+        }
+    });
+
+    // ===== MODAL FOR EVENT DETAILS (TULAD NG COURT 1 & 2) =====
+    let currentEventId = null;
+
+    function openEventModal(eventId) {
+        currentEventId = eventId;
+        const modal = document.getElementById('eventModal');
+        const body = document.getElementById('modalBody');
+        modal.classList.add('open');
+        body.innerHTML = '<div class="modal-loading"><i class="fas fa-spinner fa-spin"></i>Loading details...</div>';
+
+        // Gagamitin ang /api/events/<id> route para sa Court Admin
+        fetch('/api/events/' + eventId)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch');
+                return res.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    body.innerHTML = `<div class="modal-loading"><i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i>${data.error}</div>`;
+                    return;
+                }
+                body.innerHTML = buildModalContent(data.event);
+            })
+            .catch(err => {
+                console.error('Modal fetch error:', err);
+                body.innerHTML = '<div class="modal-loading"><i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i>Failed to load details. Please try again.</div>';
+            });
+    }
+
+    function buildModalContent(event) {
+        const statusMap = {
+            'pending': { cls: 'status-pending-modal', text: 'PENDING' },
+            'approved': { cls: 'status-approved-modal', text: 'APPROVED' },
+            'rejected': { cls: 'status-rejected-modal', text: 'REJECTED' },
+            'cancelled': { cls: 'status-cancelled-modal', text: 'CANCELLED' }
+        };
+        const st = statusMap[event.status] || { cls: 'status-pending-modal', text: (event.status || '').toUpperCase() };
+
+        function esc(v) {
+            if (v === null || v === undefined || v === '') return '<span style="color:#cbd5e1;">—</span>';
+            const d = document.createElement('div');
+            d.textContent = String(v);
+            return d.innerHTML;
+        }
+
+        // ===== REQUEST INFO =====
+        let requestHtml = `
+            <div class="detail-section">
+                <div class="detail-section-title"><i class="fas fa-info-circle"></i> Permit Information</div>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="label">Reference No.</span><span class="value">${esc(event.reference_number)}</span></div>
+                    <div class="detail-item"><span class="label">Queue No.</span><span class="value">${esc(event.queuing_number)}</span></div>
+                    <div class="detail-item"><span class="label">Status</span><span class="value"><span class="status-badge-modal ${st.cls}">${st.text}</span></span></div>
+                    <div class="detail-item"><span class="label">Date Submitted</span><span class="value">${esc(event.requested_at)}</span></div>
+                    <div class="detail-item full-width"><span class="label">Applicant</span><span class="value">${esc(event.first_name)} ${esc(event.last_name)}</span></div>
+                </div>
+            </div>
+        `;
+
+        // ===== EVENT INFO =====
+        let eventHtml = `
+            <div class="detail-section">
+                <div class="detail-section-title"><i class="fas fa-calendar-alt"></i> Event Information</div>
+                <div class="detail-grid">
+                    <div class="detail-item full-width"><span class="label">Event Name</span><span class="value">${esc(event.event_name)}</span></div>
+                    <div class="detail-item"><span class="label">Event Date</span><span class="value">${esc(event.event_date)}</span></div>
+                    <div class="detail-item"><span class="label">Venue</span><span class="value">${esc(event.venue)}</span></div>
+                    <div class="detail-item"><span class="label">Start Time</span><span class="value">${esc(event.start_time)}</span></div>
+                    <div class="detail-item"><span class="label">End Time</span><span class="value">${esc(event.end_time)}</span></div>
+                    <div class="detail-item"><span class="label">Estimated Attendees</span><span class="value">${esc(event.estimated_attendees)}</span></div>
+                    <div class="detail-item full-width"><span class="label">Description</span><span class="value">${esc(event.event_description)}</span></div>
+                    <div class="detail-item full-width"><span class="label">Purpose</span><span class="value">${esc(event.purpose)}</span></div>
+                </div>
+            </div>
+        `;
+
+        // ===== CONTACT PERSON =====
+        let contactHtml = `
+            <div class="detail-section">
+                <div class="detail-section-title"><i class="fas fa-address-book"></i> Contact Person</div>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="label">Name</span><span class="value">${esc(event.contact_person)}</span></div>
+                    <div class="detail-item"><span class="label">Phone No.</span><span class="value">${esc(event.contact_phone)}</span></div>
+                </div>
+            </div>
+        `;
+
+        // ===== ADMIN REMARKS =====
+        let remarksHtml = '';
+        if (event.admin_remarks) {
+            remarksHtml = `
+                <div class="detail-section" style="background:#fffbeb;border-color:#fde68a;">
+                    <div class="detail-section-title" style="color:#b45309;"><i class="fas fa-comment-dots"></i> Admin Remarks</div>
+                    <p style="font-size:13px;color:#78350f;line-height:1.6;margin:0;">${esc(event.admin_remarks)}</p>
+                </div>
+            `;
+        }
+
+        return requestHtml + eventHtml + contactHtml + remarksHtml;
+    }
+
+    function closeEventModal(event) {
+        if (event && event.target !== event.currentTarget) return;
+        document.getElementById('eventModal').classList.remove('open');
+        currentEventId = null;
+    }
+
+    function goToPending() {
+        window.location.href = '{{ url_for("court3_pending") }}';
+    }
+
+    // Close modal with ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('eventModal');
+            if (modal.classList.contains('open')) {
+                modal.classList.remove('open');
+            }
         }
     });
 </script>

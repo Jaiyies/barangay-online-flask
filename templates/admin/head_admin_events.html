@@ -28,21 +28,13 @@
             from { opacity: 0; transform: scale(0.9) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes modalFadeOut {
-            from { opacity: 1; transform: scale(1) translateY(0); }
-            to { opacity: 0; transform: scale(0.9) translateY(20px); }
-        }
         @keyframes rowSlideIn {
             from { opacity: 0; transform: translateX(-15px); }
             to { opacity: 1; transform: translateX(0); }
         }
         @keyframes pulse-dot {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
         }
 
         /* ===== SIDEBAR ===== */
@@ -250,26 +242,15 @@
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
 
-        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
+        /* ===== RED DOT ===== */
         .bell-item.unread::before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dc3545;
+            content: ""; position: absolute; left: 6px; top: 50%;
+            transform: translateY(-50%); width: 8px; height: 8px;
+            border-radius: 50%; background: #dc3545;
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
-        .bell-item.unread {
-            padding-left: 22px;
-        }
-        .bell-item.unread .bell-item-title {
-            font-weight: 700;
-            color: #0d2b1e;
-        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
 
         /* ===== PROFILE DROPDOWN ===== */
         .profile-dropdown { position: relative; }
@@ -332,10 +313,10 @@
         }
         body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
 
-        /* ===== STATS CARDS (PROFESSIONAL CLEAN) ===== */
+        /* ===== STATS CARDS (5 COLUMNS) ===== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 16px;
             margin-bottom: 20px;
         }
@@ -385,11 +366,11 @@
             font-size: 22px;
             flex-shrink: 0;
         }
-        /* Neutral icon backgrounds, colored icons */
         .stat-card.total .stat-icon { background: #f0f4f8; color: #1a5d3a; }
         .stat-card.pending .stat-icon { background: #f0f4f8; color: #d97706; }
         .stat-card.approved .stat-icon { background: #f0f4f8; color: #059669; }
         .stat-card.rejected .stat-icon { background: #f0f4f8; color: #dc3545; }
+        .stat-card.cancelled .stat-icon { background: #f0f4f8; color: #64748b; } /* Bagong kulay para sa cancelled */
 
         /* ===== BIG CARD ===== */
         .big-card {
@@ -564,6 +545,7 @@
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-approved { background: #d1fae5; color: #065f46; }
         .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-cancelled { background: #f1f5f9; color: #475569; } /* Bagong style */
 
         /* ===== BUTTONS ===== */
         .btn-view-details {
@@ -674,8 +656,8 @@
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 992px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 768px) {
             .sidebar-custom { width: 70px; padding: 16px 10px; }
@@ -692,12 +674,13 @@
             .filter-left { width: 100%; }
             .filter-left select, .filter-left input { width: 100%; }
             .filter-right { width: 100%; justify-content: space-between; }
-            .stats-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
             .view-grid { grid-template-columns: 1fr; gap: 12px; }
             .modal-box { padding: 20px; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
         }
         @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
             .big-card { padding: 16px; }
             .btn-view-details { font-size: 10px; padding: 5px 10px; }
             .navbar-left .page-title { font-size: 13px; }
@@ -742,7 +725,6 @@
         </div>
     </div>
     <div class="navbar-right">
-
         <!-- NOTIFICATION BELL -->
         <div class="notification-bell-wrap">
             <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)">
@@ -847,6 +829,17 @@
                 </div>
             </div>
         </div>
+        <div class="stat-card cancelled">
+            <div class="stat-card-inner">
+                <div class="stat-info">
+                    <div class="stat-label">Cancelled</div>
+                    <div class="stat-value">{{ cancelled_count or 0 }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ===== EVENTS TABLE CARD ===== -->
@@ -860,6 +853,7 @@
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
+                    <option value="cancelled">Cancelled</option>
                     <option value="completed">Completed</option>
                 </select>
                 <select id="venueFilter" onchange="filterTable()">
@@ -919,7 +913,8 @@
                             <span class="status-badge 
                                 {% if event.status == 'pending' %}status-pending
                                 {% elif event.status == 'approved' %}status-approved
-                                {% else %}status-rejected{% endif %}">
+                                {% elif event.status == 'rejected' %}status-rejected
+                                {% else %}status-cancelled{% endif %}">
                                 {{ event.status|upper }}
                             </span>
                         </td>
@@ -1261,6 +1256,8 @@
                 statusBg = '#d1fae5'; statusColor = '#065f46';
             } else if (statusUpper.includes('REJECTED')) {
                 statusBg = '#fee2e2'; statusColor = '#991b1b';
+            } else if (statusUpper.includes('CANCELLED')) {
+                statusBg = '#f1f5f9'; statusColor = '#475569';
             }
 
             const rowBg = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
@@ -1411,6 +1408,7 @@
                 let statusClass = 'status-pending';
                 if (event.status === 'approved') statusClass = 'status-approved';
                 else if (event.status === 'rejected') statusClass = 'status-rejected';
+                else if (event.status === 'cancelled') statusClass = 'status-cancelled';
 
                 body.innerHTML = `
                     <div class="view-grid">

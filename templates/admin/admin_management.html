@@ -210,33 +210,18 @@
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
 
-        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
+        /* ===== RED DOT ===== */
         .bell-item.unread::before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dc3545;
+            content: ""; position: absolute; left: 6px; top: 50%;
+            transform: translateY(-50%); width: 8px; height: 8px;
+            border-radius: 50%; background: #dc3545;
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
-        .bell-item.unread {
-            padding-left: 22px;
-        }
-        .bell-item.unread .bell-item-title {
-            font-weight: 700;
-            color: #0d2b1e;
-        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
         @keyframes pulse-dot {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
         }
 
         /* ===== PROFILE DROPDOWN ===== */
@@ -302,82 +287,47 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
-        .big-card.inactive-card {
-            padding: 40px 34px 60px;
-        }
+        .big-card.inactive-card { padding: 40px 34px 60px; }
 
         /* ===== TOP ACTIONS ===== */
         .top-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
         }
         .search-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f8fafc;
-            padding: 4px 4px 4px 18px;
-            border-radius: 50px;
-            border: 1.5px solid #d4f0df;
+            display: flex; align-items: center; gap: 10px;
+            background: #f8fafc; padding: 4px 4px 4px 18px;
+            border-radius: 50px; border: 1.5px solid #d4f0df;
             box-shadow: 0 0 0 3px rgba(107,196,142,0.08);
-            transition: all 0.25s ease;
-            flex: 1;
-            max-width: 480px;
+            transition: all 0.25s ease; flex: 1; max-width: 480px;
         }
         .search-box:focus-within {
-            border-color: #1a5d3a;
-            box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
+            border-color: #1a5d3a; box-shadow: 0 0 0 4px rgba(107,196,142,0.18);
             background: white;
         }
         .search-box i { color: #8a9a8f; font-size: 14px; }
         .search-box input {
-            border: none;
-            padding: 10px 0;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            flex: 1;
-            background: transparent;
-            color: #0d2b1e;
+            border: none; padding: 10px 0; font-size: 14px;
+            font-family: 'Inter', sans-serif; outline: none;
+            flex: 1; background: transparent; color: #0d2b1e;
         }
         .search-box input::placeholder { color: #a8bdb2; }
         .search-box button {
-            background: #1a5d3a;
-            color: white;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background: #1a5d3a; color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; cursor: pointer;
+            font-weight: 600; font-size: 13px; transition: all 0.25s ease;
+            display: flex; align-items: center; gap: 8px;
         }
         .search-box button:hover {
-            background: #0d2b1e;
-            transform: translateY(-2px);
+            background: #0d2b1e; transform: translateY(-2px);
         }
         .btn-primary {
             background: linear-gradient(135deg, #1a5d3a 0%, #2a7a52 100%);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.25s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 16px rgba(26,107,66,0.25);
-            flex-shrink: 0;
+            color: white; border: none; padding: 12px 28px;
+            border-radius: 50px; cursor: pointer; font-weight: 600;
+            font-size: 14px; transition: all 0.25s ease;
+            display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 16px rgba(26,107,66,0.25); flex-shrink: 0;
         }
         .btn-primary:hover {
             transform: translateY(-2px);
@@ -386,39 +336,24 @@
 
         /* ===== TABLE ===== */
         .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
         }
         .table-header h3 {
-            color: #0d2b1e;
-            font-size: 16px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            color: #0d2b1e; font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
         }
         .table-header h3 i { color: #1a5d3a; }
         .table-header h3 span {
-            background: #1a5d3a;
-            color: white;
-            font-size: 12px;
-            padding: 4px 14px;
-            border-radius: 50px;
-            font-weight: 700;
+            background: #1a5d3a; color: white; font-size: 12px;
+            padding: 4px 14px; border-radius: 50px; font-weight: 700;
         }
         .table-header.inactive h3 i { color: #dc3545; }
         .table-header.inactive h3 span { background: #dc3545; }
 
         .table-container {
-            overflow-x: auto;
-            max-height: 520px;
-            overflow-y: auto;
-            border-radius: 14px;
-            border: 1px solid #eef2f0;
+            overflow-x: auto; max-height: 520px; overflow-y: auto;
+            border-radius: 14px; border: 1px solid #eef2f0;
         }
         .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
         .table-container::-webkit-scrollbar-track { background: #f0f2f5; border-radius: 10px; }
@@ -426,32 +361,19 @@
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f0f3f2; vertical-align: middle; }
         th {
-            background: #f8fafc;
-            color: #5a6e7a;
-            font-weight: 700;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-bottom: 2px solid #eef2f0;
+            background: #f8fafc; color: #5a6e7a; font-weight: 700;
+            font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;
+            position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #eef2f0;
         }
         tbody tr:hover { background: #f9fafb; }
 
-        .inactive-table th {
-            background: #fef2f2;
-            color: #991b1b;
-        }
+        .inactive-table th { background: #fef2f2; color: #991b1b; }
         .inactive-table tbody tr:hover { background: #fff5f5; }
 
         /* ===== ROLE BADGES ===== */
         .role-badge-small {
-            padding: 4px 14px;
-            border-radius: 40px;
-            font-size: 11px;
-            font-weight: 700;
-            display: inline-block;
+            padding: 4px 14px; border-radius: 40px;
+            font-size: 11px; font-weight: 700; display: inline-block;
         }
         .role-head-admin { background: #0d2b1e; color: white; }
         .role-court-1 { background: #1a5d3a; color: white; }
@@ -462,34 +384,21 @@
         .role-resident { background: #f0f2f5; color: #5a6e7a; }
 
         .status-badge {
-            padding: 4px 14px;
-            border-radius: 40px;
-            font-size: 11px;
-            font-weight: 700;
-            display: inline-block;
+            padding: 4px 14px; border-radius: 40px;
+            font-size: 11px; font-weight: 700; display: inline-block;
         }
         .status-active { background: #d1fae5; color: #065f46; }
         .status-blocked { background: #fee2e2; color: #991b1b; }
 
         /* ===== ACTION BUTTONS ===== */
         .action-cell {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 6px;
-            align-items: center;
+            display: flex; flex-wrap: nowrap; gap: 6px; align-items: center;
         }
         .btn-action {
-            border: none;
-            padding: 7px 14px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            white-space: nowrap;
+            border: none; padding: 7px 14px; border-radius: 30px;
+            cursor: pointer; font-size: 11px; font-weight: 600;
+            transition: all 0.2s ease; display: inline-flex;
+            align-items: center; gap: 5px; white-space: nowrap;
         }
         .btn-action:hover { transform: translateY(-2px); }
         .btn-view { background: #0d2b1e; color: white; }
@@ -497,95 +406,52 @@
 
         /* ===== ROLE SELECT ===== */
         .role-select {
-            padding: 7px 30px 7px 14px;
-            border-radius: 30px;
-            border: 2px solid #eef2f0;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: inherit;
-            background: white;
-            color: #0d2b1e;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            outline: none;
-            appearance: none;
+            padding: 7px 30px 7px 14px; border-radius: 30px;
+            border: 2px solid #eef2f0; font-size: 11px;
+            font-weight: 600; font-family: inherit; background: white;
+            color: #0d2b1e; cursor: pointer; transition: all 0.25s ease;
+            outline: none; appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6e7a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 12px;
+            background-position: right 10px center; background-size: 12px;
         }
         .role-select:hover { border-color: #1a5d3a; background-color: #f4f8f5; }
 
-        /* ===== ACTIONS DROPDOWN (FIXED POSITION) ===== */
-        .actions-dropdown {
-            position: relative;
-            display: inline-block;
-        }
+        /* ===== ACTIONS DROPDOWN ===== */
+        .actions-dropdown { position: relative; display: inline-block; }
         .actions-trigger {
-            background: #f4f8f5;
-            border: 2px solid #eef2f0;
-            color: #0d2b1e;
-            padding: 7px 14px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            white-space: nowrap;
+            background: #f4f8f5; border: 2px solid #eef2f0;
+            color: #0d2b1e; padding: 7px 14px; border-radius: 30px;
+            font-size: 11px; font-weight: 600; font-family: inherit;
+            cursor: pointer; display: inline-flex; align-items: center;
+            gap: 6px; transition: all 0.2s ease; white-space: nowrap;
         }
-        .actions-trigger:hover {
-            background: #eef8f2;
-            border-color: #d4f0df;
-        }
+        .actions-trigger:hover { background: #eef8f2; border-color: #d4f0df; }
         .actions-trigger i.fa-chevron-down {
-            font-size: 9px;
-            transition: transform 0.2s ease;
+            font-size: 9px; transition: transform 0.2s ease;
         }
         .actions-dropdown.open .actions-trigger i.fa-chevron-down {
             transform: rotate(180deg);
         }
         .actions-menu {
-            position: fixed;
-            background: white;
-            border-radius: 12px;
-            border: 1px solid #eef2f0;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            min-width: 190px;
-            padding: 6px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px);
+            position: fixed; background: white; border-radius: 12px;
+            border: 1px solid #eef2f0; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 190px; padding: 6px;
+            opacity: 0; visibility: hidden; transform: translateY(-8px);
             transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-            z-index: 99999;
-            pointer-events: none;
+            z-index: 99999; pointer-events: none;
         }
         .actions-dropdown.open .actions-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-            pointer-events: auto;
+            opacity: 1; visibility: visible;
+            transform: translateY(0); pointer-events: auto;
         }
         .actions-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            color: #0d2b1e;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-family: inherit;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; color: #0d2b1e; text-decoration: none;
+            font-size: 12px; font-weight: 600; border-radius: 8px;
+            cursor: pointer; transition: all 0.15s ease;
+            border: none; background: none; width: 100%;
+            text-align: left; font-family: inherit;
         }
         .actions-menu-item:hover { background: #f4f8f5; }
         .actions-menu-item.warning { color: #d97706; }
@@ -594,64 +460,37 @@
         .actions-menu-item.success:hover { background: #f0fdf4; }
         .actions-menu-item.danger { color: #dc3545; }
         .actions-menu-item.danger:hover { background: #fef2f2; }
-        .actions-menu-item i {
-            width: 16px;
-            font-size: 12px;
-        }
-        .actions-menu-divider {
-            height: 1px;
-            background: #f0f3f2;
-            margin: 4px 0;
-        }
+        .actions-menu-item.primary { color: #2563eb; }
+        .actions-menu-item.primary:hover { background: #eff6ff; }
+        .actions-menu-item i { width: 16px; font-size: 12px; }
+        .actions-menu-divider { height: 1px; background: #f0f3f2; margin: 4px 0; }
 
         .protected-text {
-            font-size: 11px;
-            color: #8a9a8f;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 7px 12px;
-            background: #f4f8f5;
-            border-radius: 30px;
-            white-space: nowrap;
+            font-size: 11px; color: #8a9a8f; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 7px 12px; background: #f4f8f5;
+            border-radius: 30px; white-space: nowrap;
         }
         .protected-text i { color: #1a5d3a; }
-        .protected-text.crown i { color: #f59e0b; }
 
         .footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 20px;
-            color: #8a9a8f;
-            font-size: 11px;
+            text-align: center; padding: 20px; margin-top: 20px;
+            color: #8a9a8f; font-size: 11px;
         }
 
         /* ===== MODAL ===== */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(6px);
-            z-index: 99999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.25s ease;
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px); z-index: 99999;
+            justify-content: center; align-items: center;
+            padding: 20px; opacity: 0; transition: opacity 0.25s ease;
         }
         .modal.active { display: flex; opacity: 1; }
         .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 32px;
-            width: 100%;
-            max-width: 480px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalFadeIn 0.3s ease;
+            background: white; border-radius: 20px; padding: 32px;
+            width: 100%; max-width: 480px; max-height: 90vh;
+            overflow-y: auto; animation: modalFadeIn 0.3s ease;
             box-shadow: 0 25px 70px rgba(0,0,0,0.25);
         }
         .modal-content.large { max-width: 680px; }
@@ -660,157 +499,119 @@
             to { opacity: 1; transform: scale(1); }
         }
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; padding-bottom: 16px;
             border-bottom: 2px solid #f0f2f5;
         }
         .modal-header h3 {
-            color: #0d2b1e;
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            color: #0d2b1e; font-size: 20px; font-weight: 700;
+            display: flex; align-items: center; gap: 12px;
         }
         .modal-header h3 i { color: #1a5d3a; }
         .close-modal {
-            font-size: 22px;
-            cursor: pointer;
-            color: #999;
-            background: none;
-            border: none;
-            transition: all 0.25s ease;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 22px; cursor: pointer; color: #999;
+            background: none; border: none; transition: all 0.25s ease;
+            width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             line-height: 1;
         }
         .close-modal:hover {
-            color: #dc3545;
-            background: #fef2f2;
-            transform: rotate(90deg);
+            color: #dc3545; background: #fef2f2; transform: rotate(90deg);
         }
         .modal-body .form-group { margin-bottom: 16px; }
         .modal-body label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #0d2b1e;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            display: block; font-size: 12px; font-weight: 600;
+            color: #0d2b1e; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 6px;
         }
         .modal-body label i { color: #1a5d3a; margin-right: 8px; width: 16px; }
         .modal-body input, .modal-body select {
-            width: 100%;
-            padding: 11px 16px;
-            border: 2px solid #eef2f0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            outline: none;
-            transition: all 0.25s ease;
+            width: 100%; padding: 11px 16px; border: 2px solid #eef2f0;
+            border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif;
+            background: #f8fafc; outline: none; transition: all 0.25s ease;
             color: #0d2b1e;
         }
         .modal-body input:focus, .modal-body select:focus {
-            border-color: #1a5d3a;
-            background: white;
+            border-color: #1a5d3a; background: white;
             box-shadow: 0 0 0 3px rgba(26,107,66,0.1);
         }
         .view-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px 28px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px;
         }
         .view-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f3f2;
+            display: flex; flex-direction: column; gap: 4px;
+            padding: 12px 0; border-bottom: 1px solid #f0f3f2;
         }
         .view-item .label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #8a9a8f;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 11px; font-weight: 600; color: #8a9a8f;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
         .view-item .value {
-            font-size: 15px;
-            font-weight: 500;
-            color: #0d2b1e;
+            font-size: 15px; font-weight: 500; color: #0d2b1e;
         }
         .view-item.full-width { grid-column: 1 / -1; }
         .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            justify-content: flex-end;
+            display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;
         }
         .modal-btn {
-            padding: 11px 32px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
+            padding: 11px 32px; border: none; border-radius: 10px;
+            cursor: pointer; font-weight: 600; font-size: 14px;
             transition: all 0.25s ease;
         }
         .modal-btn.submit { background: #1a5d3a; color: white; }
         .modal-btn.submit:hover { background: #0d2b1e; transform: translateY(-2px); }
         .modal-btn.cancel { background: #f0f2f5; color: #5a6e7a; }
         .modal-btn.cancel:hover { background: #e2e6ea; transform: translateY(-2px); }
+        
+        /* OTP INPUT */
+        .otp-input-group {
+            display: flex; gap: 10px;
+            align-items: center; margin-bottom: 16px;
+        }
+        .otp-input-group input {
+            flex: 1; padding: 11px 16px; border: 2px solid #eef2f0;
+            border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif;
+            background: #f8fafc; outline: none; transition: all 0.25s ease;
+        }
+        .otp-input-group input:focus {
+            border-color: #1a5d3a; background: white;
+            box-shadow: 0 0 0 3px rgba(26,107,66,0.1);
+        }
+        .otp-input-group button {
+            padding: 11px 20px; border: none; border-radius: 10px;
+            background: #2563eb; color: white; font-weight: 600;
+            font-size: 13px; cursor: pointer; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .otp-input-group button:hover { background: #1d4ed8; }
+        .otp-input-group button:disabled { background: #93c5fd; cursor: not-allowed; }
 
         .confirm-icon {
-            width: 70px; height: 70px;
-            border-radius: 50%;
+            width: 70px; height: 70px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 32px;
+            margin: 0 auto 16px; font-size: 32px;
         }
         .confirm-icon.warning { background: #fffbeb; color: #f59e0b; }
         .confirm-icon.success { background: #f0fdf4; color: #22c55e; }
         .confirm-icon.danger { background: #fef2f2; color: #dc3545; }
+        .confirm-icon.primary { background: #eff6ff; color: #2563eb; }
         .confirm-title {
-            text-align: center;
-            font-size: 20px;
-            font-weight: 700;
-            color: #0d2b1e;
-            margin-bottom: 8px;
+            text-align: center; font-size: 20px; font-weight: 700;
+            color: #0d2b1e; margin-bottom: 8px;
         }
         .confirm-message {
-            text-align: center;
-            font-size: 14px;
-            color: #6b7a72;
-            margin-bottom: 24px;
-            line-height: 1.6;
+            text-align: center; font-size: 14px; color: #6b7a72;
+            margin-bottom: 24px; line-height: 1.6;
         }
         .confirm-message strong { color: #0d2b1e; }
         .confirm-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
+            display: flex; gap: 12px; justify-content: center;
         }
         .confirm-btn {
-            padding: 11px 32px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.25s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 120px;
+            padding: 11px 32px; border: none; border-radius: 10px;
+            cursor: pointer; font-weight: 600; font-size: 14px;
+            transition: all 0.25s ease; display: inline-flex;
+            align-items: center; gap: 8px; min-width: 120px;
             justify-content: center;
         }
         .confirm-btn:hover { transform: translateY(-2px); }
@@ -821,21 +622,13 @@
 
         /* ===== TOAST ===== */
         .toast-notification {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: white;
-            border-radius: 12px;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
+            position: fixed; bottom: 30px; right: 30px;
+            background: white; border-radius: 12px; padding: 16px 24px;
+            display: flex; align-items: center; gap: 14px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            z-index: 999999;
-            transform: translateX(420px);
+            z-index: 999999; transform: translateX(420px);
             transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border-left: 4px solid;
-            max-width: 380px;
+            border-left: 4px solid; max-width: 380px;
         }
         .toast-notification.show { transform: translateX(0); }
         .toast-notification.success { border-left-color: #28a745; }
@@ -844,9 +637,7 @@
         .toast-notification.success i { color: #28a745; }
         .toast-notification.error i { color: #dc3545; }
         .toast-notification .toast-message {
-            font-size: 14px;
-            font-weight: 500;
-            color: #0d2b1e;
+            font-size: 14px; font-weight: 500; color: #0d2b1e;
             line-height: 1.4;
         }
 
@@ -873,6 +664,8 @@
             .modal-btn { width: 100%; justify-content: center; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
             .action-cell { flex-wrap: wrap; }
+            .otp-input-group { flex-direction: column; }
+            .otp-input-group button { width: 100%; }
         }
         @media (max-width: 480px) {
             .big-card { padding: 16px; }
@@ -1055,7 +848,26 @@
                                         <option value="admin_court_4">Court 4</option>
                                         <option value="admin_documents">Documents</option>
                                     </select>
-                                    <span class="protected-text crown"><i class="fas fa-crown"></i> Head Admin</span>
+                                    
+                                    <div class="actions-dropdown">
+                                        <button class="actions-trigger" onclick="toggleActions(event, 'actions-{{ admin.id }}')">
+                                            <i class="fas fa-ellipsis-v"></i> Actions
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                        <div class="actions-menu" id="actions-{{ admin.id }}">
+                                            <button class="actions-menu-item primary" onclick="openChangePassModal('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
+                                                <i class="fas fa-key"></i> Change Password
+                                            </button>
+                                            <div class="actions-menu-divider"></div>
+                                            <button class="actions-menu-item warning" onclick="confirmDeactivate('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
+                                                <i class="fas fa-user-slash"></i> Deactivate Admin
+                                            </button>
+                                            <div class="actions-menu-divider"></div>
+                                            <button class="actions-menu-item danger" onclick="confirmDeleteAdmin('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}', '{{ admin.email }}')">
+                                                <i class="fas fa-trash"></i> Delete Admin
+                                            </button>
+                                        </div>
+                                    </div>
 
                                 {% else %}
                                     <select class="role-select" onchange="changeRole('{{ admin.id }}', this.value, '{{ admin.first_name }} {{ admin.last_name }}')">
@@ -1073,6 +885,10 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </button>
                                         <div class="actions-menu" id="actions-{{ admin.id }}">
+                                            <button class="actions-menu-item primary" onclick="openChangePassModal('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
+                                                <i class="fas fa-key"></i> Change Password
+                                            </button>
+                                            <div class="actions-menu-divider"></div>
                                             <button class="actions-menu-item warning" onclick="confirmDeactivate('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
                                                 <i class="fas fa-user-slash"></i> Deactivate Admin
                                             </button>
@@ -1151,7 +967,25 @@
                                 </button>
 
                                 {% if admin.role == 'head_admin' %}
-                                    <span class="protected-text crown"><i class="fas fa-crown"></i> Head Admin</span>
+                                    <div class="actions-dropdown">
+                                        <button class="actions-trigger" onclick="toggleActions(event, 'actions-inactive-{{ admin.id }}')">
+                                            <i class="fas fa-ellipsis-v"></i> Actions
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                        <div class="actions-menu" id="actions-inactive-{{ admin.id }}">
+                                            <button class="actions-menu-item primary" onclick="openChangePassModal('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
+                                                <i class="fas fa-key"></i> Change Password
+                                            </button>
+                                            <div class="actions-menu-divider"></div>
+                                            <button class="actions-menu-item success" onclick="confirmActivate('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
+                                                <i class="fas fa-user-check"></i> Activate Admin
+                                            </button>
+                                            <div class="actions-menu-divider"></div>
+                                            <button class="actions-menu-item danger" onclick="confirmDeleteAdmin('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}', '{{ admin.email }}')">
+                                                <i class="fas fa-trash"></i> Delete Admin
+                                            </button>
+                                        </div>
+                                    </div>
                                 {% else %}
                                     <div class="actions-dropdown">
                                         <button class="actions-trigger" onclick="toggleActions(event, 'actions-inactive-{{ admin.id }}')">
@@ -1159,6 +993,10 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </button>
                                         <div class="actions-menu" id="actions-inactive-{{ admin.id }}">
+                                            <button class="actions-menu-item primary" onclick="openChangePassModal('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
+                                                <i class="fas fa-key"></i> Change Password
+                                            </button>
+                                            <div class="actions-menu-divider"></div>
                                             <button class="actions-menu-item success" onclick="confirmActivate('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}')">
                                                 <i class="fas fa-user-check"></i> Activate Admin
                                             </button>
@@ -1203,10 +1041,7 @@
                 <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
                 <input type="email" id="email" name="email" placeholder="admin@example.com" required>
             </div>
-            <div class="form-group">
-                <label for="password"><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter password" required>
-            </div>
+            
             <div class="form-group">
                 <label for="role"><i class="fas fa-user-tag"></i> Role</label>
                 <select id="role" name="role">
@@ -1220,7 +1055,7 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="modal-btn cancel" onclick="closeModal('createAdminModal')">Cancel</button>
-                <button type="submit" class="modal-btn submit"><i class="fas fa-plus-circle"></i> Create Admin</button>
+                <button type="submit" class="modal-btn submit"><i class="fas fa-paper-plane"></i> Send Invite</button>
             </div>
         </form>
     </div>
@@ -1263,8 +1098,42 @@
                 <span class="value" id="viewAddress">—</span>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- ===== CHANGE PASSWORD MODAL (WITH OTP) ===== -->
+<div id="changePassModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-key"></i> Change Admin Password</h3>
+            <button class="close-modal" onclick="closeModal('changePassModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-message" style="text-align:left; margin-bottom:16px;">
+                You are about to change the password for <strong id="changePassName"></strong>.
+            </div>
+            <div class="form-group">
+                <label for="newPassword"><i class="fas fa-lock"></i> New Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="newPassword" placeholder="Enter new password (min 8 chars)" style="padding-right: 40px;" oninput="checkPassInput()">
+                    <i class="fas fa-eye" onclick="togglePasswordVisibility('newPassword', this)" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #8a9a8f;"></i>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="otpCode"><i class="fas fa-shield-alt"></i> Verification Code</label>
+                <div class="otp-input-group">
+                    <input type="text" id="otpCode" placeholder="Enter 6-digit code" maxlength="6">
+                    <button type="button" id="sendOtpBtn" onclick="requestOtp()" disabled>Send Code</button>
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+                    <i class="fas fa-info-circle"></i> The verification code will be sent to your Head Admin email.
+                </div>
+            </div>
+        </div>
         <div class="modal-actions">
-            <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+            <button type="button" class="modal-btn cancel" onclick="closeModal('changePassModal')">Cancel</button>
+            <button type="button" id="submitPassBtn" class="modal-btn submit" onclick="submitNewPassword()" disabled><i class="fas fa-save"></i> Confirm Change</button>
         </div>
     </div>
 </div>
@@ -1347,6 +1216,7 @@
     let activeAdminId = null;
     let activeAction = null;
     let deleteAdminId = null;
+    let changePassAdminId = null;
 
     document.getElementById('adminCount').textContent = document.querySelectorAll('#adminTableBody tr').length;
     document.getElementById('inactiveCount').textContent = document.querySelectorAll('#inactiveTableBody tr').length;
@@ -1602,6 +1472,111 @@
                 openModal('viewModal');
             })
             .catch(error => showToast('Error loading admin details', 'error'));
+    }
+
+    // ===== CHANGE PASSWORD (WITH OTP) =====
+    function openChangePassModal(userId, name) {
+        changePassAdminId = userId;
+        document.getElementById('changePassName').textContent = name;
+        document.getElementById('newPassword').value = '';
+        document.getElementById('otpCode').value = '';
+        checkPassInput();
+        openModal('changePassModal');
+    }
+
+    function togglePasswordVisibility(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    function checkPassInput() {
+        const pass = document.getElementById('newPassword').value;
+        const btn = document.getElementById('sendOtpBtn');
+        if (pass.length >= 8) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+        checkOtpInput();
+    }
+
+    function checkOtpInput() {
+        const otp = document.getElementById('otpCode').value;
+        const btn = document.getElementById('submitPassBtn');
+        if (otp.length === 6) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+
+    document.getElementById('otpCode').addEventListener('input', checkOtpInput);
+
+    function requestOtp() {
+        if (!changePassAdminId) return;
+        const btn = document.getElementById('sendOtpBtn');
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
+        fetch(`/api/user/${changePassAdminId}/request-password-change`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (ok && data.success) {
+                showToast('Verification code sent to your email.', 'success');
+                btn.textContent = 'Sent!';
+                setTimeout(() => {
+                    btn.textContent = 'Resend Code';
+                    btn.disabled = false;
+                }, 5000);
+            } else {
+                showToast(data.error || 'Error requesting code', 'error');
+                btn.textContent = 'Send Code';
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            showToast('Error: ' + err, 'error');
+            btn.textContent = 'Send Code';
+            btn.disabled = false;
+        });
+    }
+
+    function submitNewPassword() {
+        const newPass = document.getElementById('newPassword').value;
+        const otp = document.getElementById('otpCode').value;
+        
+        if (!changePassAdminId) return;
+        
+        fetch(`/api/user/confirm-password-change`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                new_password: newPass,
+                otp_code: otp,
+                target_id: changePassAdminId
+            })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (ok && data.success) {
+                closeModal('changePassModal');
+                showToast('Password updated successfully', 'success');
+            } else {
+                showToast(data.error || 'Error updating password', 'error');
+            }
+        })
+        .catch(err => {
+            showToast('Error: ' + err, 'error');
+        });
     }
 
     // ===== ROLE CHANGE =====

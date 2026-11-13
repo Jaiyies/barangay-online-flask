@@ -316,13 +316,20 @@
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
         }
+        .filter-bar .filter-group {
+            display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        }
         .filter-bar select {
             padding: 10px 16px; border: 1.5px solid #eef2f0; border-radius: 12px;
             font-size: 13px; background: #f8f9fa; outline: none;
             font-family: inherit; transition: all 0.2s ease;
+            cursor: pointer; font-weight: 500; color: #0d2b1e;
         }
         .filter-bar select:focus {
             border-color: #1a5d3a; box-shadow: 0 0 0 3px rgba(26,93,58,0.1); background: white;
+        }
+        .filter-bar select:hover {
+            border-color: #d4f0df; background: white;
         }
 
         .table-container {
@@ -348,8 +355,9 @@
         }
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-processing { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
-        .status-ready { background: #d1fae5; color: #065f46; }  /* <-- GREEN PARA SA READY FOR PICKUP */
+        .status-ready { background: #d1fae5; color: #065f46; }
         .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-cancelled { background: #f1f5f9; color: #475569; }
 
         .btn-action {
             border: none; padding: 6px 14px; border-radius: 30px; cursor: pointer;
@@ -402,7 +410,7 @@
         .view-item .value { font-size: 14px; font-weight: 500; color: #0d2b1e; }
         .view-item.full-width { grid-column: 1 / -1; }
 
-        /* ===== TOAST ANIMATION ===== */
+        /* ===== TOAST ===== */
         .toast-container {
             position: fixed; top: 20px; right: 20px; z-index: 9999;
             display: flex; flex-direction: column; gap: 10px;
@@ -441,6 +449,8 @@
             .modal-box { padding: 20px; border-radius: 20px; }
             .view-grid { grid-template-columns: 1fr; gap: 10px; }
             .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-bar .filter-group { flex-direction: column; }
+            .filter-bar select { width: 100%; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
         }
         @media (max-width: 480px) {
@@ -551,14 +561,22 @@
 <div class="main-with-sidebar">
     <div class="big-card">
 
+        <!-- ===== FILTER BAR (MAY DOCUMENT TYPE FILTER NA) ===== -->
         <div class="filter-bar">
-            <div>
+            <div class="filter-group">
                 <select id="statusFilter" onchange="filterTable()">
                     <option value="all">All Status</option>
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
                     <option value="ready_for_pickup">Ready for Pickup</option>
                     <option value="rejected">Rejected</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <select id="typeFilter" onchange="filterTable()">
+                    <option value="all">All Document Types</option>
+                    <option value="clearance">Barangay Clearance</option>
+                    <option value="indigency">Certificate of Indigency</option>
+                    <option value="proof_residency">Proof of Residency</option>
                 </select>
             </div>
             <div>
@@ -582,7 +600,7 @@
                 </thead>
                 <tbody id="docTable">
                     {% for doc in documents %}
-                    <tr>
+                    <tr data-type="{{ doc.document_type }}" data-status="{{ doc.status }}">
                         <td>{{ loop.index }}</td>
                         <td><strong>{{ doc.reference_number or 'N/A' }}</strong></td>
                         <td>{{ doc.first_name }} {{ doc.last_name }}</td>
@@ -598,6 +616,7 @@
                                 {% if doc.status == 'pending' %}status-pending
                                 {% elif doc.status == 'processing' %}status-processing
                                 {% elif doc.status == 'ready_for_pickup' %}status-ready
+                                {% elif doc.status == 'cancelled' %}status-cancelled
                                 {% else %}status-rejected{% endif %}">
                                 {{ doc.status|upper }}
                             </span>
@@ -612,7 +631,6 @@
                             {% endif %}
                         </td>
                         <td style="text-align:center;">
-                            <!-- VIEW ONLY LANG DITO -->
                             <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
                                 <i class="fas fa-eye"></i> View
                             </button>
@@ -786,19 +804,24 @@
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
+    // ===== FILTER TABLE (STATUS + TYPE + SEARCH) =====
     function filterTable() {
         const status = document.getElementById('statusFilter').value;
+        const type = document.getElementById('typeFilter').value;
         const search = document.getElementById('navSearch').value.toLowerCase();
         const rows = document.querySelectorAll('#docTable tr');
         let count = 0;
 
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
-            const statusText = row.querySelector('.status-badge')?.textContent.toLowerCase() || '';
-            const matchStatus = status === 'all' || statusText.includes(status);
+            const rowStatus = (row.dataset.status || '').toLowerCase();
+            const rowType = (row.dataset.type || '').toLowerCase();
+
+            const matchStatus = (status === 'all') || (rowStatus === status);
+            const matchType = (type === 'all') || (rowType === type);
             const matchSearch = text.includes(search);
 
-            if (matchStatus && matchSearch) {
+            if (matchStatus && matchType && matchSearch) {
                 row.style.display = '';
                 count++;
             } else {
@@ -873,6 +896,7 @@
                 if (doc.status === 'processing') statusClass = 'status-processing';
                 else if (doc.status === 'ready_for_pickup') statusClass = 'status-ready';
                 else if (doc.status === 'rejected') statusClass = 'status-rejected';
+                else if (doc.status === 'cancelled') statusClass = 'status-cancelled';
                 
                 body.innerHTML = `
                     <div class="view-grid">
@@ -943,7 +967,6 @@
         document.getElementById('detailsModal').classList.remove('active');
     }
 
-    // ===== CUSTOM TOAST NOTIFICATION =====
     function showToast(title, message, type = 'success') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -962,18 +985,13 @@
         `;
         
         container.appendChild(toast);
-        
-        // Trigger animation
         setTimeout(() => toast.classList.add('show'), 10);
-        
-        // Remove toast after 3.5 seconds
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);
         }, 3500);
     }
 
-    // ===== PRINT FUNCTION =====
     function printDocument(fileUrl) {
         const iframe = document.createElement('iframe');
         iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';

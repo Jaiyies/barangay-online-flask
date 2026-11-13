@@ -320,6 +320,7 @@
             padding: 10px 16px; border: 1.5px solid #eef2f0; border-radius: 12px;
             font-size: 13px; background: #f8f9fa; outline: none;
             font-family: inherit; transition: all 0.2s ease;
+            cursor: pointer; font-weight: 500; color: #0d2b1e;
         }
         .filter-bar select:focus {
             border-color: #1a5d3a; box-shadow: 0 0 0 3px rgba(26,93,58,0.1); background: white;
@@ -564,9 +565,15 @@
         <div class="filter-bar">
             <div class="filter-left">
                 <select id="statusFilter" onchange="filterTable()">
-                    <option value="all">All</option>
+                    <option value="all">All Status</option>
                     <option value="processing">Processing</option>
                     <option value="ready_for_pickup">Ready for Pickup</option>
+                </select>
+                <select id="typeFilter" onchange="filterTable()">
+                    <option value="all">All Document Types</option>
+                    <option value="clearance">Barangay Clearance</option>
+                    <option value="indigency">Certificate of Indigency</option>
+                    <option value="proof_residency">Proof of Residency</option>
                 </select>
                 <span style="font-size:13px;color:#6b7a72;">Total: <strong id="totalCount">{{ documents|length }}</strong></span>
             </div>
@@ -592,7 +599,7 @@
                 </thead>
                 <tbody id="docTable">
                     {% for doc in documents %}
-                    <tr data-status="{{ doc.status }}">
+                    <tr data-status="{{ doc.status }}" data-type="{{ doc.document_type }}">
                         <td>{{ loop.index }}</td>
                         <td><strong>{{ doc.reference_number or 'N/A' }}</strong></td>
                         <td>{{ doc.first_name }} {{ doc.last_name }}</td>
@@ -611,7 +618,6 @@
                             {% endif %}
                         </td>
                         <td style="text-align:center;">
-                            <!-- ✅ VIEW BUTTON LANG DITO SA TABLE -->
                             <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
                                 <i class="fas fa-eye"></i> View
                             </button>
@@ -808,9 +814,10 @@
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
-    // ===== TABLE FILTER (Status + Search) =====
+    // ===== TABLE FILTER (Status + Type + Search) =====
     function filterTable() {
         const status = document.getElementById('statusFilter').value.toLowerCase();
+        const type = document.getElementById('typeFilter').value.toLowerCase();
         const searchInput = document.getElementById('navSearch');
         const search = searchInput ? searchInput.value.toLowerCase() : '';
         const rows = document.querySelectorAll('#docTable tr');
@@ -819,10 +826,13 @@
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
             const rowStatus = (row.getAttribute('data-status') || '').toLowerCase();
+            const rowType = (row.getAttribute('data-type') || '').toLowerCase();
+            
             const matchStatus = (status === 'all') || (rowStatus === status);
+            const matchType = (type === 'all') || (rowType === type);
             const matchSearch = text.includes(search);
 
-            if (matchStatus && matchSearch) {
+            if (matchStatus && matchType && matchSearch) {
                 row.style.display = '';
                 count++;
             } else {
@@ -840,7 +850,7 @@
         });
     }
 
-    // ===== VIEW DETAILS (LAHAT NG ACTIONS NASA LOOB) =====
+    // ===== VIEW DETAILS =====
     function viewDetails(docId) {
         const modal = document.getElementById('detailsModal');
         const body = document.getElementById('detailsBody');
@@ -874,7 +884,6 @@
                 const hasFile = doc.completed_file && doc.completed_file.trim() !== '';
                 let actionHtml = '';
 
-                // ✅ ACTION BUTTONS SA LOOB NG MODAL
                 if (hasFile) {
                     actionHtml = `
                         <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #f0f2f5; text-align: center;">

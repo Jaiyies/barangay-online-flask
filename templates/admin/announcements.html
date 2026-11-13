@@ -221,7 +221,7 @@
     }
     body.sidebar-expanded .main-with-sidebar { margin-left: 280px; }
 
-    /* ===== STATS CARDS (PROFESSIONAL CLEAN) ===== */
+    /* ===== STATS CARDS ===== */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -248,7 +248,6 @@
     .stat-label { font-size: 11px; font-weight: 600; color: #8a9a8f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .stat-value { font-size: 28px; font-weight: 800; color: #0d2b1e; line-height: 1; }
     .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-    /* Neutral icon backgrounds, colored icons */
     .stat-card.total .stat-icon { background: #f0f4f8; color: #1a5d3a; }
     .stat-card.month .stat-icon { background: #f0f4f8; color: #2563eb; }
     .stat-card.week .stat-icon { background: #f0f4f8; color: #d97706; }
@@ -279,7 +278,7 @@
     .count-label { font-size: 13px; color: #6b7a72; padding: 9px 16px; background: #f8fafc; border-radius: 8px; border: 1.5px solid #d4f0df; white-space: nowrap; font-weight: 500; }
     .count-label strong { color: #1a5d3a; font-weight: 700; }
 
-    /* ===== ANNOUNCEMENT CARD (PROFESSIONAL CLEAN) ===== */
+    /* ===== ANNOUNCEMENT CARD ===== */
     .announcement-card {
         background: white;
         border-radius: 14px;
@@ -316,7 +315,16 @@
     .announcement-card .card-header h3 { font-size: 17px; font-weight: 700; color: #0d2b1e; flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .announcement-card .card-header .meta { font-size: 12px; color: #8a9a8f; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
     .announcement-card .card-header .meta i { color: #8a9a8f; margin-right: 4px; }
-    .announcement-card .card-content p { font-size: 14px; color: #4a5a52; line-height: 1.7; }
+    .announcement-card .card-content p { font-size: 14px; color: #4a5a52; line-height: 1.7; margin-bottom: 12px; }
+
+    /* BAGONG DAGDAG: Announcement Image */
+    .announcement-card .card-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #eef2f0;
+    }
 
     .announcement-card .card-actions {
         display: flex; gap: 8px; margin-top: 16px;
@@ -346,7 +354,6 @@
     .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
     .badge-pinned { background: #f59e0b; color: white; }
     .badge-draft { background: #e5e7eb; color: #4b5563; border: 1px dashed #9ca3af; }
-    .badge-views { background: #f0f2f5; color: #6b7a72; font-weight: 600; text-transform: none; letter-spacing: 0; }
 
     .empty-state { text-align: center; padding: 60px 20px; color: #8a9a8f; background: #f8fafc; border-radius: 14px; border: 1px solid #eef2f0; }
     .empty-state i { font-size: 48px; color: #cde0d8; margin-bottom: 12px; display: block; }
@@ -366,9 +373,17 @@
     .modal-body .form-group { margin-bottom: 16px; }
     .modal-body label { display: block; font-size: 12px; font-weight: 600; color: #0d2b1e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .modal-body label i { color: #1a5d3a; margin-right: 8px; width: 16px; }
-    .modal-body input, .modal-body textarea { width: 100%; padding: 11px 16px; border: 2px solid #eef2f0; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; background: #f8fafc; outline: none; transition: all 0.25s ease; color: #0d2b1e; }
-    .modal-body input:focus, .modal-body textarea:focus { border-color: #1a5d3a; background: white; box-shadow: 0 0 0 3px rgba(26,107,66,0.1); }
+    .modal-body input[type="text"], .modal-body textarea, .modal-body input[type="file"] { width: 100%; padding: 11px 16px; border: 2px solid #eef2f0; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; background: #f8fafc; outline: none; transition: all 0.25s ease; color: #0d2b1e; }
+    .modal-body input[type="text"]:focus, .modal-body textarea:focus { border-color: #1a5d3a; background: white; box-shadow: 0 0 0 3px rgba(26,107,66,0.1); }
     .modal-body textarea { min-height: 130px; resize: vertical; }
+    
+    /* BAGONG DAGDAG: File Input Style */
+    .modal-body input[type="file"] { padding: 8px; background: white; cursor: pointer; }
+    .modal-body input[type="file"]::file-selector-button {
+        padding: 8px 16px; border: none; border-radius: 6px; background: #e2e8f0; color: #0d2b1e;
+        font-weight: 600; font-family: inherit; cursor: pointer; margin-right: 12px; transition: all 0.2s;
+    }
+    .modal-body input[type="file"]::file-selector-button:hover { background: #cbd5e1; }
 
     .modal-actions { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; flex-wrap: wrap; }
     .modal-btn { padding: 11px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 8px; }
@@ -626,12 +641,17 @@
                         <div class="meta">
                             <span><i class="far fa-user"></i> {{ ann.first_name or 'Unknown' }} {{ ann.last_name or '' }}</span>
                             <span><i class="far fa-calendar-alt"></i> {{ ann.created_at.strftime('%b %d, %Y') if ann.created_at else 'N/A' }}</span>
-                            <span class="badge badge-views"><i class="far fa-eye"></i> {{ ann.view_count or 0 }} views</span>
+                            <!-- TINANGGAL ANG VIEWS BADGE DITO -->
                         </div>
                     </div>
 
                     <div class="card-content">
                         <p>{{ ann.content }}</p>
+                        {% if ann.image_path %}
+                        <div style="margin-top: 12px;">
+                            <img src="/uploads/{{ ann.image_path }}" alt="Announcement Image" class="card-image">
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="card-actions">
@@ -643,9 +663,16 @@
                                 onclick="toggleDraft('{{ ann.id }}', this)">
                             <i class="fas fa-pen"></i> {% if ann.is_draft %}Publish{% else %}Save as Draft{% endif %}
                         </button>
-                        <button class="btn-sm btn-edit" onclick="openEditModal('{{ ann.id }}', '{{ ann.title|e }}', '{{ ann.content|e }}')">
+                        
+                        <!-- INAYOS NA EDIT BUTTON: Gumamit ng data-* attributes -->
+                        <button class="btn-sm btn-edit" 
+                                data-id="{{ ann.id }}" 
+                                data-title="{{ ann.title|e }}" 
+                                data-content="{{ ann.content|e }}"
+                                onclick="openEditModal(this)">
                             <i class="fas fa-edit"></i> Edit
                         </button>
+                        
                         <button class="btn-sm btn-delete" onclick="openConfirmDelete('{{ ann.id }}', '{{ ann.title|e }}')">
                             <i class="fas fa-trash"></i> Delete
                         </button>
@@ -670,7 +697,7 @@
             <h3><i class="fas fa-plus-circle"></i> New Announcement</h3>
             <button class="close-modal" onclick="closeModal('createModal')">&times;</button>
         </div>
-        <form method="POST" action="{{ url_for('create_announcement') }}" class="modal-body" id="createForm">
+        <form method="POST" action="{{ url_for('create_announcement') }}" enctype="multipart/form-data" class="modal-body" id="createForm">
             <div class="form-group">
                 <label for="title"><i class="fas fa-heading"></i> Title</label>
                 <input type="text" id="title" name="title" placeholder="Enter announcement title" required>
@@ -678,6 +705,11 @@
             <div class="form-group">
                 <label for="content"><i class="fas fa-align-left"></i> Content</label>
                 <textarea id="content" name="content" placeholder="Write your announcement here..." required></textarea>
+            </div>
+            <!-- BAGONG DAGDAG: Image Upload -->
+            <div class="form-group">
+                <label for="image"><i class="fas fa-image"></i> Attach Image (Optional)</label>
+                <input type="file" id="image" name="image" accept="image/*">
             </div>
             <input type="hidden" id="isDraftInput" name="is_draft" value="0">
             <div class="modal-actions">
@@ -702,7 +734,7 @@
             <h3><i class="fas fa-edit"></i> Edit Announcement</h3>
             <button class="close-modal" onclick="closeModal('editModal')">&times;</button>
         </div>
-        <form method="POST" action="" id="editForm" class="modal-body">
+        <form method="POST" action="" id="editForm" enctype="multipart/form-data" class="modal-body">
             <div class="form-group">
                 <label for="editTitle"><i class="fas fa-heading"></i> Title</label>
                 <input type="text" id="editTitle" name="title" required>
@@ -710,6 +742,14 @@
             <div class="form-group">
                 <label for="editContent"><i class="fas fa-align-left"></i> Content</label>
                 <textarea id="editContent" name="content" required></textarea>
+            </div>
+            <!-- BAGONG DAGDAG: Image Upload sa Edit -->
+            <div class="form-group">
+                <label for="editImage"><i class="fas fa-image"></i> Replace Image (Optional)</label>
+                <input type="file" id="editImage" name="image" accept="image/*">
+                <div style="font-size: 11px; color: #8a9a8f; margin-top: 6px;">
+                    <i class="fas fa-info-circle"></i> Mag-upload lang kung gusto mong palitan ang kasalukuyang image.
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="modal-btn cancel" onclick="closeModal('editModal')">
@@ -984,10 +1024,16 @@
         openModal('createModal');
     }
 
-    function openEditModal(id, title, content) {
+    // INAYOS NA EDIT MODAL
+    function openEditModal(btn) {
+        var id = btn.getAttribute('data-id');
+        var title = btn.getAttribute('data-title');
+        var content = btn.getAttribute('data-content');
+
         document.getElementById('editForm').action = '/edit-announcement/' + id;
         document.getElementById('editTitle').value = title;
         document.getElementById('editContent').value = content;
+        document.getElementById('editImage').value = ''; // Clear file input
         openModal('editModal');
     }
 

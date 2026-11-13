@@ -470,12 +470,6 @@
         .btn-action:hover { transform: translateY(-2px); }
         .btn-view { background: #0d2b1e; color: white; }
         .btn-view:hover { background: #1a5d3a; box-shadow: 0 4px 12px rgba(13,43,30,0.3); }
-        .btn-block { background: #f59e0b; color: white; }
-        .btn-block:hover { background: #d97706; box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
-        .btn-unblock { background: #22c55e; color: white; }
-        .btn-unblock:hover { background: #16a34a; box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
-        .btn-delete { background: #dc3545; color: white; }
-        .btn-delete:hover { background: #b91c1c; box-shadow: 0 4px 12px rgba(220,53,69,0.3); }
 
         .protected-text {
             font-size: 11px;
@@ -593,29 +587,68 @@
         }
         .view-item.full-width { grid-column: 1 / -1; }
 
-        .modal-actions {
+        /* ===== VIEW MODAL ACTIONS ===== */
+        .view-actions-divider {
+            margin: 24px 0 0;
+            padding-top: 16px;
+            border-top: 2px dashed #eef2f0;
+        }
+        .view-actions-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8a9a8f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .view-actions-label i { color: #1a5d3a; }
+        
+        /* PINAGSAMANG CONTAINER PARA SA ACTIONS */
+        .view-actions-buttons {
             display: flex;
             gap: 12px;
-            margin-top: 24px;
-            justify-content: flex-end;
+            flex-wrap: wrap;
         }
-        .modal-btn {
-            padding: 11px 32px;
+        .view-action-btn {
+            flex: 1; /* Ito ang magpapalawak sa buttons */
+            padding: 14px 24px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center; /* Center text */
+            gap: 8px;
         }
-        .modal-btn.cancel {
-            background: #f0f2f5;
-            color: #5a6e7a;
+        .view-action-btn:hover { transform: translateY(-2px); }
+        .view-action-btn.block-btn { background: #f59e0b; color: white; }
+        .view-action-btn.block-btn:hover { background: #d97706; box-shadow: 0 6px 18px rgba(245,158,11,0.35); }
+        .view-action-btn.unblock-btn { background: #22c55e; color: white; }
+        .view-action-btn.unblock-btn:hover { background: #16a34a; box-shadow: 0 6px 18px rgba(34,197,94,0.35); }
+        .view-action-btn.delete-btn { background: #dc3545; color: white; }
+        .view-action-btn.delete-btn:hover { background: #b91c1c; box-shadow: 0 6px 18px rgba(220,53,69,0.35); }
+        
+        .view-protected-badge {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 18px;
+            background: #f4f8f5;
+            border: 1px solid #eef2f0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #8a9a8f;
+            font-weight: 600;
         }
-        .modal-btn.cancel:hover {
-            background: #e2e6ea;
-            transform: translateY(-2px);
-        }
+        .view-protected-badge i { color: #1a5d3a; }
 
         /* ===== CONFIRM MODAL ===== */
         .confirm-icon {
@@ -725,8 +758,11 @@
             .search-box { max-width: 100%; }
             .confirm-actions { flex-direction: column; }
             .confirm-btn { width: 100%; }
-            .modal-actions { flex-direction: column; }
-            .modal-btn { width: 100%; justify-content: center; }
+            
+            /* Mobile adjustment para sa actions */
+            .view-actions-buttons { flex-direction: column; width: 100%; }
+            .view-action-btn { width: 100%; justify-content: center; }
+            
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
         }
         @media (max-width: 480px) {
@@ -881,22 +917,6 @@
                             <button class="btn-action btn-view" onclick="viewUser('{{ user.id }}')" title="View Details">
                                 <i class="fas fa-eye"></i> View
                             </button>
-                            {% if user.id != session.user_id %}
-                                {% if user.is_verified %}
-                                    <button class="btn-action btn-block" onclick="confirmBlock('{{ user.id }}')" title="Block User">
-                                        <i class="fas fa-ban"></i> Block
-                                    </button>
-                                {% else %}
-                                    <button class="btn-action btn-unblock" onclick="confirmUnblock('{{ user.id }}')" title="Unblock User">
-                                        <i class="fas fa-check-circle"></i> Unblock
-                                    </button>
-                                {% endif %}
-                                <button class="btn-action btn-delete" onclick="openConfirmDelete('{{ user.id }}', '{{ user.first_name }} {{ user.last_name }}', '{{ user.email }}')" title="Delete User">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            {% else %}
-                                <span class="protected-text"><i class="fas fa-lock"></i> Protected</span>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -943,8 +963,15 @@
                 <span class="value" id="viewJoined">—</span>
             </div>
         </div>
-        <div class="modal-actions">
-            <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+
+        <!-- BLOCK / DELETE ACTIONS -->
+        <div class="view-actions-divider" id="viewActionsSection">
+            <div class="view-actions-label">
+                <i class="fas fa-shield-alt"></i> Account Actions
+            </div>
+            <div class="view-actions-buttons" id="viewActionsButtons">
+                <!-- Dynamic: mapupuno via JS -->
+            </div>
         </div>
     </div>
 </div>
@@ -999,10 +1026,15 @@
     <span id="toastMessage" class="toast-message">Success!</span>
 </div>
 
+<script id="sessionUserId" type="application/json">{{ session.user_id | tojson }}</script>
 <script>
+    // KASALUKUYANG SESSION USER ID (galing Jinja)
+    const SESSION_USER_ID = JSON.parse(document.getElementById('sessionUserId').textContent);
+
     let deleteUserId = null;
     let blockUserId = null;
     let blockAction = null;
+    let currentViewUser = null;
 
     document.getElementById('userCount').textContent = document.querySelectorAll('#userTableBody tr').length;
 
@@ -1218,7 +1250,6 @@
         blockAction = null;
     }
 
-    // FIXED: response was out of scope
     function confirmBlockAction() {
         if (!blockUserId || !blockAction) return;
         fetch(`/api/user/${blockUserId}/toggle-block`, { method: 'POST' })
@@ -1279,17 +1310,68 @@
         fetch(`/api/user/${userId}`)
             .then(response => response.json())
             .then(user => {
+                currentViewUser = user;
                 document.getElementById('viewName').textContent = `${user.first_name} ${user.last_name}`;
                 document.getElementById('viewEmail').textContent = user.email;
                 document.getElementById('viewContact').textContent = user.contact_number || 'N/A';
                 document.getElementById('viewAddress').textContent = user.address || 'N/A';
                 document.getElementById('viewStatus').textContent = user.is_verified ? 'Active' : 'Blocked';
                 document.getElementById('viewJoined').textContent = user.created_at || 'N/A';
+
+                renderViewActions(user);
                 openModal('viewModal');
             })
             .catch(error => {
                 showToast('Error loading user details', 'error');
             });
+    }
+
+    // Gumawa ng action buttons sa loob ng view modal — GAMIT ANG data-* + addEventListener
+    function renderViewActions(user) {
+        const wrap = document.getElementById('viewActionsButtons');
+
+        // Kung sariling account, ipakita ang protected badge
+        if (String(user.id) === String(SESSION_USER_ID)) {
+            wrap.innerHTML = '<div class="view-protected-badge"><i class="fas fa-lock"></i> This is your own account — actions disabled</div>';
+            return;
+        }
+
+        // Build buttons gamit ang DOM (safe sa special characters sa pangalan)
+        wrap.innerHTML = '';
+
+        if (user.is_verified) {
+            const blockBtn = document.createElement('button');
+            blockBtn.className = 'view-action-btn block-btn';
+            blockBtn.innerHTML = '<i class="fas fa-ban"></i> Block User';
+            blockBtn.addEventListener('click', () => {
+                const id = user.id;
+                closeModal('viewModal');
+                setTimeout(() => confirmBlock(id), 220);
+            });
+            wrap.appendChild(blockBtn);
+        } else {
+            const unblockBtn = document.createElement('button');
+            unblockBtn.className = 'view-action-btn unblock-btn';
+            unblockBtn.innerHTML = '<i class="fas fa-check-circle"></i> Unblock User';
+            unblockBtn.addEventListener('click', () => {
+                const id = user.id;
+                closeModal('viewModal');
+                setTimeout(() => confirmUnblock(id), 220);
+            });
+            wrap.appendChild(unblockBtn);
+        }
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'view-action-btn delete-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete User';
+        deleteBtn.addEventListener('click', () => {
+            const id = user.id;
+            const fullName = `${user.first_name} ${user.last_name}`;
+            const email = user.email;
+            closeModal('viewModal');
+            setTimeout(() => openConfirmDelete(id, fullName, email), 220);
+        });
+        wrap.appendChild(deleteBtn);
     }
 
     // ===== MODAL CLOSE ON BACKDROP CLICK =====

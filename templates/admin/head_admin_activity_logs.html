@@ -13,7 +13,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
 
-        /* ===== SIDEBAR (CARD STYLE) ===== */
+        /* ===== SIDEBAR ===== */
         .sidebar-custom {
             position: fixed; left: 0; top: 0;
             width: 85px; height: 100%;
@@ -81,11 +81,7 @@
             gap: 10px; width: 100%; padding: 0; margin: 0;
         }
         .sidebar-menu li { margin: 0; width: 100%; display: flex; justify-content: center; }
-        .sidebar-menu a,
-        .sidebar-menu a:link,
-        .sidebar-menu a:visited,
-        .sidebar-menu a:focus,
-        .sidebar-menu a:active {
+        .sidebar-menu a, .sidebar-menu a:link, .sidebar-menu a:visited, .sidebar-menu a:focus, .sidebar-menu a:active {
             display: flex; align-items: center; justify-content: center;
             width: 52px; height: 52px; padding: 0;
             color: rgba(255,255,255,0.7); text-decoration: none;
@@ -162,7 +158,7 @@
             transform: translateY(-50%) translateX(0);
         }
 
-        /* ===== NAVBAR (CARD STYLE) ===== */
+        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed; top: 12px; left: 97px; right: 12px;
             height: 64px; background: white; border-radius: 16px;
@@ -173,7 +169,7 @@
             transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         body.sidebar-expanded .navbar { left: 292px; }
-        .navbar-left { display: flex; align-items: center; gap: 24px; flex: 1; min-width: 0; }
+        .navbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
         .navbar-left .page-title {
             font-size: 17px; font-weight: 700; color: #0d2b1e;
             white-space: nowrap; flex-shrink: 0;
@@ -186,12 +182,10 @@
             padding: 10px 22px; gap: 12px;
             border: 1.5px solid #eef2f0;
             transition: all 0.2s ease;
-            width: 100%; max-width: 480px;
-            margin: 0 auto;
+            width: 100%; max-width: 400px;
         }
         .navbar-search:focus-within {
-            border-color: #1a5d3a;
-            box-shadow: 0 0 0 3px rgba(26,93,58,0.08);
+            border-color: #1a5d3a; box-shadow: 0 0 0 3px rgba(26,93,58,0.08);
             background: white;
         }
         .navbar-search i { color: #8a9a8f; font-size: 14px; }
@@ -200,9 +194,22 @@
             font-size: 13px; font-family: inherit; color: #0d2b1e; width: 100%;
         }
         .navbar-search input::placeholder { color: #a8bdb2; }
+        
+        /* FILTER DROPDOWN SA NAVBAR */
+        .navbar-filter {
+            padding: 10px 16px; border-radius: 50px;
+            border: 1.5px solid #eef2f0; background: #f4f8f5;
+            font-size: 13px; font-family: inherit; color: #0d2b1e;
+            font-weight: 500; outline: none; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .navbar-filter:focus, .navbar-filter:hover {
+            border-color: #1a5d3a; background: white;
+        }
+
         .navbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
-        /* NOTIFICATION BELL */
+        /* BELL */
         .notification-bell-wrap { position: relative; margin-right: 12px; }
         .bell-btn {
             position: relative; background: #f4f8f5; border: 1px solid #eef2f0;
@@ -233,12 +240,8 @@
             color: white; font-weight: 700; font-size: 13.5px;
             display: flex; align-items: center; justify-content: space-between; gap: 10px;
         }
-        .bell-dropdown-header-left {
-            display: flex; align-items: center; gap: 10px;
-        }
-        .bell-dropdown-header i.fa-bullhorn {
-            background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px;
-        }
+        .bell-dropdown-header-left { display: flex; align-items: center; gap: 10px; }
+        .bell-dropdown-header i.fa-bullhorn { background: rgba(255,255,255,0.15); padding: 6px; border-radius: 8px; font-size: 13px; }
         .bell-dropdown-body { max-height: 320px; overflow-y: auto; padding: 8px; }
         .bell-item {
             display: block; padding: 12px 14px; border-radius: 10px;
@@ -259,33 +262,17 @@
         }
         .bell-dropdown-footer:hover { background: #eef8f2; }
 
-        /* ===== RED DOT VIA CSS + PULSE ANIMATION ===== */
         .bell-item.unread::before {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dc3545;
+            content: ""; position: absolute; left: 6px; top: 50%;
+            transform: translateY(-50%); width: 8px; height: 8px;
+            border-radius: 50%; background: #dc3545;
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
-        .bell-item.unread {
-            padding-left: 22px;
-        }
-        .bell-item.unread .bell-item-title {
-            font-weight: 700;
-            color: #0d2b1e;
-        }
+        .bell-item.unread { padding-left: 22px; }
+        .bell-item.unread .bell-item-title { font-weight: 700; color: #0d2b1e; }
         @keyframes pulse-dot {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
         }
 
         /* PROFILE DROPDOWN */
@@ -384,6 +371,7 @@
         }
         .admin-badge.head-admin { background: #fef3c7; color: #92400e; }
         .admin-badge.doc-admin { background: #dbeafe; color: #1e40af; }
+        .admin-badge.resident { background: #f3f4f6; color: #374151; }
         .admin-badge.deleted-admin { background: #f0f2f5; color: #8a9a8f; }
 
         .action-badge {
@@ -417,7 +405,7 @@
             .sidebar-custom.expanded { width: 240px; }
             .navbar { left: 82px; padding: 0 16px; height: 60px; top: 8px; }
             body.sidebar-expanded .navbar { left: 252px; }
-            .navbar-left { gap: 12px; }
+            .navbar-left { gap: 12px; flex-wrap: wrap; }
             .navbar-left .page-title { font-size: 15px; }
             .navbar-search { display: none; }
             .profile-info { display: none; }
@@ -426,10 +414,12 @@
             body.sidebar-expanded .main-with-sidebar { margin-left: 240px; }
             .big-card { padding: 18px; border-radius: 20px; }
             .bell-dropdown { min-width: 280px; max-width: calc(100vw - 40px); }
+            .navbar-filter { display: block; margin-left: auto; }
         }
         @media (max-width: 480px) {
             .big-card { padding: 16px; }
             .navbar-left .page-title { font-size: 13px; }
+            .navbar-filter { width: 100%; margin-top: 10px; }
         }
     </style>
 </head>
@@ -469,8 +459,17 @@
         </div>
         <div class="navbar-search">
             <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search logs..." id="navSearch">
+            <input type="text" placeholder="Search logs..." id="navSearch" onkeyup="filterLogs()">
         </div>
+        
+        <!-- FILTER DROPDOWN -->
+        {% if session.role == 'head_admin' %}
+        <select class="navbar-filter" id="roleFilter" onchange="filterLogs()">
+            <option value="all">All Users</option>
+            <option value="resident">Residents Only</option>
+            <option value="admin">Admins Only</option>
+        </select>
+        {% endif %}
     </div>
     <div class="navbar-right">
 
@@ -536,33 +535,34 @@
 
         <!-- TABLE -->
         <div class="table-container">
-            <table>
+            <table id="logsTable">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Admin</th>
+                        <th>User</th>
                         <th>Action</th>
                         <th>ID</th>
                         <th>Details</th>
                         <th>Date & Time</th>
                     </tr>
                 </thead>
-                <tbody id="logsTable">
+                <tbody>
                     {% for log in logs %}
-                    <tr>
+                    <tr data-role="{{ log.role if log.role else 'resident' }}">
                         <td>{{ loop.index }}</td>
                         <td>
                             {% if log.first_name %}
                                 <span class="admin-badge 
                                     {% if log.role == 'head_admin' %}head-admin
-                                    {% elif log.role == 'admin_documents' %}doc-admin{% endif %}">
+                                    {% elif log.role == 'admin_documents' %}doc-admin
+                                    {% elif log.role == 'resident' or not log.role %}resident{% endif %}">
                                     <i class="fas fa-user"></i>
                                     {{ log.first_name }} {{ log.last_name }}
                                 </span>
                             {% else %}
                                 <span class="admin-badge deleted-admin">
                                     <i class="fas fa-user-slash"></i>
-                                    Deleted Admin
+                                    Deleted User
                                 </span>
                             {% endif %}
                         </td>
@@ -669,9 +669,17 @@
                     const date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                     const isUnread = !a.is_read;
                     const itemClass = isUnread ? 'bell-item unread' : 'bell-item';
-                    html += `<a href="javascript:void(0)" onclick="openAnnouncementFromBell(${a.id})" class="${itemClass}">
-                                <div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div>
-                                <div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div>
+                    
+                    const imgHtml = a.image_path 
+                        ? `<img src="/uploads/${a.image_path}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; flex-shrink: 0; margin-right: 10px; border: 1px solid #eef2f0;">` 
+                        : '';
+                    
+                    html += `<a href="javascript:void(0)" onclick="openAnnouncementFromBell(${a.id})" class="${itemClass}" style="display: flex; align-items: center;">
+                                ${imgHtml}
+                                <div style="flex: 1; min-width: 0;">
+                                    <div class="bell-item-title">${escapeHtmlBell(a.title || 'Untitled')}</div>
+                                    <div class="bell-item-date"><i class="fas fa-clock"></i> ${date}</div>
+                                </div>
                              </a>`;
                 });
                 list.innerHTML = html;
@@ -740,15 +748,38 @@
         if (bellWrap && dropdown && !bellWrap.contains(e.target)) dropdown.classList.remove('open');
     });
 
-    // ===== NAV SEARCH =====
-    document.getElementById('navSearch').addEventListener('keyup', function(e) {
-        const search = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#logsTable tr');
+    // ===== SEARCH AT FILTER LOGS =====
+    function filterLogs() {
+        const searchInput = document.getElementById('navSearch');
+        const filterInput = document.getElementById('roleFilter');
+        
+        const search = searchInput ? searchInput.value.toLowerCase() : '';
+        const roleFilter = filterInput ? filterInput.value : 'all';
+        
+        const rows = document.querySelectorAll('#logsTable tbody tr');
+        
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(search) ? '' : 'none';
+            const rowRole = row.getAttribute('data-role');
+            
+            const matchesSearch = text.includes(search);
+            
+            let matchesFilter = false;
+            if (roleFilter === 'all') {
+                matchesFilter = true;
+            } else if (roleFilter === 'admin') {
+                matchesFilter = (rowRole !== 'resident' && rowRole !== '');
+            } else if (roleFilter === 'resident') {
+                matchesFilter = (rowRole === 'resident' || rowRole === '');
+            }
+
+            if (matchesSearch && matchesFilter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         });
-    });
+    }
 </script>
 </body>
 </html>

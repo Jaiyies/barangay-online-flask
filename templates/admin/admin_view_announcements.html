@@ -366,6 +366,16 @@
             font-size: 14px; color: #4a5a52; line-height: 1.7;
         }
 
+        .announcement-card .card-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #eef2f0;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
         .empty-state {
             text-align: center; padding: 60px 20px; color: #8a9a8f;
             background: #f8fafc; border-radius: 14px; border: 1px solid #eef2f0;
@@ -434,41 +444,38 @@
             <li><a href="{{ url_for('admin_management') }}" data-title="Admins"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
             <li><a href="{{ url_for('head_admin_all_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
             <li><a href="{{ url_for('head_admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
-            <li class="active"><a href="{{ url_for('announcements') }}" data-title="Manage Announcements"><i class="fas fa-bullhorn"></i> <span>Manage Announcements</span></a></li>
             <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_documents' %}
             <li><a href="{{ url_for('sec_admin_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
-            <li><a href="{{ url_for('admin_documents') }}" data-title="Documents"><i class="fas fa-file-alt"></i> <span>Documents</span></a></li>
-            <li><a href="{{ url_for('admin_events') }}" data-title="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a></li>
-            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
-            <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
+            <li><a href="{{ url_for('admin_documents') }}" data-title="All Documents"><i class="fas fa-file-alt"></i> <span>All Documents</span></a></li>
+            <li><a href="{{ url_for('admin_documents_ready') }}" data-title="Ready for Pickup"><i class="fas fa-check-circle"></i> <span>Ready for Pickup</span></a></li>
+            <li><a href="{{ url_for('admin_documents_clearance') }}" data-title="Barangay Clearance"><i class="fas fa-file-contract"></i> <span>Barangay Clearance</span></a></li>
+            <li><a href="{{ url_for('admin_documents_indigency') }}" data-title="Certificate of Indigency"><i class="fas fa-file-medical"></i> <span>Certificate of Indigency</span></a></li>
+            <li><a href="{{ url_for('admin_documents_residency') }}" data-title="Proof of Residency"><i class="fas fa-home"></i> <span>Proof of Residency</span></a></li>
+            <li><a href="{{ url_for('admin_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-history"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_1' %}
             <li><a href="{{ url_for('court1_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court1_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court1_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court1_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
-            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court1_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_2' %}
             <li><a href="{{ url_for('court2_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court2_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court2_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court2_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
-            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court2_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_3' %}
             <li><a href="{{ url_for('court3_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court3_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court3_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court3_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
-            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court3_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% elif session.role == 'admin_court_4' %}
             <li><a href="{{ url_for('court4_dashboard') }}" data-title="Dashboard"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
             <li><a href="{{ url_for('court4_pending') }}" data-title="Pending Events"><i class="fas fa-clock"></i> <span>Pending Events</span></a></li>
             <li><a href="{{ url_for('court4_reviewed') }}" data-title="Reviewed Events"><i class="fas fa-history"></i> <span>Reviewed Events</span></a></li>
             <li><a href="{{ url_for('court4_calendar') }}" data-title="Calendar"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a></li>
-            <li class="active"><a href="{{ url_for('admin_view_announcements') }}" data-title="Announcements"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
             <li><a href="{{ url_for('court4_activity_logs') }}" data-title="Activity Logs"><i class="fas fa-list-alt"></i> <span>Activity Logs</span></a></li>
         {% endif %}
     </ul>
@@ -529,9 +536,20 @@
                     <div class="menu-name">{{ session.fullname or 'Admin' }}</div>
                     <div class="menu-email">{{ session.email or 'admin@barangay.gov.ph' }}</div>
                 </div>
+                <!-- ✅ DYNAMIC PROFILE SETTINGS LINK -->
+                {% if session.role == 'head_admin' %}
+                <a href="{{ url_for('settings') }}">
+                    <i class="fas fa-user-cog"></i> Profile Settings
+                </a>
+                {% elif session.role == 'admin_documents' %}
+                <a href="{{ url_for('sec_admin_settings') }}">
+                    <i class="fas fa-user-cog"></i> Profile Settings
+                </a>
+                {% elif session.role in ['admin_court_1', 'admin_court_2', 'admin_court_3', 'admin_court_4'] %}
                 <a href="{{ url_for('secondary_admin_settings') }}">
                     <i class="fas fa-user-cog"></i> Profile Settings
                 </a>
+                {% endif %}
                 <div class="divider"></div>
                 <a href="{{ url_for('logout') }}" class="logout-link">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -577,11 +595,14 @@
                         <div class="meta">
                             <span><i class="far fa-user"></i> {{ ann.first_name or 'Admin' }} {{ ann.last_name or '' }}</span>
                             <span><i class="far fa-calendar-alt"></i> {{ ann.created_at.strftime('%b %d, %Y') if ann.created_at else 'N/A' }}</span>
-                            <span class="badge badge-views"><i class="far fa-eye"></i> {{ ann.view_count or 0 }} views</span>
                         </div>
                     </div>
                     <div class="card-content">
                         <p>{{ ann.content }}</p>
+
+                        {% if ann.image_path %}
+                        <img src="/uploads/{{ ann.image_path }}" alt="Announcement Image" class="card-image">
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -641,12 +662,10 @@
         if (dropdown.classList.contains('open')) loadRecentAnnouncements();
     }
 
-    // ===== GET ANNOUNCEMENTS PAGE (HARDCODED) =====
     function getUserAnnouncementsPage() {
         return '/admin/announcements';
     }
 
-    // ===== LOAD RECENT ANNOUNCEMENTS =====
     function loadRecentAnnouncements() {
         var list = document.getElementById('bellList');
         list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
@@ -662,9 +681,17 @@
                     var date = a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                     var unreadDot = a.is_read ? '' : '<span style="display:inline-block;width:8px;height:8px;background:#dc3545;border-radius:50%;margin-right:6px;vertical-align:middle;"></span>';
                     var titleStyle = a.is_read ? 'color:#6b7a72;' : 'color:#0d2b1e;font-weight:700;';
-                    html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="bell-item">' +
-                        '<div class="bell-item-title" style="' + titleStyle + '">' + unreadDot + escapeHtmlBell(a.title || 'Untitled') + '</div>' +
-                        '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
+                    
+                    var imgHtml = a.image_path 
+                        ? `<img src="/uploads/${a.image_path}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; flex-shrink: 0; margin-right: 10px; border: 1px solid #eef2f0;">` 
+                        : '';
+
+                    html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="bell-item" style="display: flex; align-items: center;">' +
+                        imgHtml +
+                        '<div style="flex: 1; min-width: 0;">' +
+                            '<div class="bell-item-title" style="' + titleStyle + '">' + unreadDot + escapeHtmlBell(a.title || 'Untitled') + '</div>' +
+                            '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
+                        '</div>' +
                     '</a>';
                 });
                 html += '<div style="padding:8px 12px;border-top:1px solid #f0f2f5;text-align:center;">' +
@@ -680,7 +707,6 @@
             });
     }
 
-    // ===== OPEN ANNOUNCEMENT FROM BELL =====
     function openAnnouncementFromBell(announcementId) {
         fetch('/api/announcement/' + announcementId + '/mark-read', { method: 'POST' })
             .then(function(res) { return res.json(); })
@@ -697,7 +723,6 @@
         }, 300);
     }
 
-    // ===== MARK ALL AS READ =====
     function markAllRead(event) {
         if (event) event.stopPropagation();
         fetch('/api/announcements/mark-all-read', { method: 'POST' })
@@ -711,7 +736,6 @@
             .catch(function(err) { console.error('Mark all read error:', err); });
     }
 
-    // ===== UPDATE BELL BADGE =====
     function updateBellBadge() {
         fetch('/api/announcements/unread_count')
             .then(function(res) { return res.json(); })
