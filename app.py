@@ -2937,7 +2937,7 @@ def check_duplicate_event(event_id):
             WHERE e.venue = %s 
               AND e.event_date = %s 
               AND e.id != %s
-              AND e.status IN ('approved', 'pending')
+              AND e.status IN ('pending')
               AND e.start_time < %s 
               AND e.end_time > %s
             ORDER BY e.requested_at DESC
@@ -3002,6 +3002,30 @@ def update_event_status(event_id):
 
     if status not in ['approved', 'rejected']:
         return jsonify({'error': 'Invalid status'}), 400
+    
+    # ✅ Log warning kung may duplicates (para sa terminal)
+    if status == 'approved':
+        conn_dup = get_db()
+        cur_dup = conn_dup.cursor(dictionary=True)
+        try:
+            cur_dup.execute("SELECT * FROM event_permits WHERE id = %s", (event_id,))
+            current_ev = cur_dup.fetchone()
+            if current_ev:
+                cur_dup.execute("""
+                    SELECT e.event_name, e.start_time, e.end_time, e.status
+                    FROM event_permits e
+                    WHERE e.venue = %s AND e.event_date = %s AND e.id != %s
+                      AND e.status IN ('approved', 'pending')
+                      AND e.start_time < %s AND e.end_time > %s
+                """, (current_ev['venue'], current_ev['event_date'], event_id,
+                      current_ev['end_time'], current_ev['start_time']))
+                dups = cur_dup.fetchall()
+                if dups:
+                    print(f"\n⚠️ DUPLICATE WARNING: Event {event_id} has {len(dups)} duplicate(s)")
+                    for d in dups:
+                        print(f"   - {d['event_name']} ({str(d['start_time'])[:5]}-{str(d['end_time'])[:5]}) [{d['status']}]")
+        finally:
+            conn_dup.close()
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
