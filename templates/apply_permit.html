@@ -4011,7 +4011,164 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 });
-               
+              
+// ============================================================
+// ===== CLEAR RED VALIDATION STATE ON USER INPUT (PERMIT) =====
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Helper: clear red error styling sa isang field
+    function clearFieldError(field) {
+        if (!field) return;
+
+        // Regular inputs / textareas / selects
+        if (field.matches && field.matches('input, textarea, select')) {
+            field.style.borderColor = '';
+            field.style.boxShadow = '';
+            field.style.outline = '';
+            field.classList.remove('error');
+        }
+
+        // Custom-select hidden input -> clear the visible trigger
+        if (field.type === 'hidden') {
+            const cs = field.closest('.custom-select');
+            if (cs) {
+                const trigger = cs.querySelector('.custom-select-trigger');
+                if (trigger) {
+                    trigger.style.borderColor = '';
+                    trigger.style.boxShadow = '';
+                }
+            }
+        }
+
+        // Event date display (readonly text input, may special handling)
+        if (field.id === 'eventDateDisplay') {
+            field.style.borderColor = '';
+            field.style.boxShadow = '';
+            field.classList.remove('error');
+        }
+
+        // Valid ID upload area
+        if (field.id === 'validIdInput') {
+            const area = document.getElementById('validIdUploadArea');
+            if (area) {
+                area.style.borderColor = '';
+                area.style.background = '';
+            }
+        }
+    }
+
+    // Attach listeners sa lahat ng input/textarea/select
+    document.querySelectorAll('input, textarea, select').forEach(field => {
+        field.addEventListener('input', function() {
+            clearFieldError(this);
+        });
+
+        field.addEventListener('change', function() {
+            // Checkbox (terms) — separate handling sa baba
+            if (this.type === 'checkbox') {
+                this.style.outline = 'none';
+                return;
+            }
+
+            // File input — let the dedicated handler manage it
+            if (this.type === 'file') {
+                return;
+            }
+
+            // Event date display — let calendar handle it
+            if (this.id === 'eventDateDisplay') {
+                clearFieldError(this);
+                return;
+            }
+
+            clearFieldError(this);
+
+            // Apply green "valid" state kapag may value (pareho sa dating behavior)
+            if (this.value && this.value.trim()) {
+                this.style.borderColor = '#1a6b42';
+            }
+        });
+    });
+
+    // Clear red state sa custom-select triggers pag pumili ng option
+    document.querySelectorAll('.custom-select-option').forEach(opt => {
+        opt.addEventListener('click', function() {
+            const cs = this.closest('.custom-select');
+            if (cs) {
+                const trigger = cs.querySelector('.custom-select-trigger');
+                if (trigger) {
+                    trigger.style.borderColor = '';
+                    trigger.style.boxShadow = '';
+                }
+            }
+        });
+    });
+
+    // Valid ID upload — clear red kapag may file na
+    const validIdInput = document.getElementById('validIdInput');
+    if (validIdInput) {
+        validIdInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const area = document.getElementById('validIdUploadArea');
+                if (area) {
+                    area.style.borderColor = '#1a6b42';
+                    area.style.background = 'var(--primary-50)';
+                }
+            }
+        });
+    }
+
+    // Terms checkbox — clear error state kapag na-check
+    const termsCb = document.getElementById('termsCheckbox');
+    if (termsCb) {
+        termsCb.addEventListener('change', function() {
+            const wrapper = document.getElementById('termsCheckboxWrapper');
+            const errorMsg = document.getElementById('termsErrorMsg');
+            if (this.checked) {
+                if (wrapper) wrapper.classList.remove('error');
+                if (errorMsg) errorMsg.classList.remove('visible');
+            }
+        });
+    }
+
+    // Attendees input — clear error class kapag valid na
+    const attendeesInput = document.getElementById('estimatedAttendees');
+    if (attendeesInput) {
+        attendeesInput.addEventListener('input', function() {
+            const val = parseInt(this.value, 10);
+            if (this.value && !isNaN(val) && val >= 1 && val <= 300) {
+                this.classList.remove('error');
+                this.style.borderColor = '#1a6b42';
+                this.style.boxShadow = '';
+            }
+        });
+    }
+
+    // Start/End time inputs — clear error class kapag naayos na
+    const startTimeInput = document.getElementById('startTime');
+    const endTimeInput = document.getElementById('endTime');
+    [startTimeInput, endTimeInput].forEach(t => {
+        if (t) {
+            t.addEventListener('input', function() {
+                this.classList.remove('error');
+                this.style.borderColor = '';
+                this.style.boxShadow = '';
+            });
+        }
+    });
+
+    // Event date display — clear red kapag may value na (after picking date)
+    const eventDateDisplay = document.getElementById('eventDateDisplay');
+    if (eventDateDisplay) {
+        eventDateDisplay.addEventListener('change', function() {
+            if (this.value) {
+                this.style.borderColor = '';
+                this.style.boxShadow = '';
+            }
+        });
+    }
+});
 
     </script>
 

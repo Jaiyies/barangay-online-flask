@@ -2255,12 +2255,17 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="age"><span data-translate="age">Age</span> <span class="required">*</span></label>
-                            <input type="number" name="age" id="age" placeholder="Age" min="0" max="120" required>
-                        </div>
-                    </div>
+                   <div class="form-col">
+    <div class="form-group">
+        <label for="age"><span data-translate="age">Age</span> <span class="required">*</span></label>
+        <input type="number" name="age" id="age" placeholder="Age" min="0" max="120" required>
+        <!-- IDINAGDAG NA WARNING TEXT -->
+         <small id="ageWarning" style="display: block; color: var(--neutral-500); font-size: 0.75rem; font-weight: 500; margin-top: 6px;">
+            Allowed: 18 years old and above only.
+        </small>
+    </div>
+</div>
+
                     <div class="form-col">
                         <div class="form-group">
                             <label for="dob"><span data-translate="dob">Date of Birth</span> <span class="required">*</span></label>
@@ -2508,78 +2513,78 @@
     </main>
         <!-- SUCCESS MODAL -->
     <div class="modal-overlay" id="successModal">
-        <div class="modal-box">
-            <div class="modal-header-success">
-                <!-- Pwede mong ilagay dito yung mga header icons mo kung meron -->
-                ...
+    <div class="modal-box" style="max-width: 480px;"> <!-- Pinaliit ang max-width para compact -->
+        <div class="modal-header-success" style="padding: 24px 20px 20px;"> <!-- Pinaliit ang padding -->
+            <div class="icon-circle" style="width: 60px; height: 60px; font-size: 26px; margin-bottom: 10px;">
+                <i class="fas fa-check-circle"></i>
             </div>
-            
-            <!-- BAGONG LAYOUT: MAGKATABI ANG REFERENCE AT QR -->
-            <div class="modal-body">
-                <div class="reference-box" style="display: flex; align-items: center; justify-content: space-between; text-align: left; gap: 15px; padding: 20px 24px;">
-                    <!-- KALIWA: Reference Number -->
-                    <div>
-                        <div class="ref-label" style="font-size: 10px;"><i class="fas fa-qrcode"></i> <span data-translate="reference_number">Reference Number</span></div>
-                        <div class="ref-number" id="modalRefNumber" style="font-size: 20px; margin: 2px 0;">DOC-20260905-XXXX</div>
-                        <span class="ref-badge" id="modalQueueBadge" style="font-size: 10px;">Queue #001</span>
-                    </div>
-                    <!-- KANAN: QR Code -->
-                    <div style="text-align: center; flex-shrink: 0;">
-                        <img id="successQrImage" src="" alt="QR Code" style="width: 90px; height: 90px; border-radius: 8px; border: 2px solid #228b54; background: white; padding: 3px;">
-                    </div>
-                </div>
-
-                <div class="doc-details-grid" id="modalDetailsGrid">
-                    <div class="detail-item">
-                        <i class="fas fa-file-alt"></i>
-                        <span class="label" data-translate="document_label">Document:</span>
-                        <span class="value" id="modalDocType">N/A</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-user"></i>
-                        <span class="label" data-translate="applicant_label">Applicant:</span>
-                        <span class="value" id="modalApplicant">N/A</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-calendar-day"></i>
-                        <span class="label" data-translate="date_label">Date:</span>
-                        <span class="value" id="modalDate">N/A</span>
-                    </div>
-                    <div class="detail-item" style="border-bottom: none;">
-                        <i class="fas fa-info-circle"></i>
-                        <span class="label" data-translate="status_label">Status:</span>
-                        <span class="value"><span class="status-badge" data-translate="pending">Pending Review</span></span>
-                    </div>
-                </div>
-
-                <p style="text-align:center; font-size:11px; color:#64748b; margin-top: 10px; margin-bottom: 15px; font-weight: 500;">
-                    <i class="fas fa-info-circle" style="color: #228b54;"></i> 
-                    <span data-translate="show_qr_code">Show this QR code to Barangay personnel for faster transaction.</span>
-                </p>
-
-                <div class="waiting-banner-modal">
-                    <i class="fas fa-hourglass-half"></i>
-                    <div class="waiting-text">
-                        <h4 data-translate="please_wait">Please Wait</h4>
-                        <p><span data-translate="request_pending_desc">Your request is now</span> <strong>PINOPROSESO</strong>. <span data-translate="request_pending_desc_2">Please allow 1-2 business days for processing.</span></p>
-                    </div>
-                </div>
-                
-                <p style="text-align:center;font-size:12px;color:var(--neutral-500);margin-top:12px;">
-                    <i class="fas fa-bell"></i> <span data-translate="notification_ready">You will receive a notification once your document is ready.</span>
-                </p>
-            </div>
-            
-            <div class="modal-footer-actions">
-                <a href="{{ url_for('my_requests') }}" class="modal-btn primary">
-                    <i class="fas fa-search"></i> <span data-translate="track_status">Track Status</span>
-                </a>
-                <button onclick="closeSuccessModal()" class="modal-btn secondary">
-                    <i class="fas fa-plus"></i> <span data-translate="request_another">Request Another</span>
-                </button>
-            </div>
+            <h2 data-translate="success_title" style="font-size: 22px;">Request Submitted!</h2>
+            <p data-translate="success_subtitle" style="font-size: 13px; margin-top: 2px;">Your document request has been received.</p>
         </div>
-    </div>
+        
+        <div class="modal-body" style="padding: 20px 24px 16px;">
+            <div class="reference-box" style="display: flex; align-items: center; justify-content: space-between; text-align: left; gap: 12px; padding: 16px 20px; margin-bottom: 14px;">
+                <!-- KALIWA: Reference Number -->
+                <div>
+                    <div class="ref-label" style="font-size: 10px;"><i class="fas fa-qrcode"></i> <span data-translate="reference_number">Reference Number</span></div>
+                    <div class="ref-number" id="modalRefNumber" style="font-size: 18px; margin: 2px 0;">DOC-20260905-XXXX</div>
+                    <span class="ref-badge" id="modalQueueBadge" style="font-size: 10px;">Queue #001</span>
+                </div>
+                <!-- KANAN: QR Code -->
+                <div style="text-align: center; flex-shrink: 0;">
+                    <img id="successQrImage" src="" alt="QR Code" style="width: 75px; height: 75px; border-radius: 8px; border: 2px solid #228b54; background: white; padding: 3px;">
+                </div>
+            </div>
+
+                        <div class="doc-details-grid" id="modalDetailsGrid" style="padding: 12px 16px; margin-bottom: 12px; gap: 4px 12px;">
+                <div class="detail-item" style="font-size: 12px; padding: 4px 0;">
+                    <i class="fas fa-file-alt" style="font-size: 12px;"></i>
+                    <span class="label" data-translate="document_label" style="font-size: 10px;">Document:</span>
+                    <span class="value" id="modalDocType">N/A</span>
+                </div>
+                <div class="detail-item" style="font-size: 12px; padding: 4px 0;">
+                    <i class="fas fa-user" style="font-size: 12px;"></i>
+                    <span class="label" data-translate="applicant_label" style="font-size: 10px;">Applicant:</span>
+                    <span class="value" id="modalApplicant">N/A</span>
+                </div>
+                <div class="detail-item" style="font-size: 12px; padding: 4px 0;">
+                    <i class="fas fa-calendar-day" style="font-size: 12px;"></i>
+                    <span class="label" data-translate="date_label" style="font-size: 10px;">Date:</span>
+                    <span class="value" id="modalDate">N/A</span>
+                </div>
+                <div class="detail-item" style="border-bottom: none; font-size: 12px; padding: 4px 0;">
+                    <i class="fas fa-info-circle" style="font-size: 12px;"></i>
+                    <span class="label" data-translate="status_label" style="font-size: 10px;">Status:</span>
+                    <span class="value"><span class="status-badge" data-translate="pending" style="font-size: 10px; padding: 3px 10px;">Pending Review</span></span>
+                </div>
+            </div>
+
+            <p style="text-align:center; font-size:10px; color:#64748b; margin-top: 8px; margin-bottom: 10px; font-weight: 500;">
+                <i class="fas fa-info-circle" style="color: #228b54;"></i> 
+                <span data-translate="show_qr_code">Show this QR code to Barangay personnel for faster transaction.</span>
+            </p>
+
+            <div class="waiting-banner-modal" style="padding: 12px 16px; gap: 10px; margin-bottom: 6px;">
+                <i class="fas fa-hourglass-half" style="font-size: 20px; padding: 8px;"></i>
+                <div class="waiting-text">
+                    <h4 data-translate="please_wait" style="font-size: 13px;">Please Wait</h4>
+                    <p style="font-size: 12px;"><span data-translate="request_pending_desc">Your request is now</span> <strong>PINOPROSESO</strong>. <span data-translate="request_pending_desc_2">Please allow 1-2 business days for processing.</span></p>
+                </div>
+            </div>
+            
+            <p style="text-align:center;font-size:11px;color:var(--neutral-500);margin-top:8px;">
+                <i class="fas fa-bell"></i> <span data-translate="notification_ready">You will receive a notification once your document is ready.</span>
+            </p>
+        </div>
+            
+           <div class="modal-footer-actions" style="padding: 0 24px 20px; gap: 8px;">
+    <a href="{{ url_for('my_requests') }}" class="modal-btn primary" style="padding: 11px 18px; font-size: 13px;">
+        <i class="fas fa-search"></i> <span data-translate="track_status">Track Status</span>
+    </a>
+    <button onclick="closeSuccessModal()" class="modal-btn secondary" style="padding: 11px 18px; font-size: 13px;">
+        <i class="fas fa-plus"></i> <span data-translate="request_another">Request Another</span>
+    </button>
+</div>
 
     <!-- ✅ DITO DAPAT ANG CLEAR CONFIRM MODAL (labas ng successModal) -->
     <div class="modal-overlay" id="clearConfirmModal">
@@ -3124,16 +3129,49 @@
             document.getElementById('validIdInput').value = '';
             document.getElementById('validIdUploadArea').style.borderColor = '#cbd5e1';
         }
-        document.querySelectorAll('input, textarea').forEach(field => {
-            field.addEventListener('input', function() {
-                this.style.borderColor = '#dde8e1';
-            });
-            field.addEventListener('change', function() {
-                if (this.value.trim()) {
-                    this.style.borderColor = '#1a6b42';
-                }
-            });
-        });
+      document.querySelectorAll('input, textarea').forEach(field => {
+    field.addEventListener('input', function() {
+        this.style.borderColor = '#dde8e1';
+        this.style.boxShadow = '';           // <-- clear red glow
+    });
+    field.addEventListener('change', function() {
+        this.style.boxShadow = '';           // <-- clear red glow
+        if (this.value.trim()) {
+            this.style.borderColor = '#1a6b42';
+        }
+    });
+});
+
+// Clear red state sa custom selects pag pumili ng option
+document.querySelectorAll('.custom-select-option').forEach(opt => {
+    opt.addEventListener('click', function() {
+        const cs = this.closest('.custom-select');
+        if (cs) {
+            const trigger = cs.querySelector('.custom-select-trigger');
+            if (trigger) {
+                trigger.style.borderColor = '';
+                trigger.style.boxShadow = '';
+            }
+        }
+    });
+});
+
+// Clear red state sa file upload areas
+document.getElementById('fileInput')?.addEventListener('change', function() {
+    const area = document.getElementById('fileUploadArea');
+    if (area) { area.style.borderColor = ''; area.style.background = ''; }
+});
+document.getElementById('validIdInput')?.addEventListener('change', function() {
+    const area = document.getElementById('validIdUploadArea');
+    if (area) { area.style.borderColor = ''; area.style.background = ''; }
+});
+
+// Clear red outline sa checkboxes pag na-check
+document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+        if (this.checked) this.style.outline = 'none';
+    });
+});
 
         if (fileInput) {
             fileInput.addEventListener('change', function() {
