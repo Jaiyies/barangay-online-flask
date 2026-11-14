@@ -2188,8 +2188,34 @@ def api_approved_events():
     events = cursor.fetchall()
     conn.close()
 
+    now = datetime.datetime.now()
+    today = now.date()
+
     result = []
     for event in events:
+        event_date = event['event_date']
+        end_time = event['end_time']
+
+        is_done = False
+        try:
+            if event_date and end_time:
+                if hasattr(end_time, 'total_seconds'):
+                    sec = int(end_time.total_seconds())
+                    end_dt = datetime.datetime.combine(
+                        event_date, datetime.time(sec // 3600, (sec % 3600) // 60)
+                    )
+                else:
+                    end_dt = datetime.datetime.combine(
+                        event_date,
+                        datetime.datetime.strptime(str(end_time), '%H:%M:%S').time()
+                    )
+                is_done = end_dt < now
+            elif event_date:
+                is_done = event_date < today
+        except Exception as ex:
+            print(f"Date parse warning: {ex}")
+            is_done = False
+
         result.append({
             'id': event['id'],
             'title': event['event_name'],
@@ -2200,7 +2226,8 @@ def api_approved_events():
             'attendees': event['estimated_attendees'] or 0,
             'organizer': f"{event['first_name']} {event['last_name']}",
             'reference': event['reference_number'] or 'N/A',
-            'description': event['event_description'] or 'N/A'
+            'description': event['event_description'] or 'N/A',
+            'is_done': is_done
         })
     return jsonify(result)
 

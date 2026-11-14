@@ -740,8 +740,8 @@
         }
         .fc .fc-daygrid-day.fc-day-today { background: var(--primary-50) !important; }
       .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-    color: var(--primary-800) !important; /* Dark text */
-    background: var(--primary-100) !important; /* Light green bg */
+    color: var(--primary-800) !important;
+    background: var(--primary-100) !important;
     border-radius: 50%;
     width: 34px;
     height: 34px;
@@ -806,6 +806,20 @@
             max-width: 100%;
         }
 
+        /* ✅ DONE events — GRAY style (past approved events) */
+        .fc-event.is-done,
+        .fc-event.is-done .fc-event-main,
+        .fc-event.is-done .fc-event-main-frame {
+            background: #94a3b8 !important;
+            border-color: #64748b !important;
+            color: #ffffff !important;
+            opacity: 0.9;
+        }
+        .fc-event.is-done .fc-event-title-custom {
+            font-style: italic;
+            color: #ffffff !important;
+        }
+
         /* Kapag sobrang dami ng events, "+N more" link */
         .fc .fc-daygrid-more-link {
             font-size: 0.7rem;
@@ -847,13 +861,25 @@
         }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* ✅ DONE event detail card — gray left border */
+        .event-detail-card.is-done {
+            border-left-color: #64748b;
+            opacity: 0.95;
+            background: linear-gradient(165deg, #ffffff 0%, #f1f5f9 100%);
+        }
+
         .event-detail-card h4 {
             font-size: 1.05rem; font-weight: 800; color: var(--primary-800);
             margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
         }
+        .event-detail-card.is-done h4 { color: #475569; }
         .event-detail-card h4 i {
             color: var(--primary-500); background: linear-gradient(135deg, var(--primary-50), #ffffff);
             font-size: 0.85rem; padding: 8px; border-radius: 10px;
+        }
+        .event-detail-card.is-done h4 i {
+            color: #64748b;
+            background: #e2e8f0;
         }
         
         .event-detail-row {
@@ -867,6 +893,27 @@
             display: inline-block; background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
             color: white; padding: 8px 18px; border-radius: 30px;
             font-size: 0.75rem; font-weight: 700; align-self: flex-start; width: fit-content;
+        }
+
+        /* ✅ Status badge sa event detail card */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .status-badge.done {
+            background: #64748b;
+            color: white;
+        }
+        .status-badge.upcoming {
+            background: #1a5d3a;
+            color: white;
         }
 
         .loading-state { text-align: center; padding: 50px 20px; color: var(--neutral-500); }
@@ -1152,7 +1199,7 @@
     min-width: 140px;
     box-shadow: 0px 8px 24px rgba(0,0,0,0.15);
     border-radius: 12px;
-    z-index: 9999; /* Mataas para lumutang sa ibabaw ng calendar */
+    z-index: 9999;
     top: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
@@ -1162,7 +1209,6 @@
     border: 1px solid var(--neutral-100);
 }
 
-/* Custom scrollbar for dropdown */
 .dropdown-content::-webkit-scrollbar { width: 6px; }
 .dropdown-content::-webkit-scrollbar-thumb { background: rgba(34, 139, 84, 0.3); border-radius: 10px; }
 
@@ -1338,10 +1384,9 @@
                 </div>
                 
                 <div id="calendar"></div>
-            </div> <!-- SARADO NG CALENDAR PANEL -->
+            </div>
 
-           
-                       <!-- KANANG PANEL: EVENT DETAILS -->
+            <!-- KANANG PANEL: EVENT DETAILS -->
             <div class="details-panel" id="detailsPanel">
                 <div class="details-header">
                     <h3><i class="fas fa-info-circle"></i> <span class="translatable">Event Details</span></h3>
@@ -1351,6 +1396,7 @@
                     <p style="margin-top: 12px;"><span class="translatable">Loading events...</span></p>
                 </div>
             </div>
+        </div>
     </main>
 
 
@@ -1358,7 +1404,6 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales-all.global.min.js"></script>
     
     <script>
-
     // ===== SAFE TRANSLATION HELPER =====
     function getDict() {
         const lang = localStorage.getItem('language') || 'en';
@@ -1654,10 +1699,20 @@
             const startTime = formatTime(event.start_time);
             const endTime = formatTime(event.end_time);
             const timeDisplay = startTime !== 'N/A' ? `${startTime} - ${endTime}` : `<span data-translate="time_not_specified">Time not specified</span>`;
+            const isDone = event.is_done === true;
+
+            // ✅ DONE / UPCOMING badge
+            const statusBadge = isDone
+                ? `<span class="status-badge done">Done</span>`
+                : `<span class="status-badge upcoming">Upcoming</span>`;
 
             html += `
-                <div class="event-detail-card">
-                    <h4><i class="fas fa-star"></i> ${event.title}</h4>
+                <div class="event-detail-card ${isDone ? 'is-done' : ''}">
+                    <h4>
+                        <i class="fas fa-star"></i>
+                        <span style="flex:1;min-width:0;">${event.title}</span>
+                        ${statusBadge}
+                    </h4>
                     <div class="event-detail-row">
                         <i class="fas fa-clock"></i>
                         <span><strong data-translate="time_label">Time:</strong> ${timeDisplay}</span>
@@ -1695,7 +1750,6 @@
     document.addEventListener('DOMContentLoaded', async function() {
         await fetchEvents();
 
-        // Kunin ang language
         const savedLang = localStorage.getItem('language') || 'en';
         const calendarLocale = savedLang === 'tl' ? 'tl' : 'en';
 
@@ -1703,9 +1757,9 @@
         
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            locale: calendarLocale, // Naka-dynamic na
-           headerToolbar: false, // Itatago natin yung default toolbar
-footerToolbar: false, // Itatago natin yung default footer
+            locale: calendarLocale,
+            headerToolbar: false,
+            footerToolbar: false,
 
             buttonText: {
                 today: savedLang === 'tl' ? 'Ngayon' : 'today',
@@ -1715,9 +1769,22 @@ footerToolbar: false, // Itatago natin yung default footer
                 list: savedLang === 'tl' ? 'Listahan' : 'list'
             },
             height: '100%',
-            events: eventsData.map(e => ({
-                id: e.id, title: e.title, date: e.date, allDay: true, display: 'block', extendedProps: e
-            })),
+            // ✅ DONE events: gray color | UPCOMING events: green
+            events: eventsData.map(e => {
+                const isDone = e.is_done === true;
+                return {
+                    id: e.id,
+                    title: e.title,
+                    date: e.date,
+                    allDay: true,
+                    display: 'block',
+                    backgroundColor: isDone ? '#94a3b8' : '#1a5d3a',
+                    borderColor:     isDone ? '#64748b' : '#0d2b1e',
+                    textColor: '#ffffff',
+                    classNames: isDone ? ['is-done'] : [],
+                    extendedProps: e
+                };
+            }),
             eventDisplay: 'block',
             eventContent: function(arg) {
                 return { 
@@ -1737,32 +1804,29 @@ footerToolbar: false, // Itatago natin yung default footer
                 info.dayEl.classList.add('selected-day');
             },
             eventDidMount: function(info) {
-                info.el.setAttribute('title', `${info.event.title} - ${info.event.extendedProps.venue}`);
+                const doneLabel = info.event.extendedProps.is_done ? ' ✅ (Done)' : '';
+                info.el.setAttribute('title', `${info.event.title} - ${info.event.extendedProps.venue}${doneLabel}`);
             }
         });
 
         calendar.render();
 
-                        // ===== CUSTOM HEADER LOGIC (DYNAMIC TRANSLATION) =====
+        // ===== CUSTOM HEADER LOGIC =====
         const monthsEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const monthsTl = ["Enero", "Pebrero", "Marso", "Abril", "Mayo", "Hunyo", "Hulyo", "Agosto", "Setyembre", "Oktubre", "Nobyembre", "Disyembre"];
         const currentYear = new Date().getFullYear();
         
-        // Helper para makuha yung current language
         function getCurrentLang() {
             return localStorage.getItem('language') || 'en';
         }
 
-        // Function para i-update yung Title at Buttons base sa Language
         function updateCustomTitle() {
             const lang = getCurrentLang();
             const date = calendar.getDate();
             
-            // 1. Title (e.g., Nobyembre 2026 / November 2026)
             const monthName = (lang === 'tl') ? monthsTl[date.getMonth()] : monthsEn[date.getMonth()];
             document.getElementById('customCalTitle').textContent = monthName + ' ' + date.getFullYear();
 
-            // 2. Buttons (Today, Month, Year)
             const todayBtn = document.getElementById('customTodayBtn');
             const monthBtn = document.getElementById('customMonthBtn');
             const yearBtn = document.getElementById('customYearBtn');
@@ -1771,19 +1835,16 @@ footerToolbar: false, // Itatago natin yung default footer
             if (monthBtn) monthBtn.innerHTML = ((lang === 'tl') ? 'Buwan' : 'Month') + ' <i class="fas fa-chevron-down" style="font-size: 0.7em; margin-left: 5px;"></i>';
             if (yearBtn) yearBtn.innerHTML = ((lang === 'tl') ? 'Taon' : 'Year') + ' <i class="fas fa-chevron-down" style="font-size: 0.7em; margin-left: 5px;"></i>';
 
-            // 3. Month Dropdown Items (Enero, Pebrero, etc.)
             const monthLinks = document.querySelectorAll('#monthDropdown a');
             monthLinks.forEach((link, index) => {
                 link.textContent = (lang === 'tl') ? monthsTl[index] : monthsEn[index];
             });
         }
 
-        // Generate Month Dropdown Items
         const monthDropdown = document.getElementById('monthDropdown');
         monthsEn.forEach((month, index) => {
             const link = document.createElement('a');
             link.href = "javascript:void(0)";
-            // Dito natin ilalagay yung tamang text base sa language
             link.textContent = (getCurrentLang() === 'tl') ? monthsTl[index] : month;
             
             link.addEventListener('click', () => {
@@ -1795,7 +1856,6 @@ footerToolbar: false, // Itatago natin yung default footer
             monthDropdown.appendChild(link);
         });
 
-        // Generate Year Dropdown Items (5 years before, 5 years after)
         const yearDropdown = document.getElementById('yearDropdown');
         for (let i = currentYear - 5; i <= currentYear + 5; i++) {
             const link = document.createElement('a');
@@ -1825,7 +1885,6 @@ footerToolbar: false, // Itatago natin yung default footer
             updateCustomTitle();
         });
 
-        // Toggle Dropdowns
         document.getElementById('customMonthBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('yearDropdown').classList.remove('show');
@@ -1842,21 +1901,16 @@ footerToolbar: false, // Itatago natin yung default footer
             document.getElementById('customMonthBtn').classList.remove('active');
         });
 
-        // Close dropdowns when clicking outside
         document.addEventListener('click', () => {
             document.getElementById('monthDropdown').classList.remove('show');
             document.getElementById('yearDropdown').classList.remove('show');
         });
 
-        // Initial title load
         updateCustomTitle();
-        // Update title when calendar changes
         calendar.on('datesSet', updateCustomTitle);
         
-        // I-expose sa window para ma-access ng translations.js kung kailangan
         window.mainCalendar = calendar;
 
-        // Empty state
         document.getElementById('detailsPanel').innerHTML = `
             <div class="details-header">
                 <h3><i class="fas fa-info-circle"></i> <span data-translate="event_details">Event Details</span></h3>
@@ -1868,12 +1922,10 @@ footerToolbar: false, // Itatago natin yung default footer
             </div>
         `;
 
-        // Apply translation kung naka-Tagalog
         if (savedLang === 'tl' && typeof applyGlobalTranslation === 'function') {
             applyGlobalTranslation('tl');
         }
 
-        // Function para tanggalin ang "all-day" text
         function killAllDay() {
             document.querySelectorAll('.fc-event-time').forEach(el => el.remove());
             document.querySelectorAll('.fc-daygrid-event').forEach(el => {

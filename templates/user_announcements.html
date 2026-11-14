@@ -633,6 +633,66 @@
         .announcement-meta span { display: inline-flex; align-items: center; gap: 7px; }
         .announcement-meta i { color: var(--primary-500); font-size: 0.8rem; }
 
+                .announcement-image {
+            width: 100%;
+            margin: 0 0 18px 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--neutral-50);
+            border: 1px solid var(--neutral-100);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .announcement-image:hover {
+            box-shadow: 0 12px 32px rgba(15, 61, 42, 0.20);
+            transform: translateY(-2px);
+        }
+        .announcement-image img {
+            display: block;
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .announcement-image:hover img { transform: scale(1.02); }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 999999;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+        .image-modal.show { display: flex; }
+        .image-modal img {
+            max-width: 95%;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--primary-800);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+        }
+
         /* ===== PINNED BADGE ===== */
         .pinned-badge {
             display: inline-flex; align-items: center; gap: 5px;
@@ -1009,6 +1069,11 @@
                     <span class="pinned-badge"><i class="fas fa-thumbtack"></i> Pinned</span>
                     {% endif %}
                 </div>
+                     {% if a.image_path %}
+                <div class="announcement-image" data-image-url="{{ url_for('uploaded_file', filename=a.image_path) }}" onclick="openImageModal(this.dataset.imageUrl)">
+                    <img src="{{ url_for('uploaded_file', filename=a.image_path) }}" alt="{{ a.title }}" loading="lazy">
+                </div>
+                {% endif %}
                 <div class="announcement-content">{{ a.content }}</div>
                 <div class="announcement-meta">
                     <span>
@@ -1222,7 +1287,27 @@
                     .catch(err => console.error('Unread error:', err));
             }
         }
-
+        // ===== IMAGE MODAL =====
+        function openImageModal(src) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            if (modal && img) {
+                img.src = src;
+                modal.classList.add('show');
+                document.body.classList.add('no-scroll');
+            }
+        }
+        function closeImageModal(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('imageModal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.classList.remove('no-scroll');
+            }
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeImageModal();
+        });
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', function() {
             // 1. I-set AGAD ang button state pagka-load ng page
@@ -1275,6 +1360,11 @@
         });
 
     </script>
+
+    <div class="image-modal" id="imageModal" onclick="closeImageModal(event)">
+        <button class="image-modal-close" onclick="closeImageModal(event)">×</button>
+        <img id="modalImage" src="" alt="Announcement Image">
+    </div>
 
      <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
     <script>
