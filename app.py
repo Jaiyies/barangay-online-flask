@@ -24,8 +24,30 @@ from dotenv import load_dotenv
 # ============ LOAD ENVIRONMENT VARIABLES ============
 load_dotenv()
 
+# Philippine time para sa queue numbers at "3 days before" rule (UTC ang Render)
+os.environ.setdefault('TZ', 'Asia/Manila')
+if hasattr(time, 'tzset'):
+    time.tzset()
+
+# Render nagse-set ng RENDER_EXTERNAL_URL automatically; BASE_URL ang may priority.
+BASE_URL = (os.getenv('BASE_URL') or os.getenv('RENDER_EXTERNAL_URL') or 'http://127.0.0.1:5000').rstrip('/')
+
+def safe_check_password(pw_hash, password):
+    """check_password_hash na hindi nagcre-crash kapag NULL ang password (Google-only account)."""
+    if not pw_hash:
+        return False
+    return check_password_hash(pw_hash, password)
+
+
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key-if-env-fails')
+app.secret_key = os.environ['SECRET_KEY']
+app.config.update(
+    SESSION_COOKIE_SECURE=BASE_URL.startswith('https'),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # ============ CLOUDINARY SETUP ============
 cloudinary.config(
@@ -312,6 +334,7 @@ def get_db():
         'password': os.getenv('DB_PASSWORD', ''),
         'database': os.getenv('DB_NAME', 'barangay_online_services'),
         'connection_timeout': 20,
+        'time_zone': '+08:00',
     }
     # Para sa TiDB Cloud: kailangan ng TLS
     if os.getenv('DB_SSL') == '1':
@@ -440,8 +463,9 @@ def send_admin_notification_email(recipient_email, subject, title, message,
                             {f'<p style="margin:0 0 10px;color:#334155;font-size:14px;"><strong>Applicant:</strong> {applicant_name}</p>' if applicant_name else ''}
                             <table width="100%" style="margin:25px 0 10px;">
                                 <tr><td align="center">
-                                    <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">
-                                        Login to Admin Panel
+                                   <a href="{BASE_URL}/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">
+                                            Login to Admin Panel
+                                        </a> 
                                     </a>
                                 </td></tr>
                             </table>
@@ -570,7 +594,7 @@ def block_browser_navigation_and_maintenance():
         referer = request.headers.get('Referer', '')
         if request.endpoint == 'login' and request.method == 'GET':
             # Kung galing sa loob ng website (back arrow), redirect sa dashboard
-            if referer and '127.0.0.1:5000' in referer and '/login' not in referer:
+            if referer and request.host_url in referer and '/login' not in referer:
                 role = session.get('role')
                 if role == 'head_admin':
                     return redirect(url_for('head_admin_dashboard'))
@@ -661,7 +685,11 @@ def login():
                 flash('Your account has been deactivated. Please contact the administrator.', 'danger')
                 return render_template('login.html')
 
-            if not check_password_hash(user['password'], password):
+            if not user['password']:
+                flash('This account uses Google Sign-In. Please click "Continue with Google" to log in.', 'info')
+                return render_template('login.html')
+
+            if not safe_check_password(user['password'], password):
                 session['login_attempts'] = session.get('login_attempts', 0) + 1
                 if session['login_attempts'] >= 3:
                     session['lockout_time'] = time.time() + 30
@@ -866,7 +894,7 @@ def register():
                     <tr><td style="padding:8px 0;color:#94a3b8;font-size:13px;">Date Registered</td><td style="padding:8px 0;color:#1e293b;font-size:14px;font-weight:600;">{datetime.datetime.now().strftime('%B %d, %Y')}</td></tr>
                 </table>
                 <table width="100%" style="margin:30px 0 10px;"><tr><td align="center">
-                    <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a 0%,#2a5298 100%);color:#fff;padding:16px 50px;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">Login to Your Account</a>
+                    <a href="{BASE_URL}/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a 0%,#2a5298 100%);color:#fff;padding:16px 50px;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">Login to Your Account</a>
                 </td></tr></table>
             </td></tr>
             <tr><td style="background:linear-gradient(135deg,#0f3d2a 0%,#2a5298 100%);padding:30px 40px;text-align:center;">
@@ -989,6 +1017,28 @@ def user_update_profile():
         flash('Please fill in all required fields.', 'danger')
         return redirect(url_for('user_settings'))
 
+    # Email change: kailangang naka-verify ng OTP (chine-check sa server, hindi lang sa browser)
+    current_email = (session.get('email') or '').strip().lower()
+    if email.lower() != current_email:
+        verified_email = (session.get('profile_otp_verified_email') or '').lower()
+        verified_at = session.get('profile_otp_verified_at', 0)
+        if (verified_email != email.lower()
+                or datetime.datetime.now().timestamp() - verified_at > PROFILE_OTP_TTL):
+            flash('Please verify your new email with the code we sent before saving.', 'danger')
+            return redirect(url_for('user_settings'))
+
+        dup_conn = get_db()
+        dup_cursor = dup_conn.cursor()
+        dup_cursor.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, session['user_id']))
+        email_taken = dup_cursor.fetchone()
+        dup_conn.close()
+        if email_taken:
+            flash('That email is already used by another account.', 'danger')
+            return redirect(url_for('user_settings'))
+
+        session.pop('profile_otp_verified_email', None)
+        session.pop('profile_otp_verified_at', None)
+
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
@@ -1104,7 +1154,7 @@ def user_change_password():
     otp_valid = otp_verified and (datetime.datetime.now().timestamp() - otp_verified_at) < 300
 
     if not otp_valid:
-        if not user or not check_password_hash(user['password'], current_password):
+        if not user or not safe_check_password(user['password'], current_password):
             conn.close()
             flash('Current password is incorrect or OTP expired. Please try again.', 'danger')
             return redirect(url_for('user_settings'))
@@ -1609,7 +1659,7 @@ def request_document_post():
                     <tr><td><strong>Queue No:</strong> {queue_num}</td></tr>
                     <tr><td><strong>Status:</strong> <span style="color:#d97706;">PENDING</span></td></tr>
                 </table>
-                <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:#0f3d2a;color:#fff;padding:12px 30px;text-decoration:none;border-radius:8px;margin-top:15px;">Login to Track</a>
+               <a href="{BASE_URL}/login" style="display:inline-block;background:#0f3d2a;color:#fff;padding:12px 30px;text-decoration:none;border-radius:8px;margin-top:15px;">Login to Track</a>
             </body></html>
             """
             send_email(resident_info['email'], subject, body_html)
@@ -2965,9 +3015,22 @@ def _update_event_status(event_id):
     """, (event_id,))
     event_data = cursor.fetchone()
 
+    if not event_data:
+        conn.close()
+        return jsonify({'error': 'Event not found'}), 404
+
+    # Court admin: sariling venue lang
+    expected_venue = COURT_CONFIG.get(session.get('role'), {}).get('venue')
+    if expected_venue and event_data['venue'] != expected_venue:
+        conn.close()
+        return jsonify({'error': 'Unauthorized. This event belongs to another court.'}), 403
+
     cursor.execute("""
-        UPDATE event_permits SET status = %s, admin_remarks = %s WHERE id = %s
+        UPDATE event_permits SET status = %s, admin_remarks = %s WHERE id = %s AND status = 'pending'
     """, (status, remarks, event_id))
+    if cursor.rowcount == 0:
+        conn.close()
+        return jsonify({'error': 'Only pending permits can be updated.'}), 400
     conn.commit()
 
     if event_data:
@@ -3116,7 +3179,8 @@ def check_duplicate_event(event_id):
 
 @app.route('/api/event/<int:event_id>/update-status', methods=['POST'])
 def update_event_status(event_id):
-    if 'user_id' not in session or session.get('role') not in ADMIN_ROLES:
+    # head_admin at court admins lang (hindi kasama ang admin_documents)
+    if 'user_id' not in session or session.get('role') not in (['head_admin'] + COURT_ROLES):
         return jsonify({'error': 'Unauthorized'}), 401
 
     data = request.json
@@ -3161,6 +3225,10 @@ def update_event_status(event_id):
     """, (event_id,))
     event_data = cursor.fetchone()
 
+    if not event_data:
+        conn.close()
+        return jsonify({'error': 'Event not found'}), 404
+
     if event_data:
         current_role = session.get('role')
         if current_role in COURT_CONFIG:
@@ -3169,8 +3237,11 @@ def update_event_status(event_id):
                 return jsonify({'error': 'Unauthorized. This event belongs to another court.'}), 403
 
     cursor.execute("""
-        UPDATE event_permits SET status = %s, admin_remarks = %s WHERE id = %s
+        UPDATE event_permits SET status = %s, admin_remarks = %s WHERE id = %s AND status = 'pending'
     """, (status, remarks, event_id))
+    if cursor.rowcount == 0:
+        conn.close()
+        return jsonify({'error': 'Only pending permits can be updated.'}), 400
     conn.commit()
     conn.close()
 
@@ -3468,7 +3539,7 @@ def user_delete_account():
     cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
 
-    if not user or not check_password_hash(user['password'], password):
+    if not user or not safe_check_password(user['password'], password):
         conn.close()
         flash('Password is incorrect.', 'danger')
         return redirect(url_for('user_settings'))
@@ -3583,7 +3654,7 @@ def request_password_change_docs_admin():
                                         Pumunta sa <strong>Admin Management</strong> para mag-set ng bagong password.
                                     </p>
                                     <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
-                                        <a href="http://127.0.0.1:5000/admins" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Go to Admin Management</a>
+                                        <a href="{BASE_URL}/admins" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a 0%,#2a5298 100%);color:#fff;padding:16px 50px;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">Go to Admin Management</a>
                                     </td></tr></table>
                                 </td>
                             </tr>
@@ -3655,7 +3726,7 @@ def admin_change_password():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
-    if not user or not check_password_hash(user['password'], current_password):
+    if not user or not safe_check_password(user['password'], current_password):
         conn.close()
         flash('Current password is incorrect.', 'danger')
         return redirect(url_for('sec_admin_settings'))
@@ -3736,7 +3807,7 @@ def secondary_admin_change_password():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
-    if not user or not check_password_hash(user['password'], current_password):
+    if not user or not safe_check_password(user['password'], current_password):
         conn.close()
         flash('Current password is incorrect.', 'danger')
         return redirect(url_for('secondary_admin_settings'))
@@ -3896,7 +3967,7 @@ def request_password_change(user_id):
         head_admin = cursor.fetchone()
         
         # Gumawa ng 6-digit code
-        otp_code = f"{random.randint(0, 999999):06d}"
+        otp_code = f"{secrets.randbelow(1000000):06d}"
         
         # I-save sa session (naka-tie sa target user para hindi magamit sa iba)
         session['admin_pass_otp'] = otp_code
@@ -4014,7 +4085,7 @@ def confirm_password_change():
                                         </td></tr>
                                     </table>
                                     <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
-                                        <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Login Now</a>
+                                        <a href="{BASE_URL}/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Login Now</a>
                                     </td></tr></table>
                                 </td>
                             </tr>
@@ -4232,7 +4303,7 @@ def create_admin():
                             </div>
                             
                             <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
-                                <a href="http://127.0.0.1:5000/auto-login/{auto_login_token}" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Go to Dashboard</a>
+                                <a href="{BASE_URL}/auto-login/{auto_login_token}" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Go to Dashboard</a>
                             </td></tr></table>
                             
                             <p style="margin:20px 0 0;color:#94a3b8;font-size:12px;text-align:center;">
@@ -4672,7 +4743,7 @@ def send_email_all():
                         <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">__SUBJECT__</h2>
                         <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">__MESSAGE__</p>
                         <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
-                            <a href="http://127.0.0.1:5000/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Login to Portal</a>
+                            <a href="__BASE_URL__/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Login to Portal</a>
                         </td></tr></table>
                     </td></tr>
                     <tr><td style="background:#0f3d2a;padding:20px;text-align:center;">
@@ -4686,7 +4757,7 @@ def send_email_all():
     sent_count = 0
     failed_count = 0
     for user in users:
-        body_html = body_template.replace('__SUBJECT__', subject).replace('__MESSAGE__', message)
+        body_html = body_template.replace('__SUBJECT__', subject).replace('__MESSAGE__', message).replace('__BASE_URL__', BASE_URL)
         if send_email(user['email'], subject, body_html):
             sent_count += 1
         else:
@@ -4941,7 +5012,7 @@ def change_password():
         cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
         user = cursor.fetchone()
         
-        if not user or not check_password_hash(user['password'], current_password):
+        if not user or not safe_check_password(user['password'], current_password):
             flash('Current password is incorrect.', 'danger')
             return redirect(url_for('settings'))
             
@@ -5027,67 +5098,8 @@ def toggle_maintenance():
     flash(f'Maintenance mode turned {status}!', 'success')
     return redirect(url_for('settings'))
 
-# ============================================================
-# DATABASE BACKUP API
-# ============================================================
-@app.route('/api/backup-database', methods=['POST'])
-def backup_database():
-    if 'user_id' not in session or session.get('role') != 'head_admin':
-        return jsonify({'error': 'Unauthorized'}), 401
-    try:
-        backup_dir = 'backups'
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"{backup_dir}/barangay_backup_{timestamp}.sql"
-        db_user = os.getenv('DB_USER', 'root')
-        db_pass = os.getenv('DB_PASSWORD', '')
-        db_name = os.getenv('DB_NAME', 'barangay_online_services')
-        mysqldump_path = r"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe"
-        with open(filename, 'w') as f:
-            result = subprocess.run(
-                [mysqldump_path, f'-u{db_user}', f'-p{db_pass}', db_name],
-                stdout=f, stderr=subprocess.PIPE, text=True
-            )
-        if result.returncode != 0:
-            return jsonify({'error': 'Backup failed. Please check your DB credentials in .env', 'details': result.stderr}), 500
-        return jsonify({'success': True, 'message': 'Database backup created successfully', 'filename': filename})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-@app.route('/api/download-backup')
-def download_backup():
-    if 'user_id' not in session or session.get('role') != 'head_admin':
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('login'))
-    backup_files = glob.glob('backups/barangay_backup_*.sql')
-    if not backup_files:
-        flash('No backup files found.', 'danger')
-        return redirect(url_for('settings'))
-    latest_backup = max(backup_files, key=os.path.getctime)
-    return send_file(latest_backup, as_attachment=True, download_name=f"barangay_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.sql")
 
-@app.route('/check-session')
-def check_session():
-    if 'user_id' in session:
-        return f"""
-        <h1>Session Info</h1>
-        <p><strong>User ID:</strong> {session['user_id']}</p>
-        <p><strong>Name:</strong> {session['fullname']}</p>
-        <p><strong>Email:</strong> {session['email']}</p>
-        <p><strong>Role:</strong> {session['role']}</p>
-        <hr>
-        <a href="/head-admin-dashboard">Head Admin Dashboard</a><br>
-        <a href="/sec-admin-dashboard">Documents Admin Dashboard</a><br>
-        <a href="/court1/dashboard">Court 1 Dashboard</a><br>
-        <a href="/court2/dashboard">Court 2 Dashboard</a><br>
-        <a href="/court3/dashboard">Court 3 Dashboard</a><br>
-        <a href="/court4/dashboard">Court 4 Dashboard</a><br>
-        <a href="/dashboard">Resident Dashboard</a><br>
-        <a href="/events-calendar">Events Calendar</a><br>
-        <a href="/logout">Logout</a>
-        """
-    return "No active session. <a href='/login'>Login</a>"
 @app.route('/logout')
 def logout():
     if 'user_id' in session:
@@ -5145,7 +5157,7 @@ def forgot_password():
         return redirect(url_for('login'))
 
     # 2. Generate Code
-    reset_code = f"{random.randint(0, 999999):06d}"
+    reset_code = f"{secrets.randbelow(1000000):06d}"
     expires_at = datetime.datetime.now() + datetime.timedelta(minutes=15)
 
     # 3. Save Code sa Database
@@ -5162,6 +5174,14 @@ def forgot_password():
     """)
     conn.commit()
 
+    cursor.execute(
+        "SELECT COUNT(*) AS c FROM password_resets WHERE user_id = %s AND created_at > (NOW() - INTERVAL 1 HOUR)",
+        (user['id'],))
+    if (cursor.fetchone()['c'] or 0) >= 5:
+        conn.close()
+        flash('If that email is registered, a reset code has been sent. Please check your inbox.', 'info')
+        return redirect(url_for('login'))
+
     cursor.execute("UPDATE password_resets SET used = TRUE WHERE user_id = %s AND used = FALSE", (user['id'],))
     cursor.execute("""
         INSERT INTO password_resets (user_id, code, expires_at) VALUES (%s, %s, %s)
@@ -5171,7 +5191,8 @@ def forgot_password():
 
     # === IMPORTANTE: I-SAVE SA SESSION ===
     session['reset_email'] = user['email']
-    session['reset_new_password'] = new_password
+    session['reset_new_password'] = generate_password_hash(new_password)
+    session['reset_attempts'] = 0
     session['reset_user_id'] = user['id']
     # =====================================
 
@@ -5193,9 +5214,7 @@ def forgot_password():
 
 @app.route('/reset-password', methods=['GET'])
 def show_reset_page():
-    email_param = request.args.get('email')
-    if email_param:
-        session['reset_email'] = email_param.strip()
+    # (inalis: hindi dapat mapalitan ng URL param ang reset_email sa session)
     
     return render_template('reset_password.html')
 
@@ -5234,12 +5253,21 @@ def verify_reset_code():
     
     if not reset_record:
         conn.close()
+        attempts = session.get('reset_attempts', 0) + 1
+        session['reset_attempts'] = attempts
+        if attempts >= 5:
+            for key in ('reset_email', 'reset_new_password', 'reset_user_id', 'reset_attempts'):
+                session.pop(key, None)
+            flash('Too many incorrect codes. Please request a new reset code.', 'danger')
+            return redirect(url_for('login'))
         flash('Invalid or expired code. Please try again.', 'danger')
         return redirect(url_for('show_reset_page'))
 
     # Kapag tama ang code, dito pa lang natin ise-save ang NEW PASSWORD
-    hashed_password = generate_password_hash(new_password)
-    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, reset_record['uid']))
+    hashed_password = new_password  # naka-hash na sa forgot_password()
+    cursor.execute(
+        "UPDATE users SET password = %s, password_version = COALESCE(password_version, 0) + 1 WHERE id = %s",
+        (hashed_password, reset_record['uid']))
     cursor.execute("UPDATE password_resets SET used = TRUE WHERE id = %s", (reset_record['id'],))
     conn.commit()
     conn.close()
@@ -5262,33 +5290,6 @@ def verify_reset_code():
     """
     send_email(reset_record['email'], subject, body_html)
     
-    flash('Password reset successfully! You can now login with your new password.', 'success')
-    return redirect(url_for('login'))
-
-    # Kapag tama ang code, i-update ang password gamit ang galing sa session
-    hashed_password = generate_password_hash(new_password)
-    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, reset_record['uid']))
-    cursor.execute("UPDATE password_resets SET used = TRUE WHERE id = %s", (reset_record['id'],))
-    conn.commit()
-    conn.close()
-
-    # Burahin ang session para hindi na magamit muli
-    session.pop('reset_email', None)
-    session.pop('reset_new_password', None)
-    session.pop('reset_user_id', None)
-
-    # Send confirmation email
-    subject = "Password Changed Successfully - Barangay Sto. Nino"
-    body_html = f"""
-    <html><body style="font-family:Arial,sans-serif;padding:20px;">
-        <h2>Password Changed</h2>
-        <p>Hello {reset_record['first_name']},</p>
-        <p>Your password has been successfully changed.</p>
-        <p>Date: {datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')}</p>
-        <p style="color:#ef4444;">If you did not make this change, please contact the Barangay Office immediately.</p>
-    </body></html>
-    """
-    send_email(reset_record['email'], subject, body_html)
     flash('Password reset successfully! You can now login with your new password.', 'success')
     return redirect(url_for('login'))
 
@@ -5316,7 +5317,7 @@ def settings_send_otp():
     if not email:
         return jsonify({'success': False, 'error': 'Email not found'}), 400
 
-    otp = f"{random.randint(0, 999999):06d}"
+    otp = f"{secrets.randbelow(1000000):06d}"
     
     # ✅ I-save sa session (walang dict)
     session['settings_otp_code'] = otp
@@ -5395,21 +5396,36 @@ def settings_verify_otp():
 # UPDATE PROFILE OTP SYSTEM
 # ============================================================
 
-update_profile_otps = {}
+PROFILE_OTP_TTL = 900  # 15 minutes
+
+
+def _clear_profile_otp():
+    for key in ('profile_otp_code', 'profile_otp_email', 'profile_otp_time', 'profile_otp_attempts'):
+        session.pop(key, None)
+
 
 @app.route('/api/profile/send-otp', methods=['POST'])
 def profile_send_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
-        
-    data = request.json
-    email = data.get('email')
-    
-    if not email:
-        return jsonify({'success': False, 'error': 'Email is required'}), 400
 
-    otp = f"{random.randint(0, 999999):06d}"
-    update_profile_otps[session['user_id']] = otp
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip()
+    if not email or '@' not in email or '.' not in email.split('@')[-1]:
+        return jsonify({'success': False, 'error': 'A valid email is required'}), 400
+
+    now = datetime.datetime.now().timestamp()
+    if now - session.get('profile_otp_time', 0) < 60:
+        return jsonify({'success': False, 'error': 'Please wait a minute before requesting another code.'}), 429
+
+    otp = f"{secrets.randbelow(1000000):06d}"
+    session['profile_otp_code'] = otp
+    session['profile_otp_email'] = email
+    session['profile_otp_time'] = now
+    session['profile_otp_attempts'] = 0
+    session.pop('profile_otp_verified_email', None)
+    session.pop('profile_otp_verified_at', None)
+    session.modified = True
 
     subject = "Profile Update Verification Code - Barangay Sto. Nino"
     body_html = f"""
@@ -5423,28 +5439,47 @@ def profile_send_otp():
         </div>
     </body></html>
     """
-    
+
     if send_email(email, subject, body_html):
         return jsonify({'success': True, 'message': 'OTP sent successfully'})
-    else:
-        print(f"🔑 DEBUG OTP for Profile Update {email}: {otp}")
-        return jsonify({'success': True, 'message': 'OTP generated (check terminal)'})
+    _clear_profile_otp()
+    return jsonify({'success': False, 'error': 'Could not send the code. Please try again.'}), 502
+
 
 @app.route('/api/profile/verify-otp', methods=['POST'])
 def profile_verify_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
 
-    data = request.json
-    user_otp = data.get('otp')
-    
-    saved_otp = update_profile_otps.get(session['user_id'])
+    data = request.get_json(silent=True) or {}
+    user_otp = str(data.get('otp') or '').strip()
 
-    if saved_otp and saved_otp == user_otp:
-        del update_profile_otps[session['user_id']] 
-        return jsonify({'success': True})
-    else:
+    saved_otp = session.get('profile_otp_code')
+    saved_email = session.get('profile_otp_email')
+    saved_time = session.get('profile_otp_time', 0)
+    attempts = session.get('profile_otp_attempts', 0)
+    now = datetime.datetime.now().timestamp()
+
+    if not saved_otp:
+        return jsonify({'success': False, 'error': 'No code requested. Please click Send Code first.'}), 400
+    if now - saved_time > PROFILE_OTP_TTL:
+        _clear_profile_otp()
+        return jsonify({'success': False, 'error': 'Code has expired. Please request a new one.'}), 400
+    if attempts >= 5:
+        _clear_profile_otp()
+        return jsonify({'success': False, 'error': 'Too many failed attempts. Please request a new code.'}), 429
+    if not secrets.compare_digest(saved_otp.encode(), user_otp.encode()):
+        session['profile_otp_attempts'] = attempts + 1
+        session.modified = True
         return jsonify({'success': False, 'error': 'Invalid OTP'}), 400
+
+    # Naka-tie sa email na pinadalhan ng code; chine-check ito ng /user-update-profile
+    session['profile_otp_verified_email'] = saved_email
+    session['profile_otp_verified_at'] = now
+    _clear_profile_otp()
+    session.modified = True
+    return jsonify({'success': True})
+
 
 # ============================================================
 # HEAD ADMIN DELETE ACCOUNT (WITH SAFEGUARDS + DEBUG)
@@ -5493,7 +5528,7 @@ def head_admin_delete_account():
         flash('Password is incorrect.', 'danger')
         return redirect(url_for('settings'))
 
-    if not check_password_hash(user['password'], password):
+    if not safe_check_password(user['password'], password):
         print(f"❌ SAFEGUARD 2 FAILED: Wrong password for {user['email']}")
         conn.close()
         flash('Password is incorrect.', 'danger')
@@ -5604,6 +5639,7 @@ def auto_login(token):
     elif role == 'admin_court_4':
         return redirect(url_for('court4_dashboard'))
     return redirect(url_for('login'))
-    
+
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False)
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='127.0.0.1', port=port, debug=os.getenv('FLASK_DEBUG') == '1')
