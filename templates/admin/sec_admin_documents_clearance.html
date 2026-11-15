@@ -142,11 +142,7 @@
             justify-content: center;
         }
         
-        .sidebar-menu a,
-        .sidebar-menu a:link,
-        .sidebar-menu a:visited,
-        .sidebar-menu a:focus,
-        .sidebar-menu a:active {
+        .sidebar-menu a {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -799,6 +795,53 @@
         .custom-toast-content h4 { margin: 0 0 4px; font-size: 14px; color: #0d2b1e; }
         .custom-toast-content p { margin: 0; font-size: 12px; color: #64748b; }
 
+        /* ===== FULLSCREEN IMAGE LIGHTBOX ===== */
+        .img-lightbox {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 99999;
+            justify-content: center; align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .img-lightbox.active { display: flex; }
+        .img-lightbox img {
+            max-width: 95%; max-height: 95%;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            cursor: default;
+            background: white;
+            object-fit: contain;
+        }
+        .img-lightbox .lb-close {
+            position: absolute; top: 20px; right: 24px;
+            color: white; font-size: 32px; cursor: pointer;
+            background: rgba(255,255,255,0.12); border: none;
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .img-lightbox .lb-close:hover {
+            background: rgba(220,53,69,0.8);
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* ===== QR CODE DISPLAY ===== */
+        .qr-display {
+            display: inline-block;
+            padding: 8px;
+            background: white;
+            border: 2px solid #eef2f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .qr-display img {
+            display: block;
+            width: 150px;
+            height: 150px;
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .navbar-search { max-width: 300px; }
@@ -1001,7 +1044,7 @@
     </div>
 </div>
 
-<!-- ===== DETAILS MODAL (Split Approve/Reject sa baba) ===== -->
+<!-- ===== DETAILS MODAL ===== -->
 <div id="detailsModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -1118,6 +1161,12 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- ===== FULLSCREEN IMAGE LIGHTBOX ===== -->
+<div class="img-lightbox" id="imgLightbox" onclick="if(event.target===this)closeLightbox()">
+    <button class="lb-close" onclick="closeLightbox()">&times;</button>
+    <img id="imgLightboxImage" src="" alt="Preview">
 </div>
 
 <script>
@@ -1284,6 +1333,64 @@
         return String(val);
     }
 
+    // ===== HELPER: File link (Simpleng UI na may Image Preview) =====
+    function fileLink(filename, label, icon) {
+        if (!filename) {
+            return `<span style="color:#a8bdb2; font-size:13px; font-style:italic;">Not uploaded</span>`;
+        }
+        
+        const safeFile = encodeURIComponent(filename);
+        
+        // Simpleng button lang na may mata icon
+        return `
+            <div style="margin-top: 6px;">
+                <a href="javascript:void(0)" onclick="openImagePreview('${safeFile}')"
+                   style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px;
+                          background:#eef8f2; border:1px solid #d4f0df; border-radius:8px;
+                          color:#1a5d3a; font-weight:600; font-size:13px; text-decoration:none;
+                          transition: all 0.2s ease;" 
+                   onmouseover="this.style.background='#d4f0df'; this.style.transform='translateY(-2px)'" 
+                   onmouseout="this.style.background='#eef8f2'; this.style.transform='translateY(0)'">
+                    <i class="fas fa-eye"></i> View Upload
+                </a>
+            </div>
+        `;
+    }
+
+    // ===== Open Image sa Fullscreen Lightbox =====
+    function openImagePreview(encodedFilename) {
+        // Magpakita muna ng loading sa lightbox
+        const lb = document.getElementById('imgLightbox');
+        const img = document.getElementById('imgLightboxImage');
+        if (!lb || !img) return;
+        
+        img.src = ''; // clear muna
+        lb.classList.add('active');
+        
+        fetch(`/api/file-url/${encodedFilename}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.url) {
+                    img.src = data.url;
+                } else {
+                    lb.classList.remove('active');
+                    showToast('Error!', 'Hindi makuha ang image URL.', 'error');
+                }
+            })
+            .catch(() => {
+                lb.classList.remove('active');
+                showToast('Error!', 'Hindi makuha ang image URL.', 'error');
+            });
+    }
+
+    // ===== Lightbox Close =====
+    function closeLightbox() {
+        const lb = document.getElementById('imgLightbox');
+        const img = document.getElementById('imgLightboxImage');
+        if (lb) lb.classList.remove('active');
+        if (img) img.src = '';
+    }
+
     // ===== VIEW DETAILS =====
     function viewDetails(docId) {
         const modal = document.getElementById('detailsModal');
@@ -1311,6 +1418,10 @@
                         <div class="view-item">
                             <span class="label">Reference Number</span>
                             <span class="value">${safe(doc.reference_number)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Queue Number</span>
+                            <span class="value">${safe(doc.queuing_number)}</span>
                         </div>
                         <div class="view-item">
                             <span class="label">Status</span>
@@ -1370,6 +1481,13 @@
                             <span class="label">Occupation</span>
                             <span class="value">${safe(doc.occupation)}</span>
                         </div>
+                        
+                        ${doc.rep_position ? `
+                        <div class="view-item">
+                            <span class="label">Rep Position</span>
+                            <span class="value">${safe(doc.rep_position)}</span>
+                        </div>
+                        ` : ''}
 
                         <div class="view-section-title">Residency Details</div>
                         <div class="view-item">
@@ -1419,12 +1537,20 @@
                             <span class="value">${safe(doc.ref1_name)}</span>
                         </div>
                         <div class="view-item">
+                            <span class="label">Reference 1 - Contact</span>
+                            <span class="value">${safe(doc.ref1_contact)}</span>
+                        </div>
+                        <div class="view-item">
                             <span class="label">Reference 1 - Address</span>
                             <span class="value">${safe(doc.ref1_address)}</span>
                         </div>
                         <div class="view-item">
                             <span class="label">Reference 2 - Name</span>
                             <span class="value">${safe(doc.ref2_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Reference 2 - Contact</span>
+                            <span class="value">${safe(doc.ref2_contact)}</span>
                         </div>
                         <div class="view-item">
                             <span class="label">Reference 2 - Address</span>
@@ -1444,6 +1570,32 @@
                             <span class="label">Signature Date</span>
                             <span class="value">${safe(doc.signature_date)}</span>
                         </div>
+
+                        <div class="view-section-title">Uploaded Files</div>
+                        <div class="view-item">
+                            <span class="label">Valid ID</span>
+                            ${fileLink(doc.valid_id_path, 'Valid ID Image', 'fa-id-card')}
+                        </div>
+                        
+                        <!-- Tinanggal ang Supporting Document dahil wala ito sa clearance -->
+                        
+                        ${doc.completed_file ? `
+                        <div class="view-item">
+                            <span class="label">Completed Document</span>
+                            ${fileLink(doc.completed_file, 'Completed File', 'fa-file-circle-check')}
+                        </div>
+                        ` : ''}
+
+                        ${doc.qr_token ? `
+                        <div class="view-section-title">QR Code</div>
+                        <div class="view-item full-width">
+                            <span class="label">Scan to verify</span>
+                            <div class="qr-display" style="margin-top:8px;">
+                                <img src="/generate-qr/${safe(doc.qr_token)}" alt="QR Code">
+                            </div>
+                            <span style="font-family:monospace;font-size:10px;color:#8a9a8f;margin-top:6px;word-break:break-all;">${safe(doc.qr_token)}</span>
+                        </div>
+                        ` : ''}
 
                         ${doc.admin_remarks ? `
                         <div class="view-section-title">Admin Remarks</div>
@@ -1638,11 +1790,7 @@
         `;
         
         container.appendChild(toast);
-        
-        // Trigger animation
         setTimeout(() => toast.classList.add('show'), 10);
-        
-        // Remove toast after 3.5 seconds
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);

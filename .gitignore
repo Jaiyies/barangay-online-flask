@@ -34,3 +34,12 @@ static/uploads/*
 !static/uploads/.gitkeep
 .env
 *.env
+
+# ===== APP UPLOADS / BACKUPS =====
+uploads/
+backups/
+
+*.bak
+apply_fixes.py
+make_hash.py
+test_hash.py

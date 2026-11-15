@@ -142,11 +142,7 @@
             justify-content: center;
         }
         
-        .sidebar-menu a,
-        .sidebar-menu a:link,
-        .sidebar-menu a:visited,
-        .sidebar-menu a:focus,
-        .sidebar-menu a:active {
+        .sidebar-menu a {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -651,12 +647,8 @@
         .btn-action:hover { transform: translateY(-2px) scale(1.04); }
         .btn-action:active { transform: scale(0.95); }
 
-        .btn-doc { background: #1e40af; color: white; }
-        .btn-doc:hover { background: #1e3a8a; box-shadow: 0 4px 12px rgba(30,64,175,0.3); }
         .btn-view-details { background: #0d2b1e; color: white; }
         .btn-view-details:hover { background: #1a5d3a; box-shadow: 0 4px 12px rgba(13,43,30,0.3); }
-
-        .no-file { color: #b0b8b4; font-size: 11px; font-weight: 500; }
 
         .empty-state {
             text-align: center; padding: 50px 20px; color: #8a9a8f;
@@ -708,19 +700,6 @@
         }
         .modal-close:hover {
             color: #dc3545; background: #fef2f2; transform: rotate(90deg);
-        }
-
-        .modal-doc-preview {
-            text-align: center; padding: 15px;
-            background: #f8f9fa; border-radius: 12px;
-        }
-        .modal-doc-preview img {
-            max-width: 100%; max-height: 500px;
-            border-radius: 8px; border: 1px solid #eef0f2;
-        }
-        .modal-doc-preview iframe {
-            width: 100%; height: 500px;
-            border: 1px solid #eef0f2; border-radius: 8px;
         }
 
         /* ===== VIEW GRID ===== */
@@ -795,7 +774,7 @@
             box-shadow: 0 0 0 3px rgba(26,107,66,0.1);
         }
 
-        /* ===== TOAST NOTIFICATION ===== */
+        /* ===== TOAST ANIMATION ===== */
         .toast-container {
             position: fixed; top: 20px; right: 20px; z-index: 9999;
             display: flex; flex-direction: column; gap: 10px;
@@ -815,6 +794,38 @@
         .custom-toast.error .custom-toast-icon { background: #fee2e2; color: #dc3545; }
         .custom-toast-content h4 { margin: 0 0 4px; font-size: 14px; color: #0d2b1e; }
         .custom-toast-content p { margin: 0; font-size: 12px; color: #64748b; }
+
+        /* ===== FULLSCREEN IMAGE LIGHTBOX ===== */
+        .img-lightbox {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 99999;
+            justify-content: center; align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .img-lightbox.active { display: flex; }
+        .img-lightbox img {
+            max-width: 95%; max-height: 95%;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            cursor: default;
+            background: white;
+            object-fit: contain;
+        }
+        .img-lightbox .lb-close {
+            position: absolute; top: 20px; right: 24px;
+            color: white; font-size: 32px; cursor: pointer;
+            background: rgba(255,255,255,0.12); border: none;
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .img-lightbox .lb-close:hover {
+            background: rgba(220,53,69,0.8);
+            transform: rotate(90deg) scale(1.1);
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
@@ -975,7 +986,6 @@
                         <th>Applicant</th>
                         <th>Date Submitted</th>
                         <th>Status</th>
-                        <th>Document</th>
                         <th style="text-align:center;">Action</th>
                     </tr>
                 </thead>
@@ -994,15 +1004,6 @@
                                 {% else %}status-rejected{% endif %}">
                                 {{ doc.status|upper }}
                             </span>
-                        </td>
-                        <td>
-                            {% if doc.document_path %}
-                                <button class="btn-action btn-doc" onclick="viewDocument('{{ doc.document_path }}')">
-                                    <i class="fas fa-file-alt"></i> View File
-                                </button>
-                            {% else %}
-                                <span class="no-file">No file</span>
-                            {% endif %}
                         </td>
                         <td style="text-align:center;">
                             <button class="btn-action btn-view-details" onclick="viewDetails('{{ doc.id }}')">
@@ -1028,20 +1029,7 @@
     </div>
 </div>
 
-<!-- ===== DOCUMENT VIEW MODAL ===== -->
-<div id="docModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3><i class="fas fa-file-alt"></i> Uploaded Document</h3>
-            <button class="modal-close" onclick="closeDocModal()">&times;</button>
-        </div>
-        <div class="modal-doc-preview" id="docPreview">
-            <p>Loading document...</p>
-        </div>
-    </div>
-</div>
-
-<!-- ===== DETAILS MODAL (Split Approve/Reject sa baba) ===== -->
+<!-- ===== DETAILS MODAL ===== -->
 <div id="detailsModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -1158,6 +1146,12 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- ===== FULLSCREEN IMAGE LIGHTBOX ===== -->
+<div class="img-lightbox" id="imgLightbox" onclick="if(event.target===this)closeLightbox()">
+    <button class="lb-close" onclick="closeLightbox()">&times;</button>
+    <img id="imgLightboxImage" src="" alt="Preview">
 </div>
 
 <script>
@@ -1324,38 +1318,62 @@
         return String(val);
     }
 
-    // ===== VIEW DOCUMENT =====
-    function viewDocument(filename) {
-        const modal = document.getElementById('docModal');
-        const preview = document.getElementById('docPreview');
-        modal.classList.add('active');
-        
-        const fileExt = filename.split('.').pop().toLowerCase();
-        const fileUrl = `/uploads/${filename}`;
-        
-        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
-            preview.innerHTML = `<img src="${fileUrl}" alt="Document">`;
-        } else if (fileExt === 'pdf') {
-            preview.innerHTML = `
-                <iframe src="${fileUrl}"></iframe>
-                <br><br>
-                <a href="${fileUrl}" target="_blank" class="btn-action btn-doc" style="padding:10px 24px;">
-                    <i class="fas fa-download"></i> Download PDF
-                </a>
-            `;
-        } else {
-            preview.innerHTML = `
-                <p><i class="fas fa-file" style="font-size:48px;color:#6b7a72;"></i></p>
-                <p><strong>${filename}</strong></p>
-                <a href="${fileUrl}" target="_blank" class="btn-action btn-doc" style="padding:10px 24px;">
-                    <i class="fas fa-download"></i> Download File
-                </a>
-            `;
+    // ===== HELPER: File link (Simpleng UI na may Image Preview) =====
+    function fileLink(filename, label, icon) {
+        if (!filename) {
+            return `<span style="color:#a8bdb2; font-size:13px; font-style:italic;">Not uploaded</span>`;
         }
+        
+        const safeFile = encodeURIComponent(filename);
+        
+        // Simpleng button lang na may mata icon
+        return `
+            <div style="margin-top: 6px;">
+                <a href="javascript:void(0)" onclick="openImagePreview('${safeFile}')"
+                   style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px;
+                          background:#eef8f2; border:1px solid #d4f0df; border-radius:8px;
+                          color:#1a5d3a; font-weight:600; font-size:13px; text-decoration:none;
+                          transition: all 0.2s ease;" 
+                   onmouseover="this.style.background='#d4f0df'; this.style.transform='translateY(-2px)'" 
+                   onmouseout="this.style.background='#eef8f2'; this.style.transform='translateY(0)'">
+                    <i class="fas fa-eye"></i> View Upload
+                </a>
+            </div>
+        `;
     }
 
-    function closeDocModal() {
-        document.getElementById('docModal').classList.remove('active');
+    // ===== Open Image sa Fullscreen Lightbox =====
+    function openImagePreview(encodedFilename) {
+        // Magpakita muna ng loading sa lightbox
+        const lb = document.getElementById('imgLightbox');
+        const img = document.getElementById('imgLightboxImage');
+        if (!lb || !img) return;
+        
+        img.src = ''; // clear muna
+        lb.classList.add('active');
+        
+        fetch(`/api/file-url/${encodedFilename}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.url) {
+                    img.src = data.url;
+                } else {
+                    lb.classList.remove('active');
+                    showToast('Error!', 'Hindi makuha ang image URL.', 'error');
+                }
+            })
+            .catch(() => {
+                lb.classList.remove('active');
+                showToast('Error!', 'Hindi makuha ang image URL.', 'error');
+            });
+    }
+
+    // ===== Lightbox Close =====
+    function closeLightbox() {
+        const lb = document.getElementById('imgLightbox');
+        const img = document.getElementById('imgLightboxImage');
+        if (lb) lb.classList.remove('active');
+        if (img) img.src = '';
     }
 
     // ===== VIEW DETAILS =====
@@ -1444,6 +1462,13 @@
                             <span class="label">Occupation</span>
                             <span class="value">${safe(doc.occupation)}</span>
                         </div>
+                        
+                        ${doc.rep_position ? `
+                        <div class="view-item">
+                            <span class="label">Rep Position</span>
+                            <span class="value">${safe(doc.rep_position)}</span>
+                        </div>
+                        ` : ''}
 
                         <div class="view-section-title">Residency Details</div>
                         <div class="view-item">
@@ -1493,12 +1518,20 @@
                             <span class="value">${safe(doc.ref1_name)}</span>
                         </div>
                         <div class="view-item">
+                            <span class="label">Reference 1 - Contact</span>
+                            <span class="value">${safe(doc.ref1_contact)}</span>
+                        </div>
+                        <div class="view-item">
                             <span class="label">Reference 1 - Address</span>
                             <span class="value">${safe(doc.ref1_address)}</span>
                         </div>
                         <div class="view-item">
                             <span class="label">Reference 2 - Name</span>
                             <span class="value">${safe(doc.ref2_name)}</span>
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Reference 2 - Contact</span>
+                            <span class="value">${safe(doc.ref2_contact)}</span>
                         </div>
                         <div class="view-item">
                             <span class="label">Reference 2 - Address</span>
@@ -1518,6 +1551,34 @@
                             <span class="label">Signature Date</span>
                             <span class="value">${safe(doc.signature_date)}</span>
                         </div>
+
+                        <div class="view-section-title">Uploaded Files</div>
+                        <div class="view-item">
+                            <span class="label">Valid ID</span>
+                            ${fileLink(doc.valid_id_path, 'Valid ID Image', 'fa-id-card')}
+                        </div>
+                        <div class="view-item">
+                            <span class="label">Supporting Document</span>
+                            ${fileLink(doc.document_path, 'Supporting Document', 'fa-file-alt')}
+                        </div>
+                        
+                        ${doc.completed_file ? `
+                        <div class="view-item">
+                            <span class="label">Completed Document</span>
+                            ${fileLink(doc.completed_file, 'Completed File', 'fa-file-circle-check')}
+                        </div>
+                        ` : ''}
+
+                        ${doc.qr_token ? `
+                        <div class="view-section-title">QR Code</div>
+                        <div class="view-item full-width">
+                            <span class="label">Scan to verify</span>
+                            <div class="qr-display" style="margin-top:8px;">
+                                <img src="/generate-qr/${safe(doc.qr_token)}" alt="QR Code">
+                            </div>
+                            <span style="font-family:monospace;font-size:10px;color:#8a9a8f;margin-top:6px;word-break:break-all;">${safe(doc.qr_token)}</span>
+                        </div>
+                        ` : ''}
 
                         ${doc.admin_remarks ? `
                         <div class="view-section-title">Admin Remarks</div>
@@ -1712,11 +1773,7 @@
         `;
         
         container.appendChild(toast);
-        
-        // Trigger animation
         setTimeout(() => toast.classList.add('show'), 10);
-        
-        // Remove toast after 3.5 seconds
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);

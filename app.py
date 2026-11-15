@@ -13,7 +13,11 @@ import qrcode
 import io
 import base64
 import uuid
-from flask_mail import Mail, Message
+import certifi
+import requests
+import cloudinary
+import cloudinary.uploader
+import cloudinary.utils
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 
@@ -23,6 +27,19 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key-if-env-fails')
 
+# ============ CLOUDINARY SETUP ============
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET'),
+    secure=True
+)
+USE_CLOUDINARY = all([
+    os.getenv('CLOUDINARY_CLOUD_NAME'),
+    os.getenv('CLOUDINARY_API_KEY'),
+    os.getenv('CLOUDINARY_API_SECRET'),
+])
+
 @app.after_request
 def add_security_headers(response):
     # Ito ang pinaka-hardcore na header
@@ -30,27 +47,14 @@ def add_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
-    
+
     # BAGONG DAGDAG: Anti-Back Button Cache Control
     if request.endpoint and 'static' not in request.endpoint:
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
-    
+
     return response
-
-# ============================================================
-# EMAIL CONFIGURATION - BARANGAY STO. NINO
-# ============================================================
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = ('Barangay Sto. Nino', os.getenv('MAIL_USERNAME'))
-
-mail = Mail(app)
 
 # ============ GOOGLE OAUTH SETUP ============
 oauth = OAuth(app)
@@ -64,18 +68,34 @@ google = oauth.register(
         'prompt': 'select_account'   # 👈 ITO ANG SUSI
     }
 )
+
 # ============================================================
 # EMAIL HELPER FUNCTION
 # ============================================================
 def send_email(to_email, subject, body_html):
-    """Send email helper. Returns True if success, False if failed."""
+    """Send email via Brevo API. Returns True if success, False if failed."""
     try:
-        msg = Message(
-            subject=subject,
-            recipients=[to_email],
-            html=body_html
+        r = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "api-key": os.getenv('BREVO_API_KEY', ''),
+                "content-type": "application/json",
+                "accept": "application/json",
+            },
+            json={
+                "sender": {
+                    "name": "Barangay Sto. Nino",
+                    "email": os.getenv('MAIL_SENDER_EMAIL', ''),
+                },
+                "to": [{"email": to_email}],
+                "subject": subject,
+                "htmlContent": body_html,
+            },
+            timeout=15,
         )
-        mail.send(msg)
+        if r.status_code >= 400:
+            print(f"Email failed to {to_email}: {r.status_code} {r.text}")
+            return False
         print(f"Email sent to {to_email}: {subject}")
         return True
     except Exception as e:
@@ -179,6 +199,7 @@ COURT_CONFIG = {
 # ============================================================
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
+IMAGE_EXTS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -191,18 +212,85 @@ def save_uploaded_file(file):
         if not allowed_file(file.filename):
             return None
         ext = file.filename.rsplit('.', 1)[1].lower()
-        new_filename = f"{uuid.uuid4().hex}.{ext}"
+        base = uuid.uuid4().hex
+        new_filename = f"{base}.{ext}"   # ito ang sine-save sa DB
+
+        if USE_CLOUDINARY:
+            try:
+                file.stream.seek(0)
+                if ext in IMAGE_EXTS:
+                    # Image: walang extension sa public_id
+                    cloudinary.uploader.upload(
+                        file.stream,
+                        public_id=base,
+                        resource_type='image',
+                        type='upload',
+                        overwrite=False
+                    )
+                else:
+                    # PDF/DOC/DOCX: raw, may extension sa public_id
+                    cloudinary.uploader.upload(
+                        file.stream,
+                        public_id=new_filename,
+                        resource_type='raw',
+                        type='upload',
+                        overwrite=False
+                    )
+                return new_filename
+            except Exception as e:
+                print(f"Cloudinary upload error: {e}")
+                return None
+
         filepath = os.path.join(UPLOAD_FOLDER, new_filename)
         file.save(filepath)
         return new_filename
     return None
 
+
+def signed_file_url(filename):
+    ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    if ext in IMAGE_EXTS:
+        base = filename.rsplit('.', 1)[0]
+        url, _ = cloudinary.utils.cloudinary_url(
+            base, resource_type='image', type='upload',
+            format=ext, sign_url=True, secure=True)
+    else:
+        url, _ = cloudinary.utils.cloudinary_url(
+            filename, resource_type='raw', type='upload',
+            sign_url=True, secure=True)
+    return url
+
+
 @app.route('/uploads/<filename>')
 @login_required
 def uploaded_file(filename):
-    if '..' in filename or filename.startswith('/'):
+    if '..' in filename or '/' in filename or '\\' in filename:
         abort(404)
+    if USE_CLOUDINARY:
+        return redirect(signed_file_url(filename))
     return send_from_directory('uploads', filename)
+
+
+# ============================================================
+# SIGNED URL API (ADMIN SIDE ONLY)
+# ============================================================
+@app.route('/api/file-url/<path:filename>')
+@login_required
+def api_file_url(filename):
+    # 🚨 ITO ANG BANTAY: Pag resident ang nag-access, i-block agad!
+    if session.get('role') not in ADMIN_ROLES:
+        return jsonify({'error': 'Unauthorized. Admin only.'}), 403
+
+    if '..' in filename or filename.startswith('/'):
+        return jsonify({'error': 'Invalid filename'}), 400
+
+    if USE_CLOUDINARY:
+        try:
+            return jsonify({'success': True, 'url': signed_file_url(filename)})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    return jsonify({'success': True, 'url': f'/uploads/{filename}'})
 
 # ============================================================
 # HOME/INDEX ROUTE
@@ -217,13 +305,21 @@ def index():
 # DATABASE CONNECTION
 # ============================================================
 def get_db():
-    return mysql.connector.connect(
-        host=os.getenv('DB_HOST', '127.0.0.1'),
-        port=int(os.getenv('DB_PORT', 3306)),
-        user=os.getenv('DB_USER', 'root'),
-        password=os.getenv('DB_PASSWORD', ''),
-        database=os.getenv('DB_NAME', 'barangay_online_services')
-    )
+    config = {
+        'host': os.getenv('DB_HOST', '127.0.0.1'),
+        'port': int(os.getenv('DB_PORT', 3306)),
+        'user': os.getenv('DB_USER', 'root'),
+        'password': os.getenv('DB_PASSWORD', ''),
+        'database': os.getenv('DB_NAME', 'barangay_online_services'),
+        'connection_timeout': 20,
+    }
+    # Para sa TiDB Cloud: kailangan ng TLS
+    if os.getenv('DB_SSL') == '1':
+        config['use_pure'] = True
+        config['ssl_ca'] = certifi.where()
+        config['ssl_verify_cert'] = True
+        config['ssl_verify_identity'] = True
+    return mysql.connector.connect(**config)
 
 def generate_qr_token():
     return secrets.token_urlsafe(32)
