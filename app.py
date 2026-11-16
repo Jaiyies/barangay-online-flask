@@ -4309,6 +4309,11 @@ def create_admin():
                             <p style="margin:20px 0 0;color:#94a3b8;font-size:12px;text-align:center;">
                                 This link expires in 7 days.
                             </p>
+
+                            <p style="margin:15px 0 0;color:#64748b;font-size:12px;text-align:center;word-break:break-all;">
+                                If the button doesn't work, copy and paste this into your browser:<br>
+                                {BASE_URL}/auto-login/{auto_login_token}
+                            </p>
                         </td>
                     </tr>
                 </table>
@@ -4318,9 +4323,9 @@ def create_admin():
     """
     send_email(email, subject, body_html)
 
-    flash('Admin created successfully! Auto-login link sent to their email.', 'success')
+    auto_login_link = f"{BASE_URL}/auto-login/{auto_login_token}"
+    flash(f'Admin created! If the email link fails, send them this one (single use): {auto_login_link}', 'success')
     return redirect(url_for('admin_management'))
-
 
 @app.route('/api/user/<int:user_id>/update-role', methods=['POST'])
 def api_update_user_role(user_id):
