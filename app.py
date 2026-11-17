@@ -91,6 +91,10 @@ USE_CLOUDINARY = all([
     os.getenv('CLOUDINARY_API_SECRET'),
 ])
 
+@app.route('/google6ff344bfd1260c05.html')
+def google_verify():
+    return "google-site-verification: google6ff344bfd1260c05.html", 200, {'Content-Type': 'text/html'}
+
 @app.route('/robots.txt')
 def robots_txt():
     return "User-agent: *\nDisallow: /\n", 200, {'Content-Type': 'text/plain'}
@@ -626,7 +630,7 @@ def block_browser_navigation_and_maintenance():
     # --- PART B: MAINTENANCE CHECK (ISANG DB QUERY NA LANG) ---
     allowed_maintenance = ['login', 'static', 'login_google', 'authorize_google', 
                            'forgot_password', 'show_reset_page', 'verify_reset_code',
-                           'robots_txt']
+                           'robots_txt', 'google_verify']
     
     # Check maintenance mode ONCE for all non-admin users
     if request.endpoint not in allowed_maintenance:
@@ -667,7 +671,7 @@ def check_password_version():
         'login', 'logout', 'static', 'login_google', 'authorize_google',
         'forgot_password', 'show_reset_page', 'verify_reset_code',
         'index', 'register', 'about_us', 'faqs', 'barangay_map',
-        'generate_qr_image', 'uploaded_file', 'robots_txt'
+        'generate_qr_image', 'uploaded_file', 'robots_txt', 'google_verify'
     ]
     if request.endpoint in skip_endpoints:
         return
