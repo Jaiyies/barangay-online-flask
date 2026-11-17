@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Barangay Sto. Niño</title>
+    <title>Dashboard | Barangay Sto. Niño (Student Project Demo)</title>
+    <meta name="description" content="Student school project: Barangay Sto. Niño online services demo. Not an official government website.">
+    <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
@@ -1472,6 +1474,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(err => console.error('Mark all read error:', err));
         }
 
+            function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function(c) {
+                return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+            });
+        }
+
+
         function loadRecentAnnouncements() {
             var list = document.getElementById('notifList');
             list.innerHTML = '<div class="bell-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
@@ -1491,7 +1500,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
                         
                         html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
-                            '<div class="bell-item-title">' + (a.title || 'Untitled') + '</div>' +
+                            '<div class="bell-item-title">' + escapeHtml(a.title || 'Untitled') + '</div>' +
                             '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
                         '</a>';
                     });
@@ -1562,18 +1571,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
     <script>
-        (function() {
-            history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                history.pushState(null, null, location.href);
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
                 window.location.reload();
-            };
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted) {
-                    window.location.reload();
-                }
-            });
-        })();
+            }
+        });
     </script>
     
 </body>

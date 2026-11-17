@@ -6,7 +6,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Documents · Documents Admin</title>
+   <title>All Documents · Documents Admin</title>
+    <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -523,9 +524,9 @@
                         <i class="fas fa-spinner fa-spin"></i> Loading...
                     </div>
                 </div>
-                <a href="/admin/announcements" class="bell-dropdown-footer">
-                    View All Announcements <i class="fas fa-arrow-right"></i>
-                </a>
+              <a href="{{ url_for('admin_view_announcements') }}" class="bell-dropdown-footer">
+            View All Announcements <i class="fas fa-arrow-right"></i>
+        </a>
             </div>
         </div>
 
@@ -757,8 +758,8 @@
             })
             .catch(err => console.error('Mark read error:', err));
 
-        setTimeout(() => {
-            window.location.href = '/admin/announcements';
+       setTimeout(() => {
+            window.location.href = "{{ url_for('admin_view_announcements') }}";
         }, 300);
     }
 
@@ -837,12 +838,13 @@
     });
 
     function viewDocument(filename) {
-        const modal = document.getElementById('docModal');
-        const preview = document.getElementById('docPreview');
-        modal.classList.add('active');
-        
-        const fileExt = filename.split('.').pop().toLowerCase();
-        const fileUrl = `/uploads/${filename}`;
+    const modal = document.getElementById('docModal');
+    const preview = document.getElementById('docPreview');
+    modal.classList.add('active');
+    
+    const fileExt = filename.split('.').pop().toLowerCase();
+    var uploadUrlTemplate = "{{ url_for('uploaded_file', filename='__FILE__') }}";
+    const fileUrl = uploadUrlTemplate.replace('__FILE__', filename);
         
         if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
             preview.innerHTML = `<img src="${fileUrl}" alt="Document">`;
@@ -869,13 +871,14 @@
         document.getElementById('docModal').classList.remove('active');
     }
 
-    function viewDetails(docId) {
-        const modal = document.getElementById('detailsModal');
-        const body = document.getElementById('detailsBody');
-        modal.classList.add('active');
-        body.innerHTML = '<p style="text-align:center; padding:20px;">Loading details...</p>';
-        
-        fetch(`/admin/document-details/${docId}`)
+        function viewDetails(docId) {
+            const modal = document.getElementById('detailsModal');
+            const body = document.getElementById('detailsBody');
+            modal.classList.add('active');
+            body.innerHTML = '<p style="text-align:center; padding:20px;">Loading details...</p>';
+            
+            var detailsUrlTemplate = "{{ url_for('admin_document_details', doc_id=0) }}";
+            fetch(detailsUrlTemplate.replace(/\/0$/, '/' + docId))
             .then(response => {
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 return response.json();
@@ -992,23 +995,16 @@
         }, 3500);
     }
 
-    function printDocument(fileUrl) {
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-        iframe.src = fileUrl;
-        iframe.onload = function() {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            } catch (e) {
-                console.error('Print error:', e);
-                showToast('Print Error!', 'Hindi ma-print ang file.', 'error');
+        function printDocument(fileUrl) {
+            // ✅ Cloudinary file = cross-origin, kaya iframe print ay blocked
+            // Solusyon: buksan sa bagong tab, tapos manual print (Ctrl+P)
+            const newWin = window.open(fileUrl, '_blank');
+            if (!newWin) {
+                showToast('Error!', 'Pop-up blocked. Please allow pop-ups and try again.', 'error');
+                return;
             }
-            setTimeout(() => document.body.removeChild(iframe), 60000);
-        };
-        document.body.appendChild(iframe);
-    }
-
+            showToast('Print Ready', 'File opened in new tab. Press Ctrl+P to print.', 'success');
+        }
     document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('active');

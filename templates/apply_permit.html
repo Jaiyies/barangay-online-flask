@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apply for Permit | Barangay Sto. Niño</title>
+   <title>Apply for Permit | Barangay Sto. Niño</title>
+    <meta name="description" content="Apply for a community event permit online — Barangay Sto. Niño Online Services. Submit your event details, venue, and requirements for approval.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta property="og:title" content="Apply for Permit · Barangay Sto. Niño">
+    <meta property="og:description" content="Student school project: Barangay Sto. Niño online services demo. Not an official government website.">    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
@@ -2568,14 +2573,13 @@
         <small>Online Services</small>
       </div>
 
-      <nav class="sidebar-nav">
-        <a href="/dashboard" data-tooltip="Dashboard"><i class="fas fa-tachometer-alt"></i> <span class="translatable">Dashboard</span></a>
-        <a href="/request-document" data-tooltip="Request Document"><i class="fas fa-file-alt"></i> <span class="translatable">Request Document</span></a>
-        <a href="/apply-permit" class="active" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
-        <a href="/my-requests" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
+     <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" data-tooltip="Dashboard"><i class="fas fa-tachometer-alt"></i> <span class="translatable">Dashboard</span></a>
+        <a href="{{ url_for('request_document') }}" data-tooltip="Request Document"><i class="fas fa-file-alt"></i> <span class="translatable">Request Document</span></a>
+        <a href="{{ url_for('apply_permit') }}" class="active" data-tooltip="Apply for Permit"><i class="fas fa-calendar-check"></i> <span class="translatable">Apply for Permit</span></a>
+        <a href="{{ url_for('my_requests') }}" data-tooltip="My Requests"><i class="fas fa-list"></i> <span class="translatable">My Requests</span></a>
         <a href="{{ url_for('events') }}" data-tooltip="Events Calendar"><i class="fas fa-calendar-alt"></i> <span class="translatable">Events Calendar</span></a>
-       
-      </nav>
+    </nav>
 
       <div class="sidebar-footer">
         <div class="sidebar-footer-links">
@@ -2680,7 +2684,7 @@
                 <p>Barangay Sto. Niño Online Services</p>
             </div>
 
-            <form id="permitForm" method="POST" action="/apply-permit" enctype="multipart/form-data">
+                <form id="permitForm" method="POST" action="{{ url_for('apply_permit_post') }}" enctype="multipart/form-data">
                 <div class="form-section-title"><i class="fas fa-info-circle"></i> <span data-translate="event_info">Event Information</span></div>
                 <div class="form-row">
                     <div class="form-col">
@@ -2932,8 +2936,8 @@
                     <i class="fas fa-clock"></i> <span data-translate="notification_ready_permit">You will receive a notification once your permit status is updated.</span>
                 </p>
             </div>
-                       <div class="modal-footer">
-                <a href="/my-requests" class="modal-btn primary">
+               <div class="modal-footer">
+                <a href="{{ url_for('my_requests') }}" class="modal-btn primary">
                     <i class="fas fa-search"></i> <span data-translate="track_status">Track Status</span>
                 </a>
                 <button onclick="closeModal()" class="modal-btn secondary">
@@ -3396,7 +3400,7 @@ let minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 
                         var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
                         
                         html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
-                            '<div class="bell-item-title">' + (a.title || 'Untitled') + '</div>' +
+                            '<div class="bell-item-title">' + escapeHtml(a.title || 'Untitled') + '</div>' +
                             '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
                         '</a>';
                     });
@@ -3795,12 +3799,12 @@ if (validIdInput && validIdInput.files.length === 0) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${lang === 'tl' ? 'Isinusubmit...' : 'Submitting...'}`;
 
-            const formData = new FormData(form);
+                const formData = new FormData(form);
 
-            fetch('/apply-permit', {
-                method: 'POST',
-                body: formData
-            })
+                fetch('{{ url_for("apply_permit_post") }}', {
+                    method: 'POST',
+                    body: formData
+                })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -4235,19 +4239,12 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
        <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
-    <script>
-        (function() {
-            history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                history.pushState(null, null, location.href);
+     <script>
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
                 window.location.reload();
-            };
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted) {
-                    window.location.reload();
-                }
-            });
-        })();
+            }
+        });
     </script>
     
 </body>

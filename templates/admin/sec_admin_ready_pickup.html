@@ -6,7 +6,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ready for Pickup · Documents Admin</title>
+   <title>Ready for Pickup · Documents Admin</title>
+    <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -524,9 +525,9 @@
                         <i class="fas fa-spinner fa-spin"></i> Loading...
                     </div>
                 </div>
-                <a href="/admin/announcements" class="bell-dropdown-footer">
-                    View All Announcements <i class="fas fa-arrow-right"></i>
-                </a>
+                <a href="{{ url_for('admin_view_announcements') }}" class="bell-dropdown-footer">
+                        View All Announcements <i class="fas fa-arrow-right"></i>
+                    </a>
             </div>
         </div>
 
@@ -768,7 +769,7 @@
             .catch(err => console.error('Mark read error:', err));
 
         setTimeout(() => {
-            window.location.href = '/admin/announcements';
+            window.location.href = "{{ url_for('admin_view_announcements') }}";
         }, 300);
     }
 
@@ -857,7 +858,8 @@
         modal.classList.add('active');
         body.innerHTML = '<p>Loading details...</p>';
         
-        fetch(`/admin/document-details/${docId}`)
+      var detailsUrlTemplate = "{{ url_for('admin_document_details', doc_id=0) }}";
+            fetch(detailsUrlTemplate.replace(/\/0$/, '/' + docId))
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
@@ -885,9 +887,11 @@
                 let actionHtml = '';
 
                 if (hasFile) {
+                    var uploadUrlTemplate = "{{ url_for('uploaded_file', filename='__FILE__') }}";
+                    var fileUrl = uploadUrlTemplate.replace('__FILE__', doc.completed_file);
                     actionHtml = `
                         <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #f0f2f5; text-align: center;">
-                            <button class="btn-action btn-print" style="padding: 12px 30px; font-size: 13px;" onclick="printDocument('/uploads/${doc.completed_file}')">
+                            <button class="btn-action btn-print" style="padding: 12px 30px; font-size: 13px;" onclick="printDocument('${fileUrl}')">
                                 <i class="fas fa-print"></i> Print Document
                             </button>
                         </div>
@@ -951,23 +955,16 @@
     }
 
     // ===== PRINT FUNCTION =====
-    function printDocument(fileUrl) {
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-        iframe.src = fileUrl;
-        iframe.onload = function() {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            } catch (e) {
-                console.error('Print error:', e);
-                showToast('Error!', 'Hindi ma-print ang file.', 'error');
-            }
-            setTimeout(() => document.body.removeChild(iframe), 60000);
-        };
-        document.body.appendChild(iframe);
+function printDocument(fileUrl) {
+    // ✅ Cloudinary file = cross-origin, kaya iframe print ay blocked
+    // Solusyon: buksan sa bagong tab, tapos manual print (Ctrl+P)
+    const newWin = window.open(fileUrl, '_blank');
+    if (!newWin) {
+        showToast('Error!', 'Pop-up blocked. Please allow pop-ups and try again.', 'error');
+        return;
     }
-
+    showToast('Print Ready', 'File opened in new tab. Press Ctrl+P to print.', 'success');
+}
     // ===== UPLOAD LOGIC =====
     function openUploadModal(docId) {
         document.getElementById('uploadDocId').value = docId;
@@ -989,10 +986,11 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
 
-        fetch('/admin/upload-final-document', {
+        fetch('{{ url_for("upload_final_document") }}', {
             method: 'POST',
             body: formData
         })
+
         .then(res => res.json())
         .then(data => {
             if (data.success) {
@@ -1056,25 +1054,56 @@
     // ===== SCANNER LOGIC =====
     let html5QrCode;
 
-    function startScanner() {
-        document.getElementById('scannerModal').style.display = 'flex';
-        html5QrCode = new Html5Qrcode("reader");
-        
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText) => {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scannerModal').style.display = 'none';
-                    window.location.href = `/verify/${decodedText}`;
-                });
-            },
-            (errorMessage) => {}
-        ).catch((err) => {
-            showToast('Camera Error!', err, 'error');
-            closeScanner();
+async function startScanner() {
+    document.getElementById('scannerModal').style.display = 'flex';
+    html5QrCode = new Html5Qrcode("reader");
+
+    const onScanSuccess = (decodedText) => {
+        html5QrCode.stop().then(() => {
+            document.getElementById('scannerModal').style.display = 'none';
+            var verifyUrlTemplate = "{{ url_for('verify_document', token='__TOKEN__') }}";
+            window.location.href = verifyUrlTemplate.replace('__TOKEN__', decodedText);
         });
+    };
+
+    const onScanError = (errorMessage) => { /* ignore */ };
+
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+    try {
+        // ✅ Try BACK camera first (para sa phone)
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            onScanError
+        );
+    } catch (err1) {
+        // ✅ Fallback: FRONT camera / webcam (para sa laptop)
+        try {
+            await html5QrCode.start(
+                { facingMode: "user" },
+                config,
+                onScanSuccess,
+                onScanError
+            );
+        } catch (err2) {
+            // ✅ Last resort: ANY available camera
+            try {
+                await html5QrCode.start(
+                    { facingMode: { ideal: "user" } },
+                    config,
+                    onScanSuccess,
+                    onScanError
+                );
+            } catch (err3) {
+                console.error('Camera errors:', err1, err2, err3);
+                showToast('Camera Error!', 'Cannot access camera. Please check browser permissions (lock icon → Camera → Allow).', 'error');
+                closeScanner();
+            }
+        }
     }
+}
 
     function closeScanner() {
         if (html5QrCode) {

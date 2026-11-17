@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof of Residency · Documents Admin</title>
+    <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -921,9 +922,9 @@
                         <i class="fas fa-spinner fa-spin"></i> Loading...
                     </div>
                 </div>
-                <a href="/admin/announcements" class="bell-dropdown-footer">
-                    View All Announcements <i class="fas fa-arrow-right"></i>
-                </a>
+                <a href="{{ url_for('admin_view_announcements') }}" class="bell-dropdown-footer">
+                View All Announcements <i class="fas fa-arrow-right"></i>
+            </a>
             </div>
         </div>
 
@@ -1237,9 +1238,9 @@
             })
             .catch(err => console.error('Mark read error:', err));
 
-        setTimeout(() => {
-            window.location.href = '/admin/announcements';
-        }, 300);
+              setTimeout(() => {
+                window.location.href = "{{ url_for('admin_view_announcements') }}";
+            }, 300);
     }
 
     function markAllRead(event) {
@@ -1352,7 +1353,8 @@
         img.src = ''; // clear muna
         lb.classList.add('active');
         
-        fetch(`/api/file-url/${encodedFilename}`)
+        var fileUrlTemplate = "{{ url_for('api_file_url', filename='__FILE__') }}";
+        fetch(fileUrlTemplate.replace('__FILE__', encodedFilename))
             .then(r => r.json())
             .then(data => {
                 if (data.success && data.url) {
@@ -1387,7 +1389,8 @@
         actions.style.display = 'none';
         currentDocId = docId;
         
-        fetch(`/admin/document-details/${docId}`)
+        var detailsUrlTemplate = "{{ url_for('admin_document_details', doc_id=0) }}";
+        fetch(detailsUrlTemplate.replace(/\/0$/, '/' + docId))
             .then(response => response.json())
             .then(doc => {
                 currentDocData = doc;
@@ -1397,6 +1400,7 @@
                 else if (doc.status === 'ready_for_pickup') statusClass = 'status-ready';
                 else if (doc.status === 'rejected') statusClass = 'status-rejected';
                 
+              var qrUrlTemplate = "{{ url_for('generate_qr_image', token='__TOKEN__') }}";
                 body.innerHTML = `
                     <div class="view-grid">
                         <div class="view-section-title">Request Information</div>
@@ -1574,7 +1578,7 @@
                         <div class="view-item full-width">
                             <span class="label">Scan to verify</span>
                             <div class="qr-display" style="margin-top:8px;">
-                                <img src="/generate-qr/${safe(doc.qr_token)}" alt="QR Code">
+                            <img src="${qrUrlTemplate.replace('__TOKEN__', safe(doc.qr_token))}" alt="QR Code">
                             </div>
                             <span style="font-family:monospace;font-size:10px;color:#8a9a8f;margin-top:6px;word-break:break-all;">${safe(doc.qr_token)}</span>
                         </div>
@@ -1659,11 +1663,12 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         
-        fetch(`/admin/update-document-status/${currentDocId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'processing', remarks: remarks })
-        })
+    var updateUrlTemplate = "{{ url_for('update_document_status', doc_id=0) }}";
+    fetch(updateUrlTemplate.replace(/\/0$/, '/' + currentDocId), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'processing', remarks: remarks })
+    })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -1730,7 +1735,8 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         
-        fetch(`/admin/update-document-status/${currentDocId}`, {
+        var updateUrlTemplate = "{{ url_for('update_document_status', doc_id=0) }}";
+        fetch(updateUrlTemplate.replace(/\/0$/, '/' + currentDocId), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'rejected', remarks: remarks })

@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Document | Barangay Sto. Niño</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <meta name="description" content="Request barangay documents online — Barangay Clearance, Certificate of Indigency, at Proof of Residency. Submit at i-track ang request sa Barangay Sto. Niño Online Services.">
+        <meta name="robots" content="noindex, nofollow">
+        <meta property="og:title" content="Request Document · Barangay Sto. Niño">
+        <meta property="og:description" content="Student school project: Barangay Sto. Niño online services demo. Not an official government website.">        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ request.url }}">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <!-- IDAGDAG ITO -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global-mobile.css') }}">
@@ -2177,7 +2182,7 @@
                 <p>Barangay Sto. Niño Online Services</p>
             </div>
 
-            <form id="clearanceForm" action="/submit-document-request" method="POST" enctype="multipart/form-data">
+            <form id="clearanceForm" action="{{ url_for('submit_document_request') }}" method="POST" enctype="multipart/form-data">
                 <div class="form-section-title"><i class="fas fa-file-alt"></i> Document Type</div>
                 <div class="form-row">
                     <div class="form-col">
@@ -2586,6 +2591,9 @@
     </button>
 </div>
 
+        </div>
+    </div>
+
     <!-- ✅ DITO DAPAT ANG CLEAR CONFIRM MODAL (labas ng successModal) -->
     <div class="modal-overlay" id="clearConfirmModal">
         <div class="modal-box" style="max-width: 400px; text-align: center;">
@@ -2872,6 +2880,12 @@
                 .catch(err => console.error('Mark all read error:', err));
         }
 
+                function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function(c) {
+                return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+            });
+        }
+
         // ===== LOAD RECENT ANNOUNCEMENTS =====
         function loadRecentAnnouncements() {
             var list = document.getElementById('notifList');
@@ -2892,7 +2906,7 @@
                         var itemClass = isUnread ? 'bell-item unread' : 'bell-item';
                         
                         html += '<a href="javascript:void(0)" onclick="openAnnouncementFromBell(' + a.id + ')" class="' + itemClass + '">' +
-                            '<div class="bell-item-title">' + (a.title || 'Untitled') + '</div>' +
+                           '<div class="bell-item-title">' + escapeHtml(a.title || 'Untitled') + '</div>' +
                             '<div class="bell-item-date"><i class="fas fa-clock"></i> ' + date + '</div>' +
                         '</a>';
                     });
@@ -3299,12 +3313,12 @@ document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'tl' ? 'Isinusubmit...' : 'Submitting...'}`;
             
-            const formData = new FormData(this);
+                const formData = new FormData(this);
 
-            fetch('/submit-document-request', {
-                method: 'POST',
-                body: formData
-            })
+                fetch('{{ url_for("submit_document_request") }}', {
+                    method: 'POST',
+                    body: formData
+                })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -3328,8 +3342,10 @@ document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                         year: 'numeric', month: 'long', day: 'numeric' 
                     });
 
-                    if (data.qr_token) {
-                        document.getElementById('successQrImage').src = `/generate-qr/${data.qr_token}`;
+                   if (data.qr_token) {
+                        // Gamit ang url_for pattern para sure na tama ang prefix
+                        var qrUrlTemplate = "{{ url_for('generate_qr_image', token='__TOKEN_PLACEHOLDER__') }}";
+                        document.getElementById('successQrImage').src = qrUrlTemplate.replace('__TOKEN_PLACEHOLDER__', data.qr_token);
                     }
 
                     showSuccessModal();
@@ -3429,18 +3445,11 @@ document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
 
      <!-- ===== ANTI-BACK BUTTON SCRIPT ===== -->
     <script>
-        (function() {
-            history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                history.pushState(null, null, location.href);
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
                 window.location.reload();
-            };
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted) {
-                    window.location.reload();
-                }
-            });
-        })();
+            }
+        });
     </script>
 
 </body>

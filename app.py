@@ -1,13 +1,14 @@
 from flask import Flask, abort, render_template, request, redirect, url_for, session, flash, jsonify, send_file, send_from_directory
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from html import escape as _html_escape
 import mysql.connector
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 import os
-import subprocess
 import time
 import datetime
 import random
-import glob
 import secrets
 import qrcode
 import io
@@ -40,14 +41,42 @@ def safe_check_password(pw_hash, password):
 
 
 app = Flask(__name__)
-app.secret_key = os.environ['SECRET_KEY']
+
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB upload limit
+app.secret_key = os.getenv('SECRET_KEY')
+if not app.secret_key:
+    raise RuntimeError(
+        "SECRET_KEY is not set! Set it in Render Dashboard > Environment Variables."
+    )
+
 app.config.update(
     SESSION_COOKIE_SECURE=BASE_URL.startswith('https'),
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
 )
+
+PROFILE_OTP_TTL = 300
+
+def esc(v):
+    """HTML-escape any user-supplied value (safe for None / non-str)."""
+    return '' if v is None else _html_escape(str(v))
+
+def blank_to_none(v):
+    if isinstance(v, str):
+        v = v.strip()
+    return v if v not in ('', None) else None
+
+NULLABLE_COLS = {'dob', 'signature_date'}
+
 from werkzeug.middleware.proxy_fix import ProxyFix
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["2000 per day", "500 per hour"],  # 👈 TINAASAN
+    default_limits_exempt_when=lambda: request.endpoint == 'static'  # 👈 EXEMPT STATIC
+)
 
 # ============ CLOUDINARY SETUP ============
 cloudinary.config(
@@ -62,6 +91,11 @@ USE_CLOUDINARY = all([
     os.getenv('CLOUDINARY_API_SECRET'),
 ])
 
+@app.route('/robots.txt')
+def robots_txt():
+    return "User-agent: *\nDisallow: /\n", 200, {'Content-Type': 'text/plain'}
+
+
 @app.after_request
 def add_security_headers(response):
     # Ito ang pinaka-hardcore na header
@@ -75,6 +109,7 @@ def add_security_headers(response):
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
+        response.headers['X-Robots-Tag'] = 'noindex, nofollow'
 
     return response
 
@@ -288,9 +323,18 @@ def signed_file_url(filename):
 def uploaded_file(filename):
     if '..' in filename or '/' in filename or '\\' in filename:
         abort(404)
+    
+    # ✅ I-CHECK KUNG ALLOWED EXTENSION (para hindi makapasok ang .env, .py, etc.)
+    if not allowed_file(filename):
+        abort(403, description="File type not allowed")
+    
     if USE_CLOUDINARY:
         return redirect(signed_file_url(filename))
-    return send_from_directory('uploads', filename)
+        
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    if not os.path.exists(filepath):
+        abort(404)
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 
 # ============================================================
@@ -305,6 +349,10 @@ def api_file_url(filename):
 
     if '..' in filename or filename.startswith('/'):
         return jsonify({'error': 'Invalid filename'}), 400
+
+    # ✅ IDAGDAG ITO: I-check kung allowed extension
+    if not allowed_file(filename):
+        return jsonify({'error': 'File type not allowed'}), 403
 
     if USE_CLOUDINARY:
         try:
@@ -372,7 +420,14 @@ def is_maintenance_mode():
 # QR CODE IMAGE ROUTE
 # ============================================================
 @app.route('/generate-qr/<string:token>')
+@limiter.limit("10 per minute")
 def generate_qr_image(token):
+    # ✅ I-VALIDATE ANG TOKEN FORMAT (proteksyon laban sa garbage/abuse)
+    if not token or len(token) < 20 or len(token) > 100:
+        abort(400, description="Invalid QR token length")
+    if not all(c.isalnum() or c in '-_' for c in token):
+        abort(400, description="Invalid QR token format")
+
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(token)
     qr.make(fit=True)
@@ -431,6 +486,11 @@ def get_court_role_by_venue(venue):
 def send_admin_notification_email(recipient_email, subject, title, message,
                                    reference_no=None, applicant_name=None,
                                    action_type='new'):
+    title = esc(title)
+    message = esc(message)
+    reference_no = esc(reference_no) if reference_no else reference_no
+    applicant_name = esc(applicant_name) if applicant_name else applicant_name
+
     if action_type == 'new':
         icon = '🔔'
         header_text = 'New Request Received'
@@ -464,8 +524,7 @@ def send_admin_notification_email(recipient_email, subject, title, message,
                             <table width="100%" style="margin:25px 0 10px;">
                                 <tr><td align="center">
                                    <a href="{BASE_URL}/login" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">
-                                            Login to Admin Panel
-                                        </a> 
+                                        Login to Admin Panel
                                     </a>
                                 </td></tr>
                             </table>
@@ -523,18 +582,6 @@ def get_next_queue_number(table_name, venue=None):
 # ============================================================
 # MAINTENANCE MODE CHECKER
 # ============================================================
-@app.before_request
-def check_maintenance():
-    allowed_endpoints = ['login', 'static', 'login_google', 'authorize_google', 'forgot_password', 'show_reset_page', 'verify_reset_code']
-    if request.endpoint in allowed_endpoints:
-        return
-    if session.get('role') in ADMIN_ROLES:
-        return
-    if is_maintenance_mode():
-        session.clear()
-        flash('The system is currently under maintenance. Please try again later.', 'warning')
-        return redirect(url_for('login'))
-
 # ============================================================
 # ANTI-BACK BUTTON PROTECTION (CACHE + SESSION LOCK)
 # ============================================================
@@ -564,7 +611,7 @@ def prevent_back_button_cache(response):
     return response
 
 
-# 2. HARDCORE SESSION LOCK + MAINTENANCE CHECK
+# 2. HARDCORE SESSION LOCK + MAINTENANCE CHECK (PINAGSAMA)
 @app.before_request
 def block_browser_navigation_and_maintenance():
     # --- PART A: PUBLIC PAGES (Pwedeng pasukin kahit walang login) ---
@@ -573,27 +620,26 @@ def block_browser_navigation_and_maintenance():
         'show_reset_page', 'verify_reset_code', 'login_google', 
         'authorize_google', 'index', 'about_us', 'faqs', 'events', 
         'events_calendar', 'logout', 'barangay_map', 'generate_qr_image',
-        'uploaded_file'
+        'uploaded_file', 'robots_txt'
     ]
     
-    # --- PART B: MAINTENANCE CHECK (Para sa admin roles) ---
+    # --- PART B: MAINTENANCE CHECK (ISANG DB QUERY NA LANG) ---
     allowed_maintenance = ['login', 'static', 'login_google', 'authorize_google', 
-                           'forgot_password', 'show_reset_page', 'verify_reset_code']
+                           'forgot_password', 'show_reset_page', 'verify_reset_code',
+                           'robots_txt']
+    
+    # Check maintenance mode ONCE for all non-admin users
     if request.endpoint not in allowed_maintenance:
         if session.get('role') not in ADMIN_ROLES:
-            if is_maintenance_mode():
+            if is_maintenance_mode():   # 👈 ISANG TAWAG LANG
                 session.clear()
                 flash('The system is currently under maintenance. Please try again later.', 'warning')
                 return redirect(url_for('login'))
     
-            # --- PART C: HARDCORE SESSION LOCK ---
+    # --- PART C: HARDCORE SESSION LOCK ---
     if 'user_id' in session:
-        # BAGONG DAGDAG: Kung naka-login at pinindot ang back arrow papuntang /login,
-        # i-redirect pabalik sa tamang dashboard (para hindi makalabas gamit ang back arrow)
-        # PERO: Kung i-type directly ang /login, hayaan mag-show ng login page
         referer = request.headers.get('Referer', '')
         if request.endpoint == 'login' and request.method == 'GET':
-            # Kung galing sa loob ng website (back arrow), redirect sa dashboard
             if referer and request.host_url in referer and '/login' not in referer:
                 role = session.get('role')
                 if role == 'head_admin':
@@ -609,9 +655,7 @@ def block_browser_navigation_and_maintenance():
                 elif role == 'admin_court_4':
                     return redirect(url_for('court4_dashboard'))
                 return redirect(url_for('dashboard'))
-            # Kung direct type (walang referer), hayaan mag-login page
-        return  # May session, hayaan lang
-
+        return
    
 # ============================================================
 # ✅ PASSWORD VERSION CHECK (Force logout pag pinalitan ng head admin)
@@ -623,7 +667,7 @@ def check_password_version():
         'login', 'logout', 'static', 'login_google', 'authorize_google',
         'forgot_password', 'show_reset_page', 'verify_reset_code',
         'index', 'register', 'about_us', 'faqs', 'barangay_map',
-        'generate_qr_image', 'uploaded_file'
+        'generate_qr_image', 'uploaded_file', 'robots_txt'
     ]
     if request.endpoint in skip_endpoints:
         return
@@ -653,6 +697,7 @@ def check_password_version():
 # LOGIN ROUTE
 # ============================================================
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("10 per minute", methods=["POST"])
 def login():
     if session.get('login_attempts', 0) >= 3:
         lockout_time = session.get('lockout_time', 0)
@@ -705,7 +750,8 @@ def login():
                 flash('This is an Admin account. Please select "Admin" in the dropdown to login.', 'danger')
                 return render_template('login.html')
 
-
+            session.pop('login_attempts', None)
+            session.pop('lockout_time', None)
             session['user_id'] = user['id']
             session['fullname'] = f"{user['first_name']} {user['last_name']}"
             session['email'] = user['email']
@@ -754,19 +800,33 @@ def login():
 # ============================================================
 @app.route('/login/google')
 def login_google():
+    state = secrets.token_urlsafe(32)
+    session['oauth_state'] = state
     redirect_uri = url_for('authorize_google', _external=True)
     return google.authorize_redirect(
         redirect_uri,
-        prompt='select_account'   # 👈 FORCE account picker
+        state=state,
+        prompt='select_account'
     )
 
 @app.route('/login/google/authorized')
 def authorize_google():
     try:
+        # ✅ I-VALIDATE ANG STATE PARAMETER (CSRF protection)
+        state = request.args.get('state')
+        if not state or state != session.get('oauth_state'):
+            flash('Invalid OAuth state. Please try again.', 'danger')
+            return redirect(url_for('login'))
+        session.pop('oauth_state', None)
+
+        # Ito na yung original mong code
         token = google.authorize_access_token()
         user_info = token.get('userinfo')
         if not user_info:
             flash('Hindi makuha ang Google user info. Please try again.', 'danger')
+            return redirect(url_for('login'))
+        if not user_info.get('email_verified'):
+            flash('Your Google email is not verified.', 'danger')
             return redirect(url_for('login'))
         google_id = user_info['sub']
         email = user_info['email']
@@ -828,11 +888,12 @@ def authorize_google():
         traceback.print_exc()
         flash('Google login failed. Please try again.', 'danger')
         return redirect(url_for('login'))
-
+    
 # ============================================================
 # REGISTER ROUTE
 # ============================================================
 @app.route('/register', methods=['GET', 'POST'])
+@limiter.limit("5 per hour", methods=["POST"])
 def register():
     if request.method == 'POST':
         first_name = request.form.get('first_name', '').strip()
@@ -885,11 +946,11 @@ def register():
                 <p style="margin:8px 0 0;color:#c9d6f0;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Online Services Portal</p>
             </td></tr>
             <tr><td style="padding:40px;">
-                <h2 style="margin:0 0 12px;color:#0f3d2a;font-size:26px;text-align:center;">Welcome, {first_name}!</h2>
+                <h2 style="margin:0 0 12px;color:#0f3d2a;font-size:26px;text-align:center;">Welcome, {esc(first_name)}!</h2>
                 <p style="margin:0 0 30px;color:#64748b;font-size:15px;line-height:1.7;text-align:center;">Your account has been successfully created.</p>
                 <p style="margin:0 0 15px;color:#0f3d2a;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Account Details</p>
                 <table width="100%" style="background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;">
-                    <tr><td style="padding:8px 0;color:#94a3b8;font-size:13px;width:130px;">Email</td><td style="padding:8px 0;color:#1e293b;font-size:14px;font-weight:600;">{email}</td></tr>
+                    <tr><td style="padding:8px 0;color:#94a3b8;font-size:13px;width:130px;">Email</td><td style="padding:8px 0;color:#1e293b;font-size:14px;font-weight:600;">{esc(email)}</td></tr>
                     <tr><td style="padding:8px 0;color:#94a3b8;font-size:13px;">Account Type</td><td style="padding:8px 0;color:#1e293b;font-size:14px;font-weight:600;">Resident</td></tr>
                     <tr><td style="padding:8px 0;color:#94a3b8;font-size:13px;">Date Registered</td><td style="padding:8px 0;color:#1e293b;font-size:14px;font-weight:600;">{datetime.datetime.now().strftime('%B %d, %Y')}</td></tr>
                 </table>
@@ -1091,15 +1152,15 @@ def user_update_profile():
                     </tr>
                     <tr>
                         <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {esc(first_name)}!</h2>
                             <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
                                 Your profile details have been successfully updated on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>. Here are your current information:
                             </p>
                             <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
-                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {first_name} {last_name}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {email}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {contact_number if contact_number else 'N/A'}</td></tr>
-                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {address if address else 'N/A'}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Full Name:</strong> {esc(first_name)} {esc(last_name)}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Email:</strong> {esc(email)}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Contact No:</strong> {esc(contact_number if contact_number else 'N/A')}</td></tr>
+                                <tr><td style="padding:6px 0;"><strong>Address:</strong> {esc(address if address else 'N/A')}</td></tr>
                             </table>
                             <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
                                 <tr><td style="color:#991b1b;font-size:13px;">
@@ -1191,7 +1252,7 @@ def user_change_password():
                     </tr>
                     <tr>
                         <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {user['first_name']}!</h2>
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {esc(user['first_name'])}!</h2>
                             <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
                                 Your password has been successfully changed on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
                             </p>
@@ -1332,10 +1393,10 @@ def api_update_event(event_id):
 
     data = request.get_json()
     event_name = data.get('event_name', event['event_name']).strip()
-    event_description = data.get('event_description', event['event_description']).strip()
-    purpose = data.get('purpose', event.get('purpose', '')).strip()
-    contact_person = data.get('contact_person', event.get('contact_person', '')).strip()
-    contact_phone = data.get('contact_phone', event.get('contact_phone', '')).strip()
+    event_description = (data.get('event_description', event['event_description']) or '').strip()
+    purpose = (data.get('purpose', event.get('purpose', '')) or '').strip()
+    contact_person = (data.get('contact_person', event.get('contact_person', '')) or '').strip()
+    contact_phone = (data.get('contact_phone', event.get('contact_phone', '')) or '').strip()
     event_date = data.get('event_date', str(event['event_date'])).strip()
     start_time = data.get('start_time', str(event['start_time'])).strip()[:5]
     end_time = data.get('end_time', str(event['end_time'])).strip()[:5]
@@ -1551,8 +1612,9 @@ def request_document_post():
     address = request.form.get('address', '').strip()
     contact_no = request.form.get('contact_no', '').strip()
     civil_status = request.form.get('civil_status', '').strip()
-    age = request.form.get('age', 0)
-    dob = request.form.get('dob', '').strip()
+    age = request.form.get('age', '').strip()
+    age = int(age) if age.isdigit() else 0
+    dob = blank_to_none(request.form.get('dob'))
     precinct_no = request.form.get('precinct_no', '').strip()
     place_of_birth = request.form.get('place_of_birth', '').strip()
     length_of_stay = request.form.get('length_of_stay', '').strip()
@@ -1574,7 +1636,7 @@ def request_document_post():
     ref2_address = request.form.get('ref2_address', '').strip()
     purpose = request.form.get('purpose', '').strip()
     printed_name = request.form.get('printed_name', '').strip()
-    signature_date = request.form.get('signature_date', '').strip()
+    signature_date = blank_to_none(request.form.get('signature_date'))
 
     if not document_type or not surname or not given_name or not address:
         flash('Please fill in all required fields.', 'danger')
@@ -1652,8 +1714,8 @@ def request_document_post():
             body_html = f"""
             <html><body style="font-family:Arial,sans-serif;padding:20px;">
                 <h2 style="color:#0f3d2a;">📄 Document Request Received</h2>
-                <p>Hello <strong>{resident_info['first_name']}</strong>,</p>
-                <p>Natanggap na namin ang iyong request para sa <strong>{document_type.replace('_', ' ').title()}</strong>.</p>
+                <p>Hello <strong>{esc(resident_info['first_name'])}</strong>,</p>
+                <p>Natanggap na namin ang iyong request para sa <strong>{esc(document_type.replace('_', ' ').title())}</strong>.</p>
                 <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;">
                     <tr><td><strong>Reference No:</strong> {ref_num}</td></tr>
                     <tr><td><strong>Queue No:</strong> {queue_num}</td></tr>
@@ -1755,6 +1817,10 @@ def submit_document_request():
 
         for key, value in data.items():
             if key in ALLOWED_COLS and key in col_names and key not in insert_cols:
+                if key in NULLABLE_COLS:
+                    value = blank_to_none(value)
+                elif key == 'age':
+                    value = int(value) if str(value).strip().isdigit() else 0
                 insert_cols.append(key)
                 insert_vals.append(value)
 
@@ -1780,8 +1846,8 @@ def submit_document_request():
             body_html = f"""
             <html><body style="font-family:Arial,sans-serif;padding:20px;">
                 <h2 style="color:#0f3d2a;">📄 Document Request Received</h2>
-                <p>Hello <strong>{resident_info['first_name']}</strong>,</p>
-                <p>Natanggap na namin ang iyong request para sa <strong>{doc_type.replace('_', ' ').title()}</strong>.</p>
+                <p>Hello <strong>{esc(resident_info['first_name'])}</strong>,</p>
+                <p>Natanggap na namin ang iyong request para sa <strong>{esc(doc_type.replace('_', ' ').title())}</strong>.</p>
                 <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;">
                     <tr><td><strong>Reference No:</strong> {ref_num}</td></tr>
                     <tr><td><strong>Queue No:</strong> {queue_num}</td></tr>
@@ -1965,13 +2031,13 @@ def apply_permit_post():
             body_html = f"""
             <html><body style="font-family:Arial,sans-serif;padding:20px;">
                 <h2 style="color:#0f3d2a;">🎉 Event Permit Application Received</h2>
-                <p>Hello <strong>{resident['first_name']}</strong>,</p>
+                <p>Hello <strong>{esc(resident['first_name'])}</strong>,</p>
                 <p>Natanggap na namin ang iyong event permit application. Ipro-process na ito ng aming Court Admin.</p>
                 <table style="background:#f4f8f5;padding:15px;border-radius:10px;margin:20px 0;">
-                    <tr><td><strong>Event:</strong> {event_name}</td></tr>
-                    <tr><td><strong>Date:</strong> {event_date}</td></tr>
-                    <tr><td><strong>Time:</strong> {start_time} - {end_time}</td></tr>
-                    <tr><td><strong>Venue:</strong> {venue}</td></tr>
+                    <tr><td><strong>Event:</strong> {esc(event_name)}</td></tr>
+                    <tr><td><strong>Date:</strong> {esc(event_date)}</td></tr>
+                    <tr><td><strong>Time:</strong> {esc(start_time)} - {esc(end_time)}</td></tr>
+                    <tr><td><strong>Venue:</strong> {esc(venue)}</td></tr>
                     <tr><td><strong>Reference No:</strong> {ref_num}</td></tr>
                     <tr><td><strong>Queue No:</strong> {queue_num}</td></tr>
                     <tr><td><strong>Status:</strong> <span style="color:#d97706;">PENDING</span></td></tr>
@@ -2520,9 +2586,9 @@ def upload_final_document():
         body_html = f"""
         <html><body style="font-family:Arial; padding:20px;">
             <h2 style="color:#0f3d2a;">✅ Ready for Pickup!</h2>
-            <p>Hello <strong>{user_info['first_name']}</strong>,</p>
-            <p>Ang iyong <strong>{user_info['document_type'].replace('_', ' ').title()}</strong> ay ready na for pickup sa Barangay Hall.</p>
-            <p><strong>Reference:</strong> {user_info['reference_number']}</p>
+            <p>Hello <strong>{esc(user_info['first_name'])}</strong>,</p>
+            <p>Ang iyong <strong>{esc(user_info['document_type'].replace('_', ' ').title())}</strong> ay ready na for pickup sa Barangay Hall.</p>
+            <p><strong>Reference:</strong> {esc(user_info['reference_number'])}</p>
             <p>Paki-bring ang iyong QR Code o Reference Number para ma-verify.</p>
         </body></html>
         """
@@ -2747,7 +2813,7 @@ def court1_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at ASC
+        ORDER BY l.created_at DESC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -2785,7 +2851,7 @@ def court2_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at ASC
+        ORDER BY l.created_at DESC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -2823,7 +2889,7 @@ def court3_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at ASC
+        ORDER BY l.created_at DESC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -2861,7 +2927,7 @@ def court4_activity_logs():
         FROM admin_activity_logs l
         JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at ASC
+        ORDER BY l.created_at DESC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -3050,19 +3116,24 @@ def _update_event_status(event_id):
         icon = "✅" if status == 'approved' else "❌"
 
         subject = f"Event Permit {status.upper()} - Barangay Sto. Nino"
+
+        # ✅ ESCAPE user-supplied values (bagong 2 linya)
+        safe = {k: esc(str(v)) for k, v in event_data.items()}
+        remarks_html = esc(remarks or 'N/A')
+
         body_html = f"""
         <html><body style="font-family:Arial,sans-serif;padding:20px;background:#ecfdf5;">
         <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;">
             <h2 style="color:{color};">Event Permit {status_text}</h2>
-            <p>Hello <strong>{event_data['first_name']}</strong>,</p>
+            <p>Hello <strong>{safe['first_name']}</strong>,</p>
             <p>Your event permit application has been processed.</p>
             <table style="background:{bg_color};border-left:4px solid {color};padding:15px;border-radius:10px;margin:20px 0;width:100%;">
                 <tr><td style="color:#334155;font-size:14px;line-height:1.7;">
-                    <strong>Event:</strong> {event_data['event_name']}<br>
-                    <strong>Date:</strong> {event_data['event_date']}<br>
-                    <strong>Time:</strong> {event_data['start_time']} - {event_data['end_time']}<br>
-                    <strong>Venue:</strong> {event_data['venue']}<br>
-                    <strong>Remarks:</strong> {remarks or 'N/A'}
+                    <strong>Event:</strong> {safe['event_name']}<br>
+                    <strong>Date:</strong> {safe['event_date']}<br>
+                    <strong>Time:</strong> {safe['start_time']} - {safe['end_time']}<br>
+                    <strong>Venue:</strong> {safe['venue']}<br>
+                    <strong>Remarks:</strong> {remarks_html}
                 </td></tr>
             </table>
         </div>
@@ -3076,7 +3147,7 @@ def _update_event_status(event_id):
             create_notification(
                 permit_owner['user_id'],
                 f'{icon} Permit {status.title()}',
-                f'Your permit for "{event_data["event_name"]}" has been {status}. {("Remarks: " + remarks) if remarks else ""}',
+                f'Your permit for "{safe["event_name"]}" has been {status}. {("Remarks: " + remarks_html) if remarks_html else ""}',
                 f'permit_{status}',
                 link='/my-requests'
             )
@@ -3252,19 +3323,24 @@ def update_event_status(event_id):
         icon = "✅" if status == 'approved' else "❌"
 
         subject = f"Event Permit {status.upper()} - Barangay Sto. Nino"
+
+        # ✅ ESCAPE user-supplied values (bagong 2 linya)
+        safe = {k: esc(str(v)) for k, v in event_data.items()}
+        remarks_html = esc(remarks or 'N/A')
+
         body_html = f"""
         <html><body style="font-family:Arial,sans-serif;padding:20px;background:#ecfdf5;">
         <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;">
             <h2 style="color:{color};">Event Permit {status_text}</h2>
-            <p>Hello <strong>{event_data['first_name']}</strong>,</p>
+            <p>Hello <strong>{safe['first_name']}</strong>,</p>
             <p>Your event permit application has been processed.</p>
             <table style="background:{bg_color};border-left:4px solid {color};padding:15px;border-radius:10px;margin:20px 0;width:100%;">
                 <tr><td style="color:#334155;font-size:14px;line-height:1.7;">
-                    <strong>Event:</strong> {event_data['event_name']}<br>
-                    <strong>Date:</strong> {event_data['event_date']}<br>
-                    <strong>Time:</strong> {event_data['start_time']} - {event_data['end_time']}<br>
-                    <strong>Venue:</strong> {event_data['venue']}<br>
-                    <strong>Remarks:</strong> {remarks or 'N/A'}
+                    <strong>Event:</strong> {safe['event_name']}<br>
+                    <strong>Date:</strong> {safe['event_date']}<br>
+                    <strong>Time:</strong> {safe['start_time']} - {safe['end_time']}<br>
+                    <strong>Venue:</strong> {safe['venue']}<br>
+                    <strong>Remarks:</strong> {remarks_html}
                 </td></tr>
             </table>
         </div>
@@ -3292,7 +3368,7 @@ def admin_activity_logs():
             SELECT l.*, u.first_name, u.last_name, u.role
             FROM admin_activity_logs l
             LEFT JOIN users u ON l.admin_id = u.id
-            ORDER BY l.created_at ASC
+            ORDER BY l.created_at DESC
             LIMIT 100
         """)
         logs = cursor.fetchall()
@@ -3304,7 +3380,7 @@ def admin_activity_logs():
         FROM admin_activity_logs l
         LEFT JOIN users u ON l.admin_id = u.id
         WHERE l.admin_id = %s
-        ORDER BY l.created_at ASC
+        ORDER BY l.created_at DESC
         LIMIT 50
     """, (session['user_id'],))
     logs = cursor.fetchall()
@@ -3326,8 +3402,12 @@ def update_document_status(doc_id):
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
-        UPDATE document_requests SET status = %s, admin_remarks = %s WHERE id = %s
+        UPDATE document_requests SET status = %s, admin_remarks = %s
+        WHERE id = %s AND status IN ('pending', 'processing')
     """, (status, remarks, doc_id))
+    if cursor.rowcount == 0:
+        conn.close()
+        return jsonify({'error': 'Only pending or processing requests can be updated.'}), 400
     conn.commit()
 
     cursor.execute("""
@@ -3365,13 +3445,13 @@ def update_document_status(doc_id):
         <html><body style="font-family:Arial,sans-serif;padding:20px;background:#ecfdf5;">
         <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;">
             <h2 style="color:{color};">{icon} Document {status_text}</h2>
-            <p>Hello <strong>{user_data['first_name']}</strong>,</p>
+            <p>Hello <strong>{esc(user_data['first_name'])}</strong>,</p>
             <p>{main_message}</p>
             <table style="background:{bg_color};border-left:4px solid {color};padding:15px;border-radius:10px;margin:20px 0;width:100%;">
                 <tr><td style="color:#334155;font-size:14px;line-height:1.7;">
-                    <strong>Document:</strong> {user_data['document_type'].replace('_', ' ').title()}<br>
-                    <strong>Reference:</strong> {user_data['reference_number'] or 'N/A'}<br>
-                    <strong>Remarks:</strong> {remarks or 'N/A'}<br>
+                    <strong>Document:</strong> {esc(user_data['document_type'].replace('_', ' ').title())}<br>
+                    <strong>Reference:</strong> {esc(user_data['reference_number'] or 'N/A')}<br>
+                    <strong>Remarks:</strong> {esc(remarks or 'N/A')}<br>
                     <strong>Date:</strong> {datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')}
                 </td></tr>
             </table>
@@ -3530,16 +3610,18 @@ def user_delete_account():
     if confirm_text != 'DELETE':
         flash('Please type DELETE to confirm.', 'danger')
         return redirect(url_for('user_settings'))
-    if not password:
-        flash('Please enter your password.', 'danger')
-        return redirect(url_for('user_settings'))
-
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT password FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
 
-    if not user or not safe_check_password(user['password'], password):
+    has_password = bool(user and user['password'])
+    if has_password and not password:
+        conn.close()
+        flash('Please enter your password.', 'danger')
+        return redirect(url_for('user_settings'))
+
+    if not user or (has_password and not safe_check_password(user['password'], password)):
         conn.close()
         flash('Password is incorrect.', 'danger')
         return redirect(url_for('user_settings'))
@@ -3640,15 +3722,15 @@ def request_password_change_docs_admin():
                             </tr>
                             <tr>
                                 <td style="padding:35px 40px;">
-                                    <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {ha['first_name']}!</h2>
+                                    <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {esc(ha['first_name'])}!</h2>
                                     <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
                                         May nag-request ng password change sa admin panel.
                                     </p>
                                     <table style="background:#f8fafc;border-left:4px solid #1a5d3a;padding:20px;border-radius:10px;margin:20px 0;width:100%;">
-                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Name:</strong> {requester['first_name']} {requester['last_name']}</td></tr>
-                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {requester['email']}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Name:</strong> {esc(requester['first_name'])} {esc(requester['last_name'])}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {esc(requester['email'])}</td></tr>
                                         <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Role:</strong> {role_display}</td></tr>
-                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Reason:</strong> {reason or 'No reason provided'}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Reason:</strong> {esc(reason or 'No reason provided')}</td></tr>
                                     </table>
                                     <p style="margin:20px 0 10px;color:#64748b;font-size:14px;">
                                         Pumunta sa <strong>Admin Management</strong> para mag-set ng bagong password.
@@ -3690,18 +3772,16 @@ def admin_update_profile():
         return redirect(url_for('login'))
     first_name = request.form.get('first_name', '').strip()
     last_name = request.form.get('last_name', '').strip()
-    email = request.form.get('email', '').strip()
-    if not first_name or not last_name or not email:
+    if not first_name or not last_name:
         flash('Please fill in all fields.', 'danger')
         return redirect(url_for('sec_admin_settings'))
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET first_name = %s, last_name = %s, email = %s WHERE id = %s",
-                   (first_name, last_name, email, session['user_id']))
+    cursor.execute("UPDATE users SET first_name = %s, last_name = %s WHERE id = %s",
+                   (first_name, last_name, session['user_id']))
     conn.commit()
     conn.close()
     session['fullname'] = f"{first_name} {last_name}"
-    session['email'] = email
     flash('Profile updated successfully!', 'success')
     return redirect(url_for('sec_admin_settings'))
 
@@ -3925,10 +4005,12 @@ def api_delete_user(user_id):
     cursor = conn.cursor(dictionary=True)
     
     try:
-        cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT id, role FROM users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
         if not user:
             return jsonify({'error': 'User not found'}), 404
+        if user['role'] == 'head_admin':
+            return jsonify({'error': 'Cannot delete a Head Admin here.'}), 403
 
         cursor.execute("DELETE FROM document_requests WHERE user_id = %s", (user_id,))
         cursor.execute("DELETE FROM event_permits WHERE user_id = %s", (user_id,))
@@ -3979,8 +4061,8 @@ def request_password_change(user_id):
         <html><body style="font-family:Arial,sans-serif;padding:20px;background:#f4f8f5;">
             <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:30px;text-align:center;">
                 <h2 style="color:#0f3d2a;">🔐 Verification Code</h2>
-                <p>Hello <strong>{head_admin['first_name']}</strong>,</p>
-                <p>You requested to change the password for <strong>{target_admin['first_name']} {target_admin['last_name']}</strong> ({target_admin['role']}).</p>
+                <p>Hello <strong>{esc(head_admin['first_name'])}</strong>,</p>
+                <p>You requested to change the password for <strong>{esc(target_admin['first_name'])} {esc(target_admin['last_name'])}</strong> ({target_admin['role']}).</p>
                 <p>Your 6-digit verification code is:</p>
                 <h1 style="font-size:42px;letter-spacing:12px;font-family:'Courier New',monospace;color:#0f3d2a;background:#f4f8f5;padding:15px;border-radius:10px;">{otp_code}</h1>
                 <p style="color:#64748b;font-size:13px;">This code expires in 10 minutes.</p>
@@ -4070,14 +4152,14 @@ def confirm_password_change():
                             </tr>
                             <tr>
                                 <td style="padding:35px 40px;">
-                                    <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {target_admin['first_name']}!</h2>
+                                    <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {esc(target_admin['first_name'])}!</h2>
                                     <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
                                         Your password has been successfully changed by the <strong>Head Admin</strong> on <strong>{datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}</strong>.
                                     </p>
                                     <table style="background:#f8fafc;border-left:4px solid #1a5d3a;padding:20px;border-radius:10px;margin:20px 0;width:100%;">
-                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Account:</strong> {target_admin['first_name']} {target_admin['last_name']}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Account:</strong> {esc(target_admin['first_name'])} {esc(target_admin['last_name'])}</td></tr>
                                         <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Role:</strong> {role_display}</td></tr>
-                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {target_admin['email']}</td></tr>
+                                        <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {esc(target_admin['email'])}</td></tr>
                                     </table>
                                     <table style="background:#fef2f2;border-left:4px solid #ef4444;padding:15px;border-radius:10px;margin:20px 0;width:100%;">
                                         <tr><td style="color:#991b1b;font-size:13px;">
@@ -4245,9 +4327,8 @@ def create_admin():
     new_user_id = cursor.lastrowid
     conn.commit()
     
-    # ✅ Generate auto-login token
-    auto_login_token = secrets.token_urlsafe(32)
-    expires_at = datetime.datetime.now() + datetime.timedelta(days=7)
+    setup_token = secrets.token_urlsafe(32)
+    expires_at = datetime.datetime.now() + datetime.timedelta(hours=72)
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS auto_login_tokens (
@@ -4264,7 +4345,7 @@ def create_admin():
 
     cursor.execute("""
         INSERT INTO auto_login_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)
-    """, (new_user_id, auto_login_token, expires_at))
+    """, (new_user_id, setup_token, expires_at))
     conn.commit()
     conn.close()
     
@@ -4287,32 +4368,31 @@ def create_admin():
                     </tr>
                     <tr>
                         <td style="padding:35px 40px;">
-                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {first_name}!</h2>
+                            <h2 style="margin:0 0 15px;color:#0f3d2a;font-size:20px;">Hello, {esc(first_name)}!</h2>
                             <p style="margin:0 0 20px;color:#64748b;font-size:14px;line-height:1.7;">
                                 Your admin account has been successfully created. You can now access the dashboard using the button below.
                             </p>
                             <table style="background:#f8fafc;border-left:4px solid #1a5d3a;padding:20px;border-radius:10px;margin:20px 0;width:100%;">
                                 <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Role:</strong> <span style="color:#1a5d3a;">{role_display}</span></td></tr>
-                                <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {email}</td></tr>
+                                <tr><td style="padding:6px 0;color:#334155;font-size:14px;"><strong>Email:</strong> {esc(email)}</td></tr>
                             </table>
                             
                             <div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:15px;border-radius:10px;margin:20px 0;">
                                 <p style="margin:0;color:#92400e;font-size:13px;line-height:1.6;">
-                                    ⚠️ <strong>Important:</strong> You are using a <strong>temporary password</strong>. Please request a password change from the Head Admin after logging in.
-                                </p>
+                                   🔐 <strong>Action required:</strong> Please click the button below to set your password. The link expires in 72 hours and can be used only once.
                             </div>
                             
                             <table width="100%" style="margin:25px 0 10px;"><tr><td align="center">
-                                <a href="{BASE_URL}/auto-login/{auto_login_token}" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Go to Dashboard</a>
+                                <a href="{BASE_URL}/set-password/{setup_token}" style="display:inline-block;background:linear-gradient(135deg,#0f3d2a,#228b54);color:#fff;padding:14px 40px;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">Set Your Password</a>
                             </td></tr></table>
                             
                             <p style="margin:20px 0 0;color:#94a3b8;font-size:12px;text-align:center;">
-                                This link expires in 7 days.
+                            This link expires in 72 hours and can be used only once.
                             </p>
 
                             <p style="margin:15px 0 0;color:#64748b;font-size:12px;text-align:center;word-break:break-all;">
                                 If the button doesn't work, copy and paste this into your browser:<br>
-                                {BASE_URL}/auto-login/{auto_login_token}
+                                {BASE_URL}/set-password/{setup_token}
                             </p>
                         </td>
                     </tr>
@@ -4323,8 +4403,7 @@ def create_admin():
     """
     send_email(email, subject, body_html)
 
-    auto_login_link = f"{BASE_URL}/auto-login/{auto_login_token}"
-    flash(f'Admin created! If the email link fails, send them this one (single use): {auto_login_link}', 'success')
+    flash(f'Admin created successfully! A password-setup link has been emailed to {email}.', 'success')
     return redirect(url_for('admin_management'))
 
 @app.route('/api/user/<int:user_id>/update-role', methods=['POST'])
@@ -4520,6 +4599,8 @@ def delete_announcement(announcement_id):
 
 @app.route('/api/announcement/<int:announcement_id>/view', methods=['POST'])
 def increment_announcement_view(announcement_id):
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -4762,7 +4843,9 @@ def send_email_all():
     sent_count = 0
     failed_count = 0
     for user in users:
-        body_html = body_template.replace('__SUBJECT__', subject).replace('__MESSAGE__', message).replace('__BASE_URL__', BASE_URL)
+        body_html = (body_template.replace('__SUBJECT__', esc(subject))
+                                   .replace('__MESSAGE__', esc(message).replace('\n', '<br>'))
+                                   .replace('__BASE_URL__', BASE_URL))
         if send_email(user['email'], subject, body_html):
             sent_count += 1
         else:
@@ -4966,6 +5049,7 @@ def update_profile():
     return redirect(url_for('settings'))
 
 @app.route('/change-password', methods=['POST'])
+@limiter.limit("5 per minute")
 def change_password():
     if 'user_id' not in session or session.get('role') != 'head_admin':
         flash('Unauthorized access.', 'danger')
@@ -5006,7 +5090,17 @@ def change_password():
         return redirect(url_for('settings'))
     
     # 3. Dapat TAMA ang OTP (case-sensitive, exact match)
-    if str(saved_otp).strip() != str(otp_code).strip():
+    attempts = session.get('settings_otp_attempts', 0)
+    if attempts >= 5:
+        session.pop('settings_otp_code', None)
+        session.pop('settings_otp_time', None)
+        session.pop('settings_otp_attempts', None)
+        session.modified = True
+        flash('Too many failed attempts. Please request a new code.', 'danger')
+        return redirect(url_for('settings'))
+    if not secrets.compare_digest(str(saved_otp).strip().encode(), str(otp_code).strip().encode()):
+        session['settings_otp_attempts'] = attempts + 1
+        session.modified = True
         flash('Invalid verification code. Please try again.', 'danger')
         return redirect(url_for('settings'))
         
@@ -5131,8 +5225,11 @@ def logout():
 # ============================================================
 # FORGOT PASSWORD ROUTES
 # ============================================================
-@app.route('/forgot-password', methods=['POST'])
+@app.route('/forgot-password', methods=['GET', 'POST'])
+@limiter.limit("5 per hour", methods=["POST"])
 def forgot_password():
+    if request.method == 'GET':
+        return render_template('forgot_password.html')
     # Kukunin natin ang Email at New Password mula sa Page 1
     email = request.form.get('email', '').strip()
     new_password = request.form.get('new_password', '')
@@ -5141,15 +5238,15 @@ def forgot_password():
     # 1. Validation
     if not email or not new_password or not confirm_password:
         flash('Please fill in all fields.', 'danger')
-        return redirect(url_for('login'))
+        return redirect(url_for('forgot_password'))
 
     if new_password != confirm_password:
         flash('Passwords do not match.', 'danger')
-        return redirect(url_for('login'))
+        return redirect(url_for('forgot_password'))
 
     if len(new_password) < 8:
         flash('Password must be at least 8 characters long.', 'danger')
-        return redirect(url_for('login'))
+        return redirect(url_for('forgot_password'))
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
@@ -5159,7 +5256,7 @@ def forgot_password():
     if not user:
         conn.close()
         flash('If that email is registered, a reset code has been sent. Please check your inbox.', 'info')
-        return redirect(url_for('login'))
+        return redirect(url_for('forgot_password'))
 
     # 2. Generate Code
     reset_code = f"{secrets.randbelow(1000000):06d}"
@@ -5185,7 +5282,7 @@ def forgot_password():
     if (cursor.fetchone()['c'] or 0) >= 5:
         conn.close()
         flash('If that email is registered, a reset code has been sent. Please check your inbox.', 'info')
-        return redirect(url_for('login'))
+        return redirect(url_for('forgot_password'))
 
     cursor.execute("UPDATE password_resets SET used = TRUE WHERE user_id = %s AND used = FALSE", (user['id'],))
     cursor.execute("""
@@ -5206,7 +5303,7 @@ def forgot_password():
     body_html = f"""
     <html><body style="font-family:Arial,sans-serif;padding:20px;">
         <h2>Password Reset Code</h2>
-        <p>Hello {user['first_name']},</p>
+        <p>Hello {esc(user['first_name'])},</p>
         <p>Your reset code is:</p>
         <h1 style="font-size:42px;letter-spacing:12px;font-family:'Courier New',monospace;color:#0f3d2a;">{reset_code}</h1>
         <p>This code expires in 15 minutes.</p>
@@ -5224,6 +5321,7 @@ def show_reset_page():
     return render_template('reset_password.html')
 
 @app.route('/reset-password', methods=['POST'])
+@limiter.limit("10 per minute")
 def verify_reset_code():
     # Kukunin natin ang password sa SESSION (galing sa Page 1)
     email = session.get('reset_email', '').strip()
@@ -5287,7 +5385,7 @@ def verify_reset_code():
     body_html = f"""
     <html><body style="font-family:Arial,sans-serif;padding:20px;">
         <h2>Password Changed</h2>
-        <p>Hello {reset_record['first_name']},</p>
+        <p>Hello {esc(reset_record['first_name'])},</p>
         <p>Your password has been successfully changed.</p>
         <p>Date: {datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')}</p>
         <p style="color:#ef4444;">If you did not make this change, please contact the Barangay Office immediately.</p>
@@ -5314,6 +5412,7 @@ settings_otp_storage = {}
 # CHANGE PASSWORD OTP (SESSION-BASED ONLY — NO DICT)
 # ============================================================
 @app.route('/api/settings/send-otp', methods=['POST'])
+@limiter.limit("5 per hour")
 def settings_send_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
@@ -5347,12 +5446,14 @@ def settings_send_otp():
     
     if send_email(email, subject, body_html):
         return jsonify({'success': True, 'message': 'OTP sent successfully'})
-    else:
-        # Fallback: i-print sa terminal kung email fail
-        print(f"🔑 DEBUG OTP for {email}: {otp}")
-        return jsonify({'success': True, 'message': 'OTP generated (check terminal)'})
+    session.pop('settings_otp_code', None)
+    session.pop('settings_otp_time', None)
+    session.pop('settings_otp_attempts', None)
+    session.modified = True
+    return jsonify({'success': False, 'error': 'Could not send the code. Please try again.'}), 502
 
 @app.route('/api/settings/verify-otp', methods=['POST'])
+@limiter.limit("10 per minute")
 def settings_verify_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
@@ -5401,8 +5502,6 @@ def settings_verify_otp():
 # UPDATE PROFILE OTP SYSTEM
 # ============================================================
 
-PROFILE_OTP_TTL = 900  # 15 minutes
-
 
 def _clear_profile_otp():
     for key in ('profile_otp_code', 'profile_otp_email', 'profile_otp_time', 'profile_otp_attempts'):
@@ -5410,6 +5509,7 @@ def _clear_profile_otp():
 
 
 @app.route('/api/profile/send-otp', methods=['POST'])
+@limiter.limit("5 per hour")
 def profile_send_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
@@ -5452,6 +5552,7 @@ def profile_send_otp():
 
 
 @app.route('/api/profile/verify-otp', methods=['POST'])
+@limiter.limit("10 per minute")
 def profile_verify_otp():
     if 'user_id' not in session:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
@@ -5594,57 +5695,111 @@ def head_admin_delete_account():
         flash(f'Error deleting account: {str(e)}', 'danger')
         return redirect(url_for('settings'))
 
-
-
-@app.route('/auto-login/<string:token>')
-def auto_login(token):
+# ============================================================
+# SET-PASSWORD FLOW (replaces auto-login)
+# ============================================================
+@app.route('/set-password/<string:token>', methods=['GET'])
+@limiter.limit("20 per hour")
+def set_password_get(token):
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-
     cursor.execute("""
-        SELECT t.*, u.id as user_id, u.first_name, u.last_name, u.email, u.role, u.is_verified, u.temp_password, u.password_version
+        SELECT t.id, t.expires_at, u.first_name, u.last_name, u.email, u.role
         FROM auto_login_tokens t
         JOIN users u ON t.user_id = u.id
         WHERE t.token = %s AND t.used = FALSE AND t.expires_at > NOW()
     """, (token,))
-    token_data = cursor.fetchone()
-
-    if not token_data:
-        conn.close()
-        flash('Invalid or expired auto-login link.', 'danger')
-        return redirect(url_for('login'))
-
-    if not token_data['is_verified']:
-        conn.close()
-        flash('Your account has been deactivated.', 'danger')
-        return redirect(url_for('login'))
-
-    cursor.execute("UPDATE auto_login_tokens SET used = TRUE WHERE id = %s", (token_data['id'],))
-    conn.commit()
+    row = cursor.fetchone()
     conn.close()
+    if not row:
+        flash('This link is invalid or has expired. Please request a new one from the Head Admin.', 'danger')
+        return redirect(url_for('login'))
+    return render_template('set_password.html',
+                           token=token,
+                           first_name=row['first_name'],
+                           email=row['email'])
 
-    session['user_id'] = token_data['user_id']
-    session['fullname'] = f"{token_data['first_name']} {token_data['last_name']}"
-    session['email'] = token_data['email']
-    session['role'] = token_data['role']
-    session['temp_password'] = bool(token_data.get('temp_password', False))
-    session['password_version'] = token_data.get('password_version', 0)
 
-    role = token_data['role']
-    if role == 'head_admin':
-        return redirect(url_for('head_admin_dashboard'))
-    elif role == 'admin_documents':
-        return redirect(url_for('sec_admin_dashboard'))
-    elif role == 'admin_court_1':
-        return redirect(url_for('court1_dashboard'))
-    elif role == 'admin_court_2':
-        return redirect(url_for('court2_dashboard'))
-    elif role == 'admin_court_3':
-        return redirect(url_for('court3_dashboard'))
-    elif role == 'admin_court_4':
-        return redirect(url_for('court4_dashboard'))
-    return redirect(url_for('login'))
+@app.route('/set-password/<string:token>', methods=['POST'])
+@limiter.limit("10 per hour")
+def set_password_post(token):
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
 
+    if not new_password or not confirm_password:
+        flash('Please fill in all fields.', 'danger')
+        return redirect(url_for('set_password_get', token=token))
+    if new_password != confirm_password:
+        flash('Passwords do not match.', 'danger')
+        return redirect(url_for('set_password_get', token=token))
+    if len(new_password) < 8:
+        flash('Password must be at least 8 characters.', 'danger')
+        return redirect(url_for('set_password_get', token=token))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT t.id, t.user_id, u.first_name, u.last_name, u.email, u.role,
+                   u.is_verified, u.password_version
+            FROM auto_login_tokens t
+            JOIN users u ON t.user_id = u.id
+            WHERE t.token = %s AND t.used = FALSE AND t.expires_at > NOW()
+        """, (token,))
+        row = cursor.fetchone()
+        if not row:
+            flash('This link is invalid or has already been used.', 'danger')
+            return redirect(url_for('login'))
+        if not row['is_verified']:
+            flash('Your account has been deactivated. Please contact the Head Admin.', 'danger')
+            return redirect(url_for('login'))
+
+        hashed = generate_password_hash(new_password)
+        cursor.execute("""
+            UPDATE users
+            SET password = %s, temp_password = FALSE,
+                password_version = password_version + 1
+            WHERE id = %s
+        """, (hashed, row['user_id']))
+        cursor.execute("UPDATE auto_login_tokens SET used = TRUE WHERE id = %s", (row['id'],))
+        cursor.execute("""
+            INSERT INTO admin_activity_logs (admin_id, action, document_id, details)
+            VALUES (%s, %s, %s, %s)
+        """, (row['user_id'], 'password_set', None,
+              f"Admin set their own password via email link from {request.remote_addr}"))
+        conn.commit()
+
+        cursor.execute("SELECT password_version FROM users WHERE id = %s", (row['user_id'],))
+        pv = cursor.fetchone()
+
+        session['user_id'] = row['user_id']
+        session['fullname'] = f"{row['first_name']} {row['last_name']}"
+        session['email'] = row['email']
+        session['role'] = row['role']
+        session['temp_password'] = False
+        session['password_version'] = pv['password_version'] if pv else 0
+
+        flash('Password set successfully! Welcome to the admin panel.', 'success')
+
+        role = row['role']
+        if role == 'head_admin': return redirect(url_for('head_admin_dashboard'))
+        elif role == 'admin_documents': return redirect(url_for('sec_admin_dashboard'))
+        elif role == 'admin_court_1': return redirect(url_for('court1_dashboard'))
+        elif role == 'admin_court_2': return redirect(url_for('court2_dashboard'))
+        elif role == 'admin_court_3': return redirect(url_for('court3_dashboard'))
+        elif role == 'admin_court_4': return redirect(url_for('court4_dashboard'))
+        return redirect(url_for('login'))
+    except Exception as e:
+        conn.rollback()
+        print(f"Set password error: {e}")
+        flash('Something went wrong. Please try again.', 'danger')
+        return redirect(url_for('set_password_get', token=token))
+    finally:
+        conn.close()
+
+# AFTER
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(host='127.0.0.1', port=port, debug=os.getenv('FLASK_DEBUG') == '1')
+    is_local = not os.getenv('RENDER') and not os.getenv('PRODUCTION')
+    debug_mode = is_local and os.getenv('FLASK_DEBUG') == '1'
+    app.run(host='127.0.0.1', port=port, debug=debug_mode)

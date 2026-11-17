@@ -6,7 +6,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documents Admin Dashboard - Barangay Sto. Niño</title>
+   <title>Documents Admin Dashboard - Barangay Sto. Niño</title>
+    <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -901,7 +902,7 @@
                         <i class="fas fa-spinner fa-spin"></i> Loading...
                     </div>
                 </div>
-                <a href="/admin/announcements" class="bell-dropdown-footer">
+                <a href="{{ url_for('admin_view_announcements') }}" class="bell-dropdown-footer">
                     View All Announcements <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -1178,8 +1179,8 @@
             })
             .catch(err => console.error('Mark read error:', err));
 
-        setTimeout(() => {
-            window.location.href = '/admin/announcements';
+       setTimeout(() => {
+            window.location.href = "{{ url_for('admin_view_announcements') }}";
         }, 300);
     }
 
@@ -1284,7 +1285,8 @@
         modal.classList.add('open');
         body.innerHTML = '<div class="modal-loading"><i class="fas fa-spinner fa-spin"></i>Loading details...</div>';
 
-        fetch('/admin/document-details/' + docId)
+       var detailsUrlTemplate = "{{ url_for('admin_document_details', doc_id=0) }}";
+    fetch(detailsUrlTemplate.replace(/\/0$/, '/' + docId))
             .then(res => {
                 if (!res.ok) throw new Error('Failed to fetch');
                 return res.json();
