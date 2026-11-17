@@ -704,7 +704,7 @@
             <div class="profile-menu">
                 <div class="profile-menu-header">
                     <div class="menu-name">{{ session.fullname or 'Court 1 Admin' }}</div>
-                    <div class="menu-email">{{ session.email or 'admin@barangay.gov.ph' }}</div>
+                    <div class="menu-email">{{ session.email or 'admin@example.com' }}</div>
                 </div>
                 <a href="{{ url_for('secondary_admin_settings') }}">
                     <i class="fas fa-user-cog"></i> Profile Settings
@@ -741,6 +741,7 @@
                         <th>Time</th>
                         <th>Attendees</th>
                         <th>Requirement</th>
+                        <th>Valid ID</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -764,6 +765,15 @@
                                 </button>
                             {% else %}
                                 <span class="no-file">No file</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if event.valid_id_path %}
+                                <button class="btn-file btn-id" data-id-name="{{ event.valid_id_path|e }}">
+                                    <i class="fas fa-id-card"></i> View ID
+                                </button>
+                            {% else %}
+                                <span class="no-file">No ID</span>
                             {% endif %}
                         </td>
                         <td><span class="status-badge">Pending</span></td>
@@ -865,6 +875,13 @@
                 <h4><i class="fas fa-paperclip"></i> Attached Supporting Document</h4>
                 <button class="btn-view-file-inline" id="viewFileBtn">
                     <i class="fas fa-file-alt"></i> View Uploaded File
+                </button>
+            </div>
+
+            <div class="file-preview-section" id="validIdSection" style="display:none;">
+                <h4><i class="fas fa-id-card"></i> Valid ID of Applicant</h4>
+                <button class="btn-view-file-inline" id="viewIdBtn">
+                    <i class="fas fa-id-card"></i> View Valid ID
                 </button>
             </div>
 
@@ -973,6 +990,65 @@
 <script id="events-data" type="application/json">
 {{ pending_events | tojson | safe }}
 </script>
+
+<script>
+// ===== VIEW VALID ID (admin only, signed URL) =====
+(function () {
+    var DATA = [];
+    try { DATA = JSON.parse(document.getElementById('events-data').textContent); } catch (e) {}
+    var currentIdName = null;
+
+    function showIdViewer(name) {
+        var modal = document.getElementById('fileViewerModal');
+        var preview = document.getElementById('filePreviewContainer');
+        modal.classList.add('active');
+        preview.innerHTML = '<p>Loading ID...</p>';
+        fetch('/api/file-url/' + encodeURIComponent(name), { credentials: 'same-origin' })
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(function (j) {
+                var url = j.url || j.signed_url || j.file_url;
+                if (!url) throw new Error('no url in response');
+                var ext = name.split('?')[0].split('.').pop().toLowerCase();
+                if (ext === 'pdf') {
+                    preview.innerHTML = '<iframe src="' + url + '"></iframe><br><a href="' + url + '" target="_blank" rel="noopener" class="download-btn"><i class="fas fa-download"></i> Open PDF</a>';
+                } else {
+                    preview.innerHTML = '<img src="' + url + '" alt="Valid ID"><br><a href="' + url + '" target="_blank" rel="noopener" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in New Tab</a>';
+                }
+            })
+            .catch(function (err) {
+                console.error('View ID error:', err);
+                preview.innerHTML = '<p>Hindi ma-load ang ID.</p>';
+            });
+    }
+
+    document.querySelectorAll('.btn-id').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showIdViewer(this.getAttribute('data-id-name'));
+        });
+    });
+
+    document.querySelectorAll('.btn-review').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = parseInt(this.getAttribute('data-event-id'));
+            var ev = DATA.find(function (e) { return e.id === id; });
+            var sec = document.getElementById('validIdSection');
+            var old = document.getElementById('viewIdBtn');
+            if (!sec || !old) return;
+            var nb = old.cloneNode(true);
+            old.parentNode.replaceChild(nb, old);
+            if (ev && ev.valid_id_path) {
+                currentIdName = ev.valid_id_path;
+                sec.style.display = 'block';
+                nb.addEventListener('click', function () { showIdViewer(currentIdName); });
+            } else {
+                currentIdName = null;
+                sec.style.display = 'none';
+            }
+        });
+    });
+})();
+</script>
+
 
 <script>
     const EVENTS_DATA = JSON.parse(document.getElementById('events-data').textContent);
